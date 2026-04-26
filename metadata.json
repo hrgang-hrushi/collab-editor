@@ -1,0 +1,6 @@
+{
+  "name": "CoCode",
+  "description": "A high-performance collaborative code editor with real-time multi-user editing, presence indicators, and VS Code-inspired interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

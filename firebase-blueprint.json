@@ -1,0 +1,64 @@
+{
+  "entities": {
+    "File": {
+      "title": "File",
+      "description": "A source code file being edited collaboratively.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the file." },
+        "content": { "type": "string", "description": "The source code content of the file." },
+        "language": { "type": "string", "description": "The programming language for syntax highlighting." },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last time the file was edited." },
+        "ownerId": { "type": "string", "description": "The user ID of the person who created the file." },
+        "collaborators": { 
+          "type": "array", 
+          "items": { "type": "string" },
+          "description": "Emails of users who have access to this file."
+        },
+        "visibility": { 
+          "type": "string", 
+          "enum": ["private", "public"], 
+          "description": "Whether the file is private or public."
+        }
+      },
+      "required": ["name", "content", "language", "updatedAt", "ownerId", "collaborators", "visibility"]
+    },
+    "Presence": {
+      "title": "Presence",
+      "description": "User presence, cursor position, and selection in a file.",
+      "type": "object",
+      "properties": {
+        "userName": { "type": "string", "description": "Display name of the user." },
+        "userColor": { "type": "string", "description": "Hex color assigned to the user cursor." },
+        "cursor": {
+          "type": "object",
+          "properties": {
+            "lineNumber": { "type": "number" },
+            "column": { "type": "number" }
+          }
+        },
+        "selection": {
+          "type": "object",
+          "properties": {
+            "startLineNumber": { "type": "number" },
+            "startColumn": { "type": "number" },
+            "endLineNumber": { "type": "number" },
+            "endColumn": { "type": "number" }
+          }
+        },
+        "lastSeen": { "type": "string", "format": "date-time", "description": "Last heartbeat from the user." }
+      },
+      "required": ["userName", "userColor", "lastSeen"]
+    }
+  },
+  "firestore": {
+    "/files/{fileId}": {
+      "schema": "File",
+      "description": "Main collection for code files."
+    },
+    "/files/{fileId}/presence/{userId}": {
+      "schema": "Presence",
+      "description": "Subcollection for real-time presence markers."
+    }
+  }
+}

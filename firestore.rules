@@ -1,0 +1,89 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidFile(data) {
+      return data.keys().hasAll(['name', 'content', 'language', 'updatedAt', 'ownerId', 'collaborators', 'visibility']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 256 &&
+             data.content is string && data.content.size() <= 1048576 &&
+             data.language is string && data.language.size() <= 50 &&
+             data.ownerId is string && data.ownerId.size() <= 128 &&
+             data.collaborators is list &&
+             data.visibility in ['private', 'public'] &&
+             data.updatedAt == request.time;
+    }
+
+    function canRead(data) {
+      return isSignedIn() && (
+        data.ownerId == request.auth.uid || 
+        data.visibility == 'public' || 
+        (request.auth.token.email != null && data.collaborators.size() > 0 && request.auth.token.email in data.collaborators)
+      );
+    }
+
+    function canWrite(data) {
+      return isSignedIn() && (
+        data.ownerId == request.auth.uid || 
+        (request.auth.token.email != null && data.collaborators.size() > 0 && request.auth.token.email in data.collaborators)
+      );
+    }
+
+    function isValidPresence(data) {
+      return data.keys().hasAny(['userName', 'userColor', 'lastSeen']) &&
+             data.userName is string &&
+             data.userColor is string &&
+             (data.lastSeen == request.time || data.lastSeen is timestamp);
+    }
+
+    match /files/{fileId} {
+      allow get: if isValidId(fileId) && canRead(existing());
+      allow list: if isSignedIn();
+      
+      allow create: if isSignedIn() && isValidId(fileId) && isValidFile(incoming()) && incoming().ownerId == request.auth.uid;
+      
+      allow update: if isSignedIn() && isValidId(fileId) && isValidFile(incoming()) && (
+        // Action: Collaborative Edit
+        (canWrite(existing()) && incoming().diff(existing()).affectedKeys().hasOnly(['content', 'updatedAt']) && 
+         incoming().ownerId == existing().ownerId && 
+         incoming().name == existing().name && 
+         incoming().language == existing().language &&
+         incoming().collaborators == existing().collaborators &&
+         incoming().visibility == existing().visibility) ||
+        // Action: Owner Metadata Update
+        (isOwner(existing().ownerId) && incoming().diff(existing()).affectedKeys().hasAny(['name', 'language', 'updatedAt', 'collaborators', 'visibility']) && 
+         incoming().ownerId == existing().ownerId)
+      );
+      
+      allow delete: if isOwner(existing().ownerId);
+
+      match /presence/{userId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+        allow read: if isSignedIn();
+      }
+    }
+  }
+}
