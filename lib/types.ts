@@ -1,0 +1,116 @@
+export interface User {
+  id: string;
+  name: string;
+  avatar: string;
+  color: string;
+  role?: string;
+  isSelf?: boolean;
+}
+
+export interface SpatialCursor {
+  userId: string;
+  userName: string;
+  userColor: string;
+  x: number;
+  y: number;
+  targetX: number;
+  targetY: number;
+  offsetX?: number;
+  offsetY?: number;
+  activeFileId?: string;
+  lastUpdated: number;
+  selection?: {
+    from: number;
+    to: number;
+    text?: string;
+  };
+}
+
+export interface FileNode {
+  id: string;
+  name: string;
+  path: string;
+  language: "typescript" | "javascript" | "html" | "css" | "json" | "python" | "markdown" | "plaintext";
+  content: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  zIndex: number;
+  isMinimized?: boolean;
+  status?: "clean" | "modified" | "suggesting";
+  activePeerIds?: string[];
+  contributorColor?: string;
+  contributorName?: string;
+  handle?: any; // FileSystemFileHandle for saving back to local disk
+}
+
+export interface ArchitecturalEdge {
+  id: string;
+  sourceNodeId: string;
+  targetNodeId: string;
+  label?: string;
+  type: "import" | "data-flow" | "call";
+  color?: string;
+  codeSymbol?: string;
+  changeCode?: string;
+  originalSnippet?: string;
+  targetSnippet?: string;
+  sourceLine?: number;
+  targetLine?: number;
+  flowSpeed?: string;
+  payloadDescription?: string;
+}
+
+export interface InlineSuggestion {
+  id: string;
+  fileId: string;
+  author: User;
+  createdAt: number;
+  from: number;
+  to: number;
+  originalText: string;
+  suggestedText: string;
+  description: string;
+  status: "pending" | "accepted" | "rejected";
+}
+
+export interface CommentMessage {
+  id: string;
+  author: User;
+  text: string;
+  createdAt: number;
+  reactions?: Record<string, string[]>;
+}
+
+export interface ContextualThread {
+  id: string;
+  fileId: string;
+  lineNumber: number;
+  charOffset: number;
+  anchorSnippet: string;
+  author: User;
+  createdAt: number;
+  resolved: boolean;
+  messages: CommentMessage[];
+}
+
+export type EditorInteractionMode = "edit" | "suggest" | "comment" | "canvas";
+
+export interface ExecutionResult {
+  stdout: string[];
+  stderr: string[];
+  returnValue?: string;
+  durationMs: number;
+  success: boolean;
+  timestamp: number;
+  fileName?: string;
+}
+
+export interface GitCommit {
+  id: string;
+  message: string;
+  timestamp: number;
+  author: string;
+  filesChanged: number;
+}

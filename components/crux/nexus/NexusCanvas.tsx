@@ -1,0 +1,610 @@
+"use client";
+
+import React, { useRef, useState, useEffect } from "react";
+import { useWorkspaceStore } from "@/lib/store";
+import EditorNode from "@/components/canvas/EditorNode";
+import ConnectorLayer from "@/components/canvas/ConnectorLayer";
+import CursorLayer from "@/components/multiplayer/CursorLayer";
+import PipelineTracker from "@/components/canvas/PipelineTracker";
+import {
+  Layers,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  X,
+  Plus,
+  Activity,
+  Pause,
+  Play,
+  FolderPlus,
+  Upload,
+} from "lucide-react";
+
+interface NexusCanvasProps {
+  onSwitchToZenith: (fileId?: string) => void;
+}
+
+export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const files = useWorkspaceStore((state) => state.files);
+  const edges = useWorkspaceStore((state) => state.edges);
+  const canvasTransform = useWorkspaceStore((state) => state.canvasTransform);
+  const setCanvasTransform = useWorkspaceStore((state) => state.setCanvasTransform);
+  const zoomBy = useWorkspaceStore((state) => state.zoomBy);
+  const resetView = useWorkspaceStore((state) => state.resetView);
+  const isConnecting = useWorkspaceStore((state) => state.isConnectingNodes);
+  const cancelConnection = useWorkspaceStore((state) => state.cancelConnection);
+  const createFile = useWorkspaceStore((state) => state.createFile);
+  const importFiles = useWorkspaceStore((state) => state.importFiles);
+  const flowSpeedFactor = useWorkspaceStore((state) => state.flowSpeedFactor);
+  const setFlowSpeedFactor = useWorkspaceStore((state) => state.setFlowSpeedFactor);
+  const isFlowPaused = useWorkspaceStore((state) => state.isFlowPaused);
+  const toggleFlowPause = useWorkspaceStore((state) => state.toggleFlowPause);
+  const isPipelineTrackerOpen = useWorkspaceStore((state) => state.isPipelineTrackerOpen);
+  const togglePipelineTracker = useWorkspaceStore((state) => state.togglePipelineTracker);
+
+  const [isPanning, setIsPanning] = useState(false);
+  const [spacePressed, setSpacePressed] = useState(false);
+  const [isNewNodeModalOpen, setIsNewNodeModalOpen] = useState(false);
+  const [newNodeName, setNewNodeName] = useState("");
+  const [isDragOver, setIsDragOver] = useState(false);
+  const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
+
+  // Helper to read file as text
+  const readFileAsText = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = e.target.files;
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
+
+    const imported: Array<{ name: string; path: string; content: string }> = [];
+    for (let i = 0; i < uploadedFiles.length; i++) {
+      const f = uploadedFiles[i];
+      try {
+        const content = await readFileAsText(f);
+        imported.push({
+          name: f.name,
+          path: (f as any).webkitRelativePath || f.name,
+          content,
+        });
+      } catch (err) {
+        console.error("Failed to read file", f.name, err);
+      }
+    }
+
+    if (imported.length > 0) {
+      importFiles(imported);
+    }
+    e.target.value = "";
+  };
+
+  const handleFolderUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFiles = e.target.files;
+    if (!uploadedFiles || uploadedFiles.length === 0) return;
+
+    const imported: Array<{ name: string; path: string; content: string }> = [];
+    for (let i = 0; i < uploadedFiles.length; i++) {
+      const f = uploadedFiles[i];
+      if (
+        f.name.startsWith(".") ||
+        (f as any).webkitRelativePath?.includes("node_modules/") ||
+        (f as any).webkitRelativePath?.includes(".git/")
+      ) {
+        continue;
+      }
+      try {
+        const content = await readFileAsText(f);
+        imported.push({
+          name: f.name,
+          path: (f as any).webkitRelativePath || f.name,
+          content,
+        });
+      } catch (err) {
+        console.error("Failed to read file", f.name, err);
+      }
+    }
+
+    if (imported.length > 0) {
+      importFiles(imported);
+    }
+    e.target.value = "";
+  };
+
+  const readEntryRecursively = async (
+    entry: any,
+    pathPrefix = ""
+  ): Promise<Array<{ name: string; path: string; content: string }>> => {
+    if (entry.isFile) {
+      return new Promise((resolve) => {
+        entry.file(async (file: File) => {
+          if (file.name.startsWith(".") || file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
+            resolve([]);
+            return;
+          }
+          try {
+            const content = await readFileAsText(file);
+            resolve([
+              {
+                name: file.name,
+                path: pathPrefix ? `${pathPrefix}/${file.name}` : file.name,
+                content,
+              },
+            ]);
+          } catch {
+            resolve([]);
+          }
+        });
+      });
+    } else if (entry.isDirectory) {
+      const dirReader = entry.createReader();
+      const entries = await new Promise<any[]>((resolve) => {
+        dirReader.readEntries((ents: any[]) => resolve(ents));
+      });
+      const currentPrefix = pathPrefix ? `${pathPrefix}/${entry.name}` : entry.name;
+      const results: Array<{ name: string; path: string; content: string }> = [];
+      for (const ent of entries) {
+        if (ent.name === "node_modules" || ent.name === ".git") continue;
+        const subFiles = await readEntryRecursively(ent, currentPrefix);
+        results.push(...subFiles);
+      }
+      return results;
+    }
+    return [];
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+
+    const items = e.dataTransfer.items;
+    if (!items || items.length === 0) return;
+
+    const imported: Array<{ name: string; path: string; content: string }> = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.kind === "file") {
+        const entry = (item as any).webkitGetAsEntry?.();
+        if (entry) {
+          const filesInEntry = await readEntryRecursively(entry);
+          imported.push(...filesInEntry);
+        } else {
+          const file = item.getAsFile();
+          if (file) {
+            const content = await readFileAsText(file);
+            imported.push({
+              name: file.name,
+              path: file.name,
+              content,
+            });
+          }
+        }
+      }
+    }
+
+    if (imported.length > 0) {
+      importFiles(imported);
+    }
+  };
+
+  // Spacebar pan listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.code === "Space" &&
+        !spacePressed &&
+        (e.target as HTMLElement).tagName !== "INPUT" &&
+        (e.target as HTMLElement).tagName !== "TEXTAREA"
+      ) {
+        setSpacePressed(true);
+      }
+    };
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.code === "Space") {
+        setSpacePressed(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [spacePressed]);
+
+  // Trackpad / Wheel zoom & pan
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      const newZoom = Math.min(Math.max(canvasTransform.zoom * zoomFactor, 0.2), 1.75);
+
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const newPanX = mouseX - (mouseX - canvasTransform.panX) * (newZoom / canvasTransform.zoom);
+      const newPanY = mouseY - (mouseY - canvasTransform.panY) * (newZoom / canvasTransform.zoom);
+
+      setCanvasTransform({
+        panX: Math.round(newPanX),
+        panY: Math.round(newPanY),
+        zoom: Number(newZoom.toFixed(2)),
+      });
+    } else {
+      setCanvasTransform({
+        panX: canvasTransform.panX - e.deltaX,
+        panY: canvasTransform.panY - e.deltaY,
+        zoom: canvasTransform.zoom,
+      });
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (
+      e.button === 1 ||
+      spacePressed ||
+      e.target === containerRef.current ||
+      (e.target as HTMLElement).id === "nexus-canvas-plane"
+    ) {
+      setIsPanning(true);
+      panStartRef.current = {
+        x: e.clientX,
+        y: e.clientY,
+        panX: canvasTransform.panX,
+        panY: canvasTransform.panY,
+      };
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isPanning && panStartRef.current) {
+      const dx = e.clientX - panStartRef.current.x;
+      const dy = e.clientY - panStartRef.current.y;
+      setCanvasTransform({
+        panX: Math.round(panStartRef.current.panX + dx),
+        panY: Math.round(panStartRef.current.panY + dy),
+        zoom: canvasTransform.zoom,
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsPanning(false);
+    panStartRef.current = null;
+  };
+
+  const handleCreateNode = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newNodeName.trim()) return;
+    createFile(newNodeName.trim());
+    setNewNodeName("");
+    setIsNewNodeModalOpen(false);
+  };
+
+  return (
+    <div
+      ref={containerRef}
+      onWheel={handleWheel}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={`relative w-full h-full overflow-hidden bg-linear-canvas canvas-dot-grid select-none ${
+        spacePressed || isPanning ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+      }`}
+    >
+      {/* Hidden Folder & File inputs */}
+      <input
+        type="file"
+        ref={folderInputRef}
+        {...({ webkitdirectory: "", directory: "", multiple: true } as any)}
+        className="hidden"
+        onChange={handleFolderUpload}
+      />
+      <input
+        type="file"
+        ref={fileInputRef}
+        multiple
+        className="hidden"
+        onChange={handleFileUpload}
+      />
+
+      {/* Drag & Drop Visual Overlay on Canvas */}
+      {isDragOver && (
+        <div className="absolute inset-0 z-50 bg-black/85 flex flex-col items-center justify-center p-6 text-center border-4 border-dashed border-[#5e6ad2]">
+          <FolderPlus className="w-12 h-12 text-[#5e6ad2] animate-bounce mb-3" />
+          <span className="text-base font-semibold text-white font-sans">
+            Drop Folder or Code Files
+          </span>
+          <span className="text-xs text-[#8a8f98] font-sans mt-1.5 max-w-md">
+            Files will be imported, auto-positioned into architectural nodes, and wired with CRDT sync streams.
+          </span>
+        </div>
+      )}
+
+      {/* Top Nexus HUD Banner */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-3 py-1 bg-[#0A0A0A] border border-[#222222] text-xs text-[#f7f8f8] font-sans select-none">
+        <div className="flex items-center gap-2">
+          <Layers className="w-3.5 h-3.5 text-[#5e6ad2]" />
+          <span className="font-semibold text-[#f7f8f8]">Nexus Canvas</span>
+          <span className="text-[#62666d]">·</span>
+          <span className="text-[#8a8f98] text-[11px] hidden sm:inline">
+            {files.length} nodes · {edges.length} wires
+          </span>
+          <span className="text-[#62666d] hidden sm:inline">·</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-[11px]">
+            <span
+              className={`w-1.5 h-1.5 ${
+                isFlowPaused ? "bg-[#f59e0b]" : "bg-[#27a644] animate-pulse"
+              }`}
+            />
+            <span className={`text-[10px] ${isFlowPaused ? "text-[#f59e0b]" : "text-[#27a644]"}`}>
+              {isFlowPaused ? "Paused" : "Flow Live"}
+            </span>
+          </div>
+        </div>
+
+        <div className="h-3 w-[1px] bg-[#222222]" />
+
+        {/* Speed Controller & Pause Scrubber */}
+        <div className="flex items-center border border-[#222222] bg-[#141516] text-[10px]">
+          <button
+            onClick={toggleFlowPause}
+            title={isFlowPaused ? "Resume Flow Animation" : "Pause Flow Animation"}
+            className={`px-1.5 py-0.5 flex items-center gap-1 transition-colors ${
+              isFlowPaused
+                ? "bg-[#f59e0b]/20 text-[#f59e0b] font-semibold"
+                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+            }`}
+          >
+            {isFlowPaused ? (
+              <>
+                <Play className="w-2.5 h-2.5 fill-current" />
+                <span>Play</span>
+              </>
+            ) : (
+              <>
+                <Pause className="w-2.5 h-2.5" />
+                <span>Pause</span>
+              </>
+            )}
+          </button>
+          <div className="w-[1px] h-3 bg-[#222222]" />
+          <button
+            onClick={() => setFlowSpeedFactor(0.5)}
+            title="0.5x Slow Pace"
+            className={`px-1.5 py-0.5 transition-colors ${
+              flowSpeedFactor === 0.5
+                ? "bg-[#5e6ad2] text-white font-bold"
+                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+            }`}
+          >
+            0.5x
+          </button>
+          <div className="w-[1px] h-3 bg-[#222222]" />
+          <button
+            onClick={() => setFlowSpeedFactor(1)}
+            title="1x Ambient Pace"
+            className={`px-1.5 py-0.5 transition-colors ${
+              flowSpeedFactor === 1
+                ? "bg-[#5e6ad2] text-white font-bold"
+                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+            }`}
+          >
+            1x
+          </button>
+        </div>
+
+        {/* Pipeline Tracker Toggle Button */}
+        <button
+          onClick={togglePipelineTracker}
+          className={`flex items-center gap-1.5 h-6 px-2 border text-[11px] font-sans font-medium transition-colors ${
+            isPipelineTrackerOpen
+              ? "bg-[#5e6ad2]/20 border-[#5e6ad2] text-[#f7f8f8]"
+              : "bg-[#141516] hover:bg-[#191a1b] border-[#222222] text-[#8a8f98] hover:text-[#f7f8f8]"
+          }`}
+          title="Toggle Pipeline Tracker Dock"
+        >
+          <Activity className="w-3 h-3 text-[#5e6ad2]" />
+          <span>Pipeline</span>
+          <span className="text-[9px] px-1 bg-black border border-[#222222] text-[#27a644]">
+            {edges.length}
+          </span>
+        </button>
+
+        <div className="h-3 w-[1px] bg-[#222222]" />
+
+        <button
+          onClick={() => onSwitchToZenith()}
+          className="flex items-center gap-1.5 h-6 px-2.5 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+        >
+          <span>Snap to Zenith</span>
+          <kbd className="text-[9px] text-[#8a8f98] bg-black px-1 border border-[#222222]">⌘ Space</kbd>
+        </button>
+      </div>
+
+      {/* Transformed Spatial World Plane */}
+      <div
+        id="nexus-canvas-plane"
+        className="absolute top-0 left-0 w-full h-full origin-top-left transition-transform duration-75 ease-out"
+        style={{
+          transform: `translate3d(${canvasTransform.panX}px, ${canvasTransform.panY}px, 0) scale(${canvasTransform.zoom})`,
+          willChange: "transform",
+        }}
+      >
+        <ConnectorLayer />
+
+        {files.map((file) => (
+          <EditorNode
+            key={file.id}
+            file={file}
+            onOpenInIde={() => onSwitchToZenith(file.id)}
+          />
+        ))}
+
+        <CursorLayer />
+      </div>
+
+      {/* Connecting Mode Helper Banner */}
+      {isConnecting && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-[#5e6ad2] text-xs text-[#f7f8f8] font-mono">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#5e6ad2] animate-pulse" />
+            <span className="font-semibold">Wiring Mode:</span>
+            <span className="text-[#8a8f98]">Click any target node to connect wire</span>
+          </div>
+          <button
+            onClick={cancelConnection}
+            className="flex items-center gap-1 h-5 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-xs"
+          >
+            <X className="w-3 h-3" />
+            <span>Cancel</span>
+          </button>
+        </div>
+      )}
+
+      {/* Bottom Controls: Import + Node + Zoom */}
+      <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] text-xs font-sans text-[#8a8f98] select-none">
+        {/* Import Folder Button */}
+        <button
+          onClick={() => folderInputRef.current?.click()}
+          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          title="Import Entire Folder to Canvas"
+        >
+          <FolderPlus className="w-3.5 h-3.5 text-[#5e6ad2]" />
+          <span>Folder</span>
+        </button>
+
+        {/* Import Files Button */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          title="Import Files to Canvas"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span>Files</span>
+        </button>
+
+        <div className="w-[1px] h-3.5 bg-[#222222]" />
+
+        <button
+          onClick={() => setIsNewNodeModalOpen(true)}
+          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          title="Add new architecture file node"
+        >
+          <Plus className="w-3.5 h-3.5 text-[#5e6ad2]" />
+          <span>Node</span>
+        </button>
+
+        <div className="w-[1px] h-3.5 bg-[#222222]" />
+
+        <button
+          onClick={() => zoomBy(-0.1)}
+          title="Zoom Out"
+          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+        >
+          <ZoomOut className="w-3.5 h-3.5" />
+        </button>
+
+        <span className="px-1 text-[#f7f8f8] min-w-[38px] text-center font-semibold text-[11px]">
+          {Math.round(canvasTransform.zoom * 100)}%
+        </span>
+
+        <button
+          onClick={() => zoomBy(0.1)}
+          title="Zoom In"
+          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+        >
+          <ZoomIn className="w-3.5 h-3.5" />
+        </button>
+
+        <div className="w-[1px] h-3.5 bg-[#222222]" />
+
+        <button
+          onClick={resetView}
+          title="Reset View"
+          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+        >
+          <RotateCcw className="w-3 h-3" />
+        </button>
+      </div>
+
+      {/* New Spatial Node Modal */}
+      {isNewNodeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+          <div className="w-full max-w-sm p-4 bg-[#0A0A0A] border border-[#222222] text-[#f7f8f8] space-y-3 font-sans">
+            <div className="flex items-center justify-between pb-2 border-b border-[#222222]">
+              <h3 className="font-semibold text-xs text-[#f7f8f8]">Add Architectural File Node</h3>
+              <button
+                onClick={() => setIsNewNodeModalOpen(false)}
+                className="text-[#8a8f98] hover:text-[#f7f8f8]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNode} className="space-y-3">
+              <div>
+                <label className="text-[10px] text-[#8a8f98] uppercase tracking-wider block mb-1">
+                  File Name
+                </label>
+                <input
+                  type="text"
+                  autoFocus
+                  value={newNodeName}
+                  onChange={(e) => setNewNodeName(e.target.value)}
+                  placeholder="e.g. gateway.ts, store.rs"
+                  className="w-full px-2.5 py-1.5 bg-black border border-[#222222] focus:border-[#5e6ad2] text-xs text-[#f7f8f8] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#222222]">
+                <button
+                  type="button"
+                  onClick={() => setIsNewNodeModalOpen(false)}
+                  className="px-2.5 py-1 text-xs text-[#8a8f98] hover:text-[#f7f8f8]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={!newNodeName.trim()}
+                  className="px-3 py-1 bg-[#5e6ad2] hover:bg-[#6c78e6] text-white text-xs disabled:opacity-50"
+                >
+                  Create Node
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

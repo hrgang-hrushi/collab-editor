@@ -1,0 +1,105 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      fontFamily: {
+        sans: [
+          "var(--font-hanken)",
+          "Hanken Grotesk",
+          "var(--font-space)",
+          "Space Grotesk",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "sans-serif",
+        ],
+        display: [
+          "var(--font-hanken)",
+          "Hanken Grotesk",
+          "var(--font-space)",
+          "Space Grotesk",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "system-ui",
+          "sans-serif",
+        ],
+        space: [
+          "var(--font-space)",
+          "Space Grotesk",
+          "sans-serif",
+        ],
+        mono: [
+          "var(--font-geist-mono)",
+          "Geist Mono",
+          "SF Mono",
+          "ui-monospace",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
+        code: [
+          "var(--font-geist-mono)",
+          "Geist Mono",
+          "SF Mono",
+          "ui-monospace",
+          "monospace",
+        ],
+      },
+      colors: {
+        canvas: "#000000",
+        surface: "#0A0A0A",
+        panel: "#0A0A0A",
+        border: "#222222",
+        "border-subtle": "#1A1A1A",
+        "border-strong": "#333333",
+        linear: {
+          canvas: "#000000",
+          "surface-1": "#0A0A0A",
+          "surface-2": "#141414",
+          "surface-3": "#1A1A1A",
+          "surface-4": "#222222",
+          hairline: "#222222",
+          "hairline-strong": "#333333",
+          primary: "#5E6AD2",
+          ink: "#EDEDED",
+          "ink-muted": "#A1A1A1",
+          "ink-subtle": "#707070",
+          "ink-tertiary": "#444444",
+        },
+        workbench: {
+          bg: "#000000",
+          base: "#000000",
+          surface: "#0A0A0A",
+          panel: "#0A0A0A",
+          elevated: "#141414",
+          hover: "#161616",
+          active: "#222222",
+          border: "#222222",
+          "border-strong": "#333333",
+        },
+      },
+      borderRadius: {
+        none: "0px",
+        xs: "2px",
+        sm: "3px",
+        DEFAULT: "4px",
+        md: "4px",
+        lg: "6px",
+      },
+      boxShadow: {
+        none: "none",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

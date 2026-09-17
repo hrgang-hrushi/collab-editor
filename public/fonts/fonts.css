@@ -1,0 +1,105 @@
+/* Hanken Grotesk Local Fonts */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-300.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-700.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-800.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-normal-900.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-italic-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  font-style: italic;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/hanken-grotesk/HankenGrotesk-italic-600.woff2') format('woff2');
+}
+
+/* Space Grotesk Local Fonts */
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/space-grotesk/SpaceGrotesk-normal-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/space-grotesk/SpaceGrotesk-normal-500.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/space-grotesk/SpaceGrotesk-normal-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk/SpaceGrotesk-normal-700.woff2') format('woff2');
+}
