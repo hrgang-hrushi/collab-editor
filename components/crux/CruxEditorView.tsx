@@ -39,6 +39,10 @@ import { triggerHaptic } from "@/lib/haptics";
 export default function CruxEditorView() {
   const [isAgentOpen, setIsAgentOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [gitInfo, setGitInfo] = useState<{ branch: string; isDirty: boolean }>({
+    branch: "main",
+    isDirty: false,
+  });
 
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
@@ -74,6 +78,21 @@ export default function CruxEditorView() {
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/git", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "branch" }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.branch) {
+          setGitInfo({ branch: data.branch, isDirty: !!data.isDirty });
+        }
+      })
+      .catch(() => {/* keep defaults */});
   }, []);
 
   const isNexus = mode === "canvas";
@@ -295,6 +314,19 @@ export default function CruxEditorView() {
         </div>
       </header>
 
+      {/* 1b. CRUX MENU BAR (24px, VS Code-style clickable menu items) */}
+      <div className="h-6 border-b border-[#111111] bg-[#050505] flex items-center px-4 shrink-0 select-none">
+        {menuItems.map((item) => (
+          <button
+            key={item}
+            onClick={() => setCommandPaletteOpen(true)}
+            className="px-3 h-full text-[11px] text-[#666666] hover:text-white hover:bg-[#111111] transition-colors font-sans"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+
       {/* 2. MAIN LAYOUT */}
       <div className="flex flex-1 overflow-hidden">
         {!isNexus ? (
@@ -338,7 +370,7 @@ export default function CruxEditorView() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 hover:text-signal cursor-pointer">
             <GitBranch className="w-3 h-3 text-muted" />
-            <span className="text-signal">main*</span>
+            <span className="text-signal">{gitInfo.branch}{gitInfo.isDirty ? "*" : ""}</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-[#00FF00]" />
@@ -348,8 +380,22 @@ export default function CruxEditorView() {
         </div>
         <div className="flex items-center gap-4 text-muted">
           <span>Ln {cursorPos?.line || 1}, Col {cursorPos?.col || 1}</span>
+          {activeFile && (
+            <span className="hidden md:inline">
+              {activeFile.content.split('\n').length}L · {activeFile.content.split(/\s+/).filter(Boolean).length}W
+            </span>
+          )}
           <span className="hidden sm:inline">UTF-8</span>
-          <span className="uppercase text-signal font-medium">TypeScript</span>
+          <span className="uppercase text-signal font-medium">
+            {({
+              typescript: "TypeScript",
+              javascript: "JavaScript",
+              python: "Python",
+              json: "JSON",
+              markdown: "Markdown",
+              plaintext: "Plain Text",
+            } as Record<string, string>)[activeFile?.language ?? "plaintext"] ?? "Plain Text"}
+          </span>
         </div>
       </footer>
 

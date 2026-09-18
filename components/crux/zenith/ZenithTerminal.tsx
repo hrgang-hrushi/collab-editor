@@ -414,7 +414,7 @@ export default function ZenithTerminal() {
   return (
     <footer
       style={{ height: isTerminalMaximized ? "85vh" : `${terminalHeight}px` }}
-      className="border-t border-grid bg-surface flex flex-col shrink-0 font-sans select-none relative transition-all duration-75"
+      className="border-t border-grid bg-surface flex flex-col shrink-0 font-sans select-none relative transition-all duration-75 overflow-hidden"
     >
       {/* DRAG RESIZE HANDLE */}
       <div
@@ -681,7 +681,7 @@ export default function ZenithTerminal() {
       {/* VIEWPORT AREA: SHIFTS TO #1A0505 WHEN TIME-TRAVEL SCRUBBING */}
       <div
         style={{ backgroundColor: isTimeTraveling ? "#1A0505" : "#000000" }}
-        className="flex-1 overflow-hidden flex transition-colors duration-150"
+        className="flex-1 overflow-hidden flex min-h-0 transition-colors duration-150"
       >
         {activeTabType === "output" ? (
           /* V8 SANDBOX OUTPUT VIEW */
@@ -743,7 +743,7 @@ export default function ZenithTerminal() {
         ) : (
           /* TERMINAL SESSIONS VIEW (Single or Split Panes) */
           <div
-            className={`flex-1 flex overflow-hidden ${
+            className={`flex-1 flex min-h-0 overflow-hidden ${
               terminalSplitMode === "horizontal" ? "flex-col" : "flex-row"
             }`}
           >
@@ -936,9 +936,9 @@ function TerminalPaneView({
     : lines;
 
   return (
-    <div className="flex-1 p-3 font-mono text-[12px] flex flex-col overflow-hidden select-text">
-      {/* Scrollable Output Stream */}
-      <div className="flex-1 overflow-auto space-y-0.5">
+    <div className="flex-1 p-3 font-mono text-[12px] flex flex-col min-h-0 select-text">
+      {/* Scrollable Output Stream — min-h-0 + overflow-y-auto lets flex child scroll */}
+      <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
         {filteredLines.map((line) => (
           <div key={line.id} className="leading-snug break-all">
             {line.executorName && (

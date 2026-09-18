@@ -217,6 +217,11 @@ interface WorkspaceState {
   installLibrary: (lib: Partial<LibraryPackage> & { name: string }) => void;
   uninstallLibrary: (libraryId: string) => void;
   insertLibraryImport: (libraryId: string) => void;
+
+  // Pure Black & White (Monochrome Brutalist) Aesthetic
+  isMonochromeTheme: boolean;
+  toggleMonochromeTheme: () => void;
+  setMonochromeTheme: (isMonochrome: boolean) => void;
 }
 
 export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
@@ -425,6 +430,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   isAiPromptOpen: false,
   isAiGenerating: false,
 
+  isMonochromeTheme: true,
+
   setProjectName: (projectName) => set({ projectName }),
 
   createFileInPath: (filePath, content = "") =>
@@ -596,7 +603,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       if (saved) {
         set((s) => ({
           files: s.files.map((f) =>
-            f.id === activeFile.id ? { ...f, status: "clean" } : f
+            f.id === activeFile.id ? { ...f, status: "clean", isDirty: false } : f
           ),
         }));
         return true;
@@ -604,7 +611,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
     set((s) => ({
       files: s.files.map((f) =>
-        f.id === activeFile.id ? { ...f, status: "clean" } : f
+        f.id === activeFile.id ? { ...f, status: "clean", isDirty: false } : f
       ),
     }));
     return true;
@@ -920,7 +927,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   updateFileContent: (id, content) =>
     set((state) => ({
       files: state.files.map((f) =>
-        f.id === id ? { ...f, content, status: "modified" } : f
+        f.id === id ? { ...f, content, status: "modified", isDirty: true } : f
       ),
     })),
 
@@ -1482,4 +1489,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       type: "ok",
     });
   },
+
+  toggleMonochromeTheme: () =>
+    set((state) => ({ isMonochromeTheme: !state.isMonochromeTheme })),
+
+  setMonochromeTheme: (isMonochromeTheme) => set({ isMonochromeTheme }),
 }));

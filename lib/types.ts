@@ -59,6 +59,7 @@ export interface FileNode {
   height: number;
   zIndex: number;
   isMinimized?: boolean;
+  isDirty?: boolean;
   status?: "clean" | "modified" | "suggesting";
   activePeerIds?: string[];
   contributorColor?: string;

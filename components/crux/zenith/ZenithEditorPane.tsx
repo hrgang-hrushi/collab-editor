@@ -14,6 +14,8 @@ import {
   Columns,
   Lock,
   Eye,
+  Search,
+  X,
 } from "lucide-react";
 import CruxPointerCursor from "../CruxPointerCursor";
 
@@ -36,6 +38,9 @@ export default function ZenithEditorPane() {
   const [isSplitScreen, setIsSplitScreen] = useState(false);
   const [editorMode, setEditorMode] = useState<"zenith" | "raw">("raw");
   const [diffState, setDiffState] = useState<"pending" | "accepted" | "rejected">("pending");
+  const [isFindOpen, setIsFindOpen] = useState(false);
+  const [findQuery, setFindQuery] = useState("");
+  const [findMatchCount, setFindMatchCount] = useState(0);
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
 
@@ -70,6 +75,29 @@ export default function ZenithEditorPane() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [runActiveFile, saveActiveFile, isReadOnly]);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        setIsFindOpen(true);
+      }
+      if (e.key === "Escape" && isFindOpen) {
+        setIsFindOpen(false);
+        setFindQuery("");
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [isFindOpen]);
+
+  useEffect(() => {
+    if (!findQuery || !activeFile) { setFindMatchCount(0); return; }
+    const regex = new RegExp(findQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi");
+    const matches = activeFile.content.match(regex);
+    setFindMatchCount(matches?.length || 0);
+  }, [findQuery, activeFile]);
+
 
   const handleSave = async () => {
     if (isReadOnly) return;
@@ -153,7 +181,24 @@ syncer.acquireLock().then((ticket) => {
                     : "bg-surface text-muted hover:text-signal"
                 }`}
               >
+                <span className={`w-1.5 h-1.5 shrink-0 ${
+                  tab.language === 'typescript' ? 'bg-[#007AFF]' :
+                  tab.language === 'javascript' ? 'bg-[#FFD60A]' :
+                  tab.language === 'python' ? 'bg-[#30D158]' :
+                  tab.language === 'css' ? 'bg-[#BF5AF2]' :
+                  tab.language === 'html' ? 'bg-[#FF453A]' :
+                  tab.language === 'json' ? 'bg-[#FF9F0A]' :
+                  'bg-[#555555]'
+                }`} />
                 <span>{tab.name}</span>
+                {tab.content.split('\n').length > 1 && (
+                  <span className="text-[9px] text-[#333333] font-mono shrink-0 hidden md:inline">
+                    {tab.content.split('\n').length}L
+                  </span>
+                )}
+                {tab.isDirty && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#FFD60A] shrink-0" title="Unsaved changes" />
+                )}
                 {openFiles.length > 1 && (
                   <span
                     onClick={(e) => {
@@ -215,6 +260,51 @@ syncer.acquireLock().then((ticket) => {
           </button>
         </div>
       </div>
+
+      {/* Breadcrumb Bar */}
+      {activeFile && (
+        <div className="h-7 px-4 border-b border-[#111111] bg-[#050505] flex items-center gap-1 text-[11px] font-mono text-[#555555] shrink-0 select-none overflow-hidden">
+          <span className="text-[#444444]">WORKSPACE</span>
+          <span className="text-[#333333] mx-1">/</span>
+          {activeFile.path
+            ? activeFile.path.split('/').filter(Boolean).map((segment, idx, arr) => (
+                <React.Fragment key={idx}>
+                  <span className={idx === arr.length - 1 ? 'text-[#888888]' : 'text-[#444444]'}>
+                    {segment}
+                  </span>
+                  {idx < arr.length - 1 && <span className="text-[#333333] mx-1">/</span>}
+                </React.Fragment>
+              ))
+            : <span className="text-[#888888]">{activeFile.name}</span>
+          }
+        </div>
+      )}
+
+      {/* Find Bar (Cmd+F) */}
+      {isFindOpen && (
+        <div className="h-9 border-b border-[#222222] bg-[#0A0A0A] flex items-center gap-3 px-4 shrink-0">
+          <Search className="w-3.5 h-3.5 text-[#555555] shrink-0" />
+          <input
+            autoFocus
+            type="text"
+            value={findQuery}
+            onChange={(e) => setFindQuery(e.target.value)}
+            placeholder="Find in file..."
+            className="flex-1 bg-transparent border-none outline-none text-xs font-mono text-white placeholder-[#444444]"
+          />
+          {findQuery && (
+            <span className="text-[11px] font-mono text-[#555555] shrink-0">
+              {findMatchCount} {findMatchCount === 1 ? 'match' : 'matches'}
+            </span>
+          )}
+          <button
+            onClick={() => { setIsFindOpen(false); setFindQuery(''); }}
+            className="p-1 text-[#555555] hover:text-white transition-colors shrink-0"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* VIEWER LOCK / RESTRICTED ACCESS NOTIFICATION BANNER */}
       {isReadOnly && (

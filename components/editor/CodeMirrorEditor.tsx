@@ -70,6 +70,25 @@ const cruxHighlightStyle = HighlightStyle.define([
   { tag: [t.bracket, t.punctuation], color: "#ffd700" },
 ]);
 
+// Crux Pure Black & White (Monochrome Brutalist) Syntax Highlighting
+const cruxMonochromeHighlightStyle = HighlightStyle.define([
+  { tag: [t.keyword, t.controlKeyword, t.moduleKeyword], color: "#FFFFFF", fontWeight: "700" },
+  { tag: [t.typeName, t.className, t.namespace], color: "#FFFFFF", fontWeight: "600", textDecoration: "underline", textUnderlineOffset: "3px" },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: "#FFFFFF", fontWeight: "600" },
+  { tag: [t.definition(t.name)], color: "#FFFFFF", fontWeight: "500" },
+  { tag: [t.variableName, t.propertyName, t.attributeName], color: "#E0E0E0" },
+  { tag: [t.name, t.deleted, t.character, t.macroName], color: "#D4D4D4" },
+  { tag: [t.string, t.special(t.string)], color: "#A8A8A8", fontStyle: "italic" },
+  { tag: [t.number, t.bool, t.null, t.atom, t.self], color: "#FFFFFF", fontWeight: "500" },
+  { tag: [t.operator, t.operatorKeyword], color: "#FFFFFF" },
+  { tag: [t.bracket, t.punctuation, t.separator], color: "#777777" },
+  { tag: [t.meta, t.comment], color: "#555555", fontStyle: "italic" },
+  { tag: [t.url, t.escape, t.regexp, t.link], color: "#E0E0E0" },
+  { tag: t.strong, fontWeight: "bold" },
+  { tag: t.emphasis, fontStyle: "italic" },
+  { tag: t.strikethrough, textDecoration: "line-through" },
+]);
+
 const cruxEditorTheme = EditorView.theme({
   "&": {
     height: "100%",
@@ -552,6 +571,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   const isAiGenerating = useWorkspaceStore((state) => state.isAiGenerating);
   const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
   const libraries = useWorkspaceStore((state) => state.libraries);
+  const isMonochromeTheme = useWorkspaceStore((state) => state.isMonochromeTheme);
   const librariesRef = useRef(libraries);
   librariesRef.current = libraries;
 
@@ -633,7 +653,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         linter(cruxLinter, { delay: 100 }),
         lintGutter(),
         getLanguageExtension(file.language),
-        syntaxHighlighting(cruxHighlightStyle),
+        syntaxHighlighting(isMonochromeTheme ? cruxMonochromeHighlightStyle : cruxHighlightStyle),
         cruxEditorTheme,
         keymap.of([
           {
@@ -699,7 +719,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       view.destroy();
       viewRef.current = null;
     };
-  }, [file.id, getLanguageExtension, readOnly]);
+  }, [file.id, getLanguageExtension, readOnly, isMonochromeTheme]);
 
   // Keep editor content in sync when updated externally (e.g. accepted suggestion)
   useEffect(() => {

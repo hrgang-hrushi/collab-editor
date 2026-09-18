@@ -19,7 +19,16 @@ import {
   Code2,
   FileText,
   FileCode2,
+  FilePlus,
+  Download,
+  Play,
+  Maximize2,
+  Trash2,
+  Lock,
+  SplitSquareVertical,
+  Contrast,
 } from "lucide-react";
+import { exportWorkspaceAsZip } from "@/lib/fileUtils";
 
 export default function CommandPalette() {
   const isOpen = useWorkspaceStore((state) => state.isCommandPaletteOpen);
@@ -35,6 +44,14 @@ export default function CommandPalette() {
   const toggleTerminal = useWorkspaceStore((state) => state.toggleTerminal);
   const setAiPromptOpen = useWorkspaceStore((state) => state.setAiPromptOpen);
   const openTab = useWorkspaceStore((state) => state.openTab);
+  const createFile = useWorkspaceStore((state) => state.createFile);
+  const runActiveFile = useWorkspaceStore((state) => state.runActiveFile);
+  const toggleTerminalMaximized = useWorkspaceStore((state) => state.toggleTerminalMaximized);
+  const clearTerminalSession = useWorkspaceStore((state) => state.clearTerminalSession);
+  const activeTerminalSessionId = useWorkspaceStore((state) => state.activeTerminalSessionId);
+  const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
+  const projectName = useWorkspaceStore((state) => state.projectName);
+  const toggleMonochromeTheme = useWorkspaceStore((state) => state.toggleMonochromeTheme);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -42,7 +59,7 @@ export default function CommandPalette() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      if ((e.metaKey || e.ctrlKey) && (e.key.toLowerCase() === "k" || e.key.toLowerCase() === "p")) {
         e.preventDefault();
         setIsOpen(!isOpen);
       }
@@ -147,6 +164,67 @@ export default function CommandPalette() {
           },
         ]
       : []),
+    {
+      id: "cmd-new-file",
+      title: "New File",
+      category: "File",
+      icon: <FilePlus className="w-4 h-4 text-[#858585]" />,
+      action: () => {
+        createFile("untitled.ts");
+        setMode("edit");
+      },
+    },
+    {
+      id: "cmd-export-zip",
+      title: "Export Workspace as ZIP",
+      category: "File",
+      icon: <Download className="w-4 h-4 text-[#858585]" />,
+      action: () => exportWorkspaceAsZip(files, projectName),
+    },
+    {
+      id: "cmd-run-code",
+      title: "Run Active File (⌘+Enter)",
+      category: "Run",
+      icon: <Play className="w-4 h-4 text-[#858585]" />,
+      action: () => runActiveFile(),
+    },
+    {
+      id: "cmd-maximize-terminal",
+      title: "Maximize / Restore Terminal",
+      category: "View",
+      icon: <Maximize2 className="w-4 h-4 text-[#858585]" />,
+      action: () => toggleTerminalMaximized(),
+    },
+    {
+      id: "cmd-clear-terminal",
+      title: "Clear Terminal Buffer",
+      category: "Terminal",
+      icon: <Trash2 className="w-4 h-4 text-[#858585]" />,
+      action: () => {
+        if (activeTerminalSessionId) clearTerminalSession(activeTerminalSessionId);
+      },
+    },
+    {
+      id: "cmd-viewer-lock",
+      title: "Toggle Viewer Lock",
+      category: "Permissions",
+      icon: <Lock className="w-4 h-4 text-[#858585]" />,
+      action: () => toggleViewerLock(),
+    },
+    {
+      id: "cmd-split-editor",
+      title: "Split Editor Pane",
+      category: "View",
+      icon: <SplitSquareVertical className="w-4 h-4 text-[#858585]" />,
+      action: () => setMode("edit"),
+    },
+    {
+      id: "cmd-switch-monochrome",
+      title: "Toggle Monochrome Theme",
+      category: "Appearance",
+      icon: <Contrast className="w-4 h-4 text-[#858585]" />,
+      action: () => toggleMonochromeTheme(),
+    },
   ];
 
   const filteredCommands = commands.filter((c) =>
