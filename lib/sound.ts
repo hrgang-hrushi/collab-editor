@@ -71,3 +71,30 @@ export function playMechanicalEnter() {
     // Ignore
   }
 }
+
+export function playMagneticPulse() {
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+
+    // Sub-harmonic resonant EMP shockwave pulse
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(140, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.18);
+
+    gain.gain.setValueAtTime(0.12, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.18);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.18);
+  } catch {
+    // Ignore
+  }
+}
+

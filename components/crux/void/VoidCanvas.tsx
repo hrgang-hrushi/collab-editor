@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import MagneticNeedleField from "./MagneticNeedleField";
 
 export default function VoidCanvas({ children }: { children?: React.ReactNode }) {
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -56,7 +57,7 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
   return (
     <div className="relative w-screen h-screen bg-[#000000] text-white overflow-hidden select-none flex flex-col font-sans">
       {/* 1. Macro Silicon Wafer Architectural Circuit Grid (Z-0) */}
-      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-15">
         <svg
           className="w-full h-full stroke-[#1c1c1c] fill-none"
           xmlns="http://www.w3.org/2000/svg"
@@ -80,10 +81,22 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
         </svg>
       </div>
 
-      {/* 2. The Crex Effect: Dual Counter-Rotating Spinny Blur Gyroscope (Z-10) */}
-      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center">
+      {/* 2. Magnetic Needle Vector Field (Z-5, Magnetic to Cursor) */}
+      <div className="absolute inset-0 z-5">
+        <MagneticNeedleField
+          gridSpacing={28}
+          needleLength={13}
+          influenceRadius={380}
+          initialMode="ATTRACT"
+          showTelemetry={true}
+        />
+      </div>
+
+      {/* 3. The Crex Effect: Dual Counter-Rotating Spinny Blur Gyroscope (Z-10) */}
+      <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden flex items-center justify-center opacity-25">
         {/* Layer A: Clockwise Rotating Silicon Turbine with Heavy Blur */}
-        <div className="absolute w-[920px] h-[920px] crex-spinny-blur opacity-40 pointer-events-none select-none">
+        <div className="absolute w-[920px] h-[920px] crex-spinny-blur pointer-events-none select-none">
+
           <svg viewBox="0 0 500 500" className="w-full h-full stroke-[#555555] fill-none" strokeWidth="1">
             <circle cx="250" cy="250" r="230" strokeDasharray="3 8" />
             <circle cx="250" cy="250" r="190" strokeDasharray="16 6" />

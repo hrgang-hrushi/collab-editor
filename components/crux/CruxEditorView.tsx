@@ -147,7 +147,11 @@ export default function CruxEditorView() {
     );
   }
 
-  if (!isOnboarded || isZeroStateOpen) {
+  if (!isOnboarded) {
+    return <CruxOnboardingStartPage />;
+  }
+
+  if (isZeroStateOpen) {
     return <CruxOmnibarVoid />;
   }
 

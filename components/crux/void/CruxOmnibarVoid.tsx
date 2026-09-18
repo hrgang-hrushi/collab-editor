@@ -413,6 +413,23 @@ export default function CruxOmnibarVoid() {
           launchIDE();
         },
       },
+      {
+        id: "s-start-board",
+        category: "PROJECT",
+        title: "Open Start Board // Identity Enclave",
+        description: "Reconfigure cryptographic developer identity",
+        commandSnippet: "start board",
+        badge: "ENCLAVE",
+        previewDetails: {
+          type: "SECURITY_ENCLAVE",
+          target: "Crux Start Board (Identity Setup)",
+          payload: `NODE_KEY: Ed25519 Cryptographic Attestation\nROUTING: Mesh Peer Verification\nMEMORY: Ring-0 MMU Lock`,
+          meta: "SECURITY: HARDWARE_LOCKED",
+        },
+        action: () => {
+          setOnboarded(false);
+        },
+      },
     ];
 
     let filtered = allOptions;
