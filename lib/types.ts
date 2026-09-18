@@ -10,6 +10,9 @@ export interface User {
   accessLevel?: "full" | "limited" | "viewer";
   allowedFiles?: string[];
   allowedLineRange?: { start: number; end: number };
+  telemetryEnabled?: boolean;
+  keymapPreference?: "default" | "jetbrains" | "vscode" | "vim";
+  defaultComputeTarget?: "local" | "bedrock" | "copilot";
 }
 
 export interface ShareInvite {

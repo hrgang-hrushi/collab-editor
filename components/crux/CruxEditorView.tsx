@@ -140,6 +140,9 @@ export default function CruxEditorView() {
       if (params.get("mode") === "edit" || params.get("mode") === "ide") {
         setMode("edit");
       }
+      if (params.get("onboarding") === "true" || params.get("reset") === "true") {
+        useWorkspaceStore.getState().setOnboarded(false);
+      }
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
