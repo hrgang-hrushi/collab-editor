@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useWorkspaceStore } from "@/lib/store";
-import { TerminalSession } from "@/lib/types";
+import { TerminalSession, TerminalPeerInput } from "@/lib/types";
 import { AnsiLine, AnsiSpan } from "@/lib/ansiParser";
 import {
   Trash2,
@@ -17,23 +17,31 @@ import {
   Search,
   Maximize2,
   Minimize2,
-  SquareSquare,
   Sparkles,
   Server,
   AlertTriangle,
   Play,
   StopCircle,
-  HelpCircle,
   CheckCircle,
+  History,
+  Lock,
+  Users,
+  CornerDownLeft,
+  ArrowRight,
 } from "lucide-react";
 
 export default function ZenithTerminal() {
   const isTerminalOpen = useWorkspaceStore((state) => state.isTerminalOpen);
   const toggleTerminal = useWorkspaceStore((state) => state.toggleTerminal);
   const files = useWorkspaceStore((state) => state.files);
+  const activeFileId = useWorkspaceStore((state) => state.activeFileId);
   const setActiveFile = useWorkspaceStore((state) => state.setActiveFile);
+  const cursorPos = useWorkspaceStore((state) => state.cursorPos);
   const setCursorPos = useWorkspaceStore((state) => state.setCursorPos);
   const lastExecutionResult = useWorkspaceStore((state) => state.lastExecutionResult);
+  const viewerLock = useWorkspaceStore((state) => state.viewerLock);
+  const accessLevel = useWorkspaceStore((state) => state.accessLevel);
+  const addSuggestion = useWorkspaceStore((state) => state.addSuggestion);
 
   // Store Terminal State
   const terminalSessions = useWorkspaceStore((state) => state.terminalSessions);
@@ -43,6 +51,7 @@ export default function ZenithTerminal() {
   const terminalHeight = useWorkspaceStore((state) => state.terminalHeight);
   const isTerminalMaximized = useWorkspaceStore((state) => state.isTerminalMaximized);
   const terminalSearchQuery = useWorkspaceStore((state) => state.terminalSearchQuery);
+  const terminalTimeTravelIndex = useWorkspaceStore((state) => state.terminalTimeTravelIndex);
 
   // Store Actions
   const createTerminalSession = useWorkspaceStore((state) => state.createTerminalSession);
@@ -53,6 +62,7 @@ export default function ZenithTerminal() {
   const setTerminalHeight = useWorkspaceStore((state) => state.setTerminalHeight);
   const toggleTerminalMaximized = useWorkspaceStore((state) => state.toggleTerminalMaximized);
   const setTerminalSearchQuery = useWorkspaceStore((state) => state.setTerminalSearchQuery);
+  const setTerminalTimeTravelIndex = useWorkspaceStore((state) => state.setTerminalTimeTravelIndex);
   const appendTerminalChunk = useWorkspaceStore((state) => state.appendTerminalChunk);
   const clearTerminalSession = useWorkspaceStore((state) => state.clearTerminalSession);
   const setSessionStreaming = useWorkspaceStore((state) => state.setSessionStreaming);
@@ -60,13 +70,22 @@ export default function ZenithTerminal() {
   const setSessionDiagnosis = useWorkspaceStore((state) => state.setSessionDiagnosis);
   const setSessionInputVal = useWorkspaceStore((state) => state.setSessionInputVal);
   const addSessionHistory = useWorkspaceStore((state) => state.addSessionHistory);
+  const broadcastTerminalPeerInput = useWorkspaceStore((state) => state.broadcastTerminalPeerInput);
 
   // Local UI states
   const [activeTabType, setActiveTabType] = useState<"session" | "output">("session");
   const [isSearching, setIsSearching] = useState(false);
   const [isDraggingHeight, setIsDraggingHeight] = useState(false);
-  const [aiProposal, setAiProposal] = useState<{ command: string; explanation: string } | null>(null);
-  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [aiProposal, setAiProposal] = useState<{
+    command: string;
+    explanation: string;
+    contextSummary: string;
+  } | null>(null);
+  const [isAutoHealing, setIsAutoHealing] = useState(false);
+  const [ghostFixMessage, setGhostFixMessage] = useState<string | null>(null);
+
+  const activeFile = files.find((f) => f.id === activeFileId) || files[0];
+  const isReadOnly = viewerLock || accessLevel === "viewer";
 
   const activeSession =
     terminalSessions.find((s) => s.id === activeTerminalSessionId) || terminalSessions[0];
@@ -108,7 +127,7 @@ export default function ZenithTerminal() {
     };
   }, [isDraggingHeight, setTerminalHeight]);
 
-  // Jump to file and line when clicking a hyperlink
+  // Jump to file and line when clicking a hyperlink (e.g. auth.ts:14)
   const handleOpenFileLink = (filePath: string, line?: number, col?: number) => {
     const cleanPath = filePath.replace(/^\.\//, "");
     const matched = files.find(
@@ -126,8 +145,114 @@ export default function ZenithTerminal() {
     }
   };
 
-  // Execute command in a specific session via /api/terminal/stream
-  const executeCommandInSession = async (session: TerminalSession, cmdToRun?: string) => {
+  // 11.2 ZERO-CLICK AUTO-HEALING (THE "GHOST" FIX)
+  const triggerAutoHealing = async (session: TerminalSession, exitCode: number) => {
+    setIsAutoHealing(true);
+    const lastLines = session.lines.slice(-15).map((l) => l.rawText).join("\n");
+    const currentTarget = activeFile || files[0];
+
+    try {
+      const res = await fetch("/api/terminal/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "auto-heal",
+          stderr: lastLines,
+          exitCode,
+          activeFileName: currentTarget?.name || "stream_syncer.ts",
+          activeFileContent: currentTarget?.content || "",
+          cursorLine: cursorPos.line,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const fixLocation = data.fixProposedIn || `${currentTarget?.name || "auth.ts"}:14`;
+
+        // Section 11.2 Terminal Visual: Pulsing line
+        const pulsingLog = `[@CruxAI] Analyzing non-zero exit... Fix proposed in ${fixLocation}\n`;
+        appendTerminalChunk(session.id, `\x1b[31m${pulsingLog}\x1b[0m`);
+        setGhostFixMessage(`Fix proposed in ${fixLocation}`);
+
+        setSessionDiagnosis(session.id, {
+          summary: data.summary,
+          suggestedCommand: data.suggestedCommand,
+          suggestedDiff: data.suggestedDiff?.description || data.suggestedDiff,
+        });
+
+        // Push Ghost Fix directly into editor's Suggesting Mode diffs!
+        if (data.suggestedDiff && currentTarget) {
+          addSuggestion({
+            fileId: currentTarget.id,
+            author: {
+              id: "user-2",
+              name: "CruxAI",
+              avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80",
+              color: "#ff5757",
+              role: "Copilot",
+              uid: "CRX-0001-AI",
+            },
+            from: 0,
+            to: currentTarget.content.length,
+            originalText: data.suggestedDiff.originalText || "await this.daemon.",
+            suggestedText:
+              data.suggestedDiff.suggestedText ||
+              "const ticket = await this.daemon.acquireLock('stream-mesh-primary');",
+            description: data.suggestedDiff.description || "@CruxAI Auto-Healing Ghost Fix",
+          });
+        }
+      }
+    } catch {
+      // ignore
+    } finally {
+      setIsAutoHealing(false);
+    }
+  };
+
+  // 11.1 CONTEXT-AWARE PROMPTS: Reads active editor context automatically
+  const handleCheckAiPrompt = async (val: string) => {
+    if (val.startsWith("?? ") && val.length > 4) {
+      const promptQuery = val.slice(3).trim();
+      const currentTarget = activeFile || files[0];
+
+      try {
+        const res = await fetch("/api/terminal/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "generate-command",
+            prompt: promptQuery,
+            activeFileName: currentTarget?.name || "stream_syncer.ts",
+            activeFileContent: currentTarget?.content || "",
+            cursorLine: cursorPos.line,
+          }),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setAiProposal({
+            command: data.command,
+            explanation: data.explanation,
+            contextSummary: data.contextSummary || `${currentTarget?.name}:${cursorPos.line}`,
+          });
+        }
+      } catch {
+        // ignore
+      }
+    } else {
+      setAiProposal(null);
+    }
+  };
+
+  // Execute command in session with executor attribution (Multiplayer CRDT)
+  const executeCommandInSession = async (
+    session: TerminalSession,
+    cmdToRun?: string,
+    executorName?: string,
+    executorColor?: string
+  ) => {
+    if (isReadOnly) return;
+
     const rawCmd = cmdToRun !== undefined ? cmdToRun : session.inputVal;
     const trimmed = rawCmd.trim();
     if (!trimmed) return;
@@ -135,35 +260,38 @@ export default function ZenithTerminal() {
     // Reset input
     setSessionInputVal(session.id, "");
     setAiProposal(null);
+    setGhostFixMessage(null);
 
-    // Clear command
+    // If time-travel is active, snap back to present before running
+    if (terminalTimeTravelIndex !== null) {
+      setTerminalTimeTravelIndex(null);
+    }
+
     if (trimmed === "clear") {
       clearTerminalSession(session.id);
       return;
     }
 
-    // Help command
     if (trimmed === "help") {
       addSessionHistory(session.id, trimmed);
       appendTerminalChunk(
         session.id,
         [
-          "\x1b[1;36mCRUX HYPERTERMINAL ENGINE v1.2.0\x1b[0m\n",
-          "  \x1b[32mls\x1b[0m                  List files and sizes\n",
-          "  \x1b[32mcat <file>\x1b[0m          Inspect workspace buffer content\n",
+          "\x1b[1;36mCRUX HYPERTERMINAL ENGINE v2.0-PROD\x1b[0m\n",
+          "  \x1b[32mls\x1b[0m                  List workspace files and metrics\n",
+          "  \x1b[32mcat <file>\x1b[0m          Inspect workspace buffer in-memory\n",
           "  \x1b[32mnode <file>\x1b[0m         Execute file via V8 runtime sandbox\n",
           "  \x1b[32mcrux status\x1b[0m         Daemon, IPC socket, and peer latency status\n",
-          "  \x1b[32mcrux build\x1b[0m          Incremental AST compiler pipeline\n",
-          "  \x1b[32mcrux peers\x1b[0m          Connected collaborative peers\n",
-          "  \x1b[35m?? <query>\x1b[0m          Ask CruxAI to generate & preview a shell command\n",
-          "  \x1b[32mclear\x1b[0m               Clear session scrollback\n",
+          "  \x1b[32mcrux build\x1b[0m          Incremental AST pipeline check\n",
+          "  \x1b[32mcrux peers\x1b[0m          Connected collaborative WebRTC edge peers\n",
+          "  \x1b[35m?? <intent>\x1b[0m         Context-aware AI command synthesizer (reads active editor buffer)\n",
+          "  \x1b[32mclear\x1b[0m               Flush session scrollback buffer\n",
           "  \x1b[37m<any shell cmd>\x1b[0m     Run live shell commands (git, npm, curl, lsof)\n\n",
         ].join("")
       );
       return;
     }
 
-    // In-memory file view: cat <file>
     if (trimmed.startsWith("cat ")) {
       addSessionHistory(session.id, trimmed);
       appendTerminalChunk(session.id, `\x1b[36mcrux-sh:~$\x1b[0m ${trimmed}\n`);
@@ -179,9 +307,10 @@ export default function ZenithTerminal() {
       return;
     }
 
-    // Log the prompt
+    // Tag executor for remote multiplayer CRDT (e.g. [Sarah L.] npm run build)
+    const executorTag = executorName ? `\x1b[36m[${executorName}]\x1b[0m ` : `\x1b[36mcrux-sh:~$\x1b[0m `;
     addSessionHistory(session.id, trimmed);
-    appendTerminalChunk(session.id, `\x1b[36mcrux-sh:~$\x1b[0m ${trimmed}\n`);
+    appendTerminalChunk(session.id, `${executorTag}${trimmed}\n`);
     setSessionStreaming(session.id, true, null);
     setSessionExitCode(session.id, null);
 
@@ -196,6 +325,7 @@ export default function ZenithTerminal() {
         appendTerminalChunk(session.id, `\x1b[31mExecution failed with HTTP ${response.status}\x1b[0m\n`, true);
         setSessionStreaming(session.id, false, null);
         setSessionExitCode(session.id, 1);
+        triggerAutoHealing(session, 1);
         return;
       }
 
@@ -224,9 +354,14 @@ export default function ZenithTerminal() {
               } else if (event.type === "exit") {
                 setSessionStreaming(session.id, false, null);
                 setSessionExitCode(session.id, event.code);
+
+                // ZERO-CLICK AUTO-HEALING TRIGGER ON NON-ZERO EXIT!
+                if (event.code !== 0 && event.code !== 130) {
+                  triggerAutoHealing(session, event.code);
+                }
               }
             } catch {
-              // Parse error on malformed chunk
+              // Parse error
             }
           }
         }
@@ -235,10 +370,11 @@ export default function ZenithTerminal() {
       appendTerminalChunk(session.id, `\x1b[31mNetwork error: ${err.message}\x1b[0m\n`, true);
       setSessionStreaming(session.id, false, null);
       setSessionExitCode(session.id, 1);
+      triggerAutoHealing(session, 1);
     }
   };
 
-  // Kill the active process in a session (Ctrl+C)
+  // Kill running process (Ctrl+C)
   const handleKillSessionProcess = async (session: TerminalSession) => {
     if (!session.activePid) {
       appendTerminalChunk(session.id, "^C\n");
@@ -261,60 +397,19 @@ export default function ZenithTerminal() {
     }
   };
 
-  // Diagnose error with @CruxAI
-  const handleDiagnoseError = async (session: TerminalSession) => {
-    setIsDiagnosing(true);
-    const lastLines = session.lines.slice(-15).map((l) => l.rawText).join("\n");
-
-    try {
-      const res = await fetch("/api/terminal/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "diagnose-error",
-          stderr: lastLines,
-          exitCode: session.lastExitCode || 1,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setSessionDiagnosis(session.id, {
-          summary: data.summary,
-          suggestedCommand: data.suggestedCommand,
-          suggestedDiff: data.suggestedDiff,
-        });
-      }
-    } catch {
-      // ignore
-    } finally {
-      setIsDiagnosing(false);
-    }
-  };
-
-  // Natural language AI command generation preview
-  const handleCheckAiPrompt = async (val: string) => {
-    if (val.startsWith("?? ") && val.length > 5) {
-      const promptQuery = val.slice(3).trim();
-      try {
-        const res = await fetch("/api/terminal/ai", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "generate-command", prompt: promptQuery }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setAiProposal({ command: data.command, explanation: data.explanation });
-        }
-      } catch {
-        // ignore
-      }
-    } else {
-      setAiProposal(null);
-    }
+  // Simulate remote peer execution test
+  const handleSimulateRemotePeer = (peerName: string, peerColor: string, cmd: string) => {
+    executeCommandInSession(activeSession, cmd, peerName, peerColor);
   };
 
   if (!isTerminalOpen) return null;
+
+  // Time-travel calculation
+  const totalLines = activeSession.lines.length;
+  const isTimeTraveling = terminalTimeTravelIndex !== null;
+  const displayedLines = isTimeTraveling
+    ? activeSession.lines.slice(0, Math.max(1, terminalTimeTravelIndex))
+    : activeSession.lines;
 
   return (
     <footer
@@ -328,9 +423,9 @@ export default function ZenithTerminal() {
         title="Drag to resize terminal height"
       />
 
-      {/* TOP HEADER / SESSION TABS BAR (36px) */}
-      <div className="flex h-9 border-b border-grid bg-void items-center justify-between shrink-0 select-none">
-        {/* Left: Tab Sessions */}
+      {/* TOP HEADER / SESSION TABS BAR (LOCKED AT STRICT h-9 / 36px) */}
+      <div className="flex h-9 border-b border-grid bg-void items-center justify-between shrink-0 select-none px-0">
+        {/* Left: Session Tabs */}
         <div className="flex h-full items-center overflow-x-auto">
           {terminalSessions.map((session) => {
             const isActive = session.id === activeTerminalSessionId && activeTabType === "session";
@@ -347,7 +442,6 @@ export default function ZenithTerminal() {
                     : "text-muted hover:text-signal bg-surface"
                 }`}
               >
-                {/* Session Type Icon & Status Pulse */}
                 <div className="flex items-center gap-1.5">
                   {session.isStreaming ? (
                     <span className="w-1.5 h-1.5 rounded-full bg-[#00FF00] animate-ping" />
@@ -368,7 +462,6 @@ export default function ZenithTerminal() {
 
                 <span>{session.name}</span>
 
-                {/* Close Session Button (only if > 1 session) */}
                 {terminalSessions.length > 1 && (
                   <button
                     onClick={(e) => {
@@ -394,7 +487,7 @@ export default function ZenithTerminal() {
             <Plus className="w-3.5 h-3.5" />
           </button>
 
-          {/* Tab: Output (V8 Sandbox Result from Run button) */}
+          {/* Tab: Output (V8 Sandbox Result) */}
           <button
             onClick={() => setActiveTabType("output")}
             className={`px-3.5 h-full text-[11px] font-mono border-r border-grid uppercase tracking-wider transition-colors flex items-center gap-2 ${
@@ -413,8 +506,54 @@ export default function ZenithTerminal() {
           </button>
         </div>
 
-        {/* Right: Split, Search, Maximize & Close Controls */}
+        {/* Center: SECTION 13 TERMINAL TIME-TRAVEL SLIDER (STARK 1px #222222 LINE) */}
+        {activeTabType === "session" && totalLines > 2 && (
+          <div className="flex items-center gap-2 px-4 h-full border-r border-l border-grid bg-void flex-1 max-w-xs select-none">
+            <History
+              className={`w-3 h-3 shrink-0 ${
+                isTimeTraveling ? "text-accent2 animate-pulse" : "text-muted"
+              }`}
+            />
+            <span className="text-[10px] font-mono text-muted uppercase shrink-0">Rewind</span>
+            <input
+              data-testid="terminal-timetravel-slider"
+              type="range"
+              min={1}
+              max={totalLines}
+              value={terminalTimeTravelIndex !== null ? terminalTimeTravelIndex : totalLines}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (val >= totalLines) {
+                  setTerminalTimeTravelIndex(null);
+                } else {
+                  setTerminalTimeTravelIndex(val);
+                }
+              }}
+              className="w-full h-[1px] bg-grid accent-signal cursor-pointer"
+              title="Drag backward to rewind terminal buffer (Time-Travel)"
+            />
+            <span className="text-[10px] font-mono text-muted shrink-0 w-8 text-right">
+              {terminalTimeTravelIndex !== null ? `T-${totalLines - terminalTimeTravelIndex}` : "NOW"}
+            </span>
+          </div>
+        )}
+
+        {/* Right: Multiplayer Peers, Split, Search, Maximize & Close Controls */}
         <div className="flex items-center gap-2 px-3 text-muted shrink-0">
+          {/* Section 12.1 Multiplayer Peers Indicator */}
+          <div className="hidden sm:flex items-center gap-1.5 pr-2 border-r border-grid">
+            <span
+              className="w-2 h-2 bg-[#38b6ff] cursor-pointer"
+              onClick={() => handleSimulateRemotePeer("Sarah L.", "#38b6ff", "crux build")}
+              title="Remote Peer: Sarah Lin (Click to simulate remote execution)"
+            />
+            <span
+              className="w-2 h-2 bg-[#ff914d] cursor-pointer"
+              onClick={() => handleSimulateRemotePeer("Marcus Vance", "#ff914d", "git status --short")}
+              title="Remote Peer: Marcus Vance (Click to simulate remote execution)"
+            />
+          </div>
+
           {/* Split Mode Selector */}
           <div className="flex items-center border border-grid bg-void">
             <button
@@ -457,7 +596,7 @@ export default function ZenithTerminal() {
             <Search className="w-3.5 h-3.5" />
           </button>
 
-          {/* Kill Running Process Button (Active if session is streaming) */}
+          {/* Kill Running Process Button */}
           {activeSession?.isStreaming && (
             <button
               onClick={() => handleKillSessionProcess(activeSession)}
@@ -498,6 +637,24 @@ export default function ZenithTerminal() {
         </div>
       </div>
 
+      {/* SECTION 13 TIME-TRAVEL ACTIVE BANNER */}
+      {isTimeTraveling && (
+        <div className="bg-[#1A0505] border-b border-[#FF453A]/40 px-4 py-1 flex items-center justify-between text-[11px] font-mono text-accent2 shrink-0 select-none">
+          <div className="flex items-center gap-2">
+            <History className="w-3.5 h-3.5 text-accent2 animate-pulse" />
+            <span className="font-bold tracking-wider">
+              TIME-TRAVEL ACTIVE: Viewing historical buffer snapshot (T-{totalLines - terminalTimeTravelIndex!})
+            </span>
+          </div>
+          <button
+            onClick={() => setTerminalTimeTravelIndex(null)}
+            className="px-2 py-0.5 border border-accent2/60 bg-void text-accent2 hover:bg-accent2 hover:text-white transition-colors text-[10px] uppercase font-bold"
+          >
+            Jump to Present ↵
+          </button>
+        </div>
+      )}
+
       {/* OPTIONAL SEARCH BAR */}
       {isSearching && (
         <div className="flex items-center gap-2 px-3 py-1.5 border-b border-grid bg-void text-[11px] font-mono shrink-0">
@@ -521,8 +678,11 @@ export default function ZenithTerminal() {
         </div>
       )}
 
-      {/* VIEWPORT AREA: OUTPUT TAB OR TERMINAL PANES */}
-      <div className="flex-1 overflow-hidden flex bg-void">
+      {/* VIEWPORT AREA: SHIFTS TO #1A0505 WHEN TIME-TRAVEL SCRUBBING */}
+      <div
+        style={{ backgroundColor: isTimeTraveling ? "#1A0505" : "#000000" }}
+        className="flex-1 overflow-hidden flex transition-colors duration-150"
+      >
         {activeTabType === "output" ? (
           /* V8 SANDBOX OUTPUT VIEW */
           <div className="flex-1 p-4 font-mono text-[12px] overflow-auto select-text space-y-2">
@@ -581,7 +741,7 @@ export default function ZenithTerminal() {
             )}
           </div>
         ) : (
-          /* TERMINAL SESSIONS VIEW (Supports Single or Split Panes) */
+          /* TERMINAL SESSIONS VIEW (Single or Split Panes) */
           <div
             className={`flex-1 flex overflow-hidden ${
               terminalSplitMode === "horizontal" ? "flex-col" : "flex-row"
@@ -590,14 +750,19 @@ export default function ZenithTerminal() {
             {/* Primary Session Pane */}
             <TerminalPaneView
               session={activeSession}
+              lines={displayedLines}
+              isTimeTraveling={isTimeTraveling}
               searchQuery={terminalSearchQuery}
               aiProposal={aiProposal}
-              isDiagnosing={isDiagnosing}
+              isAutoHealing={isAutoHealing}
+              ghostFixMessage={ghostFixMessage}
+              isReadOnly={isReadOnly}
+              activeFileName={activeFile?.name || "stream_syncer.ts"}
+              cursorLine={cursorPos.line}
               files={files}
               onOpenFileLink={handleOpenFileLink}
               onSubmitCommand={(cmd) => executeCommandInSession(activeSession, cmd)}
               onKillProcess={() => handleKillSessionProcess(activeSession)}
-              onDiagnoseError={() => handleDiagnoseError(activeSession)}
               onInputChange={(val) => {
                 setSessionInputVal(activeSession.id, val);
                 handleCheckAiPrompt(val);
@@ -608,12 +773,13 @@ export default function ZenithTerminal() {
                 executeCommandInSession(activeSession, cmd);
               }}
               onCancelAiProposal={() => setAiProposal(null)}
+              onTriggerAutoHeal={() => triggerAutoHealing(activeSession, 1)}
             />
 
             {/* Secondary Split Pane (if active) */}
             {terminalSplitMode !== "none" && secondarySession && (
               <div
-                className={`flex-1 flex flex-col bg-void ${
+                className={`flex-1 flex flex-col ${
                   terminalSplitMode === "horizontal" ? "border-t border-grid" : "border-l border-grid"
                 }`}
               >
@@ -629,17 +795,23 @@ export default function ZenithTerminal() {
                 </div>
                 <TerminalPaneView
                   session={secondarySession}
+                  lines={secondarySession.lines}
+                  isTimeTraveling={false}
                   searchQuery={terminalSearchQuery}
                   aiProposal={null}
-                  isDiagnosing={false}
+                  isAutoHealing={false}
+                  ghostFixMessage={null}
+                  isReadOnly={isReadOnly}
+                  activeFileName={activeFile?.name || "stream_syncer.ts"}
+                  cursorLine={cursorPos.line}
                   files={files}
                   onOpenFileLink={handleOpenFileLink}
                   onSubmitCommand={(cmd) => executeCommandInSession(secondarySession, cmd)}
                   onKillProcess={() => handleKillSessionProcess(secondarySession)}
-                  onDiagnoseError={() => handleDiagnoseError(secondarySession)}
                   onInputChange={(val) => setSessionInputVal(secondarySession.id, val)}
                   onAcceptAiProposal={() => {}}
                   onCancelAiProposal={() => {}}
+                  onTriggerAutoHeal={() => {}}
                 />
               </div>
             )}
@@ -653,39 +825,53 @@ export default function ZenithTerminal() {
 // Sub-component: Individual Terminal Viewport Pane
 interface TerminalPaneViewProps {
   session: TerminalSession;
+  lines: AnsiLine[];
+  isTimeTraveling: boolean;
   searchQuery: string;
-  aiProposal: { command: string; explanation: string } | null;
-  isDiagnosing: boolean;
+  aiProposal: { command: string; explanation: string; contextSummary: string } | null;
+  isAutoHealing: boolean;
+  ghostFixMessage: string | null;
+  isReadOnly: boolean;
+  activeFileName: string;
+  cursorLine: number;
   files: any[];
   onOpenFileLink: (path: string, line?: number, col?: number) => void;
   onSubmitCommand: (cmd?: string) => void;
   onKillProcess: () => void;
-  onDiagnoseError: () => void;
   onInputChange: (val: string) => void;
   onAcceptAiProposal: (cmd: string) => void;
   onCancelAiProposal: () => void;
+  onTriggerAutoHeal: () => void;
 }
 
 function TerminalPaneView({
   session,
+  lines,
+  isTimeTraveling,
   searchQuery,
   aiProposal,
-  isDiagnosing,
+  isAutoHealing,
+  ghostFixMessage,
+  isReadOnly,
+  activeFileName,
+  cursorLine,
   files,
   onOpenFileLink,
   onSubmitCommand,
   onKillProcess,
-  onDiagnoseError,
   onInputChange,
   onAcceptAiProposal,
   onCancelAiProposal,
+  onTriggerAutoHeal,
 }: TerminalPaneViewProps) {
   const logsEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [session.lines]);
+    if (!isTimeTraveling) {
+      logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [lines, isTimeTraveling]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Ctrl+C to abort running process
@@ -746,15 +932,24 @@ function TerminalPaneView({
   };
 
   const filteredLines = searchQuery
-    ? session.lines.filter((l) => l.rawText.toLowerCase().includes(searchQuery.toLowerCase()))
-    : session.lines;
+    ? lines.filter((l) => l.rawText.toLowerCase().includes(searchQuery.toLowerCase()))
+    : lines;
 
   return (
-    <div className="flex-1 p-3 font-mono text-[12px] flex flex-col overflow-hidden bg-void select-text">
+    <div className="flex-1 p-3 font-mono text-[12px] flex flex-col overflow-hidden select-text">
       {/* Scrollable Output Stream */}
       <div className="flex-1 overflow-auto space-y-0.5">
         {filteredLines.map((line) => (
           <div key={line.id} className="leading-snug break-all">
+            {line.executorName && (
+              <span
+                style={{ color: line.executorColor || "#007AFF" }}
+                className="font-bold mr-1"
+              >
+                [{line.executorName}]
+              </span>
+            )}
+
             {line.spans.map((span, idx) => {
               const spanStyle: React.CSSProperties = {};
               if (span.color) spanStyle.color = span.color;
@@ -797,39 +992,47 @@ function TerminalPaneView({
           </div>
         ))}
 
-        {/* AUTONOMOUS ERROR DIAGNOSIS BANNER */}
+        {/* SECTION 11.2 ZERO-CLICK AUTO-HEALING BANNER (ABSOLUTE FLATNESS: PURE #000000, 1px #FF453A BORDER) */}
         {session.lastExitCode !== null && session.lastExitCode !== 0 && (
-          <div className="my-2 p-2.5 border border-accent2/40 bg-accent2/10 space-y-1.5 select-none">
+          <div className="my-2 p-3 border border-[#FF453A] bg-[#000000] space-y-2 select-none">
             <div className="flex items-center justify-between text-[11px]">
-              <div className="flex items-center gap-1.5 text-accent2 font-bold">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Process exited with code {session.lastExitCode}</span>
+              <div className="flex items-center gap-2 text-accent2 font-bold">
+                <AlertTriangle className="w-3.5 h-3.5 text-accent2 shrink-0" />
+                <span className="animate-pulse">
+                  [@CruxAI] Analyzing non-zero exit ({session.lastExitCode})...{" "}
+                  {ghostFixMessage || `Fix proposed in ${activeFileName}:${cursorLine}`}
+                </span>
               </div>
               <button
-                onClick={onDiagnoseError}
-                disabled={isDiagnosing}
-                className="px-2 py-0.5 border border-accent2 bg-void text-signal hover:bg-accent2 hover:text-white transition-colors text-[10px] uppercase font-bold flex items-center gap-1"
+                onClick={onTriggerAutoHeal}
+                disabled={isAutoHealing}
+                className="px-2 py-0.5 border border-[#FF453A] bg-[#000000] text-signal hover:bg-[#FF453A] hover:text-white transition-colors text-[10px] uppercase font-bold flex items-center gap-1"
               >
                 <Sparkles className="w-3 h-3 text-accent2" />
-                <span>{isDiagnosing ? "Diagnosing..." : "Diagnose with @CruxAI"}</span>
+                <span>{isAutoHealing ? "Healing..." : "Re-Diagnose"}</span>
               </button>
             </div>
 
             {session.lastDiagnosis && (
-              <div className="pt-1 text-[11px] font-sans border-t border-accent2/20 text-muted space-y-1">
+              <div className="pt-1.5 text-[11px] font-sans border-t border-[#FF453A]/30 text-muted space-y-1.5">
                 <div className="text-signal font-medium">{session.lastDiagnosis.summary}</div>
                 {session.lastDiagnosis.suggestedCommand && (
                   <div className="flex items-center gap-2 pt-1 font-mono text-[10px]">
-                    <span className="text-muted">Fix:</span>
-                    <code className="text-[#00FF00] bg-void px-1.5 py-0.5 border border-grid">
+                    <span className="text-muted">Command Fix:</span>
+                    <code className="text-[#00FF00] bg-[#0A0A0A] px-1.5 py-0.5 border border-grid">
                       {session.lastDiagnosis.suggestedCommand}
                     </code>
                     <button
                       onClick={() => onSubmitCommand(session.lastDiagnosis!.suggestedCommand)}
-                      className="px-2 py-0.5 border border-grid bg-void text-signal hover:border-signal uppercase text-[9px]"
+                      className="px-2 py-0.5 border border-grid bg-void text-signal hover:border-signal uppercase text-[9px] font-medium"
                     >
-                      Apply &amp; Run
+                      Apply &amp; Run ↵
                     </button>
+                  </div>
+                )}
+                {session.lastDiagnosis.suggestedDiff && (
+                  <div className="text-[10px] text-[#00E5FF] pt-0.5 font-mono">
+                    ✓ Ghost Fix proposed directly into Suggesting Mode diff in editor.
                   </div>
                 )}
               </div>
@@ -840,13 +1043,16 @@ function TerminalPaneView({
         <div ref={logsEndRef} />
       </div>
 
-      {/* AI COMMAND GENERATION PREVIEW BANNER */}
+      {/* SECTION 11.1 CONTEXT-AWARE AI COMMAND PROPOSAL (FLAT, #007AFF CRUX BLUE LEFT BORDER, STARK WHITE [RUN]) */}
       {aiProposal && (
-        <div className="mb-1.5 p-2 border border-accent2 bg-surface text-[11px] space-y-1 select-none">
+        <div className="mb-2 p-2.5 border-t border-r border-b border-grid border-l-2 border-l-[#007AFF] bg-[#000000] text-[11px] space-y-1.5 select-none">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-accent2 font-bold">
-              <Sparkles className="w-3 h-3" />
-              <span>@CruxAI Command Proposal</span>
+            <div className="flex items-center gap-2 text-signal font-bold">
+              <Sparkles className="w-3.5 h-3.5 text-[#007AFF]" />
+              <span>@CruxAI Command Synthesizer</span>
+              <span className="px-1.5 py-0.2 text-[9px] font-mono border border-grid bg-[#0A0A0A] text-[#007AFF]">
+                Context: {aiProposal.contextSummary}
+              </span>
             </div>
             <button
               onClick={onCancelAiProposal}
@@ -855,14 +1061,14 @@ function TerminalPaneView({
               [Esc to Cancel]
             </button>
           </div>
-          <div className="text-muted">{aiProposal.explanation}</div>
+          <div className="text-muted font-sans text-[11px]">{aiProposal.explanation}</div>
           <div className="flex items-center gap-2 pt-1">
-            <code className="flex-1 bg-void border border-grid p-1 text-[#00FF00] font-mono text-[11px]">
+            <code className="flex-1 bg-[#0A0A0A] border border-grid p-1.5 text-[#00FF00] font-mono text-[11px]">
               {aiProposal.command}
             </code>
             <button
               onClick={() => onAcceptAiProposal(aiProposal.command)}
-              className="px-2.5 py-1 border border-grid bg-signal text-void font-bold text-[10px] hover:opacity-90 transition-opacity"
+              className="px-3 py-1 bg-white text-black hover:bg-neutral-200 font-bold text-[10px] uppercase transition-colors shrink-0"
             >
               Run ↵
             </button>
@@ -870,30 +1076,67 @@ function TerminalPaneView({
         </div>
       )}
 
-      {/* COMMAND INPUT PROMPT */}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          onSubmitCommand();
-        }}
-        className="flex items-center gap-2 pt-1.5 border-t border-grid/60 shrink-0"
-      >
-        <span className="text-signal shrink-0 font-bold">crux-sh:~$</span>
-        <input
-          ref={inputRef}
-          type="text"
-          value={session.inputVal}
-          onChange={(e) => onInputChange(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="type command (e.g. ls, crux status, ?? <query>)..."
-          className="flex-1 bg-transparent border-none outline-none font-mono text-[12px] text-signal p-0 focus:ring-0 placeholder:text-muted/50"
-        />
-        {session.isStreaming ? (
-          <span className="w-2 h-3 bg-[#00FF00] animate-pulse" />
-        ) : (
-          <span className="w-2 h-3 bg-signal animate-pulse" />
-        )}
-      </form>
+      {/* SECTION 12.2 READ-ONLY OBSERVER MODE PROMPT REPLACEMENT */}
+      {isReadOnly ? (
+        <div className="flex items-center justify-between p-2 border-t border-grid bg-[#0A0A0A] text-[#777] font-mono text-[11px] select-none shrink-0">
+          <div className="flex items-center gap-2 text-accent2">
+            <Lock className="w-3.5 h-3.5 text-accent2 shrink-0" />
+            <span className="font-semibold tracking-wider uppercase">
+              [READ-ONLY: Observing Host — Terminal Input Suspended by Host]
+            </span>
+          </div>
+          <span className="text-muted text-[10px]">Edge WebRTC Mesh Active (0.08ms)</span>
+        </div>
+      ) : (
+        /* INTERACTIVE PROMPT WITH MULTIPLAYER PEER CURSORS */
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSubmitCommand();
+          }}
+          className="flex items-center gap-2 pt-1.5 border-t border-grid/60 shrink-0 relative"
+        >
+          <span className="text-signal shrink-0 font-bold">crux-sh:~$</span>
+          <div className="flex-1 relative flex items-center">
+            <input
+              data-testid="terminal-prompt-input"
+              ref={inputRef}
+              type="text"
+              value={session.inputVal}
+              onChange={(e) => onInputChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="type command (e.g. ls, crux status, ?? <query>)..."
+              className="w-full bg-transparent border-none outline-none font-mono text-[12px] text-signal p-0 focus:ring-0 placeholder:text-muted/50"
+            />
+
+            {/* SECTION 12.1 MULTIPLAYER PEER CURSORS IN PROMPT */}
+            {Object.values(session.peerInputs || {}).map((peer) => (
+              <div
+                key={peer.userId}
+                className="relative flex items-center ml-2"
+                title={`${peer.userName} active in terminal`}
+              >
+                <div
+                  style={{ backgroundColor: peer.userColor }}
+                  className="w-[2px] h-3.5 animate-pulse"
+                />
+                <div
+                  style={{ color: peer.userColor, borderColor: peer.userColor }}
+                  className="absolute -top-5 left-0 px-1 py-0.2 text-[8px] font-mono border bg-void whitespace-nowrap z-20"
+                >
+                  {peer.userName}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {session.isStreaming ? (
+            <span className="w-2 h-3 bg-[#00FF00] animate-pulse" />
+          ) : (
+            <span className="w-2 h-3 bg-signal animate-pulse" />
+          )}
+        </form>
+      )}
     </div>
   );
 }
