@@ -273,16 +273,16 @@ export default function CruxOmnibarVoid() {
       ];
     }
 
-    // 2. Direct @CrexAI Scaffold Query
-    if (q.startsWith("@crexai") || q.startsWith("@cruxai") || q.startsWith("ai:") || q.startsWith("scaffold ")) {
-      const prompt = raw.replace(/^(@crexai|@cruxai|ai:|scaffold)\s*/i, "");
+    // 2. Direct @CruxAI Scaffold Query
+    if (q.startsWith("@cruxai") || q.startsWith("@crexai") || q.startsWith("ai:") || q.startsWith("scaffold ")) {
+      const prompt = raw.replace(/^(@cruxai|@crexai|ai:|scaffold)\s*/i, "");
       return [
         {
           id: "s-ai-scaffold",
           category: "AGENT",
           title: `Scaffold Bare-Metal Project`,
           description: prompt || "Synthesize Next.js & TypeScript Architecture",
-          commandSnippet: `@CrexAI scaffold ${prompt || "dashboard"}`,
+          commandSnippet: `@CruxAI scaffold ${prompt || "dashboard"}`,
           badge: "AGENTIC",
           previewDetails: {
             type: "NEURAL_SYNTHESIS",
@@ -335,9 +335,9 @@ export default function CruxOmnibarVoid() {
       {
         id: "s-agent-dashboard",
         category: "AGENT",
-        title: "@CrexAI scaffold Next.js dashboard",
+        title: "@CruxAI scaffold Next.js dashboard",
         description: "Autonomous live machine code synthesizer",
-        commandSnippet: "@CrexAI scaffold dashboard",
+        commandSnippet: "@CruxAI scaffold dashboard",
         badge: "AI CORE",
         previewDetails: {
           type: "AUTONOMOUS_SCAFFOLD",
@@ -508,35 +508,7 @@ export default function CruxOmnibarVoid() {
             </div>
           </div>
 
-          {/* 2. Tactical Mode Selector Ribbon (1..5) */}
-          <div className="w-full flex items-center justify-between mb-2 font-mono text-[10px] select-none">
-            <div className="flex items-center gap-1">
-              {[
-                { id: "ALL", label: "[1: ALL]" },
-                { id: "AGENT", label: "[2: @CruxAI]" },
-                { id: "CLONE", label: "[3: CLONE]" },
-                { id: "RADAR", label: "[4: RADAR]" },
-                { id: "SPATIAL", label: "[5: NEXUS]" },
-              ].map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => {
-                    playMechanicalClick("low");
-                    setActiveFilter(f.id as FilterCategory);
-                  }}
-                  className={`px-2 py-0.5 border transition-none uppercase ${
-                    activeFilter === f.id
-                      ? "border-white bg-white text-black font-bold"
-                      : "border-[#222222] bg-[#000000] text-[#666666] hover:text-white hover:border-[#444444]"
-                  }`}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. The Omnibar Terminal Deck */}
+          {/* 2. The Omnibar Console Deck */}
           {terminalStage.active ? (
             <VoidTerminalStage
               title={terminalStage.title}
@@ -548,17 +520,43 @@ export default function CruxOmnibarVoid() {
             />
           ) : (
             <div className="w-full border border-[#222222] bg-[#000000]">
-              {/* Upper Ruler Calibrations */}
-              <div className="h-2 border-b border-[#161616] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
-                <span>000</span>
-                <span>||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</span>
-                <span>512</span>
+              {/* Integrated Category Ribbon Header */}
+              <div className="h-8 border-b border-[#222222] bg-[#0A0A0A] flex items-center justify-between px-2 select-none">
+                <div className="flex items-center">
+                  {[
+                    { id: "ALL", label: "ALL" },
+                    { id: "AGENT", label: "@CruxAI" },
+                    { id: "CLONE", label: "CLONE" },
+                    { id: "RADAR", label: "RADAR" },
+                    { id: "SPATIAL", label: "NEXUS" },
+                  ].map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => {
+                        playMechanicalClick("low");
+                        setActiveFilter(f.id as FilterCategory);
+                      }}
+                      className={`h-8 px-3 text-[10px] font-mono uppercase border-r border-[#222222] transition-none ${
+                        activeFilter === f.id
+                          ? "bg-white text-black font-bold"
+                          : "text-[#666666] hover:text-white hover:bg-[#141414]"
+                      }`}
+                    >
+                      [{f.label}]
+                    </button>
+                  ))}
+                </div>
+
+                <div className="hidden sm:flex items-center gap-2 font-mono text-[9px] text-[#444444] px-1">
+                  <span>DISPATCH</span>
+                  <span className="px-1 border border-[#222222] text-white">[↵]</span>
+                </div>
               </div>
 
               {/* Central Mechanical Input Row */}
-              <div className="px-4 py-3.5 flex items-center gap-3 bg-[#000000] border-b-2 border-white">
-                <span className="font-brand font-black text-sm text-white select-none shrink-0 tracking-[0px]">
-                  Crux ❯
+              <div className="px-4 py-3.5 flex items-center gap-3 bg-[#000000] border-b border-[#222222]">
+                <span className="font-mono text-xs text-[#666666] select-none shrink-0 font-bold">
+                  ❯
                 </span>
                 <input
                   ref={inputRef}
@@ -570,7 +568,7 @@ export default function CruxOmnibarVoid() {
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="[EXECUTE COMMAND: clone, @CruxAI, open, connect, canvas...]"
-                  className="flex-1 bg-transparent text-white font-space text-xl sm:text-2xl placeholder:text-[#333333] focus:outline-none caret-white selection:bg-[#222222] tracking-tight"
+                  className="flex-1 bg-transparent text-white text-base sm:text-lg placeholder:text-[#444444] focus:outline-none caret-white selection:bg-[#222222]"
                   spellCheck={false}
                   autoComplete="off"
                 />
@@ -581,25 +579,14 @@ export default function CruxOmnibarVoid() {
                       playMechanicalClick("low");
                       setQuery("");
                     }}
-                    className="font-mono text-[10px] text-[#555555] hover:text-white px-2 py-0.5 border border-[#222222] hover:border-white transition-none uppercase"
+                    className="font-mono text-[9px] text-[#666666] hover:text-white px-1.5 py-0.5 border border-[#222222] hover:border-white transition-none uppercase"
                   >
                     [CLEAR]
                   </button>
                 )}
-                <div className="hidden sm:flex items-center gap-1 font-mono text-[10px] text-[#444444] shrink-0">
-                  <span>DISPATCH</span>
-                  <span className="px-1 border border-[#222222] text-white">[↵]</span>
-                </div>
               </div>
 
-              {/* Lower Ruler Calibrations */}
-              <div className="h-2 border-b border-[#161616] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
-                <span>RAW_BUS</span>
-                <span>------------------------------------------------------------------------------------------------------------------------</span>
-                <span>INTERRUPT_0</span>
-              </div>
-
-              {/* Dual-Pane Suggestion & Telemetry Matrix */}
+              {/* Full-Width Suggestion Matrix */}
               <VoidSuggestionMatrix
                 suggestions={suggestions}
                 selectedIndex={selectedIndex}

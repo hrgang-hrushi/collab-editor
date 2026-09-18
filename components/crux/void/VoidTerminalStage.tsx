@@ -68,10 +68,10 @@ export default function VoidTerminalStage({
         className="h-56 p-2 overflow-y-auto font-mono text-[12px] leading-relaxed space-y-1 bg-[#000000] text-white select-text"
       >
         <div className="text-[#444444]">
-          [CREX BARE-METAL KERNEL v1.2.0 // TTY_ATTACHED // ZERO_COLOR]
+          [CRUX BARE-METAL KERNEL v1.2.0 // TTY_ATTACHED // ZERO_COLOR]
         </div>
         <div className="text-white">
-          <span className="text-white font-bold">crex ❯</span> {command}
+          <span className="text-white font-bold">crux ❯</span> {command}
         </div>
 
         {lines.map((l) => (
@@ -83,7 +83,7 @@ export default function VoidTerminalStage({
           >
             {l.isAgent && (
               <span className="text-white font-bold mr-2">
-                {l.agentTag || "[@CrexAI]"}
+                {l.agentTag || "[@CruxAI]"}
               </span>
             )}
             {l.isPeer && (
