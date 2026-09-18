@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import MagneticNeedleField from "./MagneticNeedleField";
 
 export default function VoidCanvas({ children }: { children?: React.ReactNode }) {
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [telemetryTick, setTelemetryTick] = useState(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -13,45 +12,6 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
     };
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTelemetryTick((t) => (t + 1) % 1000);
-    }, 600);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Procedural Memory Bus Streams
-  const memoryStream = useMemo(() => {
-    const opcodes = [
-      "MOV RAX, CR0",
-      "XOR RDX, RDX",
-      "SYSCALL // IPC_MESH",
-      "TEST R8, R8",
-      "JE 0x7FFF004",
-      "LOCK CMPXCHG [RCX], RBX",
-      "VCLOCK::SYNC_PEER",
-      "MMU_FLUSH_TLB_PAGE",
-      "SHL RAX, 0x4",
-      "PREFETCHW [RDI]",
-    ];
-    return opcodes.map((op, i) => {
-      const addr = (0x7fff0000 + i * 8 + (telemetryTick % 16) * 4).toString(16).toUpperCase();
-      return `0x${addr}  ${op}`;
-    });
-  }, [telemetryTick]);
-
-  const meshPackets = useMemo(() => {
-    return [
-      `NODE::MARCUS_VANCE  ACK  0.04ms  [SYNC]`,
-      `NODE::SARAH_LIN      ACK  0.06ms  [READ]`,
-      `NODE::CRUX_AI_CORE   ACK  0.02ms  [GEN]`,
-      `CRDT_TREE_HASH: 0x9B4E8C21`,
-      `SOCKET_DESCRIPTORS: 4 ACTIVE`,
-      `VIRTUAL_PAGES: 16,384 MAPPED`,
-      `HARDWARE_CLOCK: 4.80GHz`,
-    ];
   }, []);
 
   return (
@@ -177,41 +137,7 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
         </div>
       )}
 
-      {/* 4. Left Edge Machine Code Disassembly Stream */}
-      <div className="hidden lg:flex flex-col justify-center absolute left-3 inset-y-0 w-64 pointer-events-none z-20 font-mono text-[10px] space-y-1 select-none">
-        <div className="text-[#333333] border-b border-[#222222] pb-1 uppercase font-bold tracking-widest">
-          // INSTRUCTION_STREAM
-        </div>
-        {memoryStream.map((line, idx) => (
-          <div
-            key={idx}
-            className={`transition-none truncate ${
-              idx === 0 ? "text-white font-bold" : idx < 4 ? "text-[#555555]" : "text-[#222222]"
-            }`}
-          >
-            {line}
-          </div>
-        ))}
-      </div>
-
-      {/* 5. Right Edge Mesh Protocol Telemetry */}
-      <div className="hidden lg:flex flex-col justify-center absolute right-3 inset-y-0 w-64 pointer-events-none z-20 font-mono text-[10px] space-y-1 text-right select-none">
-        <div className="text-[#333333] border-b border-[#222222] pb-1 uppercase font-bold tracking-widest">
-          MESH_TELEMETRY // 7447
-        </div>
-        {meshPackets.map((line, idx) => (
-          <div
-            key={idx}
-            className={`transition-none truncate ${
-              idx === 0 ? "text-white font-bold" : idx < 4 ? "text-[#555555]" : "text-[#222222]"
-            }`}
-          >
-            {line}
-          </div>
-        ))}
-      </div>
-
-      {/* 6. Corner Stencil Coordinates (Absolute 0px boundaries) */}
+      {/* 4. Corner Stencil Coordinates (Absolute 0px boundaries) */}
       <div className="absolute top-10 left-3 pointer-events-none font-mono text-[9px] text-[#333333] z-20">
         [SYS.PCB // REVISION_4B]
       </div>
