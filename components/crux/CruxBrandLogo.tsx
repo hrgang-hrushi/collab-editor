@@ -9,12 +9,12 @@ interface CruxBrandLogoProps {
 }
 
 /**
- * Crux / Crex Brand Logo Component
- * Derived directly from the Canva design export (1.svg & 2.svg):
- * - 2x2 modular grid:
- *   - Top-Right: Elevated White Block (#FFFFFF)
- *   - Top-Left, Bottom-Left, Bottom-Right: Dark Industrial Blocks (#222222)
- * - Optional "Crex" / "Crux" geometric typography lockup
+ * Crex Hardware Brutalism Brand Logo Component
+ * - Strict 2x2 mechanical silicon grid:
+ *   - Top-Right: Pure White Silk Block (#FFFFFF)
+ *   - Top-Left, Bottom-Left, Bottom-Right: Deep Silicon Grid Tiles (#222222)
+ * - 0px border radius, 0px drop shadow, absolute 1px hairline border.
+ * - Brand Display Typography: Etna Sans Serif / Arial Black, heavy weight, -tracking-[0.05em].
  */
 export default function CruxBrandLogo({
   size = 20,
@@ -23,48 +23,48 @@ export default function CruxBrandLogo({
 }: CruxBrandLogoProps) {
   if (withText) {
     return (
-      <div className={`flex items-center gap-2.5 select-none ${className}`}>
-        {/* Modular Grid Icon Mark */}
+      <div className={`flex items-center gap-2 select-none ${className}`}>
+        {/* Modular Grid Icon Mark (Zero border radius, zero shadow) */}
         <div
-          className="grid grid-cols-2 gap-[2px] shrink-0"
+          className="grid grid-cols-2 gap-[1px] shrink-0"
           style={{ width: size, height: size }}
         >
-          {/* Top-Left: Dark Tile */}
-          <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
-          {/* Top-Right: Elevated White Tile */}
-          <div className="bg-[#FFFFFF] border border-[#FFFFFF] rounded-[2px] shadow-[1px_1px_0px_#000000]" />
-          {/* Bottom-Left: Dark Tile */}
-          <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
-          {/* Bottom-Right: Dark Tile */}
-          <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
+          {/* Top-Left: Dark Silicon Tile */}
+          <div className="bg-[#222222] border border-[#333333]" />
+          {/* Top-Right: Elevated White Silk Tile */}
+          <div className="bg-[#FFFFFF] border border-[#FFFFFF]" />
+          {/* Bottom-Left: Dark Silicon Tile */}
+          <div className="bg-[#222222] border border-[#333333]" />
+          {/* Bottom-Right: Dark Silicon Tile */}
+          <div className="bg-[#222222] border border-[#333333]" />
         </div>
 
-        {/* Wordmark */}
+        {/* Wordmark (Etna Sans Serif, tight tracking, heavy weight) */}
         <span
-          className="font-bold tracking-wider text-signal uppercase"
-          style={{ fontSize: Math.max(12, size * 0.7) }}
+          className="font-brand font-black tracking-[-0.05em] text-white uppercase"
+          style={{ fontSize: Math.max(13, size * 0.75) }}
         >
-          Crux
+          CREX
         </span>
       </div>
     );
   }
 
-  // Standalone Icon Mark (1:1 with 1.svg)
+  // Standalone Icon Mark
   return (
     <div
-      className={`grid grid-cols-2 gap-[2px] shrink-0 select-none ${className}`}
+      className={`grid grid-cols-2 gap-[1px] shrink-0 select-none ${className}`}
       style={{ width: size, height: size }}
-      title="Crux Platform"
+      title="Crex Platform"
     >
       {/* Top-Left */}
-      <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
-      {/* Top-Right (Elevated White Block) */}
-      <div className="bg-[#FFFFFF] border border-[#FFFFFF] rounded-[2px] shadow-[1px_1px_0px_#000000]" />
+      <div className="bg-[#222222] border border-[#333333]" />
+      {/* Top-Right */}
+      <div className="bg-[#FFFFFF] border border-[#FFFFFF]" />
       {/* Bottom-Left */}
-      <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
+      <div className="bg-[#222222] border border-[#333333]" />
       {/* Bottom-Right */}
-      <div className="bg-[#222222] border border-[#333333] rounded-[2px]" />
+      <div className="bg-[#222222] border border-[#333333]" />
     </div>
   );
 }

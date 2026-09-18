@@ -939,16 +939,28 @@ function TerminalPaneView({
     <div className="flex-1 p-3 font-mono text-[12px] flex flex-col min-h-0 select-text">
       {/* Scrollable Output Stream — min-h-0 + overflow-y-auto lets flex child scroll */}
       <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
-        {filteredLines.map((line) => (
-          <div key={line.id} className="leading-snug break-all">
-            {line.executorName && (
-              <span
-                style={{ color: line.executorColor || "#007AFF" }}
-                className="font-bold mr-1"
-              >
-                [{line.executorName}]
-              </span>
-            )}
+        {filteredLines.map((line) => {
+          const isAgent = line.executorName?.toLowerCase().includes("ai");
+          return (
+            <div
+              key={line.id}
+              className={`leading-snug break-all ${
+                isAgent ? "pl-3 border-l border-[#222222]" : ""
+              }`}
+            >
+              {line.executorName && (
+                <span className="font-bold mr-1.5 text-white font-mono">
+                  {isAgent ? (
+                    "[@CrexAI]"
+                  ) : (
+                    <>
+                      [{line.executorName}]
+                      <span className="inline-block w-1.5 h-1.5 bg-white animate-hard-blink ml-1.5 mr-1 align-middle" />
+                      <span className="text-[10px] text-white animate-hard-blink">[LIVE]</span>
+                    </>
+                  )}
+                </span>
+              )}
 
             {line.spans.map((span, idx) => {
               const spanStyle: React.CSSProperties = {};
@@ -990,7 +1002,8 @@ function TerminalPaneView({
               );
             })}
           </div>
-        ))}
+        );
+      })}
 
         {/* SECTION 11.2 ZERO-CLICK AUTO-HEALING BANNER (ABSOLUTE FLATNESS: PURE #000000, 1px #FF453A BORDER) */}
         {session.lastExitCode !== null && session.lastExitCode !== 0 && (

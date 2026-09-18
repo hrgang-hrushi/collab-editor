@@ -2,8 +2,6 @@
 
 import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
-import CruxBrandLogo from "../CruxBrandLogo";
-import { Users, Wifi, Shield, Copy, Check } from "lucide-react";
 
 export default function VoidHUD({
   onSelectPeer,
@@ -26,44 +24,40 @@ export default function VoidHUD({
   };
 
   return (
-    <header className="absolute top-0 inset-x-0 h-10 px-4 flex items-center justify-between border-b border-[#141414] bg-[#020202]/80 backdrop-blur-sm z-20 select-none text-[11px] font-mono">
-      {/* Left: Engine & Daemon Status */}
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2">
-          <CruxBrandLogo size={14} withText={false} />
-          <span className="font-bold text-white tracking-widest uppercase">CRUX</span>
-        </div>
-        <span className="text-[#333333]">/</span>
-        <div className="flex items-center gap-1.5 text-[#888888]">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00FF66] shadow-[0_0_6px_#00FF66]" />
-          <span>DAEMON: 0.04ms</span>
-        </div>
-        <span className="hidden sm:inline text-[#333333]">/</span>
-        <span className="hidden sm:inline text-[#555555]">IPC MESH: AES-256</span>
+    <header className="absolute top-0 inset-x-0 h-8 px-2 flex items-center justify-between border-b border-[#222222] bg-[#000000] z-50 select-none text-[11px] font-sans">
+      {/* Left: Brand & Silicon Daemon Status */}
+      <div className="flex items-center gap-2">
+        <span className="font-brand font-black text-white -tracking-[0.05em] text-xs">
+          CREX
+        </span>
+        <span className="text-[#222222]">|</span>
+        <span className="font-mono text-[10px] text-[#444444]">
+          [DAEMON: 0.04ms]
+        </span>
+        <span className="text-[#222222]">|</span>
+        <span className="font-mono text-[10px] text-[#444444]">
+          [BARE-METAL DOM KERNEL]
+        </span>
       </div>
 
-      {/* Right: Multiplayer Radar & Identity */}
-      <div className="flex items-center gap-3">
-        {/* Radar Peer Dropdown Trigger */}
+      {/* Right: Multiplayer Radar & Identity (Tactile Mechanical Inversion) */}
+      <div className="flex items-center gap-2">
+        {/* Radar Dropdown Toggle */}
         <div className="relative">
           <button
             onClick={() => setShowRadarDropdown(!showRadarDropdown)}
-            className="flex items-center gap-1.5 px-2 py-1 border border-[#222222] bg-[#0a0a0a] hover:bg-[#111111] hover:border-[#333333] transition-colors text-white text-[11px]"
-            title="Multiplayer Radar: Active Mesh Sessions"
+            className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black transition-none text-[10px] font-mono uppercase flex items-center gap-1.5"
           >
-            <Users className="w-3 h-3 text-[#007AFF]" />
-            <span className="text-[10px] tracking-wider uppercase font-medium">
-              {activePeerList.length} PEERS LIVE
-            </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#007AFF] animate-pulse" />
+            <span>[{activePeerList.length} PEERS]</span>
+            <span className="inline-block w-1.5 h-1.5 bg-white animate-hard-blink" />
+            <span>[LIVE]</span>
           </button>
 
-          {/* Radar Dropdown */}
           {showRadarDropdown && (
-            <div className="absolute right-0 mt-1 w-64 border border-[#222222] bg-[#050505] p-2 shadow-2xl z-30 space-y-1">
-              <div className="px-2 py-1 text-[10px] text-[#555555] uppercase tracking-wider border-b border-[#161616] flex justify-between">
-                <span>Multiplayer Radar</span>
-                <span>Drop-in Live</span>
+            <div className="absolute right-0 mt-[1px] w-64 border border-[#222222] bg-[#000000] p-1 z-50 space-y-1">
+              <div className="px-1 py-0.5 text-[9px] text-[#444444] uppercase font-mono border-b border-[#222222] flex justify-between">
+                <span>RADAR SESSIONS</span>
+                <span>DIRECT SPECTATE</span>
               </div>
               {activePeerList.map((p) => (
                 <div
@@ -72,16 +66,12 @@ export default function VoidHUD({
                     setShowRadarDropdown(false);
                     onSelectPeer?.(p.userName, p.activeFileId || "file-stream-syncer");
                   }}
-                  className="px-2 py-1.5 flex items-center justify-between hover:bg-[#111111] cursor-pointer transition-colors"
+                  className="px-1.5 py-1 flex items-center justify-between border border-transparent hover:border-[#222222] hover:bg-white hover:text-black cursor-pointer transition-none text-[11px]"
                 >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="w-2 h-2 rounded-full"
-                      style={{ backgroundColor: p.userColor }}
-                    />
-                    <span className="text-white font-sans text-xs">{p.userName}</span>
+                  <div className="flex items-center gap-1.5 font-sans font-medium uppercase">
+                    <span>[{p.userName}]</span>
                   </div>
-                  <span className="text-[10px] text-[#666666] font-mono">
+                  <span className="text-[10px] font-mono">
                     {(p.activeFileId || "").replace("file-", "")}
                   </span>
                 </div>
@@ -91,19 +81,12 @@ export default function VoidHUD({
         </div>
 
         {/* Identity Chip */}
-        <div
+        <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 px-2 py-1 border border-[#1a1a1a] hover:border-[#2a2a2a] bg-[#050505] cursor-pointer text-[#888888] hover:text-white transition-colors text-[10px]"
-          title="Click to copy encrypted developer UID"
+          className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black transition-none text-[10px] font-mono uppercase"
         >
-          <span className="text-[#555555]">UID:</span>
-          <span>{currentUser.uid || "CRX-7447-HG"}</span>
-          {copiedUid ? (
-            <Check className="w-2.5 h-2.5 text-[#00FF66]" />
-          ) : (
-            <Copy className="w-2.5 h-2.5 text-[#444444]" />
-          )}
-        </div>
+          {copiedUid ? "[ENCLAVE KEY COPIED]" : `[UID: ${currentUser.uid || "CRX-7447-HG"}]`}
+        </button>
       </div>
     </header>
   );

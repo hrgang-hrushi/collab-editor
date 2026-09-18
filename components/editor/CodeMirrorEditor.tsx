@@ -117,20 +117,20 @@ const cruxEditorTheme = EditorView.theme({
   },
   ".cm-gutters": {
     backgroundColor: "#000000 !important",
-    color: "#555555 !important",
+    color: "#444444 !important",
     borderRight: "1px solid #222222 !important",
-    paddingRight: "6px",
+    width: "48px !important",
   },
   ".cm-activeLineGutter": {
-    backgroundColor: "#0A0A0A !important",
+    backgroundColor: "#111111 !important",
     color: "#FFFFFF !important",
   },
   ".cm-lineNumbers .cm-gutterElement": {
-    padding: "0 12px 0 8px !important",
+    padding: "0 8px 0 0 !important",
     fontSize: "12px",
-    minWidth: "38px",
+    width: "48px !important",
     textAlign: "right",
-    color: "#555555",
+    color: "#444444",
   },
   // Red Curvy Squiggly Underline for missing tokens / brackets / syntax errors
   ".cm-lintRange-error": {

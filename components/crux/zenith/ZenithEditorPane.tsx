@@ -165,9 +165,9 @@ syncer.acquireLock().then((ticket) => {
   const isStreamSyncer = activeFile?.name === "stream_syncer.ts";
 
   return (
-    <main className="flex-1 bg-void flex flex-col relative overflow-hidden font-sans select-text">
-      {/* Tab Strip (36px h-9, bg-surface border-b border-grid) */}
-      <div className="flex h-9 border-b border-grid bg-surface items-center justify-between select-none shrink-0 overflow-x-auto">
+    <main className="flex-1 bg-[#000000] flex flex-col relative overflow-hidden font-sans select-text">
+      {/* Crex Header: h-8 bg-[#111111] border-b border-[#222222] */}
+      <div className="flex h-8 border-b border-[#222222] bg-[#111111] items-center justify-between select-none shrink-0 overflow-x-auto">
         <div className="flex items-center h-full overflow-x-auto">
           {openFiles.map((tab) => {
             const isActive = tab.id === activeFile?.id;
@@ -175,29 +175,20 @@ syncer.acquireLock().then((ticket) => {
               <div
                 key={tab.id}
                 onClick={() => setActiveFile(tab.id)}
-                className={`px-4 py-2 border-r border-grid text-[11px] font-mono flex items-center gap-3 cursor-pointer transition-colors shrink-0 h-full ${
+                className={`px-3 border-r border-[#222222] text-[11px] font-sans uppercase tracking-tight flex items-center gap-2 cursor-pointer transition-none shrink-0 h-full ${
                   isActive
-                    ? "bg-void text-signal font-medium"
-                    : "bg-surface text-muted hover:text-signal"
+                    ? "bg-[#000000] text-white font-medium"
+                    : "bg-[#111111] text-[#444444] hover:text-white"
                 }`}
               >
-                <span className={`w-1.5 h-1.5 shrink-0 ${
-                  tab.language === 'typescript' ? 'bg-[#007AFF]' :
-                  tab.language === 'javascript' ? 'bg-[#FFD60A]' :
-                  tab.language === 'python' ? 'bg-[#30D158]' :
-                  tab.language === 'css' ? 'bg-[#BF5AF2]' :
-                  tab.language === 'html' ? 'bg-[#FF453A]' :
-                  tab.language === 'json' ? 'bg-[#FF9F0A]' :
-                  'bg-[#555555]'
-                }`} />
                 <span>{tab.name}</span>
                 {tab.content.split('\n').length > 1 && (
-                  <span className="text-[9px] text-[#333333] font-mono shrink-0 hidden md:inline">
+                  <span className="text-[9px] text-[#444444] font-mono shrink-0 hidden md:inline">
                     {tab.content.split('\n').length}L
                   </span>
                 )}
                 {tab.isDirty && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#FFD60A] shrink-0" title="Unsaved changes" />
+                  <span className="w-1.5 h-1.5 bg-white shrink-0" title="Unsaved changes" />
                 )}
                 {openFiles.length > 1 && (
                   <span
@@ -205,7 +196,7 @@ syncer.acquireLock().then((ticket) => {
                       e.stopPropagation();
                       closeTab(tab.id);
                     }}
-                    className="text-muted hover:text-signal cursor-pointer"
+                    className="text-[#444444] hover:text-white cursor-pointer ml-1"
                   >
                     ×
                   </span>

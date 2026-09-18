@@ -7,14 +7,15 @@ import VoidHUD from "./VoidHUD";
 import VoidKeymapBar from "./VoidKeymapBar";
 import VoidSuggestionMatrix, { VoidSuggestion } from "./VoidSuggestionMatrix";
 import VoidTerminalStage from "./VoidTerminalStage";
-import CruxBrandLogo from "../CruxBrandLogo";
 import { triggerHaptic } from "@/lib/haptics";
-import { Terminal, Sparkles, Folder, GitBranch, ArrowRight, LayoutGrid } from "lucide-react";
 
 interface TerminalLine {
   id: string;
   text: string;
-  type?: "info" | "success" | "warn" | "error" | "dim";
+  isAgent?: boolean;
+  agentTag?: string;
+  isPeer?: boolean;
+  peerTag?: string;
 }
 
 export default function CruxOmnibarVoid() {
@@ -26,13 +27,9 @@ export default function CruxOmnibarVoid() {
   const setMode = useWorkspaceStore((state) => state.setMode);
   const createFile = useWorkspaceStore((state) => state.createFile);
   const setActiveFile = useWorkspaceStore((state) => state.setActiveFile);
-  const addTerminalEntry = useWorkspaceStore((state) => state.addTerminalEntry);
-  const files = useWorkspaceStore((state) => state.files);
-  const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [isShattering, setIsShattering] = useState(false);
 
   // Terminal Stage state for clone/scaffold streaming
   const [terminalStage, setTerminalStage] = useState<{
@@ -57,7 +54,6 @@ export default function CruxOmnibarVoid() {
   useEffect(() => {
     inputRef.current?.focus();
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if terminal stage is active
       if (terminalStage.active) return;
 
       if (e.key === "Escape") {
@@ -66,7 +62,7 @@ export default function CruxOmnibarVoid() {
         return;
       }
 
-      // If user presses Cmd+K, let the standard handler run
+      // If user presses Cmd+K, allow palette
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         return;
       }
@@ -92,9 +88,9 @@ export default function CruxOmnibarVoid() {
     if (!isOnboarded) {
       setUserProfile({
         name: currentUser.name || "Principal Developer",
-        email: currentUser.email || "developer@crux.engine",
+        email: currentUser.email || "developer@crex.engine",
         uid: currentUser.uid || "CRX-7447-HG",
-        password: "crux-enclave-key",
+        password: "crex-hardware-lock",
         role: "Principal Developer",
         accessLevel: "full",
         isSelf: true,
@@ -103,25 +99,19 @@ export default function CruxOmnibarVoid() {
     }
   }, [isOnboarded, currentUser, setUserProfile, setOnboarded]);
 
-  // Launch into Zenith IDE
+  // Launch into Crex Zenith IDE
   const launchIDE = useCallback(() => {
     ensureIdentity();
-    setIsShattering(true);
     triggerHaptic("click");
-    setTimeout(() => {
-      setZeroStateOpen(false);
-    }, 240);
+    setZeroStateOpen(false);
   }, [ensureIdentity, setZeroStateOpen]);
 
   // Launch into Spatial Canvas (Nexus Mode)
   const launchCanvas = useCallback(() => {
     ensureIdentity();
     setMode("canvas");
-    setIsShattering(true);
     triggerHaptic("click");
-    setTimeout(() => {
-      setZeroStateOpen(false);
-    }, 240);
+    setZeroStateOpen(false);
   }, [ensureIdentity, setMode, setZeroStateOpen]);
 
   // Start clone streaming sequence
@@ -131,24 +121,83 @@ export default function CruxOmnibarVoid() {
       triggerHaptic("click");
       setTerminalStage({
         active: true,
-        title: "CRUX GIT ENGINE // REPO CLONE",
+        title: "CREX_GIT_ENGINE",
         command: `git clone ${repoUrl}`,
         lines: [
-          { id: "1", text: `→ Resolving remote host: ${repoUrl}`, type: "info" },
-          { id: "2", text: "→ Establishing TLS connection with GitHub edge...", type: "dim" },
+          { id: "1", text: `→ RESOLVING_REMOTE: ${repoUrl}` },
+          { id: "2", text: "→ ESTABLISHING TLS STREAM WITH EDGE CLUSTER..." },
         ],
         isRunning: true,
         isComplete: false,
       });
 
-      // Stream sequential steps
       setTimeout(() => {
         setTerminalStage((prev) => ({
           ...prev,
           lines: [
             ...prev.lines,
-            { id: "3", text: "remote: Enumerating objects: 248, done.", type: "info" },
-            { id: "4", text: "remote: Compressing objects: 100% (142/142), done.", type: "info" },
+            { id: "3", text: "remote: Enumerating objects: 248, done." },
+            { id: "4", text: "remote: Compressing objects: 100% (142/142), done." },
+          ],
+        }));
+      }, 350);
+
+      setTimeout(() => {
+        setTerminalStage((prev) => ({
+          ...prev,
+          lines: [
+            ...prev.lines,
+            { id: "5", text: "Receiving objects: 100% (248/248), 1.24 MiB | 8.4 MiB/s, done." },
+            { id: "6", text: "Resolving deltas: 100% (98/98), completed with 42 local objects." },
+            { id: "7", text: "[OK] WORKSPACE MOUNTED TO MEMORY-MAPPED VIRTUAL DISK." },
+          ],
+          isRunning: false,
+          isComplete: true,
+        }));
+        triggerHaptic("success");
+      }, 900);
+    },
+    [ensureIdentity]
+  );
+
+  // Start @CrexAI scaffold streaming sequence
+  const executeScaffold = useCallback(
+    (promptText: string) => {
+      ensureIdentity();
+      triggerHaptic("click");
+      setTerminalStage({
+        active: true,
+        title: "CREX_AGENTIC_KERNEL",
+        command: `@CrexAI scaffold ${promptText}`,
+        lines: [
+          {
+            id: "1",
+            text: "INITIALIZING BARE-METAL COMPILER AGENT...",
+            isAgent: true,
+            agentTag: "[@CrexAI]",
+          },
+        ],
+        isRunning: true,
+        isComplete: false,
+      });
+
+      setTimeout(() => {
+        setTerminalStage((prev) => ({
+          ...prev,
+          lines: [
+            ...prev.lines,
+            {
+              id: "2",
+              text: "→ Generating src/app/dashboard/layout.tsx [TypeScript AST]",
+              isAgent: true,
+              agentTag: "[@CrexAI]",
+            },
+            {
+              id: "3",
+              text: "→ Synthesizing hardware brutalist 1px grid boundaries",
+              isAgent: true,
+              agentTag: "[@CrexAI]",
+            },
           ],
         }));
       }, 400);
@@ -158,60 +207,18 @@ export default function CruxOmnibarVoid() {
           ...prev,
           lines: [
             ...prev.lines,
-            { id: "5", text: "Receiving objects: 100% (248/248), 1.24 MiB | 8.4 MiB/s, done.", type: "info" },
-            { id: "6", text: "Resolving deltas: 100% (98/98), completed with 42 local objects.", type: "info" },
-            { id: "7", text: "✓ Workspace mounted into active CRUX virtual filesystem.", type: "success" },
+            {
+              id: "4",
+              text: "[OK] 4 modules synthesized in 68ms. Vector clocks locked.",
+              isAgent: true,
+              agentTag: "[@CrexAI]",
+            },
           ],
           isRunning: false,
           isComplete: true,
         }));
         triggerHaptic("success");
-      }, 1000);
-    },
-    [ensureIdentity]
-  );
-
-  // Start @CruxAI scaffold streaming sequence
-  const executeScaffold = useCallback(
-    (promptText: string) => {
-      ensureIdentity();
-      triggerHaptic("click");
-      setTerminalStage({
-        active: true,
-        title: "CRUX_AI // AUTONOMOUS PROJECT SCAFFOLD",
-        command: `@CruxAI scaffold ${promptText}`,
-        lines: [
-          { id: "1", text: "⚡ CruxAI Planner initialized. Analyzing project blueprint...", type: "info" },
-        ],
-        isRunning: true,
-        isComplete: false,
-      });
-
-      setTimeout(() => {
-        setTerminalStage((prev) => ({
-          ...prev,
-          lines: [
-            ...prev.lines,
-            { id: "2", text: "→ Creating src/app/dashboard/layout.tsx [TypeScript]", type: "info" },
-            { id: "3", text: "→ Creating src/lib/telemetry.ts [Vector Invariants]", type: "info" },
-            { id: "4", text: "→ Injecting Tailwind typography & brutalist 1px borders...", type: "dim" },
-          ],
-        }));
-      }, 450);
-
-      setTimeout(() => {
-        setTerminalStage((prev) => ({
-          ...prev,
-          lines: [
-            ...prev.lines,
-            { id: "5", text: "✓ Generated 4 files with zero type errors in 72ms.", type: "success" },
-            { id: "6", text: "● Vector clocks synchronized with mesh peers.", type: "success" },
-          ],
-          isRunning: false,
-          isComplete: true,
-        }));
-        triggerHaptic("success");
-      }, 1100);
+      }, 950);
     },
     [ensureIdentity]
   );
@@ -221,14 +228,14 @@ export default function CruxOmnibarVoid() {
     const q = query.trim().toLowerCase();
     const raw = query.trim();
 
-    // 1. If query is a URL or begins with git clone
+    // 1. If query is a URL or begins with clone
     if (q.startsWith("http://") || q.startsWith("https://") || q.startsWith("git@") || q.startsWith("clone ")) {
       const url = raw.replace(/^clone\s+/i, "");
       return [
         {
           id: "s-clone-direct",
           category: "CLONE",
-          title: `Clone Remote Repository`,
+          title: `Clone Remote Git Repository`,
           description: url,
           commandSnippet: `clone ${url}`,
           badge: "GIT",
@@ -237,16 +244,16 @@ export default function CruxOmnibarVoid() {
       ];
     }
 
-    // 2. If query begins with @CruxAI or ai:
-    if (q.startsWith("@cruxai") || q.startsWith("ai:") || q.startsWith("scaffold ")) {
-      const prompt = raw.replace(/^(@cruxai|ai:|scaffold)\s*/i, "");
+    // 2. If query begins with @CrexAI or ai:
+    if (q.startsWith("@crexai") || q.startsWith("@cruxai") || q.startsWith("ai:") || q.startsWith("scaffold ")) {
+      const prompt = raw.replace(/^(@crexai|@cruxai|ai:|scaffold)\s*/i, "");
       return [
         {
           id: "s-ai-scaffold",
           category: "AGENT",
-          title: `Scaffold Autonomous Project`,
-          description: prompt || "Generate Next.js & TypeScript architecture",
-          commandSnippet: `@CruxAI scaffold ${prompt || "dashboard"}`,
+          title: `Scaffold Bare-Metal Project`,
+          description: prompt || "Synthesize Next.js & TypeScript Architecture",
+          commandSnippet: `@CrexAI scaffold ${prompt || "dashboard"}`,
           badge: "AGENTIC",
           action: () => executeScaffold(prompt || "Next.js dashboard"),
         },
@@ -259,8 +266,8 @@ export default function CruxOmnibarVoid() {
         {
           id: "s-canvas-direct",
           category: "SPATIAL",
-          title: "Launch Infinite Spatial Canvas",
-          description: "Boot 2D spatial graph with draggable file nodes",
+          title: "Boot Infinite Spatial Canvas",
+          description: "2D spatial graph with draggable file nodes",
           commandSnippet: "open canvas",
           badge: "NEXUS",
           action: () => launchCanvas(),
@@ -268,12 +275,11 @@ export default function CruxOmnibarVoid() {
       ];
     }
 
-    // Standard pre-filtered lists
     const allOptions: VoidSuggestion[] = [
       {
         id: "s-open-crux-core",
         category: "PROJECT",
-        title: "Open crux-core",
+        title: "Mount crux-core",
         description: "Active collaborative workspace (3 peers online)",
         commandSnippet: "open crux-core",
         badge: "ACTIVE",
@@ -282,11 +288,11 @@ export default function CruxOmnibarVoid() {
       {
         id: "s-agent-dashboard",
         category: "AGENT",
-        title: "@CruxAI scaffold Next.js dashboard",
-        description: "Autonomous live multi-file project generator",
-        commandSnippet: "@CruxAI scaffold dashboard",
+        title: "@CrexAI scaffold Next.js dashboard",
+        description: "Autonomous live machine code synthesizer",
+        commandSnippet: "@CrexAI scaffold dashboard",
         badge: "AI CORE",
-        action: () => executeScaffold("Next.js dashboard with brutalist design"),
+        action: () => executeScaffold("Next.js dashboard with hardware brutalist tokens"),
       },
       {
         id: "s-clone-preset",
@@ -300,10 +306,10 @@ export default function CruxOmnibarVoid() {
       {
         id: "s-radar-marcus",
         category: "RADAR",
-        title: "Drop-in: Marcus Vance",
-        description: "Pair-program live on file-spatial.ts (Active)",
+        title: "Drop-in Spectate: Marcus Vance",
+        description: "Pair-program live on file-spatial.ts",
         commandSnippet: "connect Marcus",
-        badge: "LIVE 42ms",
+        badge: "PEER_LIVE",
         action: () => {
           setActiveFile("file-spatial");
           launchIDE();
@@ -312,8 +318,8 @@ export default function CruxOmnibarVoid() {
       {
         id: "s-spatial-canvas",
         category: "SPATIAL",
-        title: "Open Infinite Spatial Canvas",
-        description: "Spatial 2D graph with floating cards (Nexus Mode)",
+        title: "Open Spatial Canvas Matrix",
+        description: "Spatial 2D hardware desk (Nexus Mode)",
         commandSnippet: "open canvas",
         badge: "NEXUS",
         action: () => launchCanvas(),
@@ -321,10 +327,10 @@ export default function CruxOmnibarVoid() {
       {
         id: "s-new-buffer",
         category: "NEW",
-        title: "Create Scratchpad Buffer",
+        title: "Allocate Scratchpad Buffer",
         description: "Instant empty buffer in Zenith editor",
         commandSnippet: "new untitled.ts",
-        badge: "NEW",
+        badge: "BUFFER",
         action: () => {
           createFile("untitled.ts");
           launchIDE();
@@ -366,7 +372,6 @@ export default function CruxOmnibarVoid() {
       if (suggestions[selectedIndex]) {
         suggestions[selectedIndex].action();
       } else if (query.trim()) {
-        // Raw command execution fallback
         if (query.toLowerCase().includes("clone")) {
           executeClone(query.replace(/^clone\s+/i, ""));
         } else if (query.toLowerCase().includes("canvas")) {
@@ -380,7 +385,7 @@ export default function CruxOmnibarVoid() {
 
   return (
     <VoidCanvas>
-      {/* 1. Top HUD Telemetry */}
+      {/* Top Telemetry Bar */}
       <VoidHUD
         onSelectPeer={(peerName, fileId) => {
           setActiveFile(fileId);
@@ -388,22 +393,20 @@ export default function CruxOmnibarVoid() {
         }}
       />
 
-      {/* 2. Centered Omnibar Void */}
-      <div
-        className={`relative z-10 flex-1 flex flex-col items-center justify-center p-4 transition-all duration-300 ${
-          isShattering ? "scale-95 opacity-0 blur-sm" : "scale-100 opacity-100"
-        }`}
-      >
+      {/* Dead Center Omnibar Interface (Z-50) */}
+      <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-2">
         <div className="w-full max-w-2xl flex flex-col items-center">
-          {/* Header Identity Badge */}
-          <div className="mb-4 flex items-center gap-2 select-none">
-            <CruxBrandLogo size={20} withText={false} />
-            <span className="font-mono text-xs text-[#888888] uppercase tracking-widest">
-              CRUX // HYBRID EXECUTION MATRIX
+          {/* Brand Display: Etna Sans Serif, tight tracking, heavy weight, solid fill */}
+          <div className="mb-6 flex flex-col items-center select-none text-center">
+            <h1 className="font-brand font-black text-white text-5xl -tracking-[0.05em] uppercase leading-none">
+              CREX
+            </h1>
+            <span className="font-mono text-[10px] text-[#444444] uppercase tracking-[0.2em] mt-1">
+              [BARE-METAL COLLABORATIVE EXECUTION KERNEL]
             </span>
           </div>
 
-          {/* If Terminal Stage is Active: show the in-place streaming terminal */}
+          {/* If Terminal Stage is Active: Show inline streaming terminal */}
           {terminalStage.active ? (
             <VoidTerminalStage
               title={terminalStage.title}
@@ -414,11 +417,10 @@ export default function CruxOmnibarVoid() {
               onFinish={() => launchIDE()}
             />
           ) : (
-            /* The Core Omnibar Container */
-            <div className="w-full border border-[#222222] bg-[#050505] shadow-[0_0_50px_rgba(0,0,0,0.8)] transition-all">
-              {/* Omnibar Input Row */}
-              <div className="h-12 px-4 flex items-center gap-3 bg-[#030303]">
-                <span className="font-mono text-base font-bold text-white select-none">
+            /* The Omnibar Blueprint: Dead Center, Arial MT Pro, text-2xl, border-b-2 border-white, no side/top borders */
+            <div className="w-full border border-[#222222] bg-[#000000]">
+              <div className="px-4 py-3 flex items-center gap-3 bg-[#000000] border-b-2 border-white">
+                <span className="font-mono text-xl font-bold text-white select-none">
                   ❯
                 </span>
                 <input
@@ -427,22 +429,21 @@ export default function CruxOmnibarVoid() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Type clone URL, @CruxAI prompt, project, or peer..."
-                  className="flex-1 bg-transparent text-white font-mono text-sm placeholder:text-[#444444] focus:outline-none caret-white selection:bg-[#222222]"
+                  placeholder="[EXECUTE COMMAND...]"
+                  className="flex-1 bg-transparent text-white font-sans text-2xl placeholder:text-[#444444] focus:outline-none caret-white selection:bg-[#222222]"
                   spellCheck={false}
                   autoComplete="off"
                 />
                 {query && (
                   <button
                     onClick={() => setQuery("")}
-                    className="text-xs font-mono text-[#555555] hover:text-white px-1.5 py-0.5 border border-[#222222]"
+                    className="font-mono text-[11px] text-[#444444] hover:text-white px-2 py-0.5 border border-[#222222] hover:border-white transition-none uppercase"
                   >
-                    CLEAR
+                    [CLEAR]
                   </button>
                 )}
                 <div className="hidden sm:flex items-center gap-1 font-mono text-[10px] text-[#444444]">
-                  <span>EXEC</span>
-                  <span className="px-1 border border-[#222222] text-[#888888]">↵</span>
+                  <span>[ENTER]</span>
                 </div>
               </div>
 
@@ -458,7 +459,7 @@ export default function CruxOmnibarVoid() {
         </div>
       </div>
 
-      {/* 3. Bottom Keystroke Keymap Bar */}
+      {/* Bottom Keymap Bar */}
       <VoidKeymapBar />
     </VoidCanvas>
   );

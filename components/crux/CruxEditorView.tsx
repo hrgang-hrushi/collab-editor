@@ -211,7 +211,7 @@ export default function CruxEditorView() {
             className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-grid border border-grid text-signal text-[11px] font-mono transition-colors"
             title="Developer Identity & Keyring (Click to switch user or copy UID)"
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-[#00FF00]" />
+            <div className="w-1.5 h-1.5 bg-white" />
             <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
             <span className="text-[10px] text-muted">[{currentUser.uid || "CRX-7447"}]</span>
           </button>
@@ -376,7 +376,7 @@ export default function CruxEditorView() {
             <span className="text-signal">{gitInfo.branch}{gitInfo.isDirty ? "*" : ""}</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[#00FF00]" />
+            <span className="w-1.5 h-1.5 bg-white" />
             <span className="text-[10px] tracking-wider uppercase">CRDT IN-SYNC</span>
           </div>
           <span className="text-[10px] text-muted">Daemon: 0.08ms</span>

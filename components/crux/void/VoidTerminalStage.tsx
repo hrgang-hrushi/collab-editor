@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Terminal, Loader2, CheckCircle, ArrowRight } from "lucide-react";
 
 interface TerminalLine {
   id: string;
   text: string;
-  type?: "info" | "success" | "warn" | "error" | "dim";
+  isAgent?: boolean;
+  agentTag?: string;
+  isPeer?: boolean;
+  peerTag?: string;
 }
 
 interface VoidTerminalStageProps {
@@ -35,75 +37,82 @@ export default function VoidTerminalStage({
   }, [lines]);
 
   return (
-    <div className="w-full border border-[#262626] bg-[#050505] flex flex-col shadow-2xl transition-all duration-300 min-h-[260px] max-h-[360px]">
-      {/* Terminal Titlebar */}
-      <div className="h-8 px-3 border-b border-[#222222] bg-[#0c0c0c] flex items-center justify-between font-mono text-[11px] text-[#888888] select-none">
+    <div className="w-full border border-[#222222] bg-[#000000] flex flex-col font-mono text-[12px]">
+      {/* Terminal Titlebar (h-8, bg-[#111111], border-b border-[#222222]) */}
+      <div className="h-8 px-2 border-b border-[#222222] bg-[#111111] flex items-center justify-between text-[11px] text-[#444444] select-none font-sans uppercase">
         <div className="flex items-center gap-2">
-          <Terminal className="w-3.5 h-3.5 text-white" />
-          <span className="text-white font-medium">{title}</span>
-          <span className="text-[#444444]">|</span>
-          <span className="text-[#666666] truncate max-w-[280px]">{command}</span>
+          <span className="font-mono text-white font-bold">[{title}]</span>
+          <span className="text-[#222222]">|</span>
+          <span className="font-mono text-[#888888] truncate max-w-[280px]">
+            {command}
+          </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 font-mono text-[10px]">
           {isRunning && (
-            <div className="flex items-center gap-1.5 text-[#00FF66]">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              <span className="text-[10px] tracking-wider uppercase">EXECUTING</span>
+            <div className="flex items-center gap-1 text-white">
+              <span className="inline-block w-1.5 h-1.5 bg-white animate-hard-blink" />
+              <span>[PROCESSING_STREAM]</span>
             </div>
           )}
           {isComplete && (
-            <div className="flex items-center gap-1.5 text-[#00FF66]">
-              <CheckCircle className="w-3 h-3" />
-              <span className="text-[10px] tracking-wider uppercase">READY</span>
+            <div className="text-white">
+              <span>[EXIT_CODE_0: SYNCHRONIZED]</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Output Stream */}
+      {/* Output Stream (Dense, tabular lining, exact alignment) */}
       <div
         ref={scrollRef}
-        className="flex-1 p-3 overflow-y-auto font-mono text-[12px] space-y-1 bg-[#000000] text-[#D4D4D4] select-text"
+        className="h-56 p-2 overflow-y-auto font-mono text-[12px] leading-relaxed space-y-1 bg-[#000000] text-white select-text"
       >
-        <div className="text-[#555555]">
-          crux-kernel v1.2.0 (x86_64-apple-darwin) — PID 7447
+        <div className="text-[#444444]">
+          [CREX BARE-METAL KERNEL v1.2.0 // TTY_ATTACHED // ZERO_COLOR]
         </div>
         <div className="text-white">
-          <span className="text-[#00FF66]">crux ❯</span> {command}
+          <span className="text-white font-bold">crex ❯</span> {command}
         </div>
 
-        {lines.map((l) => {
-          let color = "text-[#cccccc]";
-          if (l.type === "success") color = "text-[#00FF66]";
-          if (l.type === "warn") color = "text-[#FF9F0A]";
-          if (l.type === "error") color = "text-[#FF453A]";
-          if (l.type === "dim") color = "text-[#555555]";
-          return (
-            <div key={l.id} className={`leading-relaxed whitespace-pre-wrap break-all ${color}`}>
-              {l.text}
-            </div>
-          );
-        })}
+        {lines.map((l) => (
+          <div
+            key={l.id}
+            className={`whitespace-pre-wrap break-all ${
+              l.isAgent ? "pl-3 border-l border-[#222222] text-white" : "text-[#D4D4D4]"
+            }`}
+          >
+            {l.isAgent && (
+              <span className="text-white font-bold mr-2">
+                {l.agentTag || "[@CrexAI]"}
+              </span>
+            )}
+            {l.isPeer && (
+              <span className="text-white font-bold mr-2">
+                {l.peerTag} <span className="animate-hard-blink">[LIVE]</span>
+              </span>
+            )}
+            <span>{l.text}</span>
+          </div>
+        ))}
 
         {isRunning && (
-          <div className="flex items-center gap-1 text-[#666666] animate-pulse">
-            <span className="inline-block w-2 h-3 bg-white" />
+          <div className="flex items-center gap-1 text-white mt-1">
+            <span className="crex-cursor" />
           </div>
         )}
       </div>
 
       {/* Complete Action Footer */}
       {isComplete && (
-        <div className="h-10 px-3 border-t border-[#222222] bg-[#0c0c0c] flex items-center justify-between">
-          <span className="text-[11px] font-mono text-[#888888]">
-            Process exited with code 0 (Vector Clocks synchronized)
+        <div className="h-8 px-2 border-t border-[#222222] bg-[#111111] flex items-center justify-between select-none">
+          <span className="text-[10px] font-mono text-[#444444] uppercase">
+            VECTOR CLOCK: RESOLVED | PIPELINE UNLOCKED
           </span>
           <button
             onClick={onFinish}
-            className="flex items-center gap-1.5 px-3 py-1 bg-white text-black text-xs font-semibold hover:bg-[#E0E0E0] transition-colors"
+            className="btn-crex h-6 px-3 bg-white text-black font-mono font-bold hover:bg-[#111111] hover:text-white transition-none"
           >
-            <span>Enter IDE</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            [ENTER WORKSPACE] →
           </button>
         </div>
       )}

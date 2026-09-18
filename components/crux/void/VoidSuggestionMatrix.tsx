@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { GitBranch, Sparkles, Folder, Users, LayoutGrid, FilePlus, ChevronRight } from "lucide-react";
 
 export interface VoidSuggestion {
   id: string;
@@ -28,48 +27,31 @@ export default function VoidSuggestionMatrix({
 }: VoidSuggestionMatrixProps) {
   if (suggestions.length === 0) {
     return (
-      <div className="p-4 text-center font-mono text-xs text-[#555555] border-t border-[#1a1a1a]">
-        No matching actions. Press <span className="text-white">↵ Enter</span> to execute raw command.
+      <div className="p-3 text-center font-mono text-[11px] text-[#444444] border-t border-[#222222] bg-[#000000]">
+        [NULL_MATCH: PRESS ENTER TO EXECUTE RAW MACHINE INSTRUCTION]
       </div>
     );
   }
 
-  const getCategoryIcon = (category: VoidSuggestion["category"]) => {
+  const getCategoryTag = (category: VoidSuggestion["category"]) => {
     switch (category) {
       case "CLONE":
-        return <GitBranch className="w-3.5 h-3.5 text-[#007AFF]" />;
+        return "[GIT_CLONE]";
       case "AGENT":
-        return <Sparkles className="w-3.5 h-3.5 text-[#FF453A]" />;
+        return "[@CrexAI]";
       case "PROJECT":
-        return <Folder className="w-3.5 h-3.5 text-[#E0E0E0]" />;
+        return "[WORKSPACE]";
       case "RADAR":
-        return <Users className="w-3.5 h-3.5 text-[#00FF66]" />;
+        return "[LIVE_PEER]";
       case "SPATIAL":
-        return <LayoutGrid className="w-3.5 h-3.5 text-[#FF9F0A]" />;
+        return "[NEXUS_2D]";
       case "NEW":
-        return <FilePlus className="w-3.5 h-3.5 text-[#FFFFFF]" />;
-    }
-  };
-
-  const getCategoryBadgeClass = (category: VoidSuggestion["category"]) => {
-    switch (category) {
-      case "CLONE":
-        return "border-[#007AFF]/40 text-[#007AFF] bg-[#007AFF]/10";
-      case "AGENT":
-        return "border-[#FF453A]/40 text-[#FF453A] bg-[#FF453A]/10";
-      case "PROJECT":
-        return "border-[#333333] text-[#AAAAAA] bg-[#111111]";
-      case "RADAR":
-        return "border-[#00FF66]/40 text-[#00FF66] bg-[#00FF66]/10";
-      case "SPATIAL":
-        return "border-[#FF9F0A]/40 text-[#FF9F0A] bg-[#FF9F0A]/10";
-      case "NEW":
-        return "border-white/30 text-white bg-white/10";
+        return "[BUFFER_NEW]";
     }
   };
 
   return (
-    <div className="max-h-[300px] overflow-y-auto border-t border-[#1a1a1a] bg-[#050505] divide-y divide-[#111111] select-none">
+    <div className="max-h-[300px] overflow-y-auto border-t border-[#222222] bg-[#000000] divide-y divide-[#222222] select-none font-sans">
       {suggestions.map((item, idx) => {
         const isSelected = idx === selectedIndex;
         return (
@@ -77,45 +59,58 @@ export default function VoidSuggestionMatrix({
             key={item.id}
             onMouseEnter={() => onSelectIndex(idx)}
             onClick={() => onExecute(item)}
-            className={`px-3 py-2.5 flex items-center justify-between cursor-pointer transition-colors ${
+            className={`px-3 py-2 flex items-center justify-between cursor-pointer transition-none ${
               isSelected
-                ? "bg-[#111111] border-l-2 border-white pl-[10px]"
-                : "hover:bg-[#0c0c0c] border-l-2 border-transparent"
+                ? "bg-white text-black font-semibold"
+                : "bg-transparent text-white hover:bg-white hover:text-black"
             }`}
           >
-            {/* Left Column: Icon + Category Badge + Title */}
-            <div className="flex items-center gap-2.5 min-w-0 flex-1">
-              <span className="shrink-0">{getCategoryIcon(item.category)}</span>
+            {/* Left Column: Category Tag + Command Title */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
               <span
-                className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border shrink-0 uppercase tracking-wider ${getCategoryBadgeClass(
-                  item.category
-                )}`}
+                className={`font-mono text-[10px] px-1 py-0.2 border transition-none shrink-0 uppercase ${
+                  isSelected
+                    ? "border-black bg-black text-white"
+                    : "border-[#222222] bg-[#111111] text-white"
+                }`}
               >
-                {item.category}
+                {getCategoryTag(item.category)}
               </span>
-              <span className="text-xs text-white font-medium truncate font-sans">
+              <span className="text-xs uppercase tracking-tight truncate">
                 {item.title}
               </span>
-              <span className="hidden md:inline text-[11px] text-[#666666] truncate font-sans">
-                {item.description}
+              <span
+                className={`hidden md:inline text-[11px] font-mono truncate transition-none ${
+                  isSelected ? "text-black/70" : "text-[#444444]"
+                }`}
+              >
+                — {item.description}
               </span>
             </div>
 
-            {/* Right Column: Code Snippet / Shortcut */}
-            <div className="flex items-center gap-2 shrink-0 ml-3">
+            {/* Right Column: Monospace Command Snippet / Status */}
+            <div className="flex items-center gap-2 shrink-0 ml-2 font-mono text-[10px]">
               {item.badge && (
-                <span className="text-[10px] font-mono text-[#00FF66] border border-[#00FF66]/30 px-1.5 py-0.2 bg-[#00FF66]/5">
+                <span
+                  className={`px-1 py-0.2 border uppercase ${
+                    isSelected
+                      ? "border-black text-black"
+                      : "border-[#222222] text-[#888888]"
+                  }`}
+                >
                   {item.badge}
                 </span>
               )}
-              <span className="hidden sm:inline font-mono text-[10px] text-[#555555] bg-[#0c0c0c] px-1.5 py-0.5 border border-[#1f1f1f]">
+              <span
+                className={`hidden sm:inline px-1.5 py-0.5 border ${
+                  isSelected
+                    ? "border-black bg-black text-white"
+                    : "border-[#222222] bg-[#111111] text-[#FFFFFF]"
+                }`}
+              >
                 {item.commandSnippet}
               </span>
-              <ChevronRight
-                className={`w-3.5 h-3.5 ${
-                  isSelected ? "text-white" : "text-[#333333]"
-                }`}
-              />
+              <span className="font-mono text-xs">→</span>
             </div>
           </div>
         );

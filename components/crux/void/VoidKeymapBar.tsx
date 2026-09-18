@@ -4,26 +4,28 @@ import React from "react";
 
 export default function VoidKeymapBar() {
   const keys = [
-    { key: "Tab", action: "Autocomplete" },
-    { key: "↑ / ↓", action: "Navigate" },
-    { key: "↵ Enter", action: "Execute" },
-    { key: "Esc", action: "Clear" },
-    { key: "⌘K", action: "Command Palette" },
+    { key: "TAB", action: "AUTOCOMPLETE" },
+    { key: "↑ / ↓", action: "NAVIGATE MATRIX" },
+    { key: "ENTER", action: "EXECUTE" },
+    { key: "ESC", action: "RESET VOID" },
+    { key: "⌘K", action: "COMMAND PALETTE" },
   ];
 
   return (
-    <div className="absolute bottom-4 inset-x-0 flex items-center justify-center pointer-events-none z-20">
-      <div className="flex items-center gap-4 px-3 py-1.5 border border-[#1a1a1a] bg-[#050505]/90 backdrop-blur-sm text-[11px] font-mono text-[#666666]">
+    <footer className="absolute bottom-0 inset-x-0 h-7 px-2 flex items-center justify-between border-t border-[#222222] bg-[#000000] z-50 select-none font-mono text-[10px] text-[#444444]">
+      <div className="flex items-center gap-3">
         {keys.map((item, idx) => (
-          <div key={idx} className="flex items-center gap-1.5">
-            <span className="px-1 py-0.5 border border-[#2a2a2a] bg-[#111111] text-[#bbbbbb] text-[10px] font-mono">
-              {item.key}
+          <div key={idx} className="flex items-center gap-1">
+            <span className="px-1 border border-[#222222] bg-[#111111] text-white">
+              [{item.key}]
             </span>
             <span>{item.action}</span>
-            {idx < keys.length - 1 && <span className="text-[#262626] ml-2">·</span>}
           </div>
         ))}
       </div>
-    </div>
+      <div className="hidden sm:block text-[#222222]">
+        HARDWARE_BRUTALISM // 0PX_RADIUS // ZERO_COLOR
+      </div>
+    </footer>
   );
 }
