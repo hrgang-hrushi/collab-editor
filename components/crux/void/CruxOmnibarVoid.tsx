@@ -495,20 +495,20 @@ export default function CruxOmnibarVoid() {
 
       {/* Main Omnibar Interface Deck (Z-50) */}
       <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-4xl flex flex-col items-center">
-          {/* 1. Monolithic Industrial Brand Centerpiece */}
-          <div className="mb-6 flex flex-col items-center justify-center select-none text-center">
-            <div className="relative inline-flex items-center justify-center">
-              <h1 className="font-brand font-black text-white text-7xl sm:text-8xl tracking-[0px] leading-none select-none text-center">
-                Crux
-              </h1>
-              <div className="absolute -top-1 -right-7 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
-                v1.2
-              </div>
+        {/* 1. Monolithic Industrial Brand Centerpiece - perfectly centered */}
+        <div className="flex flex-col items-center justify-center select-none text-center">
+          <div className="relative inline-flex items-center justify-center">
+            <h1 className="font-brand font-black text-white text-7xl sm:text-8xl tracking-[0px] leading-none select-none text-center">
+              Crux
+            </h1>
+            <div className="absolute -top-1 -right-7 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
+              v1.2
             </div>
           </div>
+        </div>
 
-          {/* 2. The Omnibar Console Deck */}
+        {/* 2. The Omnibar Console Deck - spaced below Crux */}
+        <div className="w-full max-w-4xl flex flex-col items-center mt-10">
           {terminalStage.active ? (
             <VoidTerminalStage
               title={terminalStage.title}
