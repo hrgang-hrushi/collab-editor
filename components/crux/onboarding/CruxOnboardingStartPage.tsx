@@ -248,17 +248,17 @@ export default function CruxOnboardingStartPage() {
             {/* Monolithic Crux Title Section */}
             <div className="flex flex-col items-center justify-center space-y-1">
               <div className="relative inline-flex items-center justify-center">
-                <h1 className="font-brand font-black text-white text-5xl sm:text-6xl md:text-7xl tracking-[0px] leading-none select-none text-center">
+                <h1 className="font-brand font-black text-white text-6xl sm:text-7xl md:text-8xl tracking-[0px] leading-none select-none text-center">
                   Crux
                 </h1>
-                <div className="absolute -top-1 -right-7 text-[8px] font-mono text-[#555555] border border-[#222222] px-1 bg-[#000000]">
+                <div className="absolute -top-1 -right-8 text-[9px] font-mono text-[#555555] border border-[#222222] px-1.5 py-0.5 bg-[#000000]">
                   v1.2
                 </div>
               </div>
 
-              {/* Editorial Statement: 2 lines in pure white Arial MT matching screenshot */}
-              <div className="pt-1">
-                <h2 className="font-sans text-2xl sm:text-3xl md:text-[32px] text-white font-normal tracking-[-0.03em] leading-[1.12] select-none text-center">
+              {/* Editorial Statement: Enlarged 2 lines in pure white Arial MT */}
+              <div className="pt-2">
+                <h2 className="font-sans text-3xl sm:text-5xl md:text-6xl text-white font-normal tracking-[-0.04em] leading-[1.08] select-none text-center max-w-2xl">
                   Bringing the dream
                   <br />
                   IDE to reality.
