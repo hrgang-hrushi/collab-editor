@@ -222,7 +222,7 @@ export default function CruxOnboardingStartPage() {
 
       {/* 3. Central Start Board Matrix (Z-30) */}
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div className="w-full max-w-xl border border-[#222222] bg-[#000000] shadow-2xl">
+        <div className="w-full max-w-xl border border-[#222222] bg-[#000000]">
           {/* Card Title Strip with Hardware Mode Tabs */}
           <div className="h-9 px-3 bg-[#111111] border-b border-[#222222] flex items-center justify-between font-mono text-[10px] select-none">
             <div className="flex items-center gap-2 text-[#888888] uppercase tracking-wider">
