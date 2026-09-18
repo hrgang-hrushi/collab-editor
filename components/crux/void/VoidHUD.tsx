@@ -28,7 +28,7 @@ export default function VoidHUD({
       {/* Left: Brand & Silicon Daemon Status */}
       <div className="flex items-center gap-2">
         <span className="font-brand font-black text-white -tracking-[0.05em] text-xs">
-          Crex
+          Crux
         </span>
         <span className="text-[#222222]">|</span>
         <span className="font-mono text-[10px] text-[#444444]">

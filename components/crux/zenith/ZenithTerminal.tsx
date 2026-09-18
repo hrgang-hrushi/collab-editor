@@ -951,7 +951,7 @@ function TerminalPaneView({
               {line.executorName && (
                 <span className="font-bold mr-1.5 text-white font-mono">
                   {isAgent ? (
-                    "[@CrexAI]"
+                    "[@CruxAI]"
                   ) : (
                     <>
                       [{line.executorName}]

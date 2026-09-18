@@ -14,7 +14,6 @@ const config: Config = {
         brand: [
           '"Etna Sans Serif"',
           'Etna',
-          '"Arial Black"',
           '"Arial MT Pro"',
           'Arial',
           'sans-serif',

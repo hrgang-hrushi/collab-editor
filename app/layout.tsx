@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "crex — Collaborative IDE & Spatial Code Studio",
+  title: "Crux — Collaborative IDE & Spatial Code Studio",
   description: "Bare-metal collaborative coding IDE with real-time CRDT buffers, spatial multi-file architecture, and integrated terminal.",
 };
 

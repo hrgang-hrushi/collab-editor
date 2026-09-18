@@ -17,11 +17,11 @@ You must parse and obey every directive in this document. If you hallucinate Saa
 ---
 
 ## 1. The Typographic Engine
-Crex uses a strict, utilitarian type system. Text is treated as structural data.
+Crux uses a strict, utilitarian type system. Text is treated as structural data.
 *   **The Brand Display:** `Etna Sans Serif` ONLY.
-    *   *Text Casing:* Strictly capital 'C' only: `Crex`.
-    *   *Usage:* The "Crex" logo, wordmark, prompt indicator, and brand watermarks.
-    *   *Properties:* Extremely tight tracking (`-tracking-[0.05em]`), heavy weight, absolute solid fill, only capital C (`Crex`).
+    *   *Text Casing:* Strictly capital 'C' only: `Crux`.
+    *   *Usage:* The "Crux" logo, wordmark, prompt indicator, and brand watermarks.
+    *   *Properties:* Extremely tight tracking (`-tracking-[0.05em]`), heavy weight, absolute solid fill, only capital C (`Crux`).
 *   **The OS Interface, Code & Canvas:** `Arial MT Pro` ONLY (Fallbacks: `Arial MT`, `Arial`, `Helvetica`, `sans-serif`).
     *   *Usage:* The entire rest of the application—menus, Omnibar inputs, buttons, sub-headers, terminal, telemetry, code, tables.
     *   *Absolute Prohibition:* NO Space Grotesk, NO Geist, NO Hanken Grotesk. Absolutely nothing else.

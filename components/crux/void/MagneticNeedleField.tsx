@@ -225,9 +225,9 @@ export default function MagneticNeedleField({
       // Update shockwaves
       const activeShockwaves: Shockwave[] = [];
       for (const sw of shockwavesRef.current) {
-        sw.radius += sw.speed * dt;
-        sw.power = Math.max(0, 1 - sw.radius / sw.maxRadius);
-        if (sw.radius < sw.maxRadius && sw.power > 0.01) {
+        sw.radius += Math.max(0, sw.speed * dt);
+        sw.power = Math.max(0, 1 - sw.radius / (sw.maxRadius || 1));
+        if (sw.radius > 0 && sw.radius < sw.maxRadius && sw.power > 0.01) {
           activeShockwaves.push(sw);
         }
       }
@@ -416,11 +416,14 @@ export default function MagneticNeedleField({
 
       // 5. Draw EMP Shockwave Rings
       for (const sw of activeShockwaves) {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${sw.power * 0.75})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-        ctx.stroke();
+        if (sw.radius > 0.5 && Number.isFinite(sw.radius) && Number.isFinite(sw.x) && Number.isFinite(sw.y)) {
+          const power = Math.max(0, Math.min(1, sw.power));
+          ctx.strokeStyle = `rgba(255, 255, 255, ${power * 0.75})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, Math.max(0.1, sw.radius), 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
 
       if (frameCounter % 12 === 0) {

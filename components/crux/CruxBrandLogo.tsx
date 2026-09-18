@@ -44,7 +44,7 @@ export default function CruxBrandLogo({
           className="font-brand font-black tracking-[-0.05em] text-white"
           style={{ fontSize: Math.max(13, size * 0.75) }}
         >
-          Crex
+          Crux
         </span>
       </div>
     );
