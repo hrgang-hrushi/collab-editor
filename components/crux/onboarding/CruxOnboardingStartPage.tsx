@@ -244,24 +244,29 @@ export default function CruxOnboardingStartPage() {
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
         {activeView === "welcome" ? (
-          <div className="w-full max-w-xl flex flex-col items-center text-center select-none space-y-12 my-auto py-8">
+          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-10 my-auto py-8">
             {/* Monolithic Crux Title Section */}
-            <div className="flex flex-col items-center justify-center space-y-4">
+            <div className="flex flex-col items-center justify-center space-y-3">
               <div className="relative inline-flex items-center justify-center">
-                <h1 className="font-brand font-black text-white text-7xl sm:text-8xl md:text-9xl tracking-[0px] leading-none select-none text-center">
+                <h1 className="font-brand font-black text-white text-6xl sm:text-7xl md:text-8xl tracking-[0px] leading-none select-none text-center">
                   Crux
                 </h1>
-                <div className="absolute -top-1.5 -right-8 text-[9px] font-mono text-[#555555] border border-[#222222] px-1.5 py-0.5 bg-[#000000]">
+                <div className="absolute -top-1 -right-8 text-[9px] font-mono text-[#555555] border border-[#222222] px-1.5 py-0.5 bg-[#000000]">
                   v1.2
                 </div>
               </div>
-              <div className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#555555]">
-                BARE-METAL COLLABORATIVE IDE // HARDWARE BRUTALISM
+
+              {/* Editorial Statement: Bringing the dream IDE to reality. in Arial MT */}
+              <div className="pt-2">
+                <h2 className="font-sans font-normal text-white text-2xl sm:text-3xl md:text-4xl tracking-tight leading-tight max-w-lg select-none text-center">
+                  Bringing the dream <br className="hidden sm:inline" />
+                  IDE to reality.
+                </h2>
               </div>
             </div>
 
             {/* Action Buttons Cluster */}
-            <div className="w-full max-w-sm space-y-3 pt-2">
+            <div className="w-full max-w-sm space-y-3 pt-4">
               {/* Primary Action Button: Start Your Project */}
               <button
                 onClick={() => switchTab("signup")}
