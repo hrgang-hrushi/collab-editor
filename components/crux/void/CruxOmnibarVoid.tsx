@@ -494,12 +494,12 @@ export default function CruxOmnibarVoid() {
       />
 
       {/* Main Omnibar Interface Deck (Z-50) */}
-      <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-4">
+      <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-4 -translate-y-6">
         <div className="w-full max-w-4xl flex flex-col items-center">
           {/* 1. Monolithic Industrial Brand Centerpiece */}
-          <div className="mb-5 flex flex-col items-center select-none text-center">
+          <div className="mb-3 flex flex-col items-center select-none text-center">
             <div className="relative">
-              <h1 className="font-brand font-black text-white text-7xl sm:text-8xl tracking-[0px] leading-none select-none">
+              <h1 className="font-brand font-black text-white text-6xl sm:text-7xl tracking-[0px] leading-none select-none">
                 Crux
               </h1>
               <div className="absolute -top-1 -right-3 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
@@ -521,7 +521,7 @@ export default function CruxOmnibarVoid() {
           ) : (
             <div className="w-full border border-[#222222] bg-[#000000]">
               {/* Integrated Category Ribbon Header */}
-              <div className="h-8 border-b border-[#222222] bg-[#0A0A0A] flex items-center justify-between px-2 select-none">
+              <div className="h-7 border-b border-[#222222] bg-[#0A0A0A] flex items-center justify-between px-2 select-none">
                 <div className="flex items-center">
                   {[
                     { id: "ALL", label: "ALL" },
@@ -536,7 +536,7 @@ export default function CruxOmnibarVoid() {
                         playMechanicalClick("low");
                         setActiveFilter(f.id as FilterCategory);
                       }}
-                      className={`h-8 px-3 text-[10px] font-mono uppercase border-r border-[#222222] transition-none ${
+                      className={`h-7 px-3 text-[10px] font-mono uppercase border-r border-[#222222] transition-none ${
                         activeFilter === f.id
                           ? "bg-white text-black font-bold"
                           : "text-[#666666] hover:text-white hover:bg-[#141414]"
@@ -554,7 +554,7 @@ export default function CruxOmnibarVoid() {
               </div>
 
               {/* Central Mechanical Input Row */}
-              <div className="px-4 py-3.5 flex items-center gap-3 bg-[#000000] border-b border-[#222222]">
+              <div className="px-4 py-2.5 flex items-center gap-3 bg-[#000000] border-b border-[#222222]">
                 <span className="font-mono text-xs text-[#666666] select-none shrink-0 font-bold">
                   ❯
                 </span>

@@ -65,7 +65,7 @@ export default function VoidSuggestionMatrix({
             key={item.id}
             onMouseEnter={() => onSelectIndex(idx)}
             onClick={() => onExecute(item)}
-            className={`px-4 py-3 flex items-center justify-between cursor-pointer transition-none select-none ${
+            className={`px-4 py-2 flex items-center justify-between cursor-pointer transition-none select-none ${
               isSelected
                 ? "bg-white text-black"
                 : "bg-transparent text-white hover:bg-white hover:text-black"
