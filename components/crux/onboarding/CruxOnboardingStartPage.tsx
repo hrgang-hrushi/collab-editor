@@ -64,19 +64,6 @@ export default function CruxOnboardingStartPage() {
     setZeroStateOpen(false);
   };
 
-  const handlePresetSelect = (
-    presetName: string,
-    presetEmail: string,
-    role: string
-  ) => {
-    playMechanicalClick("high");
-    setName(presetName);
-    setEmail(presetEmail);
-    setPassword("crex-hardware-lock-7447");
-    setErrorMsg("");
-    triggerHaptic("tap");
-  };
-
   const handleCopyUid = () => {
     playMechanicalClick("mid");
     if (typeof window !== "undefined") {
@@ -103,8 +90,8 @@ export default function CruxOnboardingStartPage() {
       <header className="relative z-20 h-9 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[10px] font-mono select-none">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-          <span className="font-brand font-black tracking-tight text-white lowercase text-xs">
-            crex
+          <span className="font-brand font-black tracking-tight text-white text-xs">
+            Crex
           </span>
           <span className="text-[#333333]">/</span>
           <span className="text-[#666666] uppercase tracking-widest text-[9px]">
@@ -254,50 +241,13 @@ export default function CruxOnboardingStartPage() {
                 </div>
               </div>
 
-              {/* Quick Select Preset Peers */}
-              <div className="space-y-2 pt-1 font-mono">
-                <div className="text-[9px] uppercase tracking-widest text-[#555555]">
-                  QUICK_SELECT VERIFIED MESH PEER:
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handlePresetSelect("Sarah Lin", "sarah@crex.engine", "Staff Infrastructure")
-                    }
-                    className="p-2 bg-[#000000] border border-[#222222] hover:bg-white hover:text-black transition-none text-left cursor-pointer group"
-                  >
-                    <div className="text-[11px] font-bold uppercase truncate group-hover:text-black">
-                      Sarah Lin
-                    </div>
-                    <div className="text-[9px] text-[#555555] group-hover:text-black truncate">
-                      CRX-9941-SL // INFRA
-                    </div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handlePresetSelect("Marcus Vance", "marcus@crex.engine", "Systems Architect")
-                    }
-                    className="p-2 bg-[#000000] border border-[#222222] hover:bg-white hover:text-black transition-none text-left cursor-pointer group"
-                  >
-                    <div className="text-[11px] font-bold uppercase truncate group-hover:text-black">
-                      Marcus Vance
-                    </div>
-                    <div className="text-[9px] text-[#555555] group-hover:text-black truncate">
-                      CRX-5520-MV // ARCH
-                    </div>
-                  </button>
-                </div>
-              </div>
-
               {/* Mechanical Switch Submit Button */}
               <div className="pt-2">
                 <button
                   type="submit"
                   className="w-full py-3 px-4 bg-white text-black font-brand font-black text-xs sm:text-sm -tracking-[0.02em] hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="lowercase font-brand">crex</span> KERNEL</span>
+                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="font-brand">Crex</span> KERNEL</span>
                   <span className="font-mono text-xs">❯</span>
                 </button>
               </div>

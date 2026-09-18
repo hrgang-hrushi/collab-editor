@@ -499,8 +499,8 @@ export default function CruxOmnibarVoid() {
           {/* 1. Monolithic Industrial Brand Centerpiece */}
           <div className="mb-5 flex flex-col items-center select-none text-center">
             <div className="relative">
-              <h1 className="font-brand font-black text-white text-7xl sm:text-8xl -tracking-[0.05em] lowercase leading-none select-none">
-                crex
+              <h1 className="font-brand font-black text-white text-7xl sm:text-8xl -tracking-[0.05em] leading-none select-none">
+                Crex
               </h1>
               <div className="absolute -top-1 -right-3 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
                 v1.2
@@ -572,8 +572,8 @@ export default function CruxOmnibarVoid() {
 
               {/* Central Mechanical Input Row */}
               <div className="px-4 py-3.5 flex items-center gap-3 bg-[#000000] border-b-2 border-white">
-                <span className="font-brand font-black text-sm text-white select-none shrink-0 lowercase tracking-tight">
-                  crex ❯
+                <span className="font-brand font-black text-sm text-white select-none shrink-0 tracking-tight">
+                  Crex ❯
                 </span>
                 <input
                   ref={inputRef}
