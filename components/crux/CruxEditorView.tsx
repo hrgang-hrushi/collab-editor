@@ -9,6 +9,7 @@ import NexusCanvas from "./nexus/NexusCanvas";
 import CruxAgentPanel from "./agent/CruxAgentPanel";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
+import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
 import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
@@ -45,6 +46,8 @@ export default function CruxEditorView() {
   });
 
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
+  const isZeroStateOpen = useWorkspaceStore((state) => state.isZeroStateOpen);
+  const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
   const viewerLock = useWorkspaceStore((state) => state.viewerLock);
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
@@ -144,8 +147,8 @@ export default function CruxEditorView() {
     );
   }
 
-  if (!isOnboarded) {
-    return <CruxOnboardingStartPage />;
+  if (!isOnboarded || isZeroStateOpen) {
+    return <CruxOmnibarVoid />;
   }
 
   return (

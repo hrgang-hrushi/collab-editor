@@ -222,6 +222,12 @@ interface WorkspaceState {
   isMonochromeTheme: boolean;
   toggleMonochromeTheme: () => void;
   setMonochromeTheme: (isMonochrome: boolean) => void;
+
+  // Zero State / Omnibar Void Launcher
+  isZeroStateOpen: boolean;
+  setZeroStateOpen: (open: boolean) => void;
+  launchSequenceState: "idle" | "executing" | "shattering" | "mounted";
+  setLaunchSequenceState: (state: "idle" | "executing" | "shattering" | "mounted") => void;
 }
 
 export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
@@ -431,6 +437,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   isAiGenerating: false,
 
   isMonochromeTheme: true,
+  isZeroStateOpen: false,
+  launchSequenceState: "idle",
 
   setProjectName: (projectName) => set({ projectName }),
 
@@ -1494,4 +1502,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set((state) => ({ isMonochromeTheme: !state.isMonochromeTheme })),
 
   setMonochromeTheme: (isMonochromeTheme) => set({ isMonochromeTheme }),
+
+  setZeroStateOpen: (isZeroStateOpen) => set({ isZeroStateOpen }),
+
+  setLaunchSequenceState: (launchSequenceState) => set({ launchSequenceState }),
 }));

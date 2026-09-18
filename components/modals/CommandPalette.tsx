@@ -52,6 +52,7 @@ export default function CommandPalette() {
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
   const projectName = useWorkspaceStore((state) => state.projectName);
   const toggleMonochromeTheme = useWorkspaceStore((state) => state.toggleMonochromeTheme);
+  const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -224,6 +225,13 @@ export default function CommandPalette() {
       category: "Appearance",
       icon: <Contrast className="w-4 h-4 text-[#858585]" />,
       action: () => toggleMonochromeTheme(),
+    },
+    {
+      id: "cmd-open-launcher",
+      title: "Open Launcher / Omnibar Void",
+      category: "View",
+      icon: <Terminal className="w-4 h-4 text-[#858585]" />,
+      action: () => setZeroStateOpen(true),
     },
   ];
 
