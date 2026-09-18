@@ -506,17 +506,6 @@ export default function CruxOmnibarVoid() {
                 v1.2
               </div>
             </div>
-
-            {/* Hardware Telemetry Strip */}
-            <div className="flex items-center gap-2 font-mono text-[9px] text-[#555555] uppercase mt-2 tracking-wider">
-              <span>[KERNEL: RUNNING]</span>
-              <span className="text-[#222222]">/</span>
-              <span>[ARCH: BARE-METAL]</span>
-              <span className="text-[#222222]">/</span>
-              <span>[IPC: 0.04ms]</span>
-              <span className="text-[#222222]">/</span>
-              <span>[LOCK: ENCLAVE]</span>
-            </div>
           </div>
 
           {/* 2. Tactical Mode Selector Ribbon (1..5) */}
@@ -545,10 +534,6 @@ export default function CruxOmnibarVoid() {
                 </button>
               ))}
             </div>
-
-            <span className="text-[#333333] hidden sm:inline">
-              ALT+[1-5] QUICK SWITCH
-            </span>
           </div>
 
           {/* 3. The Omnibar Terminal Deck */}

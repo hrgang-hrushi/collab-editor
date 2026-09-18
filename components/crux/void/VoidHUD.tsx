@@ -25,18 +25,10 @@ export default function VoidHUD({
 
   return (
     <header className="absolute top-0 inset-x-0 h-8 px-2 flex items-center justify-between border-b border-[#222222] bg-[#000000] z-50 select-none text-[11px] font-sans">
-      {/* Left: Brand & Silicon Daemon Status */}
+      {/* Left: Brand */}
       <div className="flex items-center gap-2">
         <span className="font-brand font-black text-white tracking-[0px] text-xs">
           Crux
-        </span>
-        <span className="text-[#222222]">|</span>
-        <span className="font-mono text-[10px] text-[#444444]">
-          [DAEMON: 0.04ms]
-        </span>
-        <span className="text-[#222222]">|</span>
-        <span className="font-mono text-[10px] text-[#444444]">
-          [BARE-METAL DOM KERNEL]
         </span>
       </div>
 

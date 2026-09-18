@@ -127,29 +127,8 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
             className="absolute top-0 bottom-0 w-[1px] bg-[#1a1a1a]"
             style={{ left: mousePos.x }}
           />
-          {/* Coordinate Tag floating at cursor */}
-          <div
-            className="absolute font-mono text-[9px] text-[#444444] bg-[#000000] border border-[#222222] px-1 py-0.5"
-            style={{ left: mousePos.x + 12, top: mousePos.y + 12 }}
-          >
-            LOC [{mousePos.x}, {mousePos.y}] // BUS_ACTIVE
-          </div>
         </div>
       )}
-
-      {/* 4. Corner Stencil Coordinates (Absolute 0px boundaries) */}
-      <div className="absolute top-10 left-3 pointer-events-none font-mono text-[9px] text-[#333333] z-20">
-        [SYS.PCB // REVISION_4B]
-      </div>
-      <div className="absolute top-10 right-3 pointer-events-none font-mono text-[9px] text-[#333333] z-20">
-        [ENCLAVE: HARDWARE_LOCK]
-      </div>
-      <div className="absolute bottom-9 left-3 pointer-events-none font-mono text-[9px] text-[#333333] z-20">
-        [THERMAL: 38.4°C // NOMINAL]
-      </div>
-      <div className="absolute bottom-9 right-3 pointer-events-none font-mono text-[9px] text-[#333333] z-20">
-        [0PX_RADIUS // ZERO_COLOR]
-      </div>
 
       {/* Content Slot (Z-50) */}
       {children}
