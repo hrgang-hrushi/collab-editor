@@ -5,12 +5,33 @@ export interface User {
   color: string;
   role?: string;
   isSelf?: boolean;
+  email?: string;
+  uid?: string;
+  accessLevel?: "full" | "limited" | "viewer";
+  allowedFiles?: string[];
+  allowedLineRange?: { start: number; end: number };
+}
+
+export interface ShareInvite {
+  id: string;
+  senderName: string;
+  senderUid: string;
+  senderEmail: string;
+  recipientUidOrEmail: string;
+  workspaceName: string;
+  accessLevel: "full" | "limited" | "viewer";
+  allowedFiles?: string[];
+  allowedLineRange?: { start: number; end: number };
+  viewerLock: boolean;
+  timestamp: number;
+  status: "pending" | "accepted" | "declined";
 }
 
 export interface SpatialCursor {
   userId: string;
   userName: string;
   userColor: string;
+  userUid?: string;
   x: number;
   y: number;
   targetX: number;

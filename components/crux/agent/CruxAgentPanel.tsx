@@ -20,6 +20,7 @@ import {
   Minimize2,
   Volume2,
   VolumeX,
+  Code2,
 } from "lucide-react";
 import { useWorkspaceStore } from "@/lib/store";
 import {
@@ -56,7 +57,7 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
       id: "welcome",
       role: "agent",
       content:
-        "CruxAI Autonomous Copilot online. I have full context over your workspace. I can inspect ASTs, write unit tests, refactor bottlenecks, or generate new modules directly with zero-copy CRDT streaming.",
+        "CruxAI Autonomous Copilot online. Full context indexed over your workspace. I can inspect ASTs, write unit tests, refactor bottlenecks, or generate new modules directly with zero-copy CRDT streaming.",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
@@ -154,25 +155,23 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
 
   return (
     <motion.aside
-      initial={{ x: 380, opacity: 0 }}
+      initial={{ x: 420, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      exit={{ x: 380, opacity: 0 }}
+      exit={{ x: 420, opacity: 0 }}
       transition={{ type: "spring", damping: 28, stiffness: 280 }}
-      className="w-96 h-full flex flex-col border-l border-[#222222] bg-[#0A0A0A] select-none shrink-0 z-30 font-sans relative"
+      className="w-[380px] h-full flex flex-col border-l border-[#222222] bg-[#0A0A0A] select-none shrink-0 z-30 font-sans relative"
     >
       {/* Top Header */}
-      <div className="h-10 px-3 flex items-center justify-between border-b border-[#222222] bg-[#0A0A0A]">
+      <div className="h-9 px-3 flex items-center justify-between border-b border-[#222222] bg-[#0A0A0A]">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-[#8b5cf6]/15 border border-[#8b5cf6]/40 flex items-center justify-center">
-            <Bot className="w-3 h-3 text-[#8b5cf6]" />
+          <div className="w-5 h-5 rounded-none flex items-center justify-center bg-black border border-[#222222] text-[#FF453A]">
+            <Bot className="w-3.5 h-3.5 text-[#FF453A]" />
           </div>
-          <div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-semibold text-xs text-[#f7f8f8]">CruxAI Agent</span>
-              <span className="px-1 py-0.2 text-[8.5px] bg-[#8b5cf6]/20 border border-[#8b5cf6]/40 text-[#c4b5fd] font-mono">
-                AUTONOMOUS
-              </span>
-            </div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-xs text-white font-sans">CruxAI Assistant</span>
+            <span className="px-1.5 py-0.2 rounded-none text-[9.5px] bg-black border border-[#222222] text-[#FF453A] font-mono">
+              AUTONOMOUS
+            </span>
           </div>
         </div>
 
@@ -181,10 +180,10 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
           <button
             onClick={handleToggleSound}
             title={hapticsOn ? "Tactile Audio: Enabled (Click to Mute)" : "Tactile Audio: Muted"}
-            className={`p-1.5 transition-colors border ${
+            className={`p-1 rounded-none transition-colors ${
               hapticsOn
-                ? "text-[#5e6ad2] border-[#5e6ad2]/30 bg-[#5e6ad2]/10"
-                : "text-[#62666d] border-transparent hover:text-white"
+                ? "text-white bg-[#222222]"
+                : "text-[#888888] hover:text-white hover:bg-[#222222]"
             }`}
           >
             {hapticsOn ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
@@ -197,7 +196,7 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
               setMessages([]);
             }}
             title="Clear Chat History"
-            className="p-1.5 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] border border-transparent hover:border-[#222222] transition-colors"
+            className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
@@ -208,8 +207,8 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
               triggerHaptic("toggle");
               onClose();
             }}
-            title="Close Copilot Panel"
-            className="p-1.5 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] border border-transparent hover:border-[#222222] transition-colors"
+            title="Close Assistant Panel"
+            className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -217,113 +216,116 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
       </div>
 
       {/* Active File Context Pill */}
-      <div className="px-3 py-1.5 border-b border-[#222222] bg-black flex items-center justify-between text-[11px]">
-        <div className="flex items-center gap-1.5 text-[#8a8f98] truncate">
-          <span className="text-[#62666d]">Context:</span>
+      <div className="px-3 py-1.5 border-b border-[#222222] bg-black flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5 text-[#888888] truncate">
+          <span className="text-[11px]">Context:</span>
           {activeFile ? (
-            <span className="text-[#f7f8f8] font-medium truncate flex items-center gap-1">
-              <FileCode className="w-3 h-3 text-[#5e6ad2]" />
-              {activeFile.name}
+            <span className="text-white truncate flex items-center gap-1.5 px-1.5 py-0.5 rounded-none bg-[#0A0A0A] border border-[#222222]">
+              <FileCode className="w-3 h-3 text-[#888888]" />
+              <span className="font-mono text-[11px] text-white">{activeFile.name}</span>
             </span>
           ) : (
-            <span className="text-[#62666d] italic">Entire Workspace</span>
+            <span className="text-[#888888] italic">Entire Workspace</span>
           )}
         </div>
-        <span className="text-[10px] text-[#27a644] font-mono">0.08ms Latency</span>
+        <div className="flex items-center gap-1.5 text-[#888888] font-mono text-[10px]">
+          <span className="w-1.5 h-1.5 rounded-none bg-[#007AFF]" />
+          <span>0.08ms IPC</span>
+        </div>
       </div>
 
       {/* Quick Action Chips */}
-      <div className="px-3 py-2 border-b border-[#1f2022] bg-[#0A0A0A] flex items-center gap-1.5 overflow-x-auto text-[11px]">
+      <div className="px-3 py-1.5 border-b border-[#222222] bg-[#0A0A0A] flex items-center gap-1.5 overflow-x-auto text-xs">
         <button
           onClick={() => handleSend("Optimize and refactor active buffer for latency")}
           disabled={isThinking || !activeFile}
-          className="flex items-center gap-1 px-2 py-0.5 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] hover:border-[#5e6ad2]/50 whitespace-nowrap transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] whitespace-nowrap transition-colors disabled:opacity-40 text-xs font-mono"
         >
-          <Zap className="w-3 h-3 text-[#f59e0b]" />
+          <Zap className="w-3 h-3 text-[#FF453A]" />
           <span>Optimize</span>
         </button>
 
         <button
           onClick={() => handleSend("Add comprehensive defensive error handling and validation")}
           disabled={isThinking || !activeFile}
-          className="flex items-center gap-1 px-2 py-0.5 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] hover:border-[#5e6ad2]/50 whitespace-nowrap transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] whitespace-nowrap transition-colors disabled:opacity-40 text-xs font-mono"
         >
-          <ShieldCheck className="w-3 h-3 text-[#27a644]" />
+          <ShieldCheck className="w-3 h-3 text-[#888888]" />
           <span>Fix / Guard</span>
         </button>
 
         <button
           onClick={() => handleSend("Generate a comprehensive test suite for this module")}
           disabled={isThinking}
-          className="flex items-center gap-1 px-2 py-0.5 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] hover:border-[#5e6ad2]/50 whitespace-nowrap transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] whitespace-nowrap transition-colors disabled:opacity-40 text-xs font-mono"
         >
-          <FilePlus2 className="w-3 h-3 text-[#06b6d4]" />
+          <FilePlus2 className="w-3 h-3 text-[#888888]" />
           <span>Gen Tests</span>
         </button>
       </div>
 
       {/* Chat Messages Container */}
-      <div className="flex-1 p-3 overflow-y-auto space-y-3.5 select-text">
+      <div className="flex-1 p-3 overflow-y-auto space-y-3 select-text bg-black font-sans">
         <AnimatePresence>
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.15 }}
+              transition={{ duration: 0.12 }}
               className={`flex flex-col ${
                 msg.role === "user" ? "items-end" : "items-start"
               }`}
             >
               {/* Header: Name + Time */}
-              <div className="flex items-center gap-1.5 mb-1 text-[10px] text-[#62666d]">
-                <span className={msg.role === "user" ? "text-[#f7f8f8] font-medium" : "text-[#8b5cf6] font-medium"}>
+              <div className="flex items-center gap-1.5 mb-1 text-[10px] text-[#888888]">
+                <span className={msg.role === "user" ? "text-[#007AFF] font-semibold" : "text-[#FF453A] font-semibold"}>
                   {msg.role === "user" ? "You" : "@CruxAI"}
                 </span>
                 <span>·</span>
-                <span>{msg.timestamp}</span>
+                <span className="font-mono">{msg.timestamp}</span>
               </div>
 
               {/* Message Bubble */}
               <div
                 className={`p-2.5 rounded-none text-xs leading-relaxed max-w-[95%] border ${
                   msg.role === "user"
-                    ? "bg-[#141516] text-white border-[#333333]"
-                    : "bg-black text-[#f7f8f8] border-[#222222]"
+                    ? "bg-[#0A0A0A] text-white border-[#222222]"
+                    : "bg-black text-white border-[#222222]"
                 }`}
               >
                 <div className="whitespace-pre-wrap">{msg.content}</div>
 
                 {/* Diff Proposal Card */}
                 {msg.diffProposal && (
-                  <div className="mt-2.5 pt-2 border-t border-[#222222] bg-[#0A0A0A] p-2 border">
-                    <div className="flex items-center justify-between text-[11px] mb-1.5">
-                      <span className="font-semibold text-white flex items-center gap-1">
-                        <Sparkles className="w-3 h-3 text-[#5e6ad2]" />
+                  <div className="mt-2.5 pt-2.5 border-t border-[#222222] rounded-none bg-[#0A0A0A] p-2.5 border">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="font-semibold text-white flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#FF453A]" />
                         {msg.diffProposal.diffSummary}
                       </span>
-                      <span className="text-[10px] text-[#62666d] font-mono">
+                      <span className="text-[10px] text-[#888888] font-mono px-1.5 py-0.2 rounded-none bg-black border border-[#222222]">
                         {msg.diffProposal.fileName}
                       </span>
                     </div>
 
-                    <p className="text-[10.5px] text-[#8a8f98] mb-2">
+                    <p className="text-xs text-[#888888] mb-2">
                       {msg.diffProposal.explanation}
                     </p>
 
                     {/* Diff Preview box */}
-                    <div className="p-2 bg-black border border-[#222222] font-mono text-[10.5px] max-h-36 overflow-y-auto mb-2 text-[#d0d6e0]">
-                      <div className="text-[#27a644]">
-                        + {msg.diffProposal.proposedContent.slice(0, 180)}...
+                    <div className="p-2 rounded-none bg-black border border-[#222222] font-mono text-xs max-h-40 overflow-y-auto mb-2 text-white">
+                      <div className="text-[#00FF00] bg-[#00FF00]/10 border-l-2 border-[#00FF00] p-1.5">
+                        + {msg.diffProposal.proposedContent.slice(0, 200)}...
                       </div>
                     </div>
 
                     {/* Action Buttons: Apply / Reject */}
                     {appliedDiffIds[msg.id] === undefined ? (
-                      <div className="flex items-center justify-end gap-1.5 pt-1">
+                      <div className="flex items-center justify-end gap-2 pt-1">
                         <button
                           onClick={() => handleRejectDiff(msg.id)}
-                          className="flex items-center gap-1 px-2 py-0.5 text-[11px] text-[#8a8f98] hover:text-white border border-[#222222] hover:bg-[#141516] transition-colors"
+                          className="flex items-center gap-1 px-2 py-0.5 text-xs text-[#888888] hover:text-white rounded-none border border-[#222222] bg-black hover:bg-[#222222] transition-colors"
                         >
                           <X className="w-3 h-3" />
                           <span>Dismiss</span>
@@ -331,19 +333,19 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
 
                         <button
                           onClick={() => handleApplyDiff(msg.id, msg.diffProposal!)}
-                          className="flex items-center gap-1 px-2.5 py-0.5 text-[11px] bg-[#5e6ad2] hover:bg-[#6c78e6] text-white font-medium border border-[#5e6ad2] transition-colors"
+                          className="flex items-center gap-1.5 px-3 py-1 text-xs rounded-none bg-white hover:bg-[#cccccc] text-black font-semibold transition-colors cursor-pointer"
                         >
-                          <Check className="w-3 h-3" />
+                          <Check className="w-3.5 h-3.5" />
                           <span>Apply to Buffer</span>
                         </button>
                       </div>
                     ) : appliedDiffIds[msg.id] ? (
-                      <div className="flex items-center gap-1 text-[#27a644] text-[11px] font-medium pt-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>Applied to {msg.diffProposal.fileName}</span>
+                      <div className="flex items-center gap-1.5 text-white text-xs font-medium pt-1 font-mono">
+                        <CheckCircle2 className="w-4 h-4 text-[#007AFF]" />
+                        <span>Applied cleanly to {msg.diffProposal.fileName}</span>
                       </div>
                     ) : (
-                      <div className="text-[#62666d] text-[11px] pt-1 italic">
+                      <div className="text-[#888888] text-xs pt-1 italic font-mono">
                         Proposal dismissed
                       </div>
                     )}
@@ -356,35 +358,35 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
           {/* Dynamic Thinking & Reasoning Steps */}
           {isThinking && (
             <motion.div
-              initial={{ opacity: 0, y: 6 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-3 bg-black border border-[#5e6ad2]/40 space-y-2 text-xs"
+              className="p-3 rounded-none bg-[#0A0A0A] border border-[#222222] space-y-2 text-xs"
             >
-              <div className="flex items-center gap-2 text-[#8b5cf6] font-medium">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <div className="flex items-center gap-2 text-white font-medium">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF453A]" />
                 <span>CruxAI Synthesizing Patch...</span>
               </div>
 
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1.5 pt-0.5 font-mono">
                 {currentSteps.map((step) => (
                   <div
                     key={step.id}
-                    className="flex items-center gap-2 text-[11px] text-[#8a8f98]"
+                    className="flex items-center gap-2 text-xs text-[#888888]"
                   >
                     {step.status === "done" ? (
-                      <Check className="w-3 h-3 text-[#27a644]" />
+                      <Check className="w-3.5 h-3.5 text-white" />
                     ) : step.status === "running" ? (
-                      <Loader2 className="w-3 h-3 text-[#5e6ad2] animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 text-[#FF453A] animate-spin" />
                     ) : (
-                      <span className="w-3 h-3 border border-[#333333] inline-block" />
+                      <span className="w-3 h-3 rounded-none border border-[#222222] inline-block" />
                     )}
                     <span
                       className={
                         step.status === "running"
-                          ? "text-[#f7f8f8] font-medium"
+                          ? "text-white font-medium"
                           : step.status === "done"
-                          ? "text-[#d0d6e0]"
-                          : "text-[#62666d]"
+                          ? "text-[#888888]"
+                          : "text-[#555555]"
                       }
                     >
                       {step.label}
@@ -421,20 +423,20 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
                   handleSend();
                 }
               }}
-              placeholder="Ask CruxAI or type e.g. 'refactor this file'..."
-              className="w-full bg-black border border-[#222222] focus:border-[#5e6ad2] text-xs text-[#f7f8f8] placeholder-[#62666d] p-2.5 pr-8 resize-none focus:outline-none transition-colors"
+              placeholder="Ask CruxAI or prompt e.g. 'optimize this buffer'..."
+              className="w-full bg-black border border-[#222222] focus:border-[#FF453A] rounded-none text-xs text-white placeholder-[#888888] p-2.5 pr-8 resize-none focus:outline-none transition-colors font-mono"
             />
             <button
               type="submit"
               disabled={!inputVal.trim() || isThinking}
-              className="absolute right-2 bottom-2 p-1.5 bg-[#5e6ad2] hover:bg-[#6c78e6] disabled:opacity-30 text-white transition-colors"
+              className="absolute right-2 bottom-2.5 p-1.5 rounded-none bg-[#FF453A] hover:bg-[#e03e34] disabled:opacity-30 text-white transition-colors cursor-pointer"
             >
-              <Send className="w-3 h-3" />
+              <Send className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] text-[#62666d]">
-            <span>Press Enter to send · Shift+Enter for newline</span>
+          <div className="flex items-center justify-between text-[10px] text-[#888888] font-mono">
+            <span>Enter to send · Shift+Enter for newline</span>
             <span>CRDT Stream v1.2</span>
           </div>
         </form>

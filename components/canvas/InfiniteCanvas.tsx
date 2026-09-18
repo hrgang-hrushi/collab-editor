@@ -112,7 +112,7 @@ export default function InfiniteCanvas() {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      className={`relative w-screen h-screen overflow-hidden bg-void-950 canvas-dot-grid ${
+      className={`relative w-screen h-screen overflow-hidden bg-black canvas-dot-grid ${
         spacePressed || isPanning ? "cursor-grab active:cursor-grabbing" : "cursor-default"
       }`}
     >
@@ -133,18 +133,18 @@ export default function InfiniteCanvas() {
           <EditorNode key={file.id} file={file} />
         ))}
 
-        {/* 120Hz Liquid Spring-interpolated Multiplayer Cursors */}
+        {/* Multiplayer Cursors */}
         <CursorLayer />
       </div>
 
       {/* Floating Canvas Mode / Connection Helper Banner */}
       {(mode === "canvas" || isConnecting) && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2.5 rounded-2xl glass-panel-elevated border border-collab-purple/40 shadow-2xl text-xs text-slate-200 animate-in slide-in-from-bottom-3">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-none bg-[#0A0A0A] border border-[#222222] shadow-[4px_4px_0px_#222222] text-xs text-[#888888] font-sans">
           <div className="flex items-center gap-2">
-            <span className="p-1 rounded-lg bg-collab-purple/20 text-collab-purple">
-              <Layers className="w-4 h-4" />
+            <span className="p-1 rounded-none bg-black border border-[#222222] text-white">
+              <Layers className="w-3.5 h-3.5 text-[#007AFF]" />
             </span>
-            <span className="font-semibold text-white font-sans">
+            <span className="text-white font-sans">
               {isConnecting
                 ? "Connecting Mode: Click any file node to complete the architectural relationship arrow."
                 : "Canvas Mode: Zoom out to see multiple files open spatially. Draw arrows between them to explain architecture."}
@@ -154,7 +154,7 @@ export default function InfiniteCanvas() {
           {isConnecting ? (
             <button
               onClick={cancelConnection}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 text-xs transition"
+              className="flex items-center gap-1 px-2 py-1 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
             >
               <X className="w-3.5 h-3.5" />
               <span>Cancel</span>
@@ -162,7 +162,7 @@ export default function InfiniteCanvas() {
           ) : (
             <button
               onClick={() => setMode("edit")}
-              className="px-2.5 py-1 rounded-lg bg-collab-purple hover:bg-purple-500 text-white font-medium text-xs transition shadow-sm"
+              className="px-2.5 py-1 rounded-none bg-white hover:bg-[#cccccc] text-black font-semibold text-xs transition-colors"
             >
               Exit Canvas
             </button>
@@ -172,14 +172,14 @@ export default function InfiniteCanvas() {
 
       {/* Suggesting Mode Active Floating Banner */}
       {mode === "suggest" && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-2xl glass-panel-elevated border border-emerald-500/40 shadow-2xl text-xs text-slate-200 animate-in slide-in-from-bottom-3">
-          <Sparkles className="w-4 h-4 text-emerald-400" />
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-4 py-2 rounded-none bg-[#0A0A0A] border border-[#222222] shadow-[4px_4px_0px_#222222] text-xs text-[#888888] font-sans">
+          <Sparkles className="w-3.5 h-3.5 text-[#FF453A]" />
           <span>
-            <strong className="text-emerald-300">Suggesting Mode Active:</strong> Edits appear as inline diffs for the file owner to accept or reject.
+            <strong className="text-white">Suggesting Mode Active:</strong> Edits appear as inline diffs for the file owner to accept or reject.
           </span>
           <button
             onClick={() => setMode("edit")}
-            className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 text-xs transition"
+            className="px-2.5 py-1 rounded-none bg-black hover:bg-[#222222] text-white border border-[#222222] text-xs transition-colors"
           >
             Switch to Direct Edit
           </button>

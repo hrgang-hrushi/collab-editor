@@ -18,8 +18,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Crux Studio — Spatial Collaborative Architecture & Code Engine",
-  description: "High-performance collaborative coding studio merging zero-latency local daemon memory with real-time CRDT buffers, spatial multi-file architecture, and inline AI co-pilots.",
+  title: "Crux Editor — Collaborative IDE & Spatial Code Studio",
+  description: "Modern collaborative coding IDE with real-time CRDT buffers, spatial multi-file architecture, and integrated terminal.",
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
       lang="en"
       className={`dark h-full ${hankenGrotesk.variable} ${spaceGrotesk.variable} ${GeistMono.variable}`}
     >
-      <body className="h-full bg-workbench-bg text-zinc-100 antialiased overflow-hidden font-sans selection:bg-brand-primary/30 selection:text-white">
+      <body className="h-full bg-[#1e1e1e] text-[#cccccc] antialiased overflow-hidden font-sans selection:bg-[#264f78] selection:text-white">
         {children}
       </body>
     </html>

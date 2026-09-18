@@ -9,6 +9,7 @@ import {
   EditorInteractionMode,
   ExecutionResult,
   GitCommit,
+  ShareInvite,
 } from "./types";
 import { executeCode } from "./codeRunner";
 import { detectLanguage, saveFileToDisk } from "./fileUtils";
@@ -19,6 +20,7 @@ import {
   INITIAL_COMMENTS,
   CURRENT_USER,
   MOCK_USERS,
+  INITIAL_INVITES,
 } from "./defaultData";
 
 interface WorkspaceState {
@@ -66,6 +68,21 @@ interface WorkspaceState {
   // AI Co-Pilot State
   isAiPromptOpen: boolean;
   isAiGenerating: boolean;
+
+  // Onboarding & Identity
+  isOnboarded: boolean;
+  isIdentityDrawerOpen: boolean;
+
+  // Workspace Sharing, Access & Permissions
+  isShareModalOpen: boolean;
+  viewerLock: boolean;
+  accessLevel: "full" | "limited" | "viewer";
+  allowedFiles: string[];
+  allowedLineRange?: { start: number; end: number };
+
+  // Collaborative Inbox
+  isInboxOpen: boolean;
+  inboxInvites: ShareInvite[];
 
   // Actions
   setProjectName: (name: string) => void;
@@ -139,49 +156,77 @@ interface WorkspaceState {
   setFocusedEdgeId: (id: string | null) => void;
   togglePipelineTracker: () => void;
   setPipelineTrackerOpen: (open: boolean) => void;
+
+  // Onboarding & Identity Actions
+  setOnboarded: (onboarded: boolean) => void;
+  setUserProfile: (profile: Partial<User> & { password?: string }) => void;
+  setIdentityDrawerOpen: (open: boolean) => void;
+
+  // Sharing & Access Actions
+  setShareModalOpen: (open: boolean) => void;
+  toggleViewerLock: () => void;
+  setViewerLock: (lock: boolean) => void;
+  setAccessLevel: (level: "full" | "limited" | "viewer") => void;
+  setAllowedFiles: (files: string[]) => void;
+  setAllowedLineRange: (range?: { start: number; end: number }) => void;
+
+  // Collaborative Inbox Actions
+  setInboxOpen: (open: boolean) => void;
+  sendInvite: (invite: Omit<ShareInvite, "id" | "timestamp" | "status">) => void;
+  acceptInvite: (inviteId: string) => void;
+  declineInvite: (inviteId: string) => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
   activeUsers: [CURRENT_USER, ...MOCK_USERS],
+  isOnboarded: typeof window !== "undefined" ? localStorage.getItem("crux_onboarded") === "true" : false,
+  isIdentityDrawerOpen: false,
+  isShareModalOpen: false,
+  isInboxOpen: false,
+  viewerLock: false,
+  accessLevel: "full",
+  allowedFiles: ["stream_syncer.ts", "database.ts", "auth.ts"],
+  allowedLineRange: undefined,
+  inboxInvites: INITIAL_INVITES,
   remoteCursors: {
     "user-1": {
       userId: "user-1",
       userName: "Sarah Lin",
-      userColor: "#06b6d4",
+      userColor: "#007AFF",
       x: 180,
       y: 190,
       targetX: 180,
       targetY: 190,
       offsetX: 180,
       offsetY: 190,
-      activeFileId: "file-auth",
+      activeFileId: "file-stream-syncer",
       lastUpdated: Date.now(),
     },
     "user-2": {
       userId: "user-2",
       userName: "CruxAI",
-      userColor: "#8b5cf6",
+      userColor: "#FF453A",
       x: 220,
       y: 170,
       targetX: 220,
       targetY: 170,
       offsetX: 220,
       offsetY: 170,
-      activeFileId: "file-database",
+      activeFileId: "file-stream-syncer",
       lastUpdated: Date.now(),
     },
     "user-3": {
       userId: "user-3",
       userName: "Marcus Vance",
-      userColor: "#f59e0b",
+      userColor: "#888888",
       x: 200,
       y: 160,
       targetX: 200,
       targetY: 160,
       offsetX: 200,
       offsetY: 160,
-      activeFileId: "file-spatial",
+      activeFileId: "file-database",
       lastUpdated: Date.now(),
     },
   },
@@ -967,4 +1012,77 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setFocusedEdgeId: (focusedEdgeId) => set({ focusedEdgeId }),
   togglePipelineTracker: () => set((state) => ({ isPipelineTrackerOpen: !state.isPipelineTrackerOpen })),
   setPipelineTrackerOpen: (isPipelineTrackerOpen) => set({ isPipelineTrackerOpen }),
+
+  setOnboarded: (isOnboarded) => {
+    if (typeof window !== "undefined") {
+      if (isOnboarded) {
+        localStorage.setItem("crux_onboarded", "true");
+      } else {
+        localStorage.removeItem("crux_onboarded");
+      }
+    }
+    set({ isOnboarded });
+  },
+
+  setUserProfile: (profile) =>
+    set((state) => {
+      const updatedUser = {
+        ...state.currentUser,
+        ...profile,
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("crux_user_profile", JSON.stringify(updatedUser));
+        localStorage.setItem("crux_onboarded", "true");
+      }
+      return {
+        currentUser: updatedUser,
+        isOnboarded: true,
+      };
+    }),
+
+  setIdentityDrawerOpen: (isIdentityDrawerOpen) => set({ isIdentityDrawerOpen }),
+  setShareModalOpen: (isShareModalOpen) => set({ isShareModalOpen }),
+  setInboxOpen: (isInboxOpen) => set({ isInboxOpen }),
+
+  toggleViewerLock: () => set((state) => ({ viewerLock: !state.viewerLock })),
+  setViewerLock: (viewerLock) => set({ viewerLock }),
+  setAccessLevel: (accessLevel) => set({ accessLevel }),
+  setAllowedFiles: (allowedFiles) => set({ allowedFiles }),
+  setAllowedLineRange: (allowedLineRange) => set({ allowedLineRange }),
+
+  sendInvite: (inviteData) => {
+    const newInvite: ShareInvite = {
+      ...inviteData,
+      id: `inv-${Date.now()}`,
+      timestamp: Date.now(),
+      status: "pending",
+    };
+    set((state) => ({
+      inboxInvites: [newInvite, ...state.inboxInvites],
+      viewerLock: inviteData.viewerLock !== undefined ? inviteData.viewerLock : state.viewerLock,
+    }));
+  },
+
+  acceptInvite: (inviteId) =>
+    set((state) => {
+      const invite = state.inboxInvites.find((i) => i.id === inviteId);
+      if (!invite) return state;
+      return {
+        inboxInvites: state.inboxInvites.map((i) =>
+          i.id === inviteId ? { ...i, status: "accepted" as const } : i
+        ),
+        accessLevel: invite.accessLevel,
+        allowedFiles: invite.allowedFiles || state.allowedFiles,
+        allowedLineRange: invite.allowedLineRange,
+        viewerLock: invite.viewerLock,
+        isInboxOpen: false,
+      };
+    }),
+
+  declineInvite: (inviteId) =>
+    set((state) => ({
+      inboxInvites: state.inboxInvites.map((i) =>
+        i.id === inviteId ? { ...i, status: "declined" as const } : i
+      ),
+    })),
 }));

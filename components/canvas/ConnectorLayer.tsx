@@ -87,7 +87,7 @@ export default function ConnectorLayer() {
     >
       <defs>
         {edges.map((edge) => {
-          const color = edge.color || "#5e6ad2";
+          const color = edge.color || "#4a7c9d";
           return (
             <marker
               key={`marker-${edge.id}`}
@@ -111,7 +111,7 @@ export default function ConnectorLayer() {
         if (!sourceFile || !targetFile) return null;
 
         const { p1, p2, pathData, midX, midY, isVertical } = getWirePathAndMid(sourceFile, targetFile);
-        const color = edge.color || "#5e6ad2";
+        const color = edge.color || "#4a7c9d";
 
         // Dynamic Flow Speed Calculation based on speed factor
         const baseSpeed = parseFloat(edge.flowSpeed || "7.2s");
@@ -123,19 +123,18 @@ export default function ConnectorLayer() {
         const isFocused = focusedEdgeId === edge.id;
         const hasFocus = focusedEdgeId !== null;
 
-        // Selective dimming: when tracking a specific wire, dim all other wires
         const wireOpacity = hasFocus
           ? isFocused
             ? 1
-            : 0.18
+            : 0.2
           : isHovered
           ? 1
-          : 0.65;
-        const wireWidth = isFocused || isHovered ? "2.5" : "1.5";
+          : 0.75;
+        const wireWidth = isFocused || isHovered ? "2.5" : "1.75";
 
         const changePayload = edge.changeCode || edge.codeSymbol || "+ code";
         const payloadDisplay = changePayload.startsWith("+ ") ? changePayload.slice(2) : changePayload;
-        const badgeWidth = Math.max(payloadDisplay.length * 6.8 + 36, 130);
+        const badgeWidth = Math.max(payloadDisplay.length * 7 + 40, 140);
         const halfWidth = badgeWidth / 2;
 
         return (
@@ -154,15 +153,15 @@ export default function ConnectorLayer() {
               strokeWidth="28"
             />
 
-            {/* Static Hairline Base Wire - Linear Hairline */}
+            {/* Static Hairline Base Wire */}
             <path
               d={pathData}
               fill="none"
-              stroke="#222222"
+              stroke="rgba(255, 255, 255, 0.1)"
               strokeWidth="1"
             />
 
-            {/* Flowing Dashed Signal Stream - Accent Flowing Forward */}
+            {/* Flowing Dashed Signal Stream */}
             <path
               d={pathData}
               fill="none"
@@ -177,20 +176,20 @@ export default function ConnectorLayer() {
             <circle
               cx={p1.x}
               cy={p1.y}
-              r="2.5"
-              fill="#000000"
+              r="3"
+              fill="#07080b"
               stroke={color}
-              strokeWidth="1.5"
+              strokeWidth="2"
             />
 
             {/* Target Anchor Arrival Point */}
             <circle
               cx={p2.x}
               cy={p2.y}
-              r="2.5"
+              r="3"
               fill={color}
-              stroke="#000000"
-              strokeWidth="1"
+              stroke="#07080b"
+              strokeWidth="1.5"
             />
 
             {/* TRAVELING CODE CHANGE BADGE & FLOWING PAYLOAD */}
@@ -211,35 +210,39 @@ export default function ConnectorLayer() {
               />
 
               {/* Pulse Anchor Circle directly on the wire */}
-              <circle cx="0" cy="0" r="3.5" fill={color} stroke="#000000" strokeWidth="1.5" />
+              <circle cx="0" cy="0" r="4" fill={color} stroke="#07080b" strokeWidth="2" />
 
               {/* Hairline connector tick linking wire to badge */}
               <line x1="0" y1="0" x2="0" y2="-12" stroke={color} strokeWidth="1" strokeDasharray="1 1" />
 
-              {/* Flowing Code Change Pill - Flat Black, 1px Contributor Color Border */}
-              <g transform="translate(0, -22)">
+              {/* Flowing Code Change Pill - Sharp, Flat Surface */}
+              <g transform="translate(0, -24)">
                 <rect
                   x={-halfWidth}
-                  y="-10"
+                  y="-11"
                   width={badgeWidth}
-                  height="20"
-                  fill="#0A0A0A"
-                  stroke={color}
+                  height="22"
+                  rx="0"
+                  ry="0"
+                  fill="#000000"
+                  stroke="#222222"
                   strokeWidth="1"
                 />
                 {/* Contributor color accent stripe on left */}
                 <rect
                   x={-halfWidth}
-                  y="-10"
-                  width="3"
-                  height="20"
+                  y="-11"
+                  width="2"
+                  height="22"
+                  rx="0"
+                  ry="0"
                   fill={color}
                 />
                 {/* Diff '+' indicator */}
                 <text
-                  x={-halfWidth + 9}
-                  y="3.5"
-                  fill="#27a644"
+                  x={-halfWidth + 8}
+                  y="4"
+                  fill="#FFFFFF"
                   fontSize="10"
                   fontFamily="monospace"
                   fontWeight="bold"
@@ -248,10 +251,10 @@ export default function ConnectorLayer() {
                 </text>
                 {/* Code snippet text flowing from source to target */}
                 <text
-                  x={-halfWidth + 20}
-                  y="3.5"
-                  fill="#f7f8f8"
-                  fontSize="9"
+                  x={-halfWidth + 18}
+                  y="4"
+                  fill="#FFFFFF"
+                  fontSize="9.5"
                   fontFamily="monospace"
                   fontWeight="500"
                   letterSpacing="-0.2px"
@@ -262,7 +265,7 @@ export default function ConnectorLayer() {
             </g>
 
             {/* TRAVELING SIGNAL PARTICLE 2: Staggered pulse following along curve */}
-            <circle r="2.2" fill={color} opacity="0.8">
+            <circle r="2" fill={color} opacity="0.8">
               <animateMotion
                 key={`motion2-${edge.id}-${effectiveFlowSpeed}`}
                 path={pathData}
@@ -273,7 +276,7 @@ export default function ConnectorLayer() {
               <animate
                 key={`opacity2-${edge.id}-${effectiveFlowSpeed}`}
                 attributeName="opacity"
-                values="0;0.9;0.9;0"
+                values="0;0.8;0.8;0"
                 keyTimes="0;0.1;0.9;1"
                 dur={effectiveFlowSpeed}
                 begin={halfSpeedNum}
@@ -283,34 +286,27 @@ export default function ConnectorLayer() {
 
             {/* CENTRAL STATIC WIRE BADGE & TELEMETRY INSPECTOR */}
             <foreignObject
-              x={isVertical ? midX + 16 : midX - 105}
-              y={isVertical ? midY - 13 : midY + 12}
-              width="210"
-              height={isHovered || isFocused ? "125" : "26"}
+              x={isVertical ? midX + 16 : midX - 110}
+              y={isVertical ? midY - 14 : midY + 14}
+              width="220"
+              height={isHovered || isFocused ? "135" : "32"}
               className="overflow-visible pointer-events-auto"
             >
               <div className="flex flex-col items-center">
                 {/* Main Wire Pill */}
                 <div
-                  className={`flex items-center justify-between gap-1.5 px-2.5 py-1 bg-[#0A0A0A] border text-[10px] font-mono select-none transition-colors w-full ${
-                    isHovered || isFocused
-                      ? "text-[#f7f8f8]"
-                      : "text-[#8a8f98]"
-                  }`}
-                  style={{
-                    borderColor: isHovered || isFocused ? color : "#222222",
-                  }}
+                  className="flex items-center justify-between gap-2 px-2.5 py-1 rounded-none bg-[#0A0A0A] border border-[#222222] text-[11px] font-mono select-none transition-colors w-full shadow-[4px_4px_0px_#222222] text-[#888888]"
                 >
                   <div className="flex items-center gap-1.5 truncate">
                     <span
-                      className="w-1.5 h-1.5 rounded-none animate-pulse shrink-0"
+                      className="w-1.5 h-1.5 rounded-none shrink-0"
                       style={{ backgroundColor: color }}
                     />
-                    <span className="font-medium text-[#f7f8f8] truncate max-w-[130px]">
+                    <span className="font-medium text-white truncate max-w-[125px]">
                       {edge.codeSymbol || edge.label}
                     </span>
                   </div>
-                  <span className="text-[#62666d] text-[9px] shrink-0">
+                  <span className="text-[#888888] text-[9px] shrink-0 font-medium">
                     ➔ {targetFile.name.replace(".ts", "")}
                   </span>
                   <button
@@ -319,33 +315,33 @@ export default function ConnectorLayer() {
                       removeEdge(edge.id);
                     }}
                     title="Remove connection wire"
-                    className="text-[#62666d] hover:text-[#e5484d] transition-colors p-0.5 ml-0.5 shrink-0"
+                    className="text-[#888888] hover:text-[#FF453A] transition-colors p-0.5 ml-0.5 shrink-0 rounded-none hover:bg-[#222222]"
                   >
-                    <Trash2 className="w-2.5 h-2.5" />
+                    <Trash2 className="w-3 h-3" />
                   </button>
                 </div>
 
                 {/* Expanded Technical Inspector on Hover or Focus */}
                 {(isHovered || isFocused) && (
-                  <div className="mt-1 p-2 bg-[#0A0A0A] border text-[9.5px] font-mono text-[#8a8f98] w-full space-y-1 shadow-none" style={{ borderColor: color }}>
-                    <div className="flex items-center justify-between border-b border-[#222222] pb-1 text-[8.5px]">
-                      <span className="uppercase font-semibold" style={{ color }}>Live Code Pipeline</span>
-                      <span className="text-[#27a644]">● 0.08ms · {effectiveFlowSpeed}</span>
+                  <div className="mt-1 p-2.5 rounded-none bg-[#0A0A0A] border border-[#222222] text-[10px] font-mono text-[#888888] w-full space-y-1 shadow-[4px_4px_0px_#222222]">
+                    <div className="flex items-center justify-between border-b border-[#222222] pb-1 text-[9px]">
+                      <span className="uppercase font-semibold tracking-wider text-white">Live Code Pipeline</span>
+                      <span className="text-[#007AFF] font-medium">● 0.08ms · {effectiveFlowSpeed}</span>
                     </div>
                     {edge.originalSnippet && (
-                      <div className="text-[#e5484d] bg-[#e5484d]/10 px-1 py-0.5 text-[8.5px] truncate">
+                      <div className="text-[#FF453A] bg-[#FF453A]/10 border-l-2 border-[#FF453A] px-2 py-1 rounded-none text-[9px] truncate">
                         {edge.originalSnippet}
                       </div>
                     )}
-                    <div className="text-[#27a644] bg-[#27a644]/10 px-1 py-0.5 text-[9px] leading-tight truncate">
+                    <div className="text-[#00FF00] bg-[#00FF00]/10 border-l-2 border-[#00FF00] px-2 py-1 rounded-none text-[9.5px] leading-tight truncate font-medium">
                       {edge.changeCode || edge.codeSymbol}
                     </div>
                     {edge.payloadDescription && (
-                      <div className="text-[8px] text-[#8a8f98] leading-tight line-clamp-2">
+                      <div className="text-[9px] text-[#888888] leading-tight line-clamp-2">
                         {edge.payloadDescription}
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-[7.5px] text-[#62666d] pt-0.5 border-t border-[#1a1a1a]">
+                    <div className="flex items-center justify-between text-[8px] text-[#888888] pt-1 border-t border-[#222222]">
                       <span>{sourceFile.name}:{edge.sourceLine || 1}</span>
                       <span>{targetFile.name}:{edge.targetLine || 1}</span>
                     </div>

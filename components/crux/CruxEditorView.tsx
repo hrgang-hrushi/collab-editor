@@ -8,24 +8,48 @@ import ZenithTerminal from "./zenith/ZenithTerminal";
 import NexusCanvas from "./nexus/NexusCanvas";
 import CruxAgentPanel from "./agent/CruxAgentPanel";
 import CommandPalette from "@/components/modals/CommandPalette";
+import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
+import CruxShareModal from "./modals/CruxShareModal";
+import CruxInboxModal from "./modals/CruxInboxModal";
+import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
+import CruxBrandLogo from "./CruxBrandLogo";
 import {
-  Copy,
-  Check,
-  Code,
   Layers,
-  ChevronRight,
-  Command,
-  Bot,
-  Volume2,
-  VolumeX,
+  Code,
+  Search,
+  PanelLeft,
+  Terminal,
   Sparkles,
+  Bot,
+  Bell,
+  Check,
+  ChevronRight,
+  SplitSquareVertical,
+  GitBranch,
+  Radio,
+  CheckCheck,
+  Lock,
+  Unlock,
+  Inbox,
+  Share2,
 } from "lucide-react";
-import { triggerHaptic, toggleHaptics, isHapticsEnabled } from "@/lib/haptics";
+import { triggerHaptic } from "@/lib/haptics";
 
 export default function CruxEditorView() {
-  const [copied, setCopied] = useState(false);
   const [isAgentOpen, setIsAgentOpen] = useState(false);
-  const [hapticsOn, setHapticsOn] = useState(true);
+  const [activeMenu, setActiveMenu] = useState<string | null>(null);
+
+  const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
+  const currentUser = useWorkspaceStore((state) => state.currentUser);
+  const viewerLock = useWorkspaceStore((state) => state.viewerLock);
+  const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
+  const inboxInvites = useWorkspaceStore((state) => state.inboxInvites);
+  const isIdentityDrawerOpen = useWorkspaceStore((state) => state.isIdentityDrawerOpen);
+  const setIdentityDrawerOpen = useWorkspaceStore((state) => state.setIdentityDrawerOpen);
+  const isShareModalOpen = useWorkspaceStore((state) => state.isShareModalOpen);
+  const setShareModalOpen = useWorkspaceStore((state) => state.setShareModalOpen);
+  const isInboxOpen = useWorkspaceStore((state) => state.isInboxOpen);
+  const setInboxOpen = useWorkspaceStore((state) => state.setInboxOpen);
 
   const mode = useWorkspaceStore((state) => state.mode);
   const projectName = useWorkspaceStore((state) => state.projectName);
@@ -34,9 +58,22 @@ export default function CruxEditorView() {
   const files = useWorkspaceStore((state) => state.files);
   const activeFileId = useWorkspaceStore((state) => state.activeFileId);
   const setActiveFile = useWorkspaceStore((state) => state.setActiveFile);
+  const isSidebarOpen = useWorkspaceStore((state) => state.isSidebarOpen);
+  const toggleSidebar = useWorkspaceStore((state) => state.toggleSidebar);
+  const isTerminalOpen = useWorkspaceStore((state) => state.isTerminalOpen);
+  const toggleTerminal = useWorkspaceStore((state) => state.toggleTerminal);
+  const cursorPos = useWorkspaceStore((state) => state.cursorPos);
   const setCommandPaletteOpen = useWorkspaceStore(
     (state) => state.setCommandPaletteOpen
   );
+
+  const pendingInvitesCount = inboxInvites.filter((inv) => inv.status === "pending").length;
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isNexus = mode === "canvas";
 
@@ -45,11 +82,7 @@ export default function CruxEditorView() {
     files.find((f) => f.name === "stream_syncer.ts") ||
     files[0];
 
-  useEffect(() => {
-    setHapticsOn(isHapticsEnabled());
-  }, []);
-
-  // Global hotkeys: Cmd+Space (toggle mode) & Cmd+I (toggle agent)
+  // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -63,201 +96,229 @@ export default function CruxEditorView() {
         e.preventDefault();
         triggerHaptic("toggle");
         setMode(mode === "canvas" ? "edit" : "canvas");
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        toggleSidebar();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        toggleTerminal();
       } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "i") {
         e.preventDefault();
-        triggerHaptic("toggle");
         setIsAgentOpen((prev) => !prev);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [mode, setMode]);
+  }, [mode, setMode, toggleSidebar, toggleTerminal]);
 
-  const toggleSound = () => {
-    const newState = toggleHaptics();
-    setHapticsOn(newState);
-  };
+  const menuItems = ["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"];
 
-  const handleCopyCode = () => {
-    if (activeFile) {
-      navigator.clipboard?.writeText(activeFile.content);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  if (!isMounted) {
+    return (
+      <div className="w-screen h-screen bg-[#000000] flex items-center justify-center font-mono text-xs text-muted">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 bg-signal animate-ping" />
+          <span className="tracking-widest uppercase">CRUX_HYBRID_CORE_INITIALIZING...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isOnboarded) {
+    return <CruxOnboardingStartPage />;
+  }
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-black text-[#f7f8f8] flex flex-col font-sans select-none">
-      {/* Linear-Style Command Palette (Cmd+K) */}
+    <div className="relative w-screen h-screen overflow-hidden bg-black text-white flex flex-col font-sans select-none selection:bg-[#222222]">
+      {/* VS Code / Command Palette (Cmd+K / Cmd+P) */}
       <CommandPalette />
 
-      {/* Top Precision Header - Strict 1px bottom border, zero gradients, zero drop shadows */}
-      <header className="h-10 px-3 flex items-center justify-between border-b border-[#222222] bg-[#0A0A0A] z-40 shrink-0">
-        {/* Left: Brand Mark & Breadcrumbs */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-[#141516] border border-[#222222] flex items-center justify-center">
-              <span className="font-mono font-bold text-[10px] text-[#5e6ad2]">✕</span>
-            </div>
-            <span className="font-bold text-xs tracking-tight text-[#f7f8f8]">
-              CRUX
-            </span>
-            <span className="w-1.5 h-1.5 bg-[#27a644]" />
-            <span className="text-[10px] text-[#62666d] font-mono hidden sm:inline">
-              0.08ms IPC
-            </span>
+      {/* 1. CRUX TOP NAV (48px h-12, bg-surface border-b border-grid) */}
+      <header className="h-12 border-b border-grid bg-surface flex items-center justify-between px-4 z-30 shrink-0 font-sans select-none">
+        <div className="flex items-center gap-4">
+          {/* Crux / Crex Brand Logo */}
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCommandPaletteOpen(true)} title="Crux Platform (Cmd+K)">
+            <CruxBrandLogo size={18} withText={true} />
           </div>
 
-          <div className="h-3 w-[1px] bg-[#222222] mx-0.5 hidden sm:block" />
-
-          {/* Dynamic Breadcrumb path with quick Cmd+K file switcher */}
-          <div className="hidden md:flex items-center gap-1.5 text-xs text-[#8a8f98]">
-            <span className="text-[#62666d]">{projectName}</span>
-            {activeFile?.path && activeFile.path.includes("/") && (
-              <>
-                <ChevronRight className="w-3 h-3 text-[#62666d]" />
-                <span className="text-[#62666d]">
-                  {activeFile.path.split("/").slice(0, -1).join("/")}
-                </span>
-              </>
-            )}
-            <ChevronRight className="w-3 h-3 text-[#62666d]" />
-            <button
-              onClick={() => setCommandPaletteOpen(true)}
-              className="text-[#f7f8f8] px-1.5 py-0.5 bg-[#141516] hover:bg-[#191a1b] border border-[#222222] flex items-center gap-1.5 transition-colors cursor-pointer"
-              title="Open Command Palette / Switch File (Cmd+K)"
-            >
-              <span>{activeFile?.name || "stream_syncer.ts"}</span>
-              <kbd className="text-[9px] text-[#62666d] bg-black px-1 border border-[#222222]">
-                ⌘K
-              </kbd>
-            </button>
-          </div>
+          {/* Quick Open Command Palette Search */}
+          <button
+            onClick={() => setCommandPaletteOpen(true)}
+            className="hidden md:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-[#111111] border border-grid text-muted hover:text-signal text-[11px] transition-colors"
+            title="Search Files and Commands (Cmd+P)"
+          >
+            <Search className="w-3 h-3 text-muted" />
+            <span className="font-mono text-[11px]">{activeFile?.name || "stream_syncer.ts"}</span>
+            <kbd className="text-[9px] bg-surface text-muted px-1 border border-grid font-mono">⌘P</kbd>
+          </button>
         </div>
 
-        {/* Center: The View Toggle - Sleek, Ultra-Minimal Segmented Control */}
-        <div className="flex items-center p-0.5 bg-black border border-[#222222]">
+        {/* Segmented Control: Zenith vs Nexus */}
+        <div className="flex items-center bg-void border border-grid p-0.5">
           <button
             onClick={() => setMode("edit")}
-            className={`flex items-center gap-1.5 px-3 py-0.5 text-xs transition-colors ${
+            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors ${
               !isNexus
-                ? "bg-[#141516] text-[#f7f8f8] font-medium border border-[#222222]"
-                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+                ? "bg-grid text-signal"
+                : "text-muted hover:text-signal"
             }`}
           >
-            <Code className="w-3 h-3 text-[#5e6ad2]" />
-            <span>Zenith (IDE)</span>
+            Zenith (IDE)
           </button>
-
           <button
             onClick={() => setMode("canvas")}
-            className={`flex items-center gap-1.5 px-3 py-0.5 text-xs transition-colors ${
+            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors ${
               isNexus
-                ? "bg-[#141516] text-[#f7f8f8] font-medium border border-[#222222]"
-                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+                ? "bg-grid text-signal"
+                : "text-muted hover:text-signal"
             }`}
           >
-            <Layers className="w-3 h-3 text-[#8a8f98]" />
-            <span>Nexus (Canvas)</span>
+            Nexus (Canvas)
           </button>
-
-          <div className="hidden lg:flex items-center gap-1 ml-1 px-1 text-[10px] text-[#62666d]">
-            <Command className="w-2.5 h-2.5" />
-            <span>Space</span>
-          </div>
         </div>
 
-        {/* Right: Flat Collaborator Badges & Telemetry */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <div
-              className="px-1.5 py-0.5 text-[10px] font-mono bg-[#141516] border border-[#06b6d4]/40 text-[#06b6d4]"
-              title="Sarah Lin (Staff Infrastructure - Cyan)"
-            >
-              <span className="font-semibold mr-1">●</span>
-              <span>SL</span>
+        {/* Right Status & Actions */}
+        <div className="flex items-center gap-2.5">
+          {/* Identity Pill Button */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setIdentityDrawerOpen(true);
+            }}
+            className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-grid border border-grid text-signal text-[11px] font-mono transition-colors"
+            title="Developer Identity & Keyring (Click to switch user or copy UID)"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-[#00FF00]" />
+            <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
+            <span className="text-[10px] text-muted">[{currentUser.uid || "CRX-7447"}]</span>
+          </button>
+
+          {/* Viewer Lock Quick Toggle */}
+          <button
+            onClick={() => {
+              triggerHaptic("toggle");
+              toggleViewerLock();
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider border transition-colors ${
+              viewerLock
+                ? "bg-accent2/20 border-accent2 text-accent2 font-bold"
+                : "bg-void border-grid text-muted hover:text-signal"
+            }`}
+            title={
+              viewerLock
+                ? "Viewer Lock Active: Workspace edits are frozen across all peers. Click to unlock."
+                : "Viewer Lock Off: Click to freeze workspace writes."
+            }
+          >
+            {viewerLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+            <span>{viewerLock ? "LOCK ON" : "LOCK OFF"}</span>
+          </button>
+
+          {/* Collaborative Inbox Button */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setInboxOpen(true);
+            }}
+            className="relative p-1.5 border border-grid bg-void hover:bg-grid text-muted hover:text-signal transition-colors flex items-center justify-center"
+            title="Workspace Invites & Collaborative Inbox"
+          >
+            <Inbox className="w-3.5 h-3.5" />
+            {pendingInvitesCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-accent1 text-void text-[9px] font-mono font-bold w-4 h-4 flex items-center justify-center leading-none">
+                {pendingInvitesCount}
+              </span>
+            )}
+          </button>
+
+          {/* Active Collaborators */}
+          <div
+            className="hidden xl:flex items-center gap-1 cursor-pointer"
+            onClick={() => setShareModalOpen(true)}
+            title="Active Peers in Room (Click to open Share / Invites)"
+          >
+            <div className="px-1.5 py-0.5 bg-accent1 text-void text-[9px] font-mono font-bold leading-none" title="Sarah Lin (CRX-9941-SL)">
+              SL
             </div>
-
-            {/* Autonomous Copilot Toggle */}
-            <button
-              onClick={() => {
-                triggerHaptic("toggle");
-                setIsAgentOpen(!isAgentOpen);
-              }}
-              className={`px-2 py-0.5 text-[10px] font-sans flex items-center gap-1 border transition-colors cursor-pointer ${
-                isAgentOpen
-                  ? "bg-[#8b5cf6]/20 border-[#8b5cf6] text-[#c4b5fd] font-medium"
-                  : "bg-[#141516] border-[#8b5cf6]/40 text-[#8b5cf6] hover:bg-[#8b5cf6]/10"
-              }`}
-              title="Toggle CruxAI Autonomous Coding Agent (⌘I)"
-            >
-              <Bot className="w-3 h-3 text-[#8b5cf6]" />
-              <span>@CruxAI</span>
-              <kbd className="text-[8px] bg-black text-[#8b5cf6] px-1 border border-[#8b5cf6]/30">⌘I</kbd>
-            </button>
-
-            <div
-              className="px-1.5 py-0.5 text-[10px] font-mono bg-[#141516] border border-[#f59e0b]/40 text-[#f59e0b] hidden sm:block"
-              title="Marcus Vance (Systems Architect - Amber)"
-            >
-              <span>MV</span>
+            <div className="px-1.5 py-0.5 bg-void border border-grid text-muted text-[9px] font-mono leading-none" title="Marcus Vance (CRX-5520-MV)">
+              MV
+            </div>
+            <div className="px-1.5 py-0.5 bg-accent2 text-signal text-[9px] font-mono font-bold leading-none" title="CruxAI Copilot (CRX-0001-AI)">
+              AI
             </div>
           </div>
 
-          <div className="h-3 w-[1px] bg-[#222222] mx-0.5" />
+          {/* Window Layout Toggles */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleSidebar}
+              title="Toggle Explorer (Cmd+B)"
+              className={`p-1.5 border border-grid transition-colors ${
+                isSidebarOpen ? "bg-grid text-signal" : "bg-void text-muted hover:text-signal"
+              }`}
+            >
+              <PanelLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={toggleTerminal}
+              title="Toggle Terminal Drawer (Cmd+J)"
+              className={`p-1.5 border border-grid transition-colors ${
+                isTerminalOpen ? "bg-grid text-signal" : "bg-void text-muted hover:text-signal"
+              }`}
+            >
+              <Terminal className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => setIsAgentOpen(!isAgentOpen)}
+              title="Toggle CruxAI Copilot (Cmd+I)"
+              className={`p-1.5 border border-grid transition-colors ${
+                isAgentOpen ? "bg-grid text-accent2" : "bg-void text-muted hover:text-signal"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
-          {/* Tactile Audio & Haptics Toggle */}
+          {/* Share Button */}
           <button
-            onClick={toggleSound}
-            title={hapticsOn ? "Tactile Audio & Haptics: Active (Click to Mute)" : "Tactile Audio & Haptics: Muted"}
-            className={`p-1 border transition-colors ${
-              hapticsOn
-                ? "text-[#5e6ad2] border-[#5e6ad2]/40 bg-[#5e6ad2]/10"
-                : "text-[#62666d] border-[#222222] hover:text-white"
-            }`}
+            onClick={() => {
+              triggerHaptic("click");
+              setShareModalOpen(true);
+            }}
+            className="px-3 py-1 text-[11px] font-medium border border-grid bg-void hover:bg-grid transition-colors text-signal uppercase flex items-center gap-1.5"
+            title="Share Workspace with collaborator UID or Email"
           >
-            {hapticsOn ? <Volume2 className="w-3 h-3" /> : <VolumeX className="w-3 h-3" />}
-          </button>
-
-          <button
-            onClick={handleCopyCode}
-            title={`Copy buffer (${activeFile?.name})`}
-            className="p-1 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] transition-colors"
-          >
-            {copied ? (
-              <Check className="w-3 h-3 text-[#27a644]" />
-            ) : (
-              <Copy className="w-3 h-3" />
-            )}
+            <Share2 className="w-3 h-3 text-accent1" />
+            <span>Share</span>
           </button>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <div className="flex-1 w-full overflow-hidden relative">
+      {/* 2. MAIN LAYOUT */}
+      <div className="flex flex-1 overflow-hidden">
         {!isNexus ? (
-          /* ZENITH MODE (IDE SHELL)
-             - Pure black (bg-black) central editor area
-             - Dark gray (bg-[#0A0A0A]) file tree on the left
-             - Terminal on the bottom
-             - Autonomous Agent Copilot on the right
-             - Strict 1px solid border (border-[#222222]) separating every panel
-          */
-          <div className="w-full h-full flex flex-row overflow-hidden">
-            <ZenithFileTree />
-            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+          /* ZENITH: BRUTALIST IDE WORKSPACE */
+          <div className="w-full h-full flex flex-col overflow-hidden bg-void">
+            <div className="flex flex-1 overflow-hidden">
+              {/* SIDEBAR (EXPLORER) */}
+              {isSidebarOpen && <ZenithFileTree />}
+
+              {/* EDITOR CANVAS */}
               <ZenithEditorPane />
-              <ZenithTerminal />
+
+              {/* AI AGENT PANEL */}
+              <CruxAgentPanel
+                isOpen={isAgentOpen}
+                onClose={() => setIsAgentOpen(false)}
+              />
             </div>
-            {/* Autonomous CruxAI Coding Agent Side Panel */}
-            <CruxAgentPanel
-              isOpen={isAgentOpen}
-              onClose={() => setIsAgentOpen(false)}
-            />
+
+            {/* TERMINAL DRAWER */}
+            {isTerminalOpen && <ZenithTerminal />}
           </div>
         ) : (
-          /* NEXUS MODE: Spatial Architecture Canvas */
-          <div className="w-full h-full relative overflow-hidden bg-black">
+          /* NEXUS: ARCHITECTURAL SPATIAL CANVAS */
+          <div className="w-full h-full relative overflow-hidden bg-void">
             <NexusCanvas
               onSwitchToZenith={(fileId) => {
                 if (fileId) {
@@ -271,44 +332,30 @@ export default function CruxEditorView() {
         )}
       </div>
 
-      {/* Bottom Status Bar - Strict 1px top border */}
-      <footer className="h-6 px-3 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[11px] text-[#8a8f98] select-none shrink-0 font-sans">
-        <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 text-[#f7f8f8]">
-            <span className="w-1.5 h-1.5 bg-[#27a644]" />
-            <span>Daemon IPC 0.08ms</span>
+      {/* 3. CRUX STATUS BAR (22px high, bg-surface border-t border-grid) */}
+      <footer className="h-[22px] px-3 bg-surface border-t border-grid text-muted flex items-center justify-between text-[11px] font-mono select-none shrink-0 z-30">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1.5 hover:text-signal cursor-pointer">
+            <GitBranch className="w-3 h-3 text-muted" />
+            <span className="text-signal">main*</span>
           </div>
-          <span className="text-[#333333]">·</span>
-          <span>{activeFile?.name}</span>
-          <span className="text-[#333333]">·</span>
-          <span>TypeScript · UTF-8</span>
+          <div className="hidden sm:flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-[#00FF00]" />
+            <span className="text-[10px] tracking-wider uppercase">CRDT IN-SYNC</span>
+          </div>
+          <span className="text-[10px] text-muted">Daemon: 0.08ms</span>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleSound}
-            className="flex items-center gap-1 hover:text-white transition-colors"
-            title="Toggle Tactile Haptics & Acoustics"
-          >
-            {hapticsOn ? <Volume2 className="w-3 h-3 text-[#5e6ad2]" /> : <VolumeX className="w-3 h-3 text-[#62666d]" />}
-            <span className={hapticsOn ? "text-[#f7f8f8]" : "text-[#62666d]"}>Haptics: {hapticsOn ? "On" : "Off"}</span>
-          </button>
-          <span className="text-[#333333]">·</span>
-          <button
-            onClick={() => {
-              triggerHaptic("toggle");
-              setIsAgentOpen(!isAgentOpen);
-            }}
-            className="flex items-center gap-1 text-[#8b5cf6] hover:text-[#c4b5fd] transition-colors"
-            title="Toggle Coding Agent (Cmd+I)"
-          >
-            <Bot className="w-3 h-3" />
-            <span>Agent (⌘I)</span>
-          </button>
-          <span className="text-[#333333]">·</span>
-          <span className="text-[#27a644]">3 Peers In-Sync</span>
+        <div className="flex items-center gap-4 text-muted">
+          <span>Ln {cursorPos?.line || 1}, Col {cursorPos?.col || 1}</span>
+          <span className="hidden sm:inline">UTF-8</span>
+          <span className="uppercase text-signal font-medium">TypeScript</span>
         </div>
       </footer>
+
+      {/* 4. COLLABORATIVE OVERLAYS & MODALS */}
+      <CruxShareModal />
+      <CruxInboxModal />
+      <CruxIdentityDrawer />
     </div>
   );
 }

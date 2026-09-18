@@ -18,6 +18,7 @@ import {
   Play,
   FolderPlus,
   Upload,
+  Zap,
 } from "lucide-react";
 
 interface NexusCanvasProps {
@@ -53,7 +54,6 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
-  // Helper to read file as text
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -316,11 +316,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`relative w-full h-full overflow-hidden bg-linear-canvas canvas-dot-grid select-none ${
+      className={`relative w-full h-full overflow-hidden bg-black canvas-dot-grid select-none ${
         spacePressed || isPanning ? "cursor-grab active:cursor-grabbing" : "cursor-default"
       }`}
     >
-      {/* Hidden Folder & File inputs */}
       <input
         type="file"
         ref={folderInputRef}
@@ -338,35 +337,37 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
 
       {/* Drag & Drop Visual Overlay on Canvas */}
       {isDragOver && (
-        <div className="absolute inset-0 z-50 bg-black/85 flex flex-col items-center justify-center p-6 text-center border-4 border-dashed border-[#5e6ad2]">
-          <FolderPlus className="w-12 h-12 text-[#5e6ad2] animate-bounce mb-3" />
+        <div className="absolute inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-8 text-center border-2 border-dashed border-[#007AFF] rounded-none">
+          <FolderPlus className="w-12 h-12 text-[#007AFF] mb-3" />
           <span className="text-base font-semibold text-white font-sans">
             Drop Folder or Code Files
           </span>
-          <span className="text-xs text-[#8a8f98] font-sans mt-1.5 max-w-md">
-            Files will be imported, auto-positioned into architectural nodes, and wired with CRDT sync streams.
+          <span className="text-xs text-[#888888] font-sans mt-1.5 max-w-md">
+            Files will be parsed into reactive architectural nodes and auto-wired into the spatial canvas.
           </span>
         </div>
       )}
 
-      {/* Top Nexus HUD Banner */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2.5 px-3 py-1 bg-[#0A0A0A] border border-[#222222] text-xs text-[#f7f8f8] font-sans select-none">
+      {/* Top Nexus HUD Toolbar */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-[#888888] font-sans select-none">
         <div className="flex items-center gap-2">
-          <Layers className="w-3.5 h-3.5 text-[#5e6ad2]" />
-          <span className="font-semibold text-[#f7f8f8]">Nexus Canvas</span>
-          <span className="text-[#62666d]">·</span>
-          <span className="text-[#8a8f98] text-[11px] hidden sm:inline">
-            {files.length} nodes · {edges.length} wires
+          <div className="w-4 h-4 rounded-none bg-black border border-[#222222] flex items-center justify-center">
+            <Layers className="w-3 h-3 text-white" />
+          </div>
+          <span className="font-semibold text-white uppercase text-[10px] tracking-wider">Nexus Canvas</span>
+          <span className="text-[#222222]">·</span>
+          <span className="text-[#888888] text-xs hidden sm:inline font-mono">
+            {files.length} nodes · {edges.length} conduits
           </span>
-          <span className="text-[#62666d] hidden sm:inline">·</span>
-          <div className="hidden sm:flex items-center gap-1.5 text-[11px]">
+          <span className="text-[#222222] hidden sm:inline">·</span>
+          <div className="hidden sm:flex items-center gap-1.5 px-1.5 py-0.5 rounded-none bg-black border border-[#222222]">
             <span
-              className={`w-1.5 h-1.5 ${
-                isFlowPaused ? "bg-[#f59e0b]" : "bg-[#27a644] animate-pulse"
+              className={`w-1.5 h-1.5 rounded-none ${
+                isFlowPaused ? "bg-[#888888]" : "bg-[#007AFF]"
               }`}
             />
-            <span className={`text-[10px] ${isFlowPaused ? "text-[#f59e0b]" : "text-[#27a644]"}`}>
-              {isFlowPaused ? "Paused" : "Flow Live"}
+            <span className="text-[10px] font-mono text-[#888888]">
+              {isFlowPaused ? "Paused" : "Live"}
             </span>
           </div>
         </div>
@@ -374,14 +375,14 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         <div className="h-3 w-[1px] bg-[#222222]" />
 
         {/* Speed Controller & Pause Scrubber */}
-        <div className="flex items-center border border-[#222222] bg-[#141516] text-[10px]">
+        <div className="flex items-center rounded-none border border-[#222222] bg-black p-0.5 text-[10px]">
           <button
             onClick={toggleFlowPause}
-            title={isFlowPaused ? "Resume Flow Animation" : "Pause Flow Animation"}
-            className={`px-1.5 py-0.5 flex items-center gap-1 transition-colors ${
+            title={isFlowPaused ? "Resume Flow" : "Pause Flow"}
+            className={`px-1.5 py-0.5 rounded-none flex items-center gap-1 transition-colors ${
               isFlowPaused
-                ? "bg-[#f59e0b]/20 text-[#f59e0b] font-semibold"
-                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+                ? "bg-[#222222] text-white font-medium"
+                : "text-[#888888] hover:text-white"
             }`}
           >
             {isFlowPaused ? (
@@ -396,26 +397,25 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
               </>
             )}
           </button>
-          <div className="w-[1px] h-3 bg-[#222222]" />
+          <div className="w-[1px] h-2.5 bg-[#222222] mx-0.5" />
           <button
             onClick={() => setFlowSpeedFactor(0.5)}
             title="0.5x Slow Pace"
-            className={`px-1.5 py-0.5 transition-colors ${
+            className={`px-1.5 py-0.5 rounded-none transition-colors ${
               flowSpeedFactor === 0.5
-                ? "bg-[#5e6ad2] text-white font-bold"
-                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+                ? "bg-[#222222] text-white font-medium"
+                : "text-[#888888] hover:text-white"
             }`}
           >
             0.5x
           </button>
-          <div className="w-[1px] h-3 bg-[#222222]" />
           <button
             onClick={() => setFlowSpeedFactor(1)}
-            title="1x Ambient Pace"
-            className={`px-1.5 py-0.5 transition-colors ${
+            title="1x Normal Pace"
+            className={`px-1.5 py-0.5 rounded-none transition-colors ${
               flowSpeedFactor === 1
-                ? "bg-[#5e6ad2] text-white font-bold"
-                : "text-[#8a8f98] hover:text-[#f7f8f8]"
+                ? "bg-[#222222] text-white font-medium"
+                : "text-[#888888] hover:text-white"
             }`}
           >
             1x
@@ -425,16 +425,16 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         {/* Pipeline Tracker Toggle Button */}
         <button
           onClick={togglePipelineTracker}
-          className={`flex items-center gap-1.5 h-6 px-2 border text-[11px] font-sans font-medium transition-colors ${
+          className={`flex items-center gap-1.5 h-6 px-2.5 rounded-none border text-xs font-sans transition-colors ${
             isPipelineTrackerOpen
-              ? "bg-[#5e6ad2]/20 border-[#5e6ad2] text-[#f7f8f8]"
-              : "bg-[#141516] hover:bg-[#191a1b] border-[#222222] text-[#8a8f98] hover:text-[#f7f8f8]"
+              ? "bg-[#222222] border-[#222222] text-white font-medium"
+              : "bg-black hover:bg-[#222222] border-[#222222] text-[#888888] hover:text-white"
           }`}
           title="Toggle Pipeline Tracker Dock"
         >
-          <Activity className="w-3 h-3 text-[#5e6ad2]" />
+          <Activity className="w-3.5 h-3.5" />
           <span>Pipeline</span>
-          <span className="text-[9px] px-1 bg-black border border-[#222222] text-[#27a644]">
+          <span className="text-[10px] font-mono px-1 py-0.2 rounded-none bg-[#0A0A0A] border border-[#222222] text-[#888888]">
             {edges.length}
           </span>
         </button>
@@ -443,10 +443,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
 
         <button
           onClick={() => onSwitchToZenith()}
-          className="flex items-center gap-1.5 h-6 px-2.5 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          className="flex items-center gap-1.5 h-6 px-2.5 rounded-none bg-black hover:bg-[#222222] border border-[#222222] text-[#888888] hover:text-white text-xs font-sans font-medium transition-colors"
         >
-          <span>Snap to Zenith</span>
-          <kbd className="text-[9px] text-[#8a8f98] bg-black px-1 border border-[#222222]">⌘ Space</kbd>
+          <span>Editor View</span>
+          <kbd className="text-[9px] text-[#888888] bg-[#0A0A0A] px-1 rounded-none border border-[#222222]">⌘ Space</kbd>
         </button>
       </div>
 
@@ -474,15 +474,15 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
 
       {/* Connecting Mode Helper Banner */}
       {isConnecting && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-[#5e6ad2] text-xs text-[#f7f8f8] font-mono">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-[#007AFF] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-white font-sans">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-[#5e6ad2] animate-pulse" />
-            <span className="font-semibold">Wiring Mode:</span>
-            <span className="text-[#8a8f98]">Click any target node to connect wire</span>
+            <span className="w-2 h-2 rounded-none bg-[#007AFF]" />
+            <span className="font-semibold text-white">Wiring Mode:</span>
+            <span className="text-[#888888]">Click any target file node to connect wire</span>
           </div>
           <button
             onClick={cancelConnection}
-            className="flex items-center gap-1 h-5 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-xs"
+            className="flex items-center gap-1 h-5 px-2 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
           >
             <X className="w-3 h-3" />
             <span>Cancel</span>
@@ -490,67 +490,67 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         </div>
       )}
 
-      {/* Bottom Controls: Import + Node + Zoom */}
-      <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] text-xs font-sans text-[#8a8f98] select-none">
+      {/* Bottom Controls: Import + Node + Zoom Dock */}
+      <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs font-sans text-[#888888] select-none">
         {/* Import Folder Button */}
         <button
           onClick={() => folderInputRef.current?.click()}
-          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
           title="Import Entire Folder to Canvas"
         >
-          <FolderPlus className="w-3.5 h-3.5 text-[#5e6ad2]" />
+          <FolderPlus className="w-3.5 h-3.5 text-[#888888]" />
           <span>Folder</span>
         </button>
 
         {/* Import Files Button */}
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
           title="Import Files to Canvas"
         >
-          <Upload className="w-3.5 h-3.5" />
+          <Upload className="w-3.5 h-3.5 text-[#888888]" />
           <span>Files</span>
         </button>
 
-        <div className="w-[1px] h-3.5 bg-[#222222]" />
+        <div className="w-[1px] h-3 bg-[#222222]" />
 
         <button
           onClick={() => setIsNewNodeModalOpen(true)}
-          className="flex items-center gap-1 h-6 px-2 bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] border border-[#222222] text-[11px] font-sans font-medium transition-colors"
+          className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] border border-[#222222] text-[#888888] hover:text-white text-xs font-medium transition-colors"
           title="Add new architecture file node"
         >
-          <Plus className="w-3.5 h-3.5 text-[#5e6ad2]" />
+          <Plus className="w-3.5 h-3.5" />
           <span>Node</span>
         </button>
 
-        <div className="w-[1px] h-3.5 bg-[#222222]" />
+        <div className="w-[1px] h-3 bg-[#222222]" />
 
         <button
           onClick={() => zoomBy(-0.1)}
           title="Zoom Out"
-          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+          className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] transition-colors"
         >
           <ZoomOut className="w-3.5 h-3.5" />
         </button>
 
-        <span className="px-1 text-[#f7f8f8] min-w-[38px] text-center font-semibold text-[11px]">
+        <span className="px-1 text-white min-w-[38px] text-center font-medium text-xs font-mono">
           {Math.round(canvasTransform.zoom * 100)}%
         </span>
 
         <button
           onClick={() => zoomBy(0.1)}
           title="Zoom In"
-          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+          className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] transition-colors"
         >
           <ZoomIn className="w-3.5 h-3.5" />
         </button>
 
-        <div className="w-[1px] h-3.5 bg-[#222222]" />
+        <div className="w-[1px] h-3 bg-[#222222]" />
 
         <button
           onClick={resetView}
           title="Reset View"
-          className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] transition-colors"
+          className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] transition-colors"
         >
           <RotateCcw className="w-3 h-3" />
         </button>
@@ -559,21 +559,21 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       {/* New Spatial Node Modal */}
       {isNewNodeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-          <div className="w-full max-w-sm p-4 bg-[#0A0A0A] border border-[#222222] text-[#f7f8f8] space-y-3 font-sans">
-            <div className="flex items-center justify-between pb-2 border-b border-[#222222]">
-              <h3 className="font-semibold text-xs text-[#f7f8f8]">Add Architectural File Node</h3>
+          <div className="w-full max-w-sm p-5 bg-[#0A0A0A] border border-[#222222] rounded-none text-white space-y-4 font-sans shadow-[4px_4px_0px_#222222]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#222222]">
+              <h3 className="font-semibold text-xs text-white uppercase tracking-widest">Add Architectural Node</h3>
               <button
                 onClick={() => setIsNewNodeModalOpen(false)}
-                className="text-[#8a8f98] hover:text-[#f7f8f8]"
+                className="text-[#888888] hover:text-white p-1 rounded-none hover:bg-[#222222]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateNode} className="space-y-3">
+            <form onSubmit={handleCreateNode} className="space-y-4">
               <div>
-                <label className="text-[10px] text-[#8a8f98] uppercase tracking-wider block mb-1">
-                  File Name
+                <label className="text-[10px] text-[#888888] uppercase tracking-widest block mb-1.5 font-medium font-sans">
+                  File Name &amp; Path
                 </label>
                 <input
                   type="text"
@@ -581,7 +581,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
                   value={newNodeName}
                   onChange={(e) => setNewNodeName(e.target.value)}
                   placeholder="e.g. gateway.ts, store.rs"
-                  className="w-full px-2.5 py-1.5 bg-black border border-[#222222] focus:border-[#5e6ad2] text-xs text-[#f7f8f8] focus:outline-none"
+                  className="w-full px-2.5 py-1.5 bg-black border border-[#222222] focus:border-[#007AFF] rounded-none text-xs text-white font-mono focus:outline-none placeholder-[#888888]"
                 />
               </div>
 
@@ -589,14 +589,14 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
                 <button
                   type="button"
                   onClick={() => setIsNewNodeModalOpen(false)}
-                  className="px-2.5 py-1 text-xs text-[#8a8f98] hover:text-[#f7f8f8]"
+                  className="px-2.5 py-1 rounded-none text-xs text-[#888888] hover:text-white hover:bg-[#222222] border border-[#222222] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!newNodeName.trim()}
-                  className="px-3 py-1 bg-[#5e6ad2] hover:bg-[#6c78e6] text-white text-xs disabled:opacity-50"
+                  className="px-3 py-1 rounded-none bg-white text-black hover:bg-[#cccccc] text-xs font-medium disabled:opacity-40 transition-colors"
                 >
                   Create Node
                 </button>

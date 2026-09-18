@@ -80,23 +80,21 @@ export default function TopBar() {
         {/* Left: Brand & Room */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-collab-cyan via-collab-purple to-collab-magenta p-[1px] shadow-glow-cyan">
-              <div className="w-full h-full bg-void-950 rounded-[11px] flex items-center justify-center">
-                <span className="font-mono font-bold text-xs bg-gradient-to-r from-collab-cyan to-collab-purple bg-clip-text text-transparent">
-                  AU
-                </span>
-              </div>
+            <div className="w-7 h-7 rounded bg-[#007acc] flex items-center justify-center">
+              <span className="font-mono font-bold text-xs text-white">
+                AU
+              </span>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm tracking-tight text-white font-sans">
+                <span className="font-bold text-sm tracking-tight text-[#cccccc] font-sans">
                   Aura
                 </span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-collab-cyan font-mono font-semibold">
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#333333] border border-[#3e3e42] text-[#cccccc] font-mono">
                   PRO
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 font-mono -mt-0.5">
+              <p className="text-[10px] text-[#858585] font-mono -mt-0.5">
                 multiplayer-mesh #9214
               </p>
             </div>
@@ -198,9 +196,9 @@ export default function TopBar() {
                 >
                   {user.name[0]}
                 </div>
-                {/* Active live presence pulsing ring */}
+                {/* Active live presence indicator */}
                 <span
-                  className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-void-950 animate-pulse"
+                  className="absolute bottom-0 right-0 w-2 h-2 rounded-full border border-[#1e1e1e]"
                   style={{ backgroundColor: user.color }}
                 />
               </div>
@@ -233,16 +231,16 @@ export default function TopBar() {
           {/* Instant Share Link */}
           <button
             onClick={handleShare}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-collab-cyan/20 to-collab-purple/20 hover:from-collab-cyan/30 hover:to-collab-purple/30 text-white border border-collab-cyan/40 text-xs font-semibold shadow-sm transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-none bg-black hover:bg-[#222222] text-white border border-[#222222] text-xs font-semibold transition-colors"
           >
             {copiedShare ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-300">Link Copied!</span>
+                <Check className="w-3.5 h-3.5 text-white" />
+                <span className="text-white">Link Copied!</span>
               </>
             ) : (
               <>
-                <Share2 className="w-3.5 h-3.5 text-collab-cyan" />
+                <Share2 className="w-3.5 h-3.5 text-[#007AFF]" />
                 <span>Share</span>
               </>
             )}
@@ -252,10 +250,10 @@ export default function TopBar() {
 
       {/* New File Modal */}
       {showNewFileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm p-4 rounded-2xl glass-panel-elevated shadow-2xl border border-white/20 text-slate-200 space-y-3 font-sans">
-            <h3 className="font-semibold text-sm">Create New File Node</h3>
-            <p className="text-xs text-slate-400">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in">
+          <div className="w-full max-w-sm p-4 rounded-none bg-[#0A0A0A] shadow-[4px_4px_0px_#222222] border border-[#222222] text-white space-y-3 font-sans">
+            <h3 className="font-semibold text-xs text-white uppercase tracking-widest">Create New File Node</h3>
+            <p className="text-xs text-[#888888]">
               Enter file name with extension (e.g. <code>apiHandler.ts</code>, <code>style.css</code>).
             </p>
             <form onSubmit={handleCreateFile} className="space-y-3">
@@ -265,22 +263,22 @@ export default function TopBar() {
                 value={newFileName}
                 onChange={(e) => setNewFileName(e.target.value)}
                 placeholder="e.g. databaseClient.ts"
-                className="w-full px-3 py-2 rounded-xl bg-void-950/90 border border-white/10 text-xs text-slate-200 focus:outline-none focus:border-collab-cyan font-mono"
+                className="w-full px-3 py-2 rounded-none bg-black border border-[#222222] text-xs text-white focus:outline-none focus:border-[#007AFF] font-mono placeholder-[#888888]"
               />
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowNewFileModal(false)}
-                  className="px-3 py-1.5 rounded-lg hover:bg-white/10 text-xs text-slate-400 transition"
+                  className="px-3 py-1.5 rounded-none hover:bg-[#222222] text-xs text-[#888888] hover:text-white border border-[#222222] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!newFileName.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-collab-cyan hover:bg-cyan-300 text-void-950 font-semibold text-xs transition disabled:opacity-40"
+                  className="px-3 py-1.5 rounded-none bg-white text-black hover:bg-[#cccccc] text-xs font-medium disabled:opacity-40 transition-colors"
                 >
-                  Create Node
+                  Create
                 </button>
               </div>
             </form>

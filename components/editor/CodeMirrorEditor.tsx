@@ -30,80 +30,83 @@ import {
 } from "lucide-react";
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
 
+// Official VS Code Dark+ Color Palette
 const cruxHighlightStyle = HighlightStyle.define([
-  { tag: t.keyword, color: "#5e6ad2", fontWeight: "500" },
-  { tag: [t.controlKeyword, t.moduleKeyword], color: "#5e6ad2", fontWeight: "500" },
-  { tag: [t.name, t.deleted, t.character, t.macroName], color: "#f7f8f8" },
-  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: "#f7f8f8", fontWeight: "500" },
-  { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: "#d0d6e0" },
-  { tag: [t.definition(t.name), t.separator], color: "#f7f8f8" },
-  { tag: [t.typeName, t.className, t.namespace, t.changed], color: "#d0d6e0", fontWeight: "500" },
-  { tag: [t.number], color: "#8a8f98" },
-  { tag: [t.bool, t.null], color: "#5e6ad2", fontWeight: "500" },
-  { tag: [t.operator, t.operatorKeyword], color: "#8a8f98" },
-  { tag: [t.url, t.escape, t.regexp, t.link], color: "#8a8f98" },
-  { tag: [t.meta, t.comment], color: "#62666d", fontStyle: "italic" },
+  { tag: t.keyword, color: "#569cd6" },
+  { tag: [t.controlKeyword, t.moduleKeyword], color: "#c586c0" },
+  { tag: [t.name, t.deleted, t.character, t.macroName], color: "#d4d4d4" },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: "#dcdcaa" },
+  { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: "#4fc1ff" },
+  { tag: [t.definition(t.name), t.separator], color: "#d4d4d4" },
+  { tag: [t.typeName, t.className, t.namespace, t.changed], color: "#4ec9b0" },
+  { tag: [t.number], color: "#b5cea8" },
+  { tag: [t.bool, t.null], color: "#569cd6" },
+  { tag: [t.operator, t.operatorKeyword], color: "#d4d4d4" },
+  { tag: [t.url, t.escape, t.regexp, t.link], color: "#d7ba7d" },
+  { tag: [t.meta, t.comment], color: "#6a9955", fontStyle: "italic" },
   { tag: t.strong, fontWeight: "bold" },
   { tag: t.emphasis, fontStyle: "italic" },
   { tag: t.strikethrough, textDecoration: "line-through" },
-  { tag: t.link, color: "#5e6ad2", textDecoration: "underline" },
-  { tag: t.heading, fontWeight: "bold", color: "#f7f8f8" },
-  { tag: [t.atom, t.self], color: "#5e6ad2" },
-  { tag: [t.string, t.special(t.string)], color: "#27a644" },
-  { tag: [t.propertyName, t.attributeName], color: "#d0d6e0" },
-  { tag: [t.bracket, t.punctuation], color: "#8a8f98" },
+  { tag: t.link, color: "#4fc1ff", textDecoration: "underline" },
+  { tag: t.heading, fontWeight: "bold", color: "#d4d4d4" },
+  { tag: [t.atom, t.self], color: "#569cd6" },
+  { tag: [t.string, t.special(t.string)], color: "#ce9178" },
+  { tag: [t.propertyName, t.attributeName], color: "#9cdcfe" },
+  { tag: [t.variableName], color: "#9cdcfe" },
+  { tag: [t.bracket, t.punctuation], color: "#ffd700" },
 ]);
 
 const cruxEditorTheme = EditorView.theme({
   "&": {
     height: "100%",
-    fontSize: "12.5px",
-    backgroundColor: "#000000 !important",
-    color: "#f7f8f8",
+    fontSize: "13px",
+    backgroundColor: "#1e1e1e !important",
+    color: "#d4d4d4",
   },
   ".cm-content": {
-    fontFamily: "var(--font-geist-mono), 'Geist Mono', 'SF Mono', 'JetBrains Mono', Menlo, monospace",
+    fontFamily: "Menlo, Monaco, 'Courier New', var(--font-geist-mono), monospace",
     padding: "8px 0",
-    caretColor: "#5e6ad2",
+    caretColor: "#aeafad",
+    lineHeight: "1.55",
   },
   ".cm-cursor": {
-    borderLeftColor: "#5e6ad2 !important",
+    borderLeftColor: "#aeafad !important",
     borderLeftWidth: "2px !important",
   },
   "&.cm-focused .cm-cursor": {
-    borderLeftColor: "#5e6ad2 !important",
+    borderLeftColor: "#aeafad !important",
   },
   "&.cm-focused .cm-selectionBackground, ::selection, .cm-selectionLayer .cm-selectionBackground": {
-    backgroundColor: "rgba(94, 106, 210, 0.25) !important",
+    backgroundColor: "#264f78 !important",
   },
   ".cm-activeLine": {
-    backgroundColor: "#0A0A0A !important",
+    backgroundColor: "#282828 !important",
   },
   ".cm-gutters": {
-    backgroundColor: "#000000 !important",
-    color: "#62666d !important",
-    borderRight: "1px solid #222222 !important",
+    backgroundColor: "#1e1e1e !important",
+    color: "#858585 !important",
+    borderRight: "1px solid #2b2b2b !important",
     paddingRight: "6px",
   },
   ".cm-activeLineGutter": {
-    backgroundColor: "#0A0A0A !important",
-    color: "#f7f8f8 !important",
-    fontWeight: "600",
+    backgroundColor: "#282828 !important",
+    color: "#c6c6c6 !important",
   },
   ".cm-lineNumbers .cm-gutterElement": {
-    padding: "0 10px 0 6px !important",
-    fontSize: "11px",
-    minWidth: "32px",
+    padding: "0 10px 0 8px !important",
+    fontSize: "12px",
+    minWidth: "38px",
     textAlign: "right",
-    color: "#62666d",
+    color: "#858585",
   },
 });
 
 interface CodeMirrorEditorProps {
   file: FileNode;
+  readOnly?: boolean;
 }
 
-export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
+export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
 
@@ -132,6 +135,7 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
   // Inline AI Co-Pilot prompt bar
   const [isAiBarOpen, setIsAiBarOpen] = useState(false);
   const [aiPromptText, setAiPromptText] = useState("");
+  const aiInputRef = useRef<HTMLInputElement>(null);
 
   // Modals for manual comment & suggestion
   const [suggestionModal, setSuggestionModal] = useState<{
@@ -188,6 +192,7 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
         syntaxHighlighting(cruxHighlightStyle),
         cruxEditorTheme,
         keymap.of([...defaultKeymap, ...historyKeymap]),
+        ...(readOnly ? [EditorState.readOnly.of(true)] : []),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const newContent = update.state.doc.toString();
@@ -236,7 +241,7 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
       view.destroy();
       viewRef.current = null;
     };
-  }, [file.id, getLanguageExtension]);
+  }, [file.id, getLanguageExtension, readOnly]);
 
   // Keep editor content in sync when updated externally (e.g. accepted suggestion)
   useEffect(() => {
@@ -343,14 +348,14 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-linear-canvas font-code overflow-hidden select-text">
+    <div className="relative w-full h-full flex flex-col bg-[#07080b] font-code overflow-hidden select-text">
       {/* CodeMirror Mount Point */}
       <div ref={containerRef} className="flex-1 w-full h-full overflow-auto" />
 
-      {/* Floating Selection Tooltip (Linear Style) */}
+      {/* Floating Selection Tooltip */}
       {selectedRange && selectedRange.coords && (
         <div
-          className="absolute z-40 flex items-center gap-1 p-1 bg-[#141516] border border-[#222222] animate-in fade-in duration-100"
+          className="absolute z-40 flex items-center gap-1 p-1 rounded bg-[#252526] border border-[#2d2d2d] shadow-xl animate-in fade-in duration-100"
           style={{
             top: `${selectedRange.coords.top}px`,
             left: `${selectedRange.coords.left}px`,
@@ -358,25 +363,25 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
         >
           <button
             onClick={handleOpenCommentFromSelection}
-            className="flex items-center gap-1.5 px-2 py-0.5 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#191a1b] text-xs font-mono transition"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[#cccccc] hover:text-white hover:bg-[#333333] text-xs font-sans transition-colors"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-[#5e6ad2]" />
+            <MessageSquare className="w-3.5 h-3.5 text-[#4ec9b0]" />
             <span>Comment</span>
           </button>
-          <div className="w-[1px] h-3 bg-[#222222]" />
+          <div className="w-[1px] h-3 bg-[#3e3e42]" />
           <button
             onClick={handleOpenSuggestFromSelection}
-            className="flex items-center gap-1.5 px-2 py-0.5 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#191a1b] text-xs font-mono transition"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[#cccccc] hover:text-white hover:bg-[#333333] text-xs font-sans transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#5e6ad2]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#dcdcaa]" />
             <span>Suggest</span>
           </button>
-          <div className="w-[1px] h-3 bg-[#222222]" />
+          <div className="w-[1px] h-3 bg-[#3e3e42]" />
           <button
             onClick={handleOpenAiFromSelection}
-            className="flex items-center gap-1.5 px-2 py-0.5 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#191a1b] text-xs font-mono transition"
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded text-[#cccccc] hover:text-white hover:bg-[#333333] text-xs font-sans transition-colors"
           >
-            <Bot className="w-3.5 h-3.5 text-[#5e6ad2]" />
+            <Bot className="w-3.5 h-3.5 text-[#007acc]" />
             <span>Ask AI</span>
           </button>
         </div>
@@ -384,57 +389,46 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
 
       {/* Floating AI Co-Pilot Prompt Bar (Cmd+I) */}
       {isAiBarOpen && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg p-2 bg-[#0A0A0A] border border-[#222222] animate-in slide-in-from-top-3 duration-150 font-mono">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg p-2.5 rounded bg-[#252526] border border-[#2d2d2d] shadow-2xl animate-in slide-in-from-top-2 duration-100 font-sans">
           <form onSubmit={handleAiSubmit} className="flex items-center gap-2">
-            <div className="p-1 bg-[#141516] border border-[#222222] text-[#5e6ad2]">
-              <Sparkles className="w-4 h-4" />
-            </div>
+            <Bot className="w-4 h-4 text-[#007acc] shrink-0" />
             <input
+              ref={aiInputRef}
               type="text"
-              autoFocus
               value={aiPromptText}
               onChange={(e) => setAiPromptText(e.target.value)}
-              placeholder="Ask CruxAI to refactor or generate code..."
-              className="flex-1 bg-transparent text-xs text-linear-ink placeholder-linear-ink-tertiary focus:outline-none font-sans"
+              placeholder="Ask CruxAI to edit, refactor or synthesize..."
+              className="flex-1 bg-[#1e1e1e] border border-[#3e3e42] focus:border-[#007acc] rounded text-xs text-[#cccccc] placeholder-[#858585] px-2.5 py-1.5 focus:outline-none"
             />
-            {isAiGenerating ? (
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-linear-surface-2 text-linear-ink-subtle text-xs font-mono">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-linear-primary" />
-                <span>Thinking...</span>
-              </div>
-            ) : (
-              <button
-                type="submit"
-                disabled={!aiPromptText.trim()}
-                className="btn-primary h-7 px-2.5 text-xs disabled:opacity-40"
-              >
-                <span>Generate</span>
-                <CornerDownLeft className="w-3 h-3" />
-              </button>
-            )}
+            <button
+              type="submit"
+              className="px-2.5 py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-xs font-medium transition-colors"
+            >
+              Generate
+            </button>
             <button
               type="button"
               onClick={() => setIsAiBarOpen(false)}
-              className="p-1 text-linear-ink-subtle hover:text-linear-ink rounded"
+              className="p-1 rounded text-[#858585] hover:text-[#cccccc] hover:bg-[#333333]"
             >
               <X className="w-4 h-4" />
             </button>
           </form>
 
           {/* Quick presets */}
-          <div className="flex items-center gap-1.5 pt-1.5 mt-1.5 border-t border-linear-hairline text-[11px] font-sans text-linear-ink-subtle">
-            <span className="text-[10px] text-linear-ink-tertiary uppercase font-mono">Presets:</span>
+          <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-[#2d2d2d] text-xs text-[#858585]">
+            <span className="text-[10px] uppercase font-mono font-medium">Presets:</span>
             <button
               type="button"
               onClick={() => setAiPromptText("Add exponential backoff with full jitter to reconnection loop")}
-              className="px-1.5 py-0.5 rounded bg-linear-surface-2 hover:bg-linear-surface-3 text-linear-ink-muted transition text-[11px]"
+              className="px-1.5 py-0.2 rounded bg-[#333333] hover:bg-[#3e3e42] text-[#cccccc] border border-[#3e3e42] transition-colors text-[11px]"
             >
               + Exponential Jitter
             </button>
             <button
               type="button"
               onClick={() => setAiPromptText("Add zero-knowledge signature verification guard")}
-              className="px-1.5 py-0.5 rounded bg-linear-surface-2 hover:bg-linear-surface-3 text-linear-ink-muted transition text-[11px]"
+              className="px-1.5 py-0.2 rounded bg-[#333333] hover:bg-[#3e3e42] text-[#cccccc] border border-[#3e3e42] transition-colors text-[11px]"
             >
               + Signature Guard
             </button>
@@ -442,26 +436,24 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
         </div>
       )}
 
-
-
       {/* Living Comment Gutter Markers */}
-      <div className="absolute top-3 right-3 z-20 space-y-1.5">
+      <div className="absolute top-4 right-4 z-20 space-y-2">
         {fileComments.map((thread) => (
           <div key={thread.id} className="relative">
             <button
               onClick={() =>
                 setActiveThreadId(activeThreadId === thread.id ? null : thread.id)
               }
-              className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141516] hover:bg-[#191a1b] border border-[#222222] text-[#5e6ad2] text-[11px] font-mono transition"
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#252526] border border-[#3e3e42] hover:border-[#007acc] text-[#cccccc] text-xs font-mono transition-colors"
             >
-              <MessageSquare className="w-3 h-3" />
+              <MessageSquare className="w-3.5 h-3.5 text-[#4ec9b0]" />
               <span>Line {thread.lineNumber}</span>
-              <span className="w-1.5 h-1.5 bg-[#5e6ad2]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]" />
             </button>
 
             {/* Anchored Expanded Thread */}
             {activeThreadId === thread.id && (
-              <div className="absolute top-7 right-0 z-50">
+              <div className="absolute top-8 right-0 z-50">
                 <ContextualCommentPanel
                   thread={thread}
                   onClose={() => setActiveThreadId(null)}
@@ -474,32 +466,32 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
 
       {/* Suggestion Modal */}
       {suggestionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 font-mono">
-          <div className="w-full max-w-md p-4 bg-[#0A0A0A] border border-[#222222] text-[#f7f8f8] space-y-3 font-mono">
-            <div className="flex items-center justify-between pb-2 border-b border-[#222222]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-sans animate-in fade-in duration-100">
+          <div className="w-full max-w-md p-4 bg-[#252526] border border-[#2d2d2d] rounded text-[#cccccc] space-y-3.5 shadow-2xl">
+            <div className="flex items-center justify-between pb-2 border-b border-[#2d2d2d]">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#5e6ad2]" />
-                <h3 className="font-semibold text-xs">Propose Inline Diff</h3>
+                <Sparkles className="w-4 h-4 text-[#007acc]" />
+                <h3 className="font-semibold text-xs text-white font-sans">Propose Inline Diff</h3>
               </div>
               <button
                 onClick={() => setSuggestionModal(null)}
-                className="text-[#8a8f98] hover:text-[#f7f8f8] p-1"
+                className="text-[#858585] hover:text-white p-1 rounded hover:bg-[#333333] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div>
-              <label className="text-[11px] text-linear-ink-subtle uppercase tracking-wider font-mono">
+              <label className="text-[10px] text-[#858585] uppercase tracking-wider font-mono font-medium">
                 Original Buffer
               </label>
-              <div className="p-2 mt-1 rounded bg-linear-canvas border border-rose-500/20 font-code text-xs text-rose-300 line-through">
+              <div className="p-2 mt-1 rounded bg-[#1e1e1e] border border-[#3e3e42] font-mono text-xs text-[#f87171] line-through">
                 {suggestionModal.originalText}
               </div>
             </div>
 
             <div>
-              <label className="text-[11px] text-linear-ink-subtle uppercase tracking-wider font-mono">
+              <label className="text-[10px] text-[#858585] uppercase tracking-wider font-mono font-medium">
                 Proposed Replacement
               </label>
               <textarea
@@ -511,12 +503,12 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
                     suggestedText: e.target.value,
                   })
                 }
-                className="w-full mt-1 p-2 rounded bg-linear-canvas border border-linear-hairline font-code text-xs text-linear-success focus:outline-none focus:border-linear-primary transition"
+                className="w-full mt-1 p-2 rounded bg-[#1e1e1e] border border-[#3e3e42] focus:border-[#007acc] font-mono text-xs text-[#4ec9b0] focus:outline-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="text-[11px] text-linear-ink-subtle uppercase tracking-wider font-mono">
+              <label className="text-[10px] text-[#858585] uppercase tracking-wider font-mono font-medium">
                 Rationale
               </label>
               <input
@@ -529,25 +521,25 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
                   })
                 }
                 placeholder="e.g. Prevent reconnection lock storm"
-                className="w-full mt-1 px-3 py-1.5 rounded bg-linear-canvas border border-linear-hairline text-xs text-linear-ink placeholder-linear-ink-tertiary focus:outline-none focus:border-linear-primary"
+                className="w-full mt-1 px-2.5 py-1.5 rounded bg-[#1e1e1e] border border-[#3e3e42] text-xs text-[#cccccc] placeholder-[#858585] focus:outline-none focus:border-[#007acc] transition-colors"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-linear-hairline">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#2d2d2d]">
               <button
                 type="button"
                 onClick={() => setSuggestionModal(null)}
-                className="btn-secondary"
+                className="px-2.5 py-1 rounded text-xs text-[#858585] hover:text-[#cccccc] hover:bg-[#333333] transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSubmitSuggestion}
-                className="btn-primary"
+                className="px-3 py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-xs font-medium transition-colors flex items-center gap-1"
               >
                 <span>Propose Diff</span>
-                <CornerDownLeft className="w-3 h-3" />
+                <CornerDownLeft className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
@@ -556,24 +548,24 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
 
       {/* Comment Modal */}
       {commentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 font-mono">
-          <div className="w-full max-w-sm p-4 bg-[#0A0A0A] border border-[#222222] text-[#f7f8f8] space-y-3 font-mono">
-            <div className="flex items-center justify-between pb-2 border-b border-[#222222]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-sans animate-in fade-in duration-100">
+          <div className="w-full max-w-sm p-4 bg-[#252526] border border-[#2d2d2d] rounded text-[#cccccc] space-y-3.5 shadow-2xl">
+            <div className="flex items-center justify-between pb-2 border-b border-[#2d2d2d]">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#5e6ad2]" />
-                <h3 className="font-semibold text-xs">
+                <MessageSquare className="w-4 h-4 text-[#007acc]" />
+                <h3 className="font-semibold text-xs text-white font-sans">
                   Comment on Line {commentModal.lineNumber}
                 </h3>
               </div>
               <button
                 onClick={() => setCommentModal(null)}
-                className="text-[#8a8f98] hover:text-[#f7f8f8] p-1"
+                className="text-[#858585] hover:text-white p-1 rounded hover:bg-[#333333] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-2 bg-black border border-[#222222] font-mono text-xs text-[#8a8f98] truncate">
+            <div className="p-2 bg-[#1e1e1e] rounded border border-[#2d2d2d] font-mono text-xs text-[#858585] truncate">
               <code>{commentModal.snippet}</code>
             </div>
 
@@ -589,21 +581,21 @@ export default function CodeMirrorEditor({ file }: CodeMirrorEditorProps) {
                   })
                 }
                 placeholder="Leave feedback or ask a question..."
-                className="w-full p-2 rounded bg-linear-canvas border border-linear-hairline text-xs text-linear-ink placeholder-linear-ink-tertiary focus:outline-none focus:border-linear-primary transition"
+                className="w-full p-2 rounded bg-[#1e1e1e] border border-[#3e3e42] text-xs text-[#cccccc] placeholder-[#858585] focus:outline-none focus:border-[#007acc] transition-colors"
               />
 
               <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setCommentModal(null)}
-                  className="btn-secondary"
+                  className="px-2.5 py-1 rounded text-xs text-[#858585] hover:text-[#cccccc] hover:bg-[#333333] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={!commentModal.text.trim()}
-                  className="btn-primary disabled:opacity-40"
+                  className="px-3 py-1 bg-[#007acc] hover:bg-[#0062a3] text-white rounded text-xs font-medium disabled:opacity-40 transition-colors"
                 >
                   Post Comment
                 </button>

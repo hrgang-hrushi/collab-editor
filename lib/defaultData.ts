@@ -1,137 +1,100 @@
-import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User } from "./types";
+import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite } from "./types";
 
 export const CURRENT_USER: User = {
   id: "user-self",
-  name: "You",
+  name: "Hrushikesh Gangala",
+  email: "hrushi@crux.dev",
+  uid: "CRX-7447-HG",
   role: "Principal Engineer",
   avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
-  color: "#6366f1",
+  color: "#007AFF", // Crux Blue (Accent 1)
   isSelf: true,
+  accessLevel: "full",
 };
 
 export const MOCK_USERS: User[] = [
   {
     id: "user-1",
     name: "Sarah Lin",
+    email: "sarah@crux.dev",
+    uid: "CRX-9941-SL",
     role: "Staff Infrastructure",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
-    color: "#06b6d4", // Cyan
+    color: "#38b6ff", // Canva Blue (3.svg)
+    accessLevel: "full",
   },
   {
     id: "user-2",
     name: "CruxAI",
+    email: "copilot@crux.ai",
+    uid: "CRX-0001-AI",
     role: "Speculative Co-Pilot",
     avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80",
-    color: "#8b5cf6", // Violet
+    color: "#ff5757", // Canva Coral Crimson (5.svg)
+    accessLevel: "full",
   },
   {
     id: "user-3",
     name: "Marcus Vance",
+    email: "marcus@crux.dev",
+    uid: "CRX-5520-MV",
     role: "Systems Architect",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
-    color: "#f59e0b", // Amber
+    color: "#ff914d", // Canva Orange (8.svg)
+    accessLevel: "limited",
+    allowedFiles: ["database.ts"],
+  },
+];
+
+export const INITIAL_INVITES: ShareInvite[] = [
+  {
+    id: "inv-1",
+    senderName: "Sarah Lin",
+    senderUid: "CRX-9941-SL",
+    senderEmail: "sarah@crux.dev",
+    recipientUidOrEmail: "CRX-7447-HG",
+    workspaceName: "crux-stream-sync",
+    accessLevel: "full",
+    viewerLock: false,
+    timestamp: Date.now() - 1000 * 60 * 12,
+    status: "pending",
+  },
+  {
+    id: "inv-2",
+    senderName: "CruxAI Copilot",
+    senderUid: "CRX-0001-AI",
+    senderEmail: "copilot@crux.ai",
+    recipientUidOrEmail: "hrushi@crux.dev",
+    workspaceName: "speculative-distributed-wal",
+    accessLevel: "limited",
+    allowedFiles: ["stream_syncer.ts", "database.ts"],
+    allowedLineRange: { start: 1, end: 35 },
+    viewerLock: false,
+    timestamp: Date.now() - 1000 * 60 * 45,
+    status: "pending",
   },
 ];
 
 export const INITIAL_FILES: FileNode[] = [
   {
-    id: "file-auth",
-    name: "auth.ts",
-    path: "src/auth/auth.ts",
-    language: "typescript",
-    x: 60,
-    y: 70,
-    width: 480,
-    height: 440,
-    zIndex: 10,
-    activePeerIds: ["user-1"],
-    contributorColor: "#06b6d4",
-    contributorName: "Sarah Lin",
-    content: `import { SessionToken, CryptographicProof } from "./types";
-
-/**
- * Zero-knowledge token attestation layer.
- * Validates Ed25519 signatures with subtle WebCrypto API.
- */
-export async function verifyAttestation(token: SessionToken): Promise<boolean> {
-  if (!token || !token.sig) {
-    return false;
-  }
-
-  // Sarah L. is actively profiling signature verification latency here
-  const verified = await crypto.subtle.verify(
-    { name: "Ed25519" },
-    token.publicKey,
-    token.sig,
-    token.payload
-  );
-
-  if (!verified) {
-    throw new Error("Unauthorized peer signature: cryptographic attestation failed");
-  }
-
-  return true;
-}
-
-export function createSessionHeader(token: SessionToken): Record<string, string> {
-  return {
-    "X-Crux-Attestation": token.sigHex,
-    "X-Crux-Peer-Id": token.payload.peerId,
-  };
-}
-`,
-  },
-  {
     id: "file-stream-syncer",
     name: "stream_syncer.ts",
-    path: "src/daemon/stream_syncer.ts",
+    path: "stream_syncer.ts",
     language: "typescript",
-    x: 780,
+    x: 60,
     y: 50,
     width: 580,
     height: 480,
     zIndex: 12,
-    activePeerIds: ["user-self"],
-    contributorColor: "#5e6ad2",
-    contributorName: "Principal",
-    content: `import { LocalDaemonClient, CryptographicFault } from "@crux/daemon";
-import { MeshPeer, StreamFrame, SyncVector, LockTicket } from "./types";
+    activePeerIds: ["user-self", "user-1", "user-2"],
+    contributorColor: "#007AFF",
+    contributorName: "Sarah L.",
+    content: `import { LocalDaemonClient } from "@crux/daemon";
 
-/**
- * Crux Hybrid Stream Syncer
- * Bridges zero-latency daemon IPC memory with edge WebRTC peers.
- */
 export class StreamSyncer {
-  private daemon = new LocalDaemonClient({ port: 7447 });
-  private activePeers = new Map<string, MeshPeer>();
-  private retryAttempts = 0;
-
-  /**
-   * Acquires a distributed lock fence across active mesh participants.
-   * Leverages CRDT relative positions for conflict-free state resolution.
-   */
-  public async acquireStreamLock(peerId: string): Promise<LockTicket> {
-    const lockTimestamp = Date.now();
-
-    // Suggestion pending below: dynamic backoff calculation
-    const timeout = Math.min(this.retryAttempts * 1000, 30000);
-    const fence = await this.daemon.reserveFence(timeout);
-
-    // Synchronize peer attestation with local neural cache
-    const peer = this.activePeers.get(peerId);
-    if (peer && !peer.isAttested) {
-      throw new CryptographicFault("Untrusted peer handshake rejected");
-    }
-
-    return {
-      ticketId: fence.id,
-      expiresAt: fence.expiry,
-      peerOrigin: peerId,
-    };
-  }
-
-  public registerPeer(peer: MeshPeer): void {
-    this.activePeers.set(peer.id, peer);
+  const timeout = 5000;
+  async acquireLock() {
+    await this.daemon.
   }
 }
 `,
@@ -139,15 +102,15 @@ export class StreamSyncer {
   {
     id: "file-database",
     name: "database.ts",
-    path: "src/db/database.ts",
+    path: "database.ts",
     language: "typescript",
-    x: 1600,
-    y: 70,
+    x: 720,
+    y: 50,
     width: 480,
     height: 440,
     zIndex: 11,
     activePeerIds: ["user-2"],
-    contributorColor: "#8b5cf6",
+    contributorColor: "#FF453A",
     contributorName: "CruxAI",
     content: `import { LocalWriteAheadLog } from "@crux/wal";
 import { SyncVector } from "./types";
@@ -171,9 +134,51 @@ export async function persistStateVector(docId: string, bytes: Uint8Array): Prom
 
   return monotonicSequence;
 }
+`,
+  },
+  {
+    id: "file-auth",
+    name: "auth.ts",
+    path: "auth.ts",
+    language: "typescript",
+    x: 1280,
+    y: 50,
+    width: 480,
+    height: 440,
+    zIndex: 10,
+    activePeerIds: ["user-1"],
+    contributorColor: "#007AFF",
+    contributorName: "Sarah Lin",
+    content: `import { SessionToken, CryptographicProof } from "./types";
 
-export async function replayFromSequence(fromSeq: number): Promise<AsyncIterable<Uint8Array>> {
-  return wal.createStream({ startAt: fromSeq });
+/**
+ * Zero-knowledge token attestation layer.
+ * Validates Ed25519 signatures with subtle WebCrypto API.
+ */
+export async function verifyAttestation(token: SessionToken): Promise<boolean> {
+  if (!token || !token.sig) {
+    return false;
+  }
+
+  const verified = await crypto.subtle.verify(
+    { name: "Ed25519" },
+    token.publicKey,
+    token.sig,
+    token.payload
+  );
+
+  if (!verified) {
+    throw new Error("Unauthorized peer signature: cryptographic attestation failed");
+  }
+
+  return true;
+}
+
+export function createSessionHeader(token: SessionToken): Record<string, string> {
+  return {
+    "X-Crux-Attestation": token.sigHex,
+    "X-Crux-Peer-Id": token.payload.peerId,
+  };
 }
 `,
   },
@@ -188,7 +193,7 @@ export async function replayFromSequence(fromSeq: number): Promise<AsyncIterable
     height: 380,
     zIndex: 8,
     activePeerIds: ["user-1"],
-    contributorColor: "#10b981",
+    contributorColor: "#64748b",
     contributorName: "Contracts",
     content: `export interface MeshPeer {
   id: string;
@@ -230,7 +235,7 @@ export interface SyncVector {
     height: 390,
     zIndex: 9,
     activePeerIds: ["user-3"],
-    contributorColor: "#f59e0b",
+    contributorColor: "#7e889b",
     contributorName: "Marcus Vance",
     content: `/**
  * Physics-based 120Hz smooth cursor lerping engine.
@@ -269,7 +274,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-stream-syncer",
     label: "verifyAttestation()",
     type: "import",
-    color: "#06b6d4",
+    color: "#007AFF",
     codeSymbol: "verifyAttestation()",
     changeCode: "+ verifyAttestation(token)",
     originalSnippet: "- checkToken(token: any)",
@@ -285,7 +290,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-database",
     label: "persistStateVector()",
     type: "data-flow",
-    color: "#8b5cf6",
+    color: "#FF453A",
     codeSymbol: "persistStateVector()",
     changeCode: "+ persistStateVector(bytes)",
     originalSnippet: "- wal.flushSync()",
@@ -301,7 +306,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-spatial",
     label: "calculateNextPosition()",
     type: "call",
-    color: "#f59e0b",
+    color: "#222222",
     codeSymbol: "calculateNextPosition()",
     changeCode: "+ calculateNextPosition(dt)",
     originalSnippet: "- updateLinearPosition(pos)",
@@ -317,7 +322,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-auth",
     label: "SessionToken",
     type: "import",
-    color: "#10b981",
+    color: "#007AFF",
     codeSymbol: "SessionToken",
     changeCode: "+ export type SessionToken",
     originalSnippet: "- type RawToken = string",
@@ -333,7 +338,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-stream-syncer",
     label: "SyncVector",
     type: "import",
-    color: "#5e6ad2",
+    color: "#222222",
     codeSymbol: "SyncVector",
     changeCode: "+ export interface SyncVector",
     originalSnippet: "- interface StateClock",

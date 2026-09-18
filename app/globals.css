@@ -1,5 +1,5 @@
 @import url('/fonts/fonts.css');
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,23 +7,17 @@
 
 @layer base {
   :root {
-    --linear-canvas: #000000;
-    --linear-surface-1: #0a0a0a;
-    --linear-surface-2: #141516;
-    --linear-surface-3: #18191a;
-    --linear-surface-4: #191a1b;
-    --linear-hairline: #222222;
-    --linear-hairline-strong: #333333;
-    --linear-hairline-tertiary: #444444;
-    --linear-primary: #5e6ad2;
-    --linear-primary-hover: #828fff;
-    --linear-primary-focus: #5e69d1;
-    --linear-ink: #f7f8f8;
-    --linear-ink-muted: #d0d6e0;
-    --linear-ink-subtle: #8a8f98;
-    --linear-ink-tertiary: #62666d;
-    --linear-success: #27a644;
-    --linear-error: #e5484d;
+    --ide-bg: #000000;
+    --ide-sidebar: #0A0A0A;
+    --ide-activity: #0A0A0A;
+    --ide-titlebar: #0A0A0A;
+    --ide-statusbar: #0A0A0A;
+    --ide-border: #222222;
+    --ide-accent: #007AFF;
+    --ide-accent-ai: #FF453A;
+    --ide-fg: #FFFFFF;
+    --ide-fg-muted: #888888;
+    --ide-line-num: #888888;
   }
 
   html {
@@ -31,78 +25,63 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     color-scheme: dark;
-    font-family: var(--font-hanken), "Hanken Grotesk", sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   }
 
   body {
     background-color: #000000;
-    color: #f7f8f8;
-    font-family: var(--font-hanken), "Hanken Grotesk", var(--font-space), "Space Grotesk", sans-serif;
-    letter-spacing: -0.015em;
+    color: #FFFFFF;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-size: 12px;
+    letter-spacing: -0.01em;
     overflow: hidden;
     user-select: none;
   }
 }
 
 @layer components {
-  /* Strict Flat Surfaces - Zero Shadows, Zero Gradients */
-  .surface-canvas {
-    background-color: #000000;
-  }
-
-  .surface-1 {
-    background-color: #0a0a0a;
+  /* Brutalist Panels & Surfaces */
+  .crux-panel {
+    background-color: #0A0A0A;
     border: 1px solid #222222;
+    border-radius: 0px;
   }
 
-  .surface-2 {
-    background-color: #141516;
-    border: 1px solid #222222;
-  }
-
-  .surface-3 {
-    background-color: #18191a;
-    border: 1px solid #222222;
-  }
-
-  /* Ultra-Minimal Flat Buttons - Zero Drop Shadows, Zero Gradients */
-  .btn-primary {
-    @apply h-7 px-3 rounded-none bg-[#5e6ad2] hover:bg-[#828fff] text-white text-xs font-medium 
-           transition-colors duration-100 flex items-center justify-center gap-1.5 
-           border border-[#5e6ad2] focus:outline-none;
-  }
-
-  .btn-secondary {
-    @apply h-7 px-2.5 rounded-none bg-[#141516] hover:bg-[#191a1b] text-[#f7f8f8] text-xs font-medium 
-           transition-colors duration-100 flex items-center justify-center gap-1.5 
-           border border-[#222222] hover:border-[#333333] focus:outline-none;
-  }
-
-  .btn-ghost {
-    @apply h-7 px-2 rounded-none text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] text-xs font-medium 
-           transition-colors duration-100 flex items-center justify-center gap-1.5;
-  }
-
-  /* Flat Structural Panels */
-  .panel-surface {
-    background-color: #0a0a0a;
-    border: 1px solid #222222;
-  }
-
-  .panel-editor {
+  .crux-card {
     background-color: #000000;
     border: 1px solid #222222;
+    border-radius: 0px;
+  }
+
+  /* Brutalist Flat Buttons (No Drop Shadows, 1px borders) */
+  .btn-crux-primary {
+    @apply h-6 px-2.5 rounded-none bg-[#007AFF] text-white text-[12px] font-medium tracking-tight
+           hover:bg-[#0062cc] active:bg-[#004bb5] transition-none flex items-center justify-center gap-1.5 
+           border border-[#007AFF] focus:outline-none;
+  }
+
+  .btn-crux-secondary {
+    @apply h-6 px-2 rounded-none bg-transparent hover:bg-[#222222] text-[#888888] hover:text-white text-[12px] 
+           transition-none flex items-center justify-center gap-1.5 
+           border border-[#222222] focus:outline-none;
+  }
+
+  .btn-crux-ghost {
+    @apply h-6 px-1.5 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] text-[12px] 
+           transition-none flex items-center justify-center gap-1;
   }
 }
 
-/* Minimalist Blueprint Dot Grid for Nexus Canvas */
+/* Subtle #222222 Dot Grid Canvas */
 .canvas-dot-grid,
 .crux-dot-grid {
   background-color: #000000;
-  background-image: radial-gradient(circle at 1px 1px, #222222 1px, transparent 0);
+  background-image: 
+    radial-gradient(circle at 1px 1px, #222222 1px, transparent 0);
   background-size: 24px 24px;
 }
 
+/* CodeMirror Selection & Typography */
 .cm-selectionBackground,
 ::selection {
   background-color: #222222 !important;
@@ -114,22 +93,23 @@
   border-left-width: 2px !important;
 }
 
-/* Flat Sleek Monochromatic Scrollbar */
+/* Minimalist Scrollbar: 4px, #222222 */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
   background: #000000;
 }
 ::-webkit-scrollbar-thumb {
   background: #222222;
+  border-radius: 0px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #333333;
 }
 
-/* Flat Keyboard Badge */
+/* Keyboard Shortcut Badge */
 kbd {
   display: inline-flex;
   align-items: center;
@@ -137,16 +117,17 @@ kbd {
   font-family: inherit;
   font-size: 10px;
   font-weight: 500;
-  padding: 0 4px;
-  background-color: #111111;
+  padding: 1px 4px;
+  border-radius: 2px;
+  background-color: #0A0A0A;
   border: 1px solid #222222;
   color: #888888;
 }
 
-/* Flowing Architectural Code Conduit Keyframe Animation */
+/* Subtle Conduit Flow Animation */
 @keyframes wireFlowForward {
   from {
-    stroke-dashoffset: 24;
+    stroke-dashoffset: 16;
   }
   to {
     stroke-dashoffset: 0;
@@ -155,17 +136,4 @@ kbd {
 
 .animate-wire-flow {
   animation: wireFlowForward 1.2s linear infinite;
-}
-
-@keyframes pulseGlowSubtle {
-  0%, 100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 0.95;
-  }
-}
-
-.animate-pulse-subtle {
-  animation: pulseGlowSubtle 1.8s ease-in-out infinite;
 }

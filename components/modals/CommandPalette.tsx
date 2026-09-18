@@ -14,6 +14,11 @@ import {
   Terminal,
   PanelLeft,
   Bot,
+  Database,
+  ShieldCheck,
+  Code2,
+  FileText,
+  FileCode2,
 } from "lucide-react";
 
 export default function CommandPalette() {
@@ -59,6 +64,25 @@ export default function CommandPalette() {
 
   if (!isOpen) return null;
 
+  const getFileIcon = (name: string) => {
+    if (name.includes("db") || name.includes("database")) {
+      return <Database className="w-4 h-4 text-[#858585] shrink-0" />;
+    }
+    if (name.includes("auth") || name.includes("session")) {
+      return <ShieldCheck className="w-4 h-4 text-[#858585] shrink-0" />;
+    }
+    if (name.endsWith(".rs")) {
+      return <Code2 className="w-4 h-4 text-[#858585] shrink-0" />;
+    }
+    if (name.endsWith(".json")) {
+      return <FileCode2 className="w-4 h-4 text-[#858585] shrink-0" />;
+    }
+    if (name.endsWith(".css")) {
+      return <FileCode2 className="w-4 h-4 text-[#858585] shrink-0" />;
+    }
+    return <FileCode2 className="w-4 h-4 text-[#858585] shrink-0" />;
+  };
+
   const filteredFiles = files.filter(
     (f) =>
       f.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -70,49 +94,42 @@ export default function CommandPalette() {
       id: "cmd-switch-canvas",
       title: "Switch to Nexus Spatial Canvas",
       category: "Navigation",
-      icon: <Layers className="w-4 h-4 text-linear-primary" />,
+      icon: <Layers className="w-4 h-4 text-[#858585]" />,
       action: () => setMode("canvas"),
     },
     {
       id: "cmd-switch-ide",
       title: "Switch to Studio IDE View",
       category: "Navigation",
-      icon: <Layout className="w-4 h-4 text-linear-primary" />,
+      icon: <Layout className="w-4 h-4 text-[#858585]" />,
       action: () => setMode("edit"),
-    },
-    {
-      id: "cmd-toggle-suggest",
-      title: mode === "suggest" ? "Disable Suggesting Mode" : "Enable Inline Suggesting Mode",
-      category: "Review",
-      icon: <Sparkles className="w-4 h-4 text-linear-primary" />,
-      action: () => setMode(mode === "suggest" ? "edit" : "suggest"),
     },
     {
       id: "cmd-ask-ai",
       title: "Ask CruxAI Co-Pilot (Cmd+I)",
       category: "AI",
-      icon: <Bot className="w-4 h-4 text-linear-primary" />,
+      icon: <Bot className="w-4 h-4 text-[#858585]" />,
       action: () => setAiPromptOpen(true),
     },
     {
       id: "cmd-toggle-sidebar",
       title: "Toggle File Explorer Sidebar (Cmd+B)",
       category: "View",
-      icon: <PanelLeft className="w-4 h-4 text-linear-ink-subtle" />,
+      icon: <PanelLeft className="w-4 h-4 text-[#858585]" />,
       action: () => toggleSidebar(),
     },
     {
       id: "cmd-toggle-terminal",
       title: "Toggle Terminal & Daemon Console (Cmd+J)",
       category: "View",
-      icon: <Terminal className="w-4 h-4 text-linear-ink-subtle" />,
+      icon: <Terminal className="w-4 h-4 text-[#858585]" />,
       action: () => toggleTerminal(),
     },
     {
       id: "cmd-reset-zoom",
       title: "Reset Canvas Pan & Zoom (100%)",
       category: "Canvas",
-      icon: <RotateCcw className="w-4 h-4 text-linear-ink-subtle" />,
+      icon: <RotateCcw className="w-4 h-4 text-[#858585]" />,
       action: () => resetView(),
     },
     ...(suggestions.some((s) => s.status === "pending")
@@ -121,7 +138,7 @@ export default function CommandPalette() {
             id: "cmd-accept-all",
             title: "Accept All Pending Inline Suggestions",
             category: "Review",
-            icon: <CheckCheck className="w-4 h-4 text-linear-success" />,
+            icon: <CheckCheck className="w-4 h-4 text-emerald-400" />,
             action: () => {
               suggestions
                 .filter((s) => s.status === "pending")
@@ -142,6 +159,7 @@ export default function CommandPalette() {
       id: f.id,
       title: f.name,
       subtitle: f.path,
+      icon: getFileIcon(f.name),
       action: () => {
         openTab(f.id);
         setActiveFile(f.id);
@@ -176,11 +194,11 @@ export default function CommandPalette() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/80 animate-in fade-in duration-75 font-mono">
-      <div className="w-full max-w-lg bg-[#0A0A0A] border border-[#222222] overflow-hidden text-[#f7f8f8]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/80 font-sans">
+      <div className="w-full max-w-xl bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] overflow-hidden text-white">
         {/* Search Bar Input */}
-        <div className="flex items-center px-3 py-2.5 border-b border-[#222222] gap-2.5 bg-[#0A0A0A]">
-          <Search className="w-4 h-4 text-[#5e6ad2] shrink-0" />
+        <div className="flex items-center px-3 py-2 border-b border-[#222222] gap-2.5 bg-black">
+          <Search className="w-4 h-4 text-[#888888] shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -191,20 +209,20 @@ export default function CommandPalette() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Type a command or search workspace files..."
-            className="w-full bg-transparent text-xs text-[#f7f8f8] placeholder-[#62666d] focus:outline-none font-mono"
+            className="w-full bg-transparent text-xs text-white placeholder-[#888888] focus:outline-none font-mono"
           />
           <button
             onClick={() => setIsOpen(false)}
-            className="p-1 text-[#8a8f98] hover:text-[#f7f8f8]"
+            className="p-1 rounded-none text-[#888888] hover:text-white transition-colors"
           >
-            <X className="w-4 h-4" />
+            <kbd className="text-[9px] bg-black px-1 py-0.5 rounded-none border border-[#222222] text-[#888888] font-mono">ESC</kbd>
           </button>
         </div>
 
         {/* Results List */}
-        <div className="p-1 max-h-[340px] overflow-y-auto space-y-0.5 text-xs bg-black">
+        <div className="p-1 max-h-[360px] overflow-y-auto space-y-0.5 text-xs bg-[#0A0A0A]">
           {allItems.length === 0 ? (
-            <div className="py-6 text-center text-[#62666d] text-xs font-mono">
+            <div className="py-8 text-center text-[#888888] text-xs font-mono">
               No matching files or commands found
             </div>
           ) : (
@@ -218,24 +236,22 @@ export default function CommandPalette() {
                     setIsOpen(false);
                   }}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  className={`w-full flex items-center justify-between px-3 py-1.5 text-left transition-colors font-mono ${
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-none text-left transition-none ${
                     isSelected
-                      ? "bg-[#141516] text-[#f7f8f8] border-l-2 border-[#5e6ad2]"
-                      : "text-[#8a8f98] hover:bg-[#141516]/50 hover:text-[#f7f8f8] border-l-2 border-transparent"
+                      ? "bg-[#222222] text-white"
+                      : "text-[#888888] hover:text-white hover:bg-black"
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
-                    {item.type === "file" ? (
-                      <FileCode className={`w-3.5 h-3.5 shrink-0 ${isSelected ? "text-[#5e6ad2]" : "text-[#62666d]"}`} />
-                    ) : (
-                      <span className="shrink-0">{item.icon}</span>
-                    )}
-                    <span className="truncate text-xs">{item.title}</span>
+                    <span className="shrink-0">{item.icon}</span>
+                    <span className="truncate text-xs font-mono">{item.title}</span>
                   </div>
 
                   <span
-                    className={`text-[10px] font-mono shrink-0 ml-2 ${
-                      isSelected ? "text-[#f7f8f8]" : "text-[#62666d]"
+                    className={`text-[9px] font-mono shrink-0 ml-3 px-1.5 py-0.5 rounded-none ${
+                      isSelected
+                        ? "bg-black text-white border border-[#222222]"
+                        : "bg-black text-[#888888] border border-[#222222]"
                     }`}
                   >
                     {item.subtitle}
@@ -247,7 +263,7 @@ export default function CommandPalette() {
         </div>
 
         {/* Footer shortcuts */}
-        <div className="px-3 py-1.5 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[10px] text-[#62666d] font-mono">
+        <div className="px-3 py-1.5 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[10px] text-[#888888] font-sans">
           <div className="flex items-center gap-2">
             <span>↑↓ Navigate</span>
             <span>·</span>
@@ -255,7 +271,9 @@ export default function CommandPalette() {
             <span>·</span>
             <span>Esc Close</span>
           </div>
-          <span className="text-[#5e6ad2]">Crux Command Palette</span>
+          <span className="text-[#888888] font-mono text-[10px] uppercase tracking-widest">
+            QUICK OPEN
+          </span>
         </div>
       </div>
     </div>

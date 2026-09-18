@@ -18,18 +18,18 @@ export default function CruxHeader({
   isSuggestMode = false,
 }: CruxHeaderProps) {
   return (
-    <header className="w-full h-10 px-3 flex items-center justify-between border-b border-[#222222] bg-[#0A0A0A] select-none text-xs font-mono">
+    <header className="w-full h-9 px-3 flex items-center justify-between border-b border-[#222222] bg-[#0A0A0A] select-none text-xs font-mono">
       {/* Left: Brand + Breadcrumbs */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-5 h-5 bg-[#141516] border border-[#222222] flex items-center justify-center">
-            <span className="font-bold text-[10px] text-[#5e6ad2]">✕</span>
+          <div className="w-5 h-5 bg-black border border-[#222222] flex items-center justify-center">
+            <span className="font-bold text-[10px] text-[#007AFF]">✕</span>
           </div>
-          <span className="font-bold text-xs tracking-tight text-[#f7f8f8]">
+          <span className="font-bold text-xs tracking-tight text-white font-sans">
             CRUX
           </span>
-          <span className="w-1.5 h-1.5 bg-[#27a644]" />
-          <span className="text-[10px] text-[#62666d] hidden sm:inline">
+          <span className="w-1.5 h-1.5 rounded-none bg-[#007AFF]" />
+          <span className="text-[10px] text-[#888888] hidden sm:inline font-mono">
             0.08ms
           </span>
         </div>
@@ -37,13 +37,13 @@ export default function CruxHeader({
         <div className="h-3 w-[1px] bg-[#222222] mx-0.5" />
 
         {/* File Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-xs text-[#8a8f98]">
-          <span className="text-[#62666d]">core</span>
-          <ChevronRight className="w-3 h-3 text-[#62666d]" />
-          <span className="text-[#62666d]">daemon</span>
-          <ChevronRight className="w-3 h-3 text-[#62666d]" />
-          <div className="flex items-center gap-1.5 text-[#f7f8f8] px-1.5 py-0.2 bg-[#141516] border border-[#222222]">
-            <FileCode2 className="w-3.5 h-3.5 text-[#5e6ad2]" />
+        <div className="flex items-center gap-1.5 text-xs text-[#888888]">
+          <span className="text-[#888888]">core</span>
+          <ChevronRight className="w-3 h-3 text-[#222222]" />
+          <span className="text-[#888888]">daemon</span>
+          <ChevronRight className="w-3 h-3 text-[#222222]" />
+          <div className="flex items-center gap-1.5 text-white px-1.5 py-0.5 bg-black border border-[#222222]">
+            <FileCode2 className="w-3.5 h-3.5 text-[#007AFF]" />
             <span>stream_syncer.ts</span>
           </div>
         </div>
@@ -52,12 +52,12 @@ export default function CruxHeader({
       {/* Right: Flat Collaborator Badges & Actions */}
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1">
-          <div className="px-1.5 py-0.5 text-[10px] bg-[#141516] border border-[#222222] text-[#f7f8f8]">
-            <span className="text-[#5e6ad2] mr-1">●</span>
+          <div className="px-1.5 py-0.5 text-[10px] bg-black border border-[#222222] text-white">
+            <span className="text-[#007AFF] mr-1 font-bold">●</span>
             <span>SL</span>
           </div>
 
-          <div className="px-1.5 py-0.5 text-[10px] bg-[#141516] border border-[#222222] text-[#5e6ad2]">
+          <div className="px-1.5 py-0.5 text-[10px] bg-black border border-[#222222] text-[#FF453A] font-semibold">
             <span>@CruxAI</span>
           </div>
         </div>
@@ -66,10 +66,10 @@ export default function CruxHeader({
 
         <button
           onClick={onToggleSuggestMode}
-          className={`px-2 py-0.5 border text-xs transition-colors ${
+          className={`px-2 py-0.5 border text-xs transition-colors rounded-none font-mono ${
             isSuggestMode
-              ? "bg-[#141516] text-[#5e6ad2] border-[#5e6ad2]"
-              : "bg-transparent text-[#8a8f98] hover:text-[#f7f8f8] border-[#222222]"
+              ? "bg-black text-[#007AFF] border-[#007AFF]"
+              : "bg-black text-[#888888] hover:text-white border-[#222222]"
           }`}
         >
           {isSuggestMode ? "Suggesting" : "Direct Edit"}

@@ -25,7 +25,7 @@ function highlightSyntax(line: string) {
   if (!line) return "\u00A0";
   const trimmed = line.trim();
   if (trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*")) {
-    return <span className="text-[#62666d] italic">{line}</span>;
+    return <span className="text-[#888888] italic">{line}</span>;
   }
 
   const tokenRegex = /(\b(?:import|export|from|function|const|let|var|return|async|await|class|interface|type|extends|implements|new|if|else|switch|case|default|true|false|null|undefined|private|public|protected|readonly|throw)\b|"[^"]*"|'[^']*'|`[^`]*`|\/\/.*)/g;
@@ -34,26 +34,26 @@ function highlightSyntax(line: string) {
   return parts.map((part, idx) => {
     if (!part) return null;
     if (part.startsWith("//")) {
-      return <span key={idx} className="text-[#62666d] italic">{part}</span>;
+      return <span key={idx} className="text-[#888888] italic">{part}</span>;
     }
     if (
       (part.startsWith('"') && part.endsWith('"')) ||
       (part.startsWith("'") && part.endsWith("'")) ||
       (part.startsWith("`") && part.endsWith("`"))
     ) {
-      return <span key={idx} className="text-[#27a644]">{part}</span>;
+      return <span key={idx} className="text-[#cccccc]">{part}</span>;
     }
     if (
       /^(import|export|from|function|const|let|var|return|async|await|class|interface|type|extends|implements|new|if|else|switch|case|default|true|false|null|undefined|private|public|protected|readonly|throw)$/.test(
         part
       )
     ) {
-      return <span key={idx} className="text-[#5e6ad2] font-semibold">{part}</span>;
+      return <span key={idx} className="text-[#007AFF] font-medium">{part}</span>;
     }
     if (/^[A-Z][a-zA-Z0-9]*$/.test(part)) {
-      return <span key={idx} className="text-[#f7f8f8] font-medium">{part}</span>;
+      return <span key={idx} className="text-white font-medium">{part}</span>;
     }
-    return <span key={idx} className="text-[#d0d6e0]">{part}</span>;
+    return <span key={idx} className="text-[#888888]">{part}</span>;
   });
 }
 
@@ -147,24 +147,24 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
 
   const getFileIcon = (name: string) => {
     if (name.includes("db") || name.includes("database") || name.includes("prisma")) {
-      return <Database className="w-3.5 h-3.5 text-emerald-400 shrink-0" />;
+      return <Database className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
     }
     if (name.includes("auth") || name.includes("session") || name.includes("token")) {
-      return <ShieldCheck className="w-3.5 h-3.5 text-indigo-400 shrink-0" />;
+      return <ShieldCheck className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
     }
     if (name.endsWith(".rs")) {
-      return <Code2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />;
+      return <Code2 className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
     }
     if (name.endsWith(".json")) {
-      return <FileCode2 className="w-3.5 h-3.5 text-yellow-400 shrink-0" />;
+      return <FileCode2 className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
     }
     if (name.endsWith(".css")) {
-      return <FileCode2 className="w-3.5 h-3.5 text-rose-400 shrink-0" />;
+      return <FileCode2 className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
     }
-    return <FileCode2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />;
+    return <FileCode2 className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
   };
 
-  const nodeColor = file.contributorColor || "#5e6ad2";
+  const nodeColor = file.contributorColor || "#007AFF";
   const lines = (file.content || "").split("\n");
 
   return (
@@ -173,106 +173,56 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
       onDoubleClick={handleDoubleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`absolute flex flex-col transition-all duration-200 ${
+      className={`absolute select-none flex flex-col rounded-none overflow-hidden transition-none ${
         isDragging ? "cursor-grabbing" : ""
       }`}
       style={{
         transform: `translate3d(${file.x}px, ${file.y}px, 0)`,
-        width: `${file.width}px`,
-        height: isMinimized ? "34px" : `${file.height}px`,
-        zIndex: isConnectedToFocusedEdge ? 35 : file.zIndex,
+        width: `${file.width || 480}px`,
+        height: `${file.height || 420}px`,
+        zIndex: file.zIndex || 1,
+        border: isActive
+          ? "1px solid #007AFF"
+          : isConnectedToFocusedEdge
+          ? "1px solid #FFFFFF"
+          : "1px solid #222222",
         backgroundColor: "#000000",
-        opacity: isDimmedByOtherFocus ? 0.28 : isDragging ? 0.95 : 1,
-        border: isConnectionTarget
-          ? `2px solid ${nodeColor}`
-          : isConnectedToFocusedEdge || isActive || isHovered
-          ? `2px solid ${nodeColor}`
-          : `1.5px solid ${nodeColor}`,
-        outline: isConnectionTarget
-          ? `2px solid ${nodeColor}`
-          : isConnectedToFocusedEdge || isActive || isHovered
-          ? `2px solid ${nodeColor}`
-          : `1.5px solid ${nodeColor}90`,
-        outlineOffset: "3px",
-        boxShadow: isConnectionTarget
-          ? `0 0 35px 4px ${nodeColor}85, 0 0 14px 2px ${nodeColor}, inset 0 0 20px 2px ${nodeColor}30, inset 0 1px 0 0 ${nodeColor}`
-          : isConnectedToFocusedEdge || isActive || isHovered
-          ? `0 0 32px 3px ${nodeColor}75, 0 0 12px 1px ${nodeColor}, inset 0 0 16px 1px ${nodeColor}25, inset 0 1px 0 0 ${nodeColor}`
-          : `0 0 24px 3px ${nodeColor}50, 0 0 8px 1px ${nodeColor}80, inset 0 0 12px 1px ${nodeColor}15, inset 0 1px 0 0 ${nodeColor}60`,
+        boxShadow: "4px 4px 0px #222222",
+        opacity: isDimmedByOtherFocus ? 0.35 : 1,
       }}
     >
-      {/* Precision CAD Corner Ticks matching contributor and path */}
+      {/* Top Accent Line */}
       <div
-        className="absolute -top-[5px] -left-[5px] w-2 h-2 border-t-2 border-l-2 pointer-events-none"
-        style={{
-          borderColor: nodeColor,
-          filter: `drop-shadow(0 0 4px ${nodeColor})`,
-        }}
-      />
-      <div
-        className="absolute -top-[5px] -right-[5px] w-2 h-2 border-t-2 border-r-2 pointer-events-none"
-        style={{
-          borderColor: nodeColor,
-          filter: `drop-shadow(0 0 4px ${nodeColor})`,
-        }}
-      />
-      <div
-        className="absolute -bottom-[5px] -left-[5px] w-2 h-2 border-b-2 border-l-2 pointer-events-none"
-        style={{
-          borderColor: nodeColor,
-          filter: `drop-shadow(0 0 4px ${nodeColor})`,
-        }}
-      />
-      <div
-        className="absolute -bottom-[5px] -right-[5px] w-2 h-2 border-b-2 border-r-2 pointer-events-none"
-        style={{
-          borderColor: nodeColor,
-          filter: `drop-shadow(0 0 4px ${nodeColor})`,
-        }}
+        className="h-[2px] w-full shrink-0"
+        style={{ backgroundColor: isActive ? "#007AFF" : "#222222" }}
       />
 
-      {/* Contributor Top Accent Hairline with Edge Glow */}
-      <div
-        className="h-[2.5px] w-full shrink-0"
-        style={{
-          backgroundColor: nodeColor,
-          boxShadow: `0 0 12px 2px ${nodeColor}`,
-        }}
-      />
-
-      {/* Draggable Node Window Header */}
+      {/* Draggable Window Header */}
       <div
         onMouseDown={handleHeaderMouseDown}
         className="h-8 px-2.5 flex items-center justify-between border-b border-[#222222] select-none cursor-grab active:cursor-grabbing bg-[#0A0A0A]"
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex items-center gap-1 mr-1 shrink-0">
-            <div className="w-2 h-2 rounded-none bg-[#222222] border border-[#333333]" />
-            <div className="w-2 h-2 rounded-none bg-[#222222] border border-[#333333]" />
-            <div className="w-2 h-2 rounded-none bg-[#222222] border border-[#333333]" />
-          </div>
-
           {getFileIcon(file.name)}
-          <span className="font-mono text-xs font-semibold text-[#f7f8f8] tracking-tight truncate">
+          <span className="font-mono text-xs font-semibold text-white tracking-tight truncate">
             {file.name}
           </span>
-          <span className="text-[10px] px-1 py-0.2 bg-[#141516] text-[#8a8f98] font-mono border border-[#222222] shrink-0">
+          <span className="text-[9px] px-1 py-0.2 rounded-none bg-black text-[#888888] font-mono border border-[#222222] shrink-0">
             {file.language}
           </span>
 
           {/* Contributor Tag */}
           {file.contributorName && (
             <div
-              className="flex items-center gap-1 px-1.5 py-0.5 text-[9px] font-mono border select-none shrink-0"
+              className="flex items-center gap-1 px-1.5 py-0.2 rounded-none text-[9.5px] font-mono border select-none shrink-0 font-medium bg-black"
               style={{
-                borderColor: `${nodeColor}50`,
+                borderColor: `${nodeColor}60`,
                 color: nodeColor,
-                backgroundColor: `${nodeColor}15`,
               }}
               title={`Contributor: ${file.contributorName}`}
             >
               <span className="w-1.5 h-1.5 rounded-none" style={{ backgroundColor: nodeColor }} />
-              <span className="truncate max-w-[85px] font-medium">{file.contributorName}</span>
+              <span className="truncate max-w-[85px]">{file.contributorName}</span>
             </div>
           )}
 
@@ -284,7 +234,7 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                   p && (
                     <div
                       key={p.id}
-                      className="w-3.5 h-3.5 flex items-center justify-center text-[7px] font-mono font-bold text-white border border-[#222222]"
+                      className="w-4 h-4 rounded-none flex items-center justify-center text-[8px] font-mono font-bold text-white border border-[#222222]"
                       style={{ backgroundColor: p.color }}
                       title={`${p.name} active in this file`}
                     >
@@ -305,10 +255,10 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
               startConnection(file.id);
             }}
             title="Connect architectural wire to another file"
-            className="flex items-center gap-1 px-1.5 py-0.5 bg-[#141516] hover:bg-[#191a1b] text-[#8a8f98] hover:text-[#5e6ad2] border border-[#222222] text-[10px] font-mono transition-colors"
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-[10px] font-mono transition-colors"
           >
             <span>Wire</span>
-            <ArrowRight className="w-2.5 h-2.5" />
+            <ArrowRight className="w-3 h-3" />
           </button>
 
           {/* Inline Edit Toggle */}
@@ -318,13 +268,13 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
               setIsInlineEditing(!isInlineEditing);
             }}
             title={isInlineEditing ? "Exit inline edit" : "Edit buffer directly"}
-            className={`p-1 border transition-colors ${
+            className={`p-1 rounded-none border transition-colors ${
               isInlineEditing
-                ? "bg-[#5e6ad2] text-white border-[#5e6ad2]"
-                : "text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] border-transparent hover:border-[#222222]"
+                ? "bg-white text-black border-white"
+                : "text-[#888888] hover:text-white hover:bg-[#222222] border-transparent"
             }`}
           >
-            <Edit3 className="w-3 h-3" />
+            <Edit3 className="w-3.5 h-3.5" />
           </button>
 
           {/* Open in IDE button */}
@@ -335,9 +285,9 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                 onOpenInIde(file.id);
               }}
               title="Open full editor view in IDE (Zenith)"
-              className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] border border-transparent hover:border-[#222222] transition-colors"
+              className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] border border-transparent transition-colors"
             >
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </button>
           )}
 
@@ -347,36 +297,34 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
               e.stopPropagation();
               setIsMinimized(!isMinimized);
             }}
-            className="p-1 text-[#8a8f98] hover:text-[#f7f8f8] hover:bg-[#141516] border border-transparent hover:border-[#222222] transition-colors"
+            className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] border border-transparent transition-colors"
           >
             {isMinimized ? (
-              <Maximize2 className="w-3 h-3" />
+              <Maximize2 className="w-3.5 h-3.5" />
             ) : (
-              <Minus className="w-3 h-3" />
+              <Minus className="w-3.5 h-3.5" />
             )}
           </button>
         </div>
       </div>
 
-      {/* Editor Body inside spatial node - Pure black */}
+      {/* Editor Body inside spatial node */}
       {!isMinimized && (
         <div className="flex-1 overflow-hidden bg-black flex flex-col min-h-0">
-          {/* Synchronous, Instant Syntax-Highlighted Code View or Direct Inline Textarea */}
           {isInlineEditing ? (
-            <div className="flex-1 p-2 bg-black overflow-hidden flex flex-col">
+            <div className="flex-1 p-3 bg-black overflow-hidden flex flex-col">
               <textarea
                 value={file.content}
                 onChange={(e) => updateFileContent(file.id, e.target.value)}
                 autoFocus
-                className="w-full h-full bg-black text-[#f7f8f8] font-mono text-[11.5px] leading-[1.6] resize-none focus:outline-none border border-[#333333] p-2"
+                className="w-full h-full bg-black text-white font-mono text-[11px] leading-[1.6] resize-none focus:outline-none border border-[#222222] rounded-none p-2"
                 spellCheck={false}
               />
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto overflow-x-auto bg-black p-2 font-mono text-[11.5px] leading-[1.6] select-text">
+            <div className="flex-1 overflow-y-auto overflow-x-auto p-2.5 font-mono text-[11px] leading-[1.6] select-text bg-black">
               {lines.map((line, idx) => {
                 const lineNum = idx + 1;
-                // Check if peer cursor is on this line
                 const isPeerLine =
                   (file.id === "file-auth" && lineNum === 5) ||
                   (file.id === "file-stream-syncer" && lineNum === 8) ||
@@ -386,12 +334,12 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                 return (
                   <div
                     key={idx}
-                    className={`flex items-center group py-0.2 px-1 relative ${
-                      isPeerLine ? "bg-[#5e6ad2]/10" : "hover:bg-[#141516]/60"
+                    className={`flex items-center group py-0.5 px-1 rounded-none relative ${
+                      isPeerLine ? "bg-[#0A0A0A] border-l-2 border-[#007AFF]" : "hover:bg-[#0A0A0A]"
                     }`}
                   >
                     {/* Line number gutter */}
-                    <span className="text-[#62666d] select-none w-7 text-right pr-2.5 text-[10.5px] shrink-0 font-mono">
+                    <span className="text-[#888888] select-none w-7 text-right pr-2 text-[10px] shrink-0 font-mono">
                       {lineNum}
                     </span>
 
@@ -403,11 +351,10 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                     {/* Active Peer Cursor Chip inline */}
                     {isPeerLine && file.contributorName && (
                       <span
-                        className="ml-2 px-1.5 py-0.2 text-[8px] font-mono border shrink-0 animate-pulse"
+                        className="ml-2 px-1 py-0.2 rounded-none text-[9px] font-mono border shrink-0 font-medium bg-black"
                         style={{
                           borderColor: nodeColor,
                           color: nodeColor,
-                          backgroundColor: `${nodeColor}20`,
                         }}
                       >
                         ● {file.contributorName}
@@ -421,33 +368,33 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
 
           {/* Node Architectural Code Flow Status Strip */}
           {(outgoingEdges.length > 0 || incomingEdges.length > 0) && (
-            <div className="h-6 px-2.5 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[9.5px] font-mono select-none shrink-0">
+            <div className="h-6 px-2.5 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[10px] font-mono select-none shrink-0">
               <div className="flex items-center gap-2 truncate">
                 {incomingEdges.length > 0 && (
-                  <div className="flex items-center gap-1 text-[#8a8f98] truncate" title={`Consuming code from ${incomingEdges[0].sourceNodeId}`}>
-                    <span className="w-1.5 h-1.5 bg-[#27a644]" />
-                    <span className="text-[#62666d]">in:</span>
-                    <span className="text-[#f7f8f8] font-medium truncate max-w-[130px]">
+                  <div className="flex items-center gap-1.5 text-[#888888] truncate" title={`Consuming code from ${incomingEdges[0].sourceNodeId}`}>
+                    <span className="w-1.5 h-1.5 rounded-none bg-[#007AFF]" />
+                    <span className="text-[#888888]">in:</span>
+                    <span className="text-white font-medium truncate max-w-[130px]">
                       {incomingEdges[0].codeSymbol || incomingEdges[0].label}
                     </span>
                   </div>
                 )}
                 {incomingEdges.length > 0 && outgoingEdges.length > 0 && (
-                  <span className="text-[#333333]">·</span>
+                  <span className="text-[#222222]">·</span>
                 )}
                 {outgoingEdges.length > 0 && (
-                  <div className="flex items-center gap-1 text-[#8a8f98] truncate" title={`Streaming code to ${outgoingEdges[0].targetNodeId}`}>
-                    <span className="w-1.5 h-1.5 animate-pulse" style={{ backgroundColor: nodeColor }} />
-                    <span className="text-[#62666d]">out:</span>
+                  <div className="flex items-center gap-1.5 text-[#888888] truncate" title={`Streaming code to ${outgoingEdges[0].targetNodeId}`}>
+                    <span className="w-1.5 h-1.5 rounded-none" style={{ backgroundColor: nodeColor }} />
+                    <span className="text-[#888888]">out:</span>
                     <span className="font-medium truncate max-w-[130px]" style={{ color: nodeColor }}>
                       {outgoingEdges[0].changeCode || outgoingEdges[0].codeSymbol || outgoingEdges[0].label}
                     </span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-[9px] text-[#62666d] shrink-0 pl-1">
-                <span className="w-1 h-1 rounded-none" style={{ backgroundColor: nodeColor }} />
-                <span>0.08ms</span>
+              <div className="flex items-center gap-1.5 text-[9.5px] text-[#888888] shrink-0 pl-1">
+                <span className="w-1.5 h-1.5 rounded-none" style={{ backgroundColor: nodeColor }} />
+                <span className="font-medium">0.08ms</span>
               </div>
             </div>
           )}

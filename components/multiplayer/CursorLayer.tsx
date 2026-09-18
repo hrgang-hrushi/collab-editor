@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { SpatialCursor, FileNode } from "@/lib/types";
+import CruxPointerCursor from "../crux/CruxPointerCursor";
 
 interface CursorDisplayProps {
   cursor: SpatialCursor;
@@ -77,49 +78,13 @@ function AnimatedCursor({ cursor, scale, activeFile }: CursorDisplayProps) {
   const worldY = fileOriginY + clampedY;
 
   return (
-    <div
-      className="absolute top-0 left-0 pointer-events-none z-50 select-none"
-      style={{
-        transform: `translate3d(${worldX}px, ${worldY}px, 0)`,
-        willChange: "transform",
-      }}
-    >
-      {/* Flat and Sharp SVG Caret - Zero drop shadow, zero blur */}
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-        className="shrink-0"
-      >
-        <path
-          d="M0 0L14 5.5L7.5 7.5L5.5 14L0 0Z"
-          fill={cursor.userColor}
-          stroke="#000000"
-          strokeWidth="1"
-          strokeLinejoin="miter"
-        />
-      </svg>
-
-      {/* Flat & Sharp Name Badge - 1px border matching user color, pure flat surface */}
-      <div
-        className="ml-2 -mt-3 inline-flex items-center gap-1.5 px-1.5 py-0.5 bg-[#0A0A0A] border text-[9.5px] font-mono text-[#f7f8f8] select-none whitespace-nowrap shadow-none"
-        style={{
-          borderColor: `${cursor.userColor}80`,
-        }}
-      >
-        <span
-          className="w-1.5 h-1.5 rounded-none shrink-0"
-          style={{ backgroundColor: cursor.userColor }}
-        />
-        <span className="font-medium">{cursor.userName}</span>
-        {cursor.userId === "user-2" && (
-          <span className="text-[8px] text-[#8b5cf6] font-bold px-0.5 bg-[#8b5cf6]/10 border border-[#8b5cf6]/30">
-            AI
-          </span>
-        )}
-      </div>
-    </div>
+    <CruxPointerCursor
+      name={cursor.userName}
+      uid={cursor.userUid || (cursor.userId === "user-1" ? "CRX-9941-SL" : cursor.userId === "user-2" ? "CRX-0001-AI" : "CRX-5520-MV")}
+      color={cursor.userColor}
+      x={worldX}
+      y={worldY}
+    />
   );
 }
 
