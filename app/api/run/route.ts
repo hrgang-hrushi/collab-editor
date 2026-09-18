@@ -6,10 +6,12 @@ export async function POST(req: NextRequest) {
   const startTime = Date.now();
   const stdout: string[] = [];
   const stderr: string[] = [];
+  let executionFileName = "main.ts";
 
   try {
     const body = await req.json();
     const { code, files = [], filename = "main.ts" } = body;
+    executionFileName = filename;
 
     if (typeof code !== "string") {
       return NextResponse.json(
@@ -89,6 +91,14 @@ export async function POST(req: NextRequest) {
       Set,
       Promise,
       Buffer: Buffer,
+      crypto: {
+        subtle: {
+          verify: async () => true,
+          sign: async () => new Uint8Array([1, 2, 3, 4]).buffer,
+          digest: async () => new Uint8Array([5, 6, 7, 8]).buffer,
+        },
+        randomUUID: () => "crx-uuid-" + Math.random().toString(36).slice(2, 9),
+      },
       require: (modId: string) => {
         // Built-in safe modules or mock
         if (modId === "assert") return require("assert");
@@ -111,12 +121,49 @@ export async function POST(req: NextRequest) {
         let matchedPath = candidatePaths.find((p) => fileMap.has(p));
 
         if (!matchedPath) {
-          // If not in workspace, return an informative mock proxy rather than throwing fatal error
+          // If not in workspace, return an informative constructable mock proxy
+          const createMockConstructor = (name: string) => {
+            function MockClass(this: any, ...args: any[]) {
+              this._name = name;
+              this._args = args;
+              return new Proxy(this, {
+                get: (target, prop) => {
+                  if (prop in target) return target[prop];
+                  if (prop === "then") return undefined;
+                  return async (...callArgs: any[]) => {
+                    if (prop === "acquireLock") {
+                      return {
+                        ticketId: `CRX-TK-${Math.floor(1000 + Math.random() * 9000)}`,
+                        acquiredAt: Date.now(),
+                        resource: callArgs[0] || "stream-mesh-primary",
+                        origin: "localhost:7447",
+                      };
+                    }
+                    if (prop === "append") {
+                      return Math.floor(100 + Math.random() * 900);
+                    }
+                    if (prop === "verify" || prop === "flushSync" || prop === "broadcast" || prop === "sync" || prop === "connect" || prop === "disconnect") {
+                      return true;
+                    }
+                    return {
+                      success: true,
+                      method: String(prop),
+                      timestamp: Date.now(),
+                    };
+                  };
+                },
+              });
+            }
+            return MockClass;
+          };
+
           return new Proxy(
             {},
             {
-              get: (_, prop) => () =>
-                `[Mocked module: ${modId}.${String(prop)}]`,
+              get: (_, prop) => {
+                if (prop === "__esModule") return true;
+                return createMockConstructor(`${modId}.${String(prop)}`);
+              },
             }
           );
         }
@@ -165,9 +212,26 @@ export async function POST(req: NextRequest) {
     vm.createContext(sandbox);
 
     // Execute with a 4 second strict timeout to prevent infinite while loops
-    const rawResult = vm.runInContext(transpiledCode, sandbox, {
+    let rawResult = vm.runInContext(transpiledCode, sandbox, {
       timeout: 4000,
     });
+
+    // If the executed code returned a promise, await it
+    if (rawResult && typeof (rawResult as any).then === "function") {
+      try {
+        rawResult = await Promise.race([
+          rawResult,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Async execution timed out (3000ms)")), 3000)
+          ),
+        ]);
+      } catch (pErr: any) {
+        stderr.push(`[Async Error] ${pErr?.message || String(pErr)}`);
+      }
+    }
+
+    // Give microtasks and resolved promises 60ms to flush their console logs
+    await new Promise((resolve) => setTimeout(resolve, 60));
 
     const durationMs = Date.now() - startTime;
     let returnValue: string | undefined = undefined;
@@ -187,8 +251,28 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: any) {
     const durationMs = Date.now() - startTime;
-    const errorMsg = err?.stack || err?.message || String(err);
-    stderr.push(errorMsg);
+    let cleanError = err?.message || String(err);
+
+    if (err?.stack) {
+      const lines = (err.stack as string)
+        .split("\n")
+        .filter(
+          (line) =>
+            !line.includes("node_modules") &&
+            !line.includes("webpack-internal") &&
+            !line.includes("node:vm") &&
+            !line.includes("next/dist") &&
+            !line.includes("node:internal")
+        );
+      if (lines.length > 0) {
+        cleanError = lines.join("\n").trim();
+      }
+    }
+
+    // Replace evalmachine reference with the user's actual filename
+    const targetFileName = executionFileName;
+    cleanError = cleanError.replace(/evalmachine\.<anonymous>/g, targetFileName);
+    stderr.push(cleanError);
 
     return NextResponse.json({
       stdout,
@@ -197,7 +281,7 @@ export async function POST(req: NextRequest) {
       durationMs,
       success: false,
       timestamp: Date.now(),
-      fileName: "execution-error",
+      fileName: targetFileName,
     });
   }
 }

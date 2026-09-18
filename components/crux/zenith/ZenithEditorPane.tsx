@@ -87,11 +87,21 @@ export default function ZenithEditorPane() {
       const newCode = `import { LocalDaemonClient } from "@crux/daemon";
 
 export class StreamSyncer {
-  const timeout = Math.min(attempt * 1000, 30000);
-  async acquireLock() {
-    await this.daemon.
+  timeout = Math.min(5 * 1000, 30000);
+  daemon = new LocalDaemonClient({ port: 7447 });
+
+  async acquireLock(channel = "stream-mesh-primary") {
+    console.log(\`[StreamSyncer] Requesting mutual exclusion lock for: \${channel}...\`);
+    const ticket = await this.daemon.acquireLock(channel);
+    console.log(\`[StreamSyncer] Lock acquired successfully! Ticket: \${ticket.ticketId}\`);
+    return ticket;
   }
 }
+
+const syncer = new StreamSyncer();
+syncer.acquireLock().then((ticket) => {
+  console.log(\`[StreamSyncer] Mesh channel ready on origin: \${ticket.origin}\`);
+});
 `;
       updateFileContent(activeFile.id, newCode);
     }
@@ -104,11 +114,21 @@ export class StreamSyncer {
       const newCode = `import { LocalDaemonClient } from "@crux/daemon";
 
 export class StreamSyncer {
-  const timeout = 5000;
-  async acquireLock() {
-    await this.daemon.
+  timeout = 5000;
+  daemon = new LocalDaemonClient({ port: 7447 });
+
+  async acquireLock(channel = "stream-mesh-primary") {
+    console.log(\`[StreamSyncer] Requesting mutual exclusion lock for: \${channel}...\`);
+    const ticket = await this.daemon.acquireLock(channel);
+    console.log(\`[StreamSyncer] Lock acquired successfully! Ticket: \${ticket.ticketId}\`);
+    return ticket;
   }
 }
+
+const syncer = new StreamSyncer();
+syncer.acquireLock().then((ticket) => {
+  console.log(\`[StreamSyncer] Mesh channel ready on origin: \${ticket.origin}\`);
+});
 `;
       updateFileContent(activeFile.id, newCode);
     }
@@ -306,7 +326,7 @@ export class StreamSyncer {
                 {diffState !== "accepted" && (
                   <div className="px-2 py-1 bg-[#FF453A]/10 text-signal border-l-2 border-accent2 flex">
                     <span className="w-6 text-accent2/50 select-none">4</span>
-                    <span className="line-through opacity-50">- const timeout = 5000;</span>
+                    <span className="line-through opacity-50">-   timeout = 5000;</span>
                   </div>
                 )}
 
@@ -314,7 +334,7 @@ export class StreamSyncer {
                 {diffState !== "rejected" && (
                   <div className="px-2 py-1 bg-[#00FF00]/10 text-signal border-l-2 border-[#00FF00] flex relative">
                     <span className="w-6 text-[#00FF00]/50 select-none">4</span>
-                    <span>+ const timeout = Math.min(attempt * 1000, 30000);</span>
+                    <span>+   timeout = Math.min(5 * 1000, 30000);</span>
 
                     {/* Collaborative Peer Cursor: Sarah Lin */}
                     <div className="absolute top-0 left-[390px] pointer-events-none z-10">
@@ -330,14 +350,18 @@ export class StreamSyncer {
 
               <div className="flex">
                 <span className="w-8 text-[#444] select-none">5</span>
-                <span className="text-signal">  async acquireLock() &#123;</span>
+                <span className="text-signal">  daemon = new LocalDaemonClient(&#123; port: 7447 &#125;);</span>
+              </div>
+              <div className="flex">
+                <span className="w-8 text-[#444] select-none">6</span>
+                <span className="text-signal">  async acquireLock(channel = &quot;stream-mesh-primary&quot;) &#123;</span>
               </div>
               <div className="flex relative">
-                <span className="w-8 text-[#444] select-none">6</span>
-                <span>    await this.daemon.</span>
+                <span className="w-8 text-[#444] select-none">7</span>
+                <span>    const ticket = await this.daemon.acquireLock(channel);</span>
 
                 {/* AI Co-Pilot Cursor: CruxAI */}
-                <div className="absolute top-0 left-[210px] pointer-events-none z-10">
+                <div className="absolute top-0 left-[360px] pointer-events-none z-10">
                   <CruxPointerCursor
                     name="CruxAI"
                     uid="CRX-0001-AI"
@@ -346,8 +370,16 @@ export class StreamSyncer {
                 </div>
               </div>
               <div className="flex">
-                <span className="w-8 text-[#444] select-none">7</span>
+                <span className="w-8 text-[#444] select-none">8</span>
+                <span className="text-signal">    return ticket;</span>
+              </div>
+              <div className="flex">
+                <span className="w-8 text-[#444] select-none">9</span>
                 <span className="text-signal">  &#125;</span>
+              </div>
+              <div className="flex">
+                <span className="w-8 text-[#444] select-none">10</span>
+                <span className="text-signal">&#125;</span>
               </div>
             </div>
           ) : activeFile ? (

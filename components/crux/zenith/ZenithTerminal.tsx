@@ -12,7 +12,13 @@ export default function ZenithTerminal() {
   const runActiveFile = useWorkspaceStore((state) => state.runActiveFile);
   const lastExecutionResult = useWorkspaceStore((state) => state.lastExecutionResult);
 
-  const [activeTab, setActiveTab] = useState<"terminal" | "ai" | "output">("terminal");
+  const activeTerminalTab = useWorkspaceStore((state) => state.activeTerminalTab);
+  const setActiveTerminalTab = useWorkspaceStore((state) => state.setActiveTerminalTab);
+  const runFileById = useWorkspaceStore((state) => state.runFileById);
+
+  const activeTab = activeTerminalTab === "ai" || activeTerminalTab === "output" ? activeTerminalTab : "terminal";
+  const setActiveTab = (tab: "terminal" | "ai" | "output") => setActiveTerminalTab(tab);
+
   const [inputVal, setInputVal] = useState("");
   const [commandLogs, setCommandLogs] = useState<Array<{ cmd: string; output?: string[]; error?: boolean }>>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -21,7 +27,7 @@ export default function ZenithTerminal() {
     logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [commandLogs, activeTab]);
 
-  const handleCommandSubmit = (e: React.FormEvent) => {
+  const handleCommandSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = inputVal.trim();
     if (!trimmed) return;
@@ -40,61 +46,150 @@ export default function ZenithTerminal() {
           cmd: trimmed,
           output: [
             "Available commands:",
-            "  crux status         - Show daemon and peer status",
-            "  ls                  - List workspace files",
+            "  ls                  - List workspace files and sizes",
+            "  cat <file>          - Display file content",
             "  run                 - Execute active file buffer",
-            "  node <file>         - Run file via V8 runtime",
+            "  node <file>         - Execute specific file via sandbox runner",
+            "  crux status         - Show daemon, IPC, and peer metrics",
+            "  crux build          - Incremental AST pipeline check",
+            "  crux peers          - Show active collaborative peer attestation",
             "  clear               - Clear terminal output",
+            "  <shell-cmd>         - Run any shell command (pwd, git status, echo)",
           ],
         },
       ]);
       return;
     }
 
-    if (trimmed === "ls") {
+    if (trimmed === "ls" || trimmed === "ls -la" || trimmed === "dir") {
       setCommandLogs((prev) => [
         ...prev,
         {
           cmd: trimmed,
-          output: files.map((f) => `  ${f.name}  (${f.path || f.name})`),
+          output: files.map(
+            (f) =>
+              `  ${f.name.padEnd(20)} ${f.language.padEnd(12)} ${(f.content.length + " B").padEnd(10)} ${
+                f.contributorName ? `[${f.contributorName}]` : ""
+              }`
+          ),
         },
       ]);
       return;
     }
 
-    if (trimmed === "crux status") {
-      setCommandLogs((prev) => [
-        ...prev,
-        {
-          cmd: trimmed,
-          output: [
-            "● Crux Daemon: v1.2.0-prod on unix:///var/run/crux.sock (IPC: 0.08ms)",
-            "● Hardware: Apple Silicon Metal Compute Engine (128 tok/s)",
-            "● Buffer Mesh: Zero-copy shared memory CRDT ring buffer [ACTIVE]",
-            "● Connected Peers: Sarah Lin (12.4ms), @CruxAI (0.02ms local), Marcus Vance (18.1ms)",
-          ],
-        },
-      ]);
+    if (trimmed.startsWith("cat ")) {
+      const targetName = trimmed.slice(4).trim();
+      const target = files.find(
+        (f) => f.name === targetName || f.path === targetName || f.name.toLowerCase() === targetName.toLowerCase()
+      );
+      if (target) {
+        const lines = target.content.split("\n");
+        setCommandLogs((prev) => [
+          ...prev,
+          {
+            cmd: trimmed,
+            output: lines,
+          },
+        ]);
+      } else {
+        setCommandLogs((prev) => [
+          ...prev,
+          {
+            cmd: trimmed,
+            output: [`cat: ${targetName}: No such file in workspace`],
+            error: true,
+          },
+        ]);
+      }
       return;
     }
 
-    if (trimmed === "run" || trimmed.startsWith("node ")) {
-      runActiveFile();
-      setCommandLogs((prev) => [
-        ...prev,
-        {
-          cmd: trimmed,
-          output: [
-            `[Process started with PID ${Math.floor(1000 + Math.random() * 9000)}]`,
-            `Compiling TypeScript AST with esbuild target ESNext...`,
-            `Execution completed in 0.08ms with exit code 0.`,
-          ],
-        },
-      ]);
+    if (trimmed === "run" || trimmed.startsWith("node ") || trimmed.startsWith("ts-node ")) {
+      let targetFile = files.find((f) => f.id === activeFileId);
+      if (trimmed.startsWith("node ") || trimmed.startsWith("ts-node ")) {
+        const reqName = trimmed.split(" ")[1]?.trim();
+        if (reqName) {
+          const match = files.find(
+            (f) => f.name === reqName || f.path === reqName || f.name.toLowerCase() === reqName.toLowerCase()
+          );
+          if (match) targetFile = match;
+        }
+      }
+
+      if (!targetFile) {
+        setCommandLogs((prev) => [
+          ...prev,
+          {
+            cmd: trimmed,
+            output: ["Error: No active buffer found to execute."],
+            error: true,
+          },
+        ]);
+        return;
+      }
+
+      const result = await (targetFile.id === activeFileId ? runActiveFile() : runFileById(targetFile.id));
+
+      if (result) {
+        const lines: string[] = [];
+        if (result.stdout && result.stdout.length > 0) {
+          lines.push(...result.stdout);
+        }
+        if (result.stderr && result.stderr.length > 0) {
+          lines.push(...result.stderr);
+        }
+        if (result.returnValue !== undefined) {
+          lines.push(`=> ${result.returnValue}`);
+        }
+        lines.push(`✓ Process finished with exit code ${result.success ? 0 : 1} (${result.durationMs}ms)`);
+
+        setCommandLogs((prev) => [
+          ...prev,
+          {
+            cmd: trimmed,
+            output: lines,
+            error: !result.success,
+          },
+        ]);
+      }
       return;
     }
 
-    // Default echo
+    // Call /api/terminal for crux status / build / peers and real shell commands
+    try {
+      const resp = await fetch("/api/terminal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: trimmed }),
+      });
+
+      if (resp.ok) {
+        const data = await resp.json();
+        const lines: string[] = [];
+        if (data.stdout) {
+          lines.push(...data.stdout.split("\n").filter((l: string) => l.length > 0));
+        }
+        if (data.stderr) {
+          lines.push(...data.stderr.split("\n").filter((l: string) => l.length > 0));
+        }
+        if (lines.length === 0) {
+          lines.push(`(Exit code: ${data.exitCode || 0})`);
+        }
+        setCommandLogs((prev) => [
+          ...prev,
+          {
+            cmd: trimmed,
+            output: lines,
+            error: data.exitCode !== 0,
+          },
+        ]);
+        return;
+      }
+    } catch {
+      // Fallback
+    }
+
+    // Fallback echo
     setCommandLogs((prev) => [
       ...prev,
       {
@@ -235,22 +330,54 @@ export default function ZenithTerminal() {
         )}
 
         {activeTab === "output" && (
-          <div className="space-y-1">
+          <div className="space-y-1.5 font-mono text-[12px]">
             {lastExecutionResult ? (
               <>
-                <div className="text-signal font-bold">
-                  Execution Output ({lastExecutionResult.durationMs?.toFixed(2)}ms):
+                <div className="flex items-center justify-between pb-1.5 border-b border-grid/60">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[11px] font-bold px-1.5 py-0.5 border ${
+                        lastExecutionResult.success
+                          ? "border-[#00FF00]/40 text-[#00FF00] bg-[#00FF00]/10"
+                          : "border-accent2/40 text-accent2 bg-accent2/10"
+                      }`}
+                    >
+                      {lastExecutionResult.success ? "✓ EXIT 0" : "✕ EXIT 1"}
+                    </span>
+                    <span className="text-signal font-medium">
+                      {lastExecutionResult.fileName || "buffer"}
+                    </span>
+                  </div>
+                  <span className="text-muted text-[11px]">
+                    {lastExecutionResult.durationMs?.toFixed(2)}ms
+                  </span>
                 </div>
-                {lastExecutionResult.stdout?.map((out, idx) => (
-                  <div key={idx} className="text-[#00FF00]">
-                    {out}
+
+                {lastExecutionResult.stdout && lastExecutionResult.stdout.length > 0 && (
+                  <div className="space-y-0.5">
+                    {lastExecutionResult.stdout.map((out, idx) => (
+                      <div key={idx} className="text-[#00FF00]">
+                        {out}
+                      </div>
+                    ))}
                   </div>
-                ))}
-                {lastExecutionResult.stderr?.map((err, idx) => (
-                  <div key={idx} className="text-accent2">
-                    {err}
+                )}
+
+                {lastExecutionResult.stderr && lastExecutionResult.stderr.length > 0 && (
+                  <div className="space-y-0.5">
+                    {lastExecutionResult.stderr.map((err, idx) => (
+                      <div key={idx} className="text-accent2 whitespace-pre-wrap">
+                        {err}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {lastExecutionResult.returnValue !== undefined && (
+                  <div className="text-muted">
+                    =&gt; {lastExecutionResult.returnValue}
+                  </div>
+                )}
               </>
             ) : (
               <div className="text-muted italic">
