@@ -244,47 +244,48 @@ export default function CruxOnboardingStartPage() {
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
         {activeView === "welcome" ? (
-          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-10">
+          <div className="w-full max-w-xl flex flex-col items-center text-center select-none space-y-12 my-auto py-8">
             {/* Monolithic Crux Title Section */}
-            <div className="flex flex-col items-center justify-center space-y-3">
+            <div className="flex flex-col items-center justify-center space-y-4">
               <div className="relative inline-flex items-center justify-center">
-                <h1 className="font-brand font-black text-white text-7xl sm:text-9xl tracking-[0px] leading-none select-none text-center">
+                <h1 className="font-brand font-black text-white text-7xl sm:text-8xl md:text-9xl tracking-[0px] leading-none select-none text-center">
                   Crux
                 </h1>
-                <div className="absolute -top-1 -right-8 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
+                <div className="absolute -top-1.5 -right-8 text-[9px] font-mono text-[#555555] border border-[#222222] px-1.5 py-0.5 bg-[#000000]">
                   v1.2
                 </div>
               </div>
-              <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#666666]">
+              <div className="font-mono text-[10px] sm:text-[11px] uppercase tracking-[0.25em] text-[#555555]">
                 BARE-METAL COLLABORATIVE IDE // HARDWARE BRUTALISM
               </div>
             </div>
 
-            {/* Primary Action Button: Start Your Project */}
-            <div className="w-full max-w-md space-y-3">
+            {/* Action Buttons Cluster */}
+            <div className="w-full max-w-sm space-y-3 pt-2">
+              {/* Primary Action Button: Start Your Project */}
               <button
                 onClick={() => switchTab("signup")}
-                className="w-full py-4 px-6 bg-white text-black font-sans font-bold text-sm sm:text-base uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-3 cursor-pointer border border-white"
+                className="w-full h-12 px-6 bg-white text-black font-sans font-bold text-xs sm:text-sm uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer border border-white"
               >
                 <span>START YOUR PROJECT</span>
                 <ArrowRight className="w-4 h-4 text-black" />
               </button>
 
               {/* Secondary Navigation Row: Sign In & Account Settings */}
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => switchTab("login")}
-                  className="py-2.5 px-3 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white font-mono text-[11px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="h-10 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Lock className="w-3 h-3 text-[#666666] group-hover:text-black" />
-                  <span>SIGN IN TO ENCLAVE</span>
+                  <span>SIGN IN</span>
                 </button>
                 <button
                   onClick={() => switchTab("settings")}
-                  className="py-2.5 px-3 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white font-mono text-[11px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="h-10 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Settings className="w-3 h-3 text-[#666666] group-hover:text-black" />
-                  <span>ACCOUNT SETTINGS</span>
+                  <span>SETTINGS</span>
                 </button>
               </div>
             </div>
