@@ -148,6 +148,8 @@ export interface LibraryPackage {
   exports: string[];
 }
 
+export type { CrexRunProfile, DiscoveredModelRuntime, DiscoveryReport } from "@/daemon/types";
+
 export interface TerminalPeerInput {
   userId: string;
   userName: string;
