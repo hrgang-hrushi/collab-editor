@@ -244,7 +244,7 @@ export default function CruxOnboardingStartPage() {
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
         {activeView === "welcome" ? (
-          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-8">
+          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-10">
             {/* Monolithic Crux Title Section */}
             <div className="flex flex-col items-center justify-center space-y-3">
               <div className="relative inline-flex items-center justify-center">
@@ -258,13 +258,6 @@ export default function CruxOnboardingStartPage() {
               <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#666666]">
                 BARE-METAL COLLABORATIVE IDE // HARDWARE BRUTALISM
               </div>
-            </div>
-
-            {/* Sub-Header Architectural Directive */}
-            <div className="max-w-lg border-y border-[#222222] py-3 px-4 bg-[#050505]">
-              <p className="font-sans text-xs sm:text-sm text-[#AAAAAA] leading-relaxed">
-                Zero telemetry leakage. Sub-10ms peer-to-peer CRDT sync with direct memory-mapped local compute rings. Initialize your enclave to mount your workspace.
-              </p>
             </div>
 
             {/* Primary Action Button: Start Your Project */}
@@ -294,18 +287,6 @@ export default function CruxOnboardingStartPage() {
                   <span>ACCOUNT SETTINGS</span>
                 </button>
               </div>
-            </div>
-
-            {/* Hardware Stencil Micro-Telemetry */}
-            <div className="flex items-center gap-4 text-[9px] font-mono text-[#444444] uppercase tracking-widest pt-2">
-              <div className="flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-                <span>P2P_MESH: READY</span>
-              </div>
-              <span>/</span>
-              <span>IPC: 0.08MS</span>
-              <span>/</span>
-              <span>0PX_BORDER_RADIUS</span>
             </div>
           </div>
         ) : (
