@@ -147,6 +147,14 @@ export interface LibraryPackage {
   exports: string[];
 }
 
+export interface TerminalPeerInput {
+  userId: string;
+  userName: string;
+  userColor: string;
+  cursorCol: number;
+  lastActive: number;
+}
+
 export interface TerminalSession {
   id: string;
   name: string;
@@ -159,6 +167,7 @@ export interface TerminalSession {
   isStreaming: boolean;
   activePid: number | null;
   lastExitCode: number | null;
+  peerInputs?: Record<string, TerminalPeerInput>;
   lastDiagnosis?: {
     summary: string;
     suggestedCommand?: string;

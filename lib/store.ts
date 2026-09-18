@@ -71,6 +71,7 @@ interface WorkspaceState {
   terminalHeight: number;
   isTerminalMaximized: boolean;
   terminalSearchQuery: string;
+  terminalTimeTravelIndex: number | null;
 
   // Live Flow & Pipeline Tracking
   flowSpeedFactor: number;
@@ -174,6 +175,8 @@ interface WorkspaceState {
   setSessionDiagnosis: (sessionId: string, diagnosis: TerminalSession["lastDiagnosis"]) => void;
   setSessionInputVal: (sessionId: string, val: string) => void;
   addSessionHistory: (sessionId: string, cmd: string) => void;
+  setTerminalTimeTravelIndex: (index: number | null) => void;
+  broadcastTerminalPeerInput: (sessionId: string, userId: string, userName: string, userColor: string, cursorCol: number) => void;
 
   setCommandPaletteOpen: (open: boolean) => void;
   setCursorPos: (pos: { line: number; col: number }) => void;
@@ -412,6 +415,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   terminalHeight: 240,
   isTerminalMaximized: false,
   terminalSearchQuery: "",
+  terminalTimeTravelIndex: null,
 
   flowSpeedFactor: 1,
   isFlowPaused: false,
@@ -1262,6 +1266,30 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         if (session.id !== sessionId) return session;
         const newHistory = [...session.history.filter((h) => h !== cmd), cmd];
         return { ...session, history: newHistory, historyIndex: -1 };
+      }),
+    }));
+  },
+
+  setTerminalTimeTravelIndex: (terminalTimeTravelIndex) => set({ terminalTimeTravelIndex }),
+
+  broadcastTerminalPeerInput: (sessionId, userId, userName, userColor, cursorCol) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        const currentPeers = session.peerInputs || {};
+        return {
+          ...session,
+          peerInputs: {
+            ...currentPeers,
+            [userId]: {
+              userId,
+              userName,
+              userColor,
+              cursorCol,
+              lastActive: Date.now(),
+            },
+          },
+        };
       }),
     }));
   },

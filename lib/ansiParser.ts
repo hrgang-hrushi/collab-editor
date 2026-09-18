@@ -23,6 +23,8 @@ export interface AnsiLine {
   spans: AnsiSpan[];
   timestamp?: number;
   isError?: boolean;
+  executorName?: string;
+  executorColor?: string;
 }
 
 // 16 standard ANSI colors mapped to industrial brutalist palette
