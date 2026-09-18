@@ -39,12 +39,12 @@ export default function CruxBrandLogo({
           <div className="bg-[#222222] border border-[#333333]" />
         </div>
 
-        {/* Wordmark (Etna Sans Serif, tight tracking, heavy weight) */}
+        {/* Wordmark (Etna Sans Serif, tight tracking, heavy weight, lowercase) */}
         <span
-          className="font-brand font-black tracking-[-0.05em] text-white uppercase"
+          className="font-brand font-black tracking-[-0.05em] text-white lowercase"
           style={{ fontSize: Math.max(13, size * 0.75) }}
         >
-          CREX
+          crex
         </span>
       </div>
     );

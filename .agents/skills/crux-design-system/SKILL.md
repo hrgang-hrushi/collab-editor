@@ -16,17 +16,15 @@ You must parse and obey every directive in this document. If you hallucinate Saa
 
 ---
 
-## 1. THE TYPOGRAPHIC ENGINE
+## 1. The Typographic Engine
 Crex uses a strict, utilitarian type system. Text is treated as structural data.
-*   **The Brand Display:** `Etna Sans Serif` / `Space Grotesk`
-    *   *Usage:* The "Crex" logo, massive background watermarks.
-    *   *Properties:* Extremely tight tracking (`-tracking-[0.05em]`), heavy weight, absolute solid fill.
-*   **The OS Interface:** `Arial MT Pro` (Fallbacks: `Hanken Grotesk`, `Arial`, `Helvetica`)
-    *   *Usage:* The UI shell—menus, Omnibar inputs, buttons, sub-headers.
-    *   *Properties:* Utilitarian, cold, flat. Never use italics. Standard tracking. 
-*   **The Execution Canvas:** `JetBrains Mono` or `Geist Mono`
-    *   *Usage:* Source code, Terminal outputs, background ASCII art grids.
-    *   *Properties:* Dense, tabular lining, exact alignment.
+*   **The Brand Display:** `Etna Sans Serif` ONLY.
+    *   *Text Casing:* Strictly lower cased: `crex`.
+    *   *Usage:* The "crex" logo, wordmark, prompt indicator, and brand watermarks.
+    *   *Properties:* Extremely tight tracking (`-tracking-[0.05em]`), heavy weight, absolute solid fill, always lower cased (`crex`).
+*   **The OS Interface, Code & Canvas:** `Arial MT Pro` ONLY (Fallbacks: `Arial MT`, `Arial`, `Helvetica`, `sans-serif`).
+    *   *Usage:* The entire rest of the application—menus, Omnibar inputs, buttons, sub-headers, terminal, telemetry, code, tables.
+    *   *Absolute Prohibition:* NO Space Grotesk, NO Geist, NO Hanken Grotesk. Absolutely nothing else.
 
 ---
 

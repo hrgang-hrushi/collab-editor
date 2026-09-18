@@ -103,8 +103,8 @@ export default function CruxOnboardingStartPage() {
       <header className="relative z-20 h-9 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[10px] font-mono select-none">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-          <span className="font-brand font-black tracking-tight text-white uppercase text-xs">
-            CREX
+          <span className="font-brand font-black tracking-tight text-white lowercase text-xs">
+            crex
           </span>
           <span className="text-[#333333]">/</span>
           <span className="text-[#666666] uppercase tracking-widest text-[9px]">
@@ -295,9 +295,9 @@ export default function CruxOnboardingStartPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 bg-white text-black font-brand font-black text-xs sm:text-sm uppercase -tracking-[0.02em] hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 bg-white text-black font-brand font-black text-xs sm:text-sm -tracking-[0.02em] hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span>INITIALIZE &amp; LAUNCH CRUX KERNEL</span>
+                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="lowercase font-brand">crex</span> KERNEL</span>
                   <span className="font-mono text-xs">❯</span>
                 </button>
               </div>
@@ -317,9 +317,9 @@ export default function CruxOnboardingStartPage() {
 
       {/* 4. Bottom Footer Calibration (Z-20) */}
       <footer className="relative z-20 h-7 border-t border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[9px] font-mono text-[#444444] select-none">
-        <div>[CRUX_DOM_KERNEL // V1.2.0]</div>
+        <div>[crex_dom_kernel // v1.2.0]</div>
         <div className="flex items-center gap-3">
-          <span>ETNA / SPACE GROTESK / HANKEN / GEIST MONO</span>
+          <span>ETNA SANS SERIF / ARIAL MT PRO</span>
           <span className="text-[#222222]">|</span>
           <span className="text-white">HARDWARE BRUTALISM</span>
         </div>
