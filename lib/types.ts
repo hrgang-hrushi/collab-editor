@@ -146,3 +146,22 @@ export interface LibraryPackage {
   isInstalled: boolean;
   exports: string[];
 }
+
+export interface TerminalSession {
+  id: string;
+  name: string;
+  type: "sh" | "server" | "ai" | "output";
+  cwd: string;
+  lines: import("./ansiParser").AnsiLine[];
+  history: string[];
+  historyIndex: number;
+  inputVal: string;
+  isStreaming: boolean;
+  activePid: number | null;
+  lastExitCode: number | null;
+  lastDiagnosis?: {
+    summary: string;
+    suggestedCommand?: string;
+    suggestedDiff?: string;
+  } | null;
+}

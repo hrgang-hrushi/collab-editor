@@ -11,9 +11,11 @@ import {
   GitCommit,
   ShareInvite,
   LibraryPackage,
+  TerminalSession,
 } from "./types";
 import { executeCode } from "./codeRunner";
 import { detectLanguage, saveFileToDisk } from "./fileUtils";
+import { appendStreamChunkToLines } from "./ansiParser";
 import {
   INITIAL_FILES,
   INITIAL_EDGES,
@@ -60,6 +62,15 @@ interface WorkspaceState {
   terminalHistory: Array<{ cmd: string; output?: string[]; type?: "info" | "ok" | "err" | "warn" }>;
   terminalCwd: string;
   gitCommits: GitCommit[];
+
+  // CRUX HyperTerminal Multi-Session & Split Pane State
+  terminalSessions: TerminalSession[];
+  activeTerminalSessionId: string;
+  secondaryTerminalSessionId: string | null;
+  terminalSplitMode: "none" | "horizontal" | "vertical";
+  terminalHeight: number;
+  isTerminalMaximized: boolean;
+  terminalSearchQuery: string;
 
   // Live Flow & Pipeline Tracking
   flowSpeedFactor: number;
@@ -146,6 +157,24 @@ interface WorkspaceState {
   toggleTerminal: () => void;
   setTerminalOpen: (open: boolean) => void;
   setActiveTerminalTab: (tab: "terminal" | "daemon" | "ai" | "output" | "repl") => void;
+
+  // CRUX HyperTerminal Actions
+  createTerminalSession: (name?: string, type?: TerminalSession["type"]) => string;
+  closeTerminalSession: (id: string) => void;
+  setActiveTerminalSessionId: (id: string) => void;
+  setSecondaryTerminalSessionId: (id: string | null) => void;
+  setTerminalSplitMode: (mode: "none" | "horizontal" | "vertical") => void;
+  setTerminalHeight: (height: number) => void;
+  toggleTerminalMaximized: () => void;
+  setTerminalSearchQuery: (query: string) => void;
+  appendTerminalChunk: (sessionId: string, chunk: string, isError?: boolean) => void;
+  clearTerminalSession: (sessionId: string) => void;
+  setSessionStreaming: (sessionId: string, isStreaming: boolean, pid?: number | null) => void;
+  setSessionExitCode: (sessionId: string, code: number | null) => void;
+  setSessionDiagnosis: (sessionId: string, diagnosis: TerminalSession["lastDiagnosis"]) => void;
+  setSessionInputVal: (sessionId: string, val: string) => void;
+  addSessionHistory: (sessionId: string, cmd: string) => void;
+
   setCommandPaletteOpen: (open: boolean) => void;
   setCursorPos: (pos: { line: number; col: number }) => void;
   setAiPromptOpen: (open: boolean) => void;
@@ -186,6 +215,94 @@ interface WorkspaceState {
   uninstallLibrary: (libraryId: string) => void;
   insertLibraryImport: (libraryId: string) => void;
 }
+
+export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
+  {
+    id: "session-sh-1",
+    name: "crux-sh",
+    type: "sh",
+    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    lines: [
+      {
+        id: "init-1",
+        rawText: "Crux Interactive Shell v1.2.0-prod [PTY Active]",
+        spans: [{ text: "Crux Interactive Shell v1.2.0-prod [PTY Active]", color: "#00E5FF", bold: true }],
+      },
+      {
+        id: "init-2",
+        rawText: "Memory-mapped IPC socket unix:///var/run/crux.sock connected (0.08ms)",
+        spans: [{ text: "Memory-mapped IPC socket unix:///var/run/crux.sock connected (0.08ms)", color: "#666666" }],
+      },
+      {
+        id: "init-3",
+        rawText: "Type 'help' for commands, '?? <prompt>' for AI assistance, or any shell command.",
+        spans: [{ text: "Type 'help' for commands, '?? <prompt>' for AI assistance, or any shell command.", color: "#666666" }],
+      },
+    ],
+    history: ["crux status", "ls", "node stream_syncer.ts"],
+    historyIndex: -1,
+    inputVal: "",
+    isStreaming: false,
+    activePid: null,
+    lastExitCode: 0,
+    lastDiagnosis: null,
+  },
+  {
+    id: "session-server-1",
+    name: "dev-server",
+    type: "server",
+    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    lines: [
+      {
+        id: "srv-1",
+        rawText: "▲ Next.js 14.2.21 - Local: http://localhost:3000",
+        spans: [{ text: "▲ Next.js 14.2.21 - Local: http://localhost:3000", color: "#00FF00", bold: true }],
+      },
+      {
+        id: "srv-2",
+        rawText: "✓ Ready in 1184ms | Webpack AST Hot Reload active",
+        spans: [{ text: "✓ Ready in 1184ms | Webpack AST Hot Reload active", color: "#666666" }],
+      },
+    ],
+    history: [],
+    historyIndex: -1,
+    inputVal: "",
+    isStreaming: false,
+    activePid: null,
+    lastExitCode: 0,
+    lastDiagnosis: null,
+  },
+  {
+    id: "session-ai-1",
+    name: "@CruxAI Logs",
+    type: "ai",
+    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    lines: [
+      {
+        id: "ai-1",
+        rawText: "@CruxAI Autonomous Copilot active on spatial engine buffer",
+        spans: [{ text: "@CruxAI Autonomous Copilot active on spatial engine buffer", color: "#BF5AF2", bold: true }],
+      },
+      {
+        id: "ai-2",
+        rawText: "[0.08ms] Speculative branch fork #4812 active for database.ts",
+        spans: [{ text: "[0.08ms] Speculative branch fork #4812 active for database.ts", color: "#666666" }],
+      },
+      {
+        id: "ai-3",
+        rawText: "[0.14ms] Peer verification: Sarah Lin Ed25519 signature valid",
+        spans: [{ text: "[0.14ms] Peer verification: Sarah Lin Ed25519 signature valid", color: "#00FF00" }],
+      },
+    ],
+    history: [],
+    historyIndex: -1,
+    inputVal: "",
+    isStreaming: false,
+    activePid: null,
+    lastExitCode: 0,
+    lastDiagnosis: null,
+  },
+];
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
@@ -287,6 +404,14 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       filesChanged: 4,
     },
   ],
+
+  terminalSessions: INITIAL_TERMINAL_SESSIONS,
+  activeTerminalSessionId: "session-sh-1",
+  secondaryTerminalSessionId: null,
+  terminalSplitMode: "none",
+  terminalHeight: 240,
+  isTerminalMaximized: false,
+  terminalSearchQuery: "",
 
   flowSpeedFactor: 1,
   isFlowPaused: false,
@@ -984,6 +1109,162 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set((state) => ({ isTerminalOpen: !state.isTerminalOpen })),
   setTerminalOpen: (open) => set({ isTerminalOpen: open }),
   setActiveTerminalTab: (activeTerminalTab) => set({ activeTerminalTab }),
+
+  createTerminalSession: (name, type = "sh") => {
+    const id = `session-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    const sessionName =
+      name ||
+      (type === "server"
+        ? "server"
+        : type === "ai"
+        ? "@CruxAI"
+        : `term-${get().terminalSessions.length + 1}`);
+    const newSession: TerminalSession = {
+      id,
+      name: sessionName,
+      type,
+      cwd: get().terminalCwd || "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+      lines: [
+        {
+          id: `line-${Date.now()}`,
+          rawText: `Session '${sessionName}' initialized [PTY Ready]`,
+          spans: [
+            {
+              text: `Session '${sessionName}' initialized [PTY Ready]`,
+              color: "#00E5FF",
+              bold: true,
+            },
+          ],
+        },
+      ],
+      history: [],
+      historyIndex: -1,
+      inputVal: "",
+      isStreaming: false,
+      activePid: null,
+      lastExitCode: 0,
+      lastDiagnosis: null,
+    };
+    set((s) => ({
+      terminalSessions: [...s.terminalSessions, newSession],
+      activeTerminalSessionId: id,
+    }));
+    return id;
+  },
+
+  closeTerminalSession: (id) => {
+    set((s) => {
+      if (s.terminalSessions.length <= 1) return s;
+      const remaining = s.terminalSessions.filter((t) => t.id !== id);
+      const nextActive =
+        s.activeTerminalSessionId === id ? remaining[0].id : s.activeTerminalSessionId;
+      const nextSecondary =
+        s.secondaryTerminalSessionId === id ? null : s.secondaryTerminalSessionId;
+      return {
+        terminalSessions: remaining,
+        activeTerminalSessionId: nextActive,
+        secondaryTerminalSessionId: nextSecondary,
+        terminalSplitMode: nextSecondary ? s.terminalSplitMode : "none",
+      };
+    });
+  },
+
+  setActiveTerminalSessionId: (activeTerminalSessionId) => set({ activeTerminalSessionId }),
+
+  setSecondaryTerminalSessionId: (secondaryTerminalSessionId) =>
+    set({ secondaryTerminalSessionId }),
+
+  setTerminalSplitMode: (terminalSplitMode) => {
+    set((s) => {
+      let secondary = s.secondaryTerminalSessionId;
+      if (terminalSplitMode !== "none" && !secondary) {
+        const other = s.terminalSessions.find((t) => t.id !== s.activeTerminalSessionId);
+        secondary = other ? other.id : s.terminalSessions[0].id;
+      }
+      return {
+        terminalSplitMode,
+        secondaryTerminalSessionId: terminalSplitMode === "none" ? null : secondary,
+      };
+    });
+  },
+
+  setTerminalHeight: (terminalHeight) => set({ terminalHeight }),
+
+  toggleTerminalMaximized: () =>
+    set((s) => ({ isTerminalMaximized: !s.isTerminalMaximized })),
+
+  setTerminalSearchQuery: (terminalSearchQuery) => set({ terminalSearchQuery }),
+
+  appendTerminalChunk: (sessionId, chunk, isError = false) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return {
+          ...session,
+          lines: appendStreamChunkToLines(session.lines, chunk, isError),
+        };
+      }),
+    }));
+  },
+
+  clearTerminalSession: (sessionId) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, lines: [] };
+      }),
+    }));
+  },
+
+  setSessionStreaming: (sessionId, isStreaming, pid = null) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return {
+          ...session,
+          isStreaming,
+          activePid: pid !== undefined ? pid : session.activePid,
+        };
+      }),
+    }));
+  },
+
+  setSessionExitCode: (sessionId, lastExitCode) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, lastExitCode };
+      }),
+    }));
+  },
+
+  setSessionDiagnosis: (sessionId, lastDiagnosis) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, lastDiagnosis };
+      }),
+    }));
+  },
+
+  setSessionInputVal: (sessionId, inputVal) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, inputVal };
+      }),
+    }));
+  },
+
+  addSessionHistory: (sessionId, cmd) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        const newHistory = [...session.history.filter((h) => h !== cmd), cmd];
+        return { ...session, history: newHistory, historyIndex: -1 };
+      }),
+    }));
+  },
   setCommandPaletteOpen: (isCommandPaletteOpen) => set({ isCommandPaletteOpen }),
   setCursorPos: (cursorPos) => set({ cursorPos }),
   setAiPromptOpen: (isAiPromptOpen) => set({ isAiPromptOpen }),
