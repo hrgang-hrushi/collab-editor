@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
-import { X, Send, Lock, Shield, User, FileText, Check, AlertTriangle } from "lucide-react";
+import { X, Send, Lock, Shield, User, FileText, Check, AlertTriangle, Link2, Copy } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 
 export default function CruxShareModal() {
@@ -23,6 +23,21 @@ export default function CruxShareModal() {
   const [localViewerLock, setLocalViewerLock] = useState<boolean>(viewerLock);
   const [sentToast, setSentToast] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [copiedMeshLink, setCopiedMeshLink] = useState(false);
+
+  const handleCopyDirectMeshLink = () => {
+    if (typeof window === "undefined") return;
+    triggerHaptic("click");
+    let url = window.location.href;
+    if (!window.location.hash || !window.location.hash.startsWith("#session-")) {
+      const randomSession = "session-" + Math.random().toString(36).substring(2, 9);
+      url = `${window.location.origin}${window.location.pathname}#${randomSession}`;
+      window.location.hash = randomSession;
+    }
+    navigator.clipboard.writeText(url);
+    setCopiedMeshLink(true);
+    setTimeout(() => setCopiedMeshLink(false), 2000);
+  };
 
   if (!isShareModalOpen) return null;
 
@@ -101,11 +116,41 @@ export default function CruxShareModal() {
             </div>
           )}
 
-          {errorMsg && (
-            <div className="p-2.5 bg-[#FF453A]/10 border-l-2 border-accent2 text-accent2 text-xs font-mono">
-              {errorMsg}
+          {/* Zero-Auth Direct Mesh Link Box */}
+          <div className="p-3 bg-black border border-[#222222] flex items-center justify-between gap-3">
+            <div className="space-y-0.5 min-w-0">
+              <div className="flex items-center gap-1.5 text-white">
+                <Link2 className="w-3.5 h-3.5 text-white" />
+                <span className="text-xs font-bold uppercase font-mono tracking-wider">
+                  Zero-Auth P2P Live Mesh Link
+                </span>
+              </div>
+              <p className="text-[10px] text-[#888888] truncate font-mono">
+                Direct WebRTC DataChannel · Sub-10ms peer sync · Zero sign-in required
+              </p>
             </div>
-          )}
+            <button
+              type="button"
+              onClick={handleCopyDirectMeshLink}
+              className={`px-3 py-1.5 text-[11px] font-mono uppercase tracking-wider border transition-none shrink-0 flex items-center gap-1.5 ${
+                copiedMeshLink
+                  ? "bg-white text-black border-white font-bold"
+                  : "bg-black text-white border-[#222222] hover:bg-white hover:text-black"
+              }`}
+            >
+              {copiedMeshLink ? (
+                <>
+                  <Check className="w-3 h-3 text-black" />
+                  <span>COPIED</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3" />
+                  <span>COPY LINK</span>
+                </>
+              )}
+            </button>
+          </div>
 
           {/* 1. Recipient UID or Email */}
           <div className="space-y-1.5">

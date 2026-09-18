@@ -43,6 +43,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
+import { initCrexCRDTSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { createCrexBrutalistCursorExtension } from "@/lib/crdt/codemirrorCursorPlugin";
+import RemoteCursorInterpolator from "./RemoteCursorInterpolator";
+import { ySyncFacet, ySync, YSyncConfig } from "y-codemirror.next";
 
 // Official VS Code Dark+ Color Palette
 const cruxHighlightStyle = HighlightStyle.define([
@@ -626,7 +630,11 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     }
   }, []);
 
-  // Mount CodeMirror 6 instance
+  // Active Yjs CRDT Session for real-time WebRTC P2P mesh
+  const crdtSessionRef = useRef<CrexCRDTSession | null>(null);
+  const [awarenessInstance, setAwarenessInstance] = useState<any>(null);
+
+  // Mount CodeMirror 6 instance with native Yjs CRDT & WebRTC bindings
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).__cm_mounted__ = ((window as any).__cm_mounted__ || 0) + 1;
@@ -634,9 +642,30 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     }
     if (!containerRef.current) return;
 
+    // 1. Initialize P2P Yjs document & awareness via WebRTC
+    const session = initCrexCRDTSession(file.id, file.content, {
+      name: currentUser.name || "Principal Developer",
+      color: currentUser.color || "#FFFFFF",
+      uid: currentUser.uid || "CRX-7447-HG",
+    });
+    crdtSessionRef.current = session;
+    setAwarenessInstance(session.awareness);
+
+    // Initial content from Y.Text or fallback to file.content
+    const initialDoc = session.ytext.toString() || file.content;
+    if (session.ytext.length === 0 && file.content) {
+      session.ytext.insert(0, file.content);
+    }
+
+    // 2. Build CodeMirror state with Yjs sync and Brutalist cursor plugins
+    const syncConfig = new YSyncConfig(session.ytext, session.awareness);
+
     const startState = EditorState.create({
-      doc: file.content,
+      doc: initialDoc,
       extensions: [
+        ySyncFacet.of(syncConfig),
+        ySync,
+        createCrexBrutalistCursorExtension(session.awareness),
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
@@ -715,7 +744,15 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
 
     viewRef.current = view;
 
+    // Sync Yjs text changes into local workspace store
+    const ytextObserver = () => {
+      const updatedText = session.ytext.toString();
+      updateFileContent(file.id, updatedText);
+    };
+    session.ytext.observe(ytextObserver);
+
     return () => {
+      session.ytext.unobserve(ytextObserver);
       view.destroy();
       viewRef.current = null;
     };
@@ -855,9 +892,10 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         </div>
       )}
 
-      {/* CodeMirror Mount Point */}
-      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative" />
-
+      {/* CodeMirror Mount Point with Real-Time Lerping Remote Cursor Overlay */}
+      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative">
+        <RemoteCursorInterpolator view={viewRef.current} awareness={awarenessInstance} />
+      </div>
 
       {Object.entries(remoteCursors)
         .filter(([_, cursor]) => cursor.activeFileId === file.id)

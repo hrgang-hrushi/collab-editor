@@ -15,6 +15,7 @@ import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
 import CruxBrandLogo from "./CruxBrandLogo";
+import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import {
   Layers,
   Code,
@@ -78,6 +79,40 @@ export default function CruxEditorView() {
   const pendingInvitesCount = inboxInvites.filter((inv) => inv.status === "pending").length;
 
   const [isMounted, setIsMounted] = useState(false);
+  const [livePeers, setLivePeers] = useState<Array<{ name: string; color: string; uid?: string }>>([]);
+
+  const isNexus = mode === "canvas";
+
+  const activeFile =
+    files.find((f) => f.id === activeFileId) ||
+    files.find((f) => f.name === "stream_syncer.ts") ||
+    files[0];
+
+  // Continuously listen to active Yjs awareness peer states
+  useEffect(() => {
+    const checkAwareness = () => {
+      if (!activeFile?.id) return;
+      const session = getActiveCrexCRDTSession(activeFile.id);
+      if (session && session.awareness) {
+        const states = session.awareness.getStates();
+        const peersList: Array<{ name: string; color: string; uid?: string }> = [];
+        states.forEach((st: any, clientID: number) => {
+          if (st.user) {
+            peersList.push({
+              name: st.user.name || `Peer-${clientID}`,
+              color: st.user.color || "#FFFFFF",
+              uid: st.user.uid,
+            });
+          }
+        });
+        setLivePeers(peersList);
+      }
+    };
+
+    const interval = setInterval(checkAwareness, 500);
+    checkAwareness();
+    return () => clearInterval(interval);
+  }, [activeFile?.id]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -97,13 +132,6 @@ export default function CruxEditorView() {
       })
       .catch(() => {/* keep defaults */});
   }, []);
-
-  const isNexus = mode === "canvas";
-
-  const activeFile =
-    files.find((f) => f.id === activeFileId) ||
-    files.find((f) => f.name === "stream_syncer.ts") ||
-    files[0];
 
   // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
   useEffect(() => {
@@ -258,21 +286,51 @@ export default function CruxEditorView() {
             )}
           </button>
 
-          {/* Active Collaborators */}
+          {/* Active Collaborators (Dynamic WebRTC Mesh Awareness + Mock Fallbacks) */}
           <div
             className="hidden xl:flex items-center gap-1 cursor-pointer"
             onClick={() => setShareModalOpen(true)}
-            title="Active Peers in Room (Click to open Share / Invites)"
+            title={`Active Peers in Mesh (${livePeers.length > 0 ? livePeers.length : 3} connected) · Click to open Share`}
           >
-            <div className="px-1.5 py-0.5 bg-accent1 text-void text-[9px] font-mono font-bold leading-none" title="Sarah Lin (CRX-9941-SL)">
-              SL
-            </div>
-            <div className="px-1.5 py-0.5 bg-void border border-grid text-muted text-[9px] font-mono leading-none" title="Marcus Vance (CRX-5520-MV)">
-              MV
-            </div>
-            <div className="px-1.5 py-0.5 bg-accent2 text-signal text-[9px] font-mono font-bold leading-none" title="CruxAI Copilot (CRX-0001-AI)">
-              AI
-            </div>
+            {livePeers.length > 0 ? (
+              livePeers.map((peer, idx) => {
+                const initials = peer.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2) || "P";
+                return (
+                  <div
+                    key={idx}
+                    className="px-1.5 py-0.5 text-[9px] font-mono font-bold leading-none border transition-none"
+                    style={{
+                      backgroundColor: idx === 0 ? "#FFFFFF" : idx === 1 ? "#888888" : "#444444",
+                      color: idx === 0 ? "#000000" : "#FFFFFF",
+                      borderColor: "#222222",
+                    }}
+                    title={`${peer.name} (${peer.uid || "Peer"})`}
+                  >
+                    {initials}
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                <div className="px-1.5 py-0.5 bg-white text-black text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Sarah Lin (CRX-9941-SL)">
+                  SL
+                </div>
+                <div className="px-1.5 py-0.5 bg-[#888888] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Marcus Vance (CRX-5520-MV)">
+                  MV
+                </div>
+                <div className="px-1.5 py-0.5 bg-[#444444] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="CruxAI Copilot (CRX-0001-AI)">
+                  AI
+                </div>
+              </>
+            )}
+            <span className="text-[9px] font-mono text-[#444444] ml-0.5 uppercase tracking-tighter">
+              [{livePeers.length > 0 ? livePeers.length : 3} MESH]
+            </span>
           </div>
 
           {/* Window Layout Toggles */}

@@ -16,6 +16,8 @@ import {
   Eye,
   Search,
   X,
+  Share2,
+  Link2,
 } from "lucide-react";
 import CruxPointerCursor from "../CruxPointerCursor";
 
@@ -41,8 +43,22 @@ export default function ZenithEditorPane() {
   const [isFindOpen, setIsFindOpen] = useState(false);
   const [findQuery, setFindQuery] = useState("");
   const [findMatchCount, setFindMatchCount] = useState(0);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
+
+  const handleCopyP2PLink = () => {
+    if (typeof window === "undefined") return;
+    let url = window.location.href;
+    if (!window.location.hash || !window.location.hash.startsWith("#session-")) {
+      const randomSession = "session-" + Math.random().toString(36).substring(2, 9);
+      url = `${window.location.origin}${window.location.pathname}#${randomSession}`;
+      window.location.hash = randomSession;
+    }
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
 
   const isFileRestricted = accessLevel === "limited" && !allowedFiles.includes(activeFile?.name || "");
   const isViewerOnly = accessLevel === "viewer";
@@ -238,6 +254,28 @@ syncer.acquireLock().then((ticket) => {
             className="p-1 border border-grid bg-void text-muted hover:text-signal disabled:opacity-30 transition-colors"
           >
             {savedFeedback ? <Check className="w-3.5 h-3.5 text-[#00FF00]" /> : <Save className="w-3.5 h-3.5" />}
+          </button>
+
+          <button
+            onClick={handleCopyP2PLink}
+            title="Copy Zero-Auth P2P Mesh Session Link (Zero Login Required)"
+            className={`px-2 py-0.5 text-[10px] font-mono border transition-none flex items-center gap-1 uppercase ${
+              copiedLink
+                ? "bg-white text-black border-white font-bold"
+                : "bg-[#000000] text-[#FFFFFF] border-[#222222] hover:bg-white hover:text-black"
+            }`}
+          >
+            {copiedLink ? (
+              <>
+                <Check className="w-3 h-3 text-black" />
+                <span>COPIED LINK</span>
+              </>
+            ) : (
+              <>
+                <Link2 className="w-3 h-3" />
+                <span>P2P MESH</span>
+              </>
+            )}
           </button>
 
           <button
