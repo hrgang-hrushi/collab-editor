@@ -28,15 +28,15 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     color-scheme: dark;
-    font-family: "Arial MT Pro", Arial, Helvetica, sans-serif;
+    font-family: var(--font-hanken), "Hanken Grotesk", -apple-system, sans-serif;
   }
 
   body {
     background-color: #000000;
     color: #FFFFFF;
-    font-family: "Arial MT Pro", Arial, Helvetica, sans-serif;
+    font-family: var(--font-hanken), "Hanken Grotesk", -apple-system, sans-serif;
     font-size: 12px;
-    letter-spacing: 0;
+    letter-spacing: -0.01em;
     overflow: hidden;
     user-select: none;
   }

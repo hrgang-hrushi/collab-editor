@@ -568,7 +568,7 @@ export default function CruxOmnibarVoid() {
                   }}
                   onKeyDown={handleKeyDown}
                   placeholder="[EXECUTE COMMAND: clone, @CrexAI, open, connect, canvas...]"
-                  className="flex-1 bg-transparent text-white font-sans text-xl sm:text-2xl placeholder:text-[#333333] focus:outline-none caret-white selection:bg-[#222222]"
+                  className="flex-1 bg-transparent text-white font-space text-xl sm:text-2xl placeholder:text-[#333333] focus:outline-none caret-white selection:bg-[#222222] tracking-tight"
                   spellCheck={false}
                   autoComplete="off"
                 />

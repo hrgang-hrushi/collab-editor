@@ -86,7 +86,7 @@ export default function VoidSuggestionMatrix({
                 >
                   {getCategoryTag(item.category)}
                 </span>
-                <span className="text-xs uppercase tracking-tight truncate">
+                <span className="font-space text-xs uppercase tracking-tight truncate">
                   {item.title}
                 </span>
               </div>
