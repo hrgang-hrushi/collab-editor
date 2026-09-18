@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { useWorkspaceStore } from "@/lib/store";
-import { Plus, Trash2, Download, FolderDown, X } from "lucide-react";
+import { Plus, Trash2, Download, FolderDown, X, Package } from "lucide-react";
 import { exportWorkspaceAsZip, readDirectoryHandle } from "@/lib/fileUtils";
 
 export default function ZenithFileTree() {
@@ -14,6 +14,11 @@ export default function ZenithFileTree() {
   const deleteFile = useWorkspaceStore((state) => state.deleteFile);
   const importFiles = useWorkspaceStore((state) => state.importFiles);
   const projectName = useWorkspaceStore((state) => state.projectName);
+  const libraries = useWorkspaceStore((state) => state.libraries);
+  const insertLibraryImport = useWorkspaceStore((state) => state.insertLibraryImport);
+  const setLibraryModalOpen = useWorkspaceStore((state) => state.setLibraryModalOpen);
+
+  const activeFile = files.find((f) => f.id === activeFileId) || files[0];
 
   const [isCreating, setIsCreating] = useState(false);
   const [newFileName, setNewFileName] = useState("");
@@ -155,6 +160,64 @@ export default function ZenithFileTree() {
             </div>
           );
         })}
+      </div>
+
+      {/* Libraries & Packages Section */}
+      <div className="border-t border-grid flex flex-col shrink-0">
+        <div className="px-4 py-2.5 bg-surface text-[10px] font-bold tracking-widest text-muted uppercase flex items-center justify-between border-b border-grid">
+          <div className="flex items-center gap-1.5">
+            <Package className="w-3 h-3 text-accent1" />
+            <span>Libraries</span>
+            <span className="px-1 py-0.1 text-[9px] bg-void border border-grid text-muted">
+              {libraries.filter((l) => l.isInstalled).length}
+            </span>
+          </div>
+          <button
+            onClick={() => setLibraryModalOpen(true)}
+            title="Browse & Add Libraries"
+            className="hover:text-signal p-0.5 transition-colors flex items-center gap-1 text-[10px] font-mono text-muted"
+          >
+            <Plus className="w-3 h-3" />
+            <span>Add</span>
+          </button>
+        </div>
+
+        <div className="py-1 max-h-40 overflow-y-auto font-mono text-[11px]">
+          {libraries
+            .filter((l) => l.isInstalled)
+            .map((lib) => {
+              const isInCurrentFile =
+                activeFile?.content.includes(`"${lib.name}"`) ||
+                activeFile?.content.includes(`'${lib.name}'`);
+
+              return (
+                <div
+                  key={lib.id}
+                  className="px-4 py-1 flex items-center justify-between group hover:bg-[#111111] transition-colors"
+                >
+                  <span className="truncate text-muted group-hover:text-signal">
+                    {lib.name}
+                  </span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {isInCurrentFile ? (
+                      <span
+                        title="Import present in current file"
+                        className="w-1.5 h-1.5 rounded-none bg-accent1 inline-block"
+                      />
+                    ) : (
+                      <button
+                        onClick={() => insertLibraryImport(lib.id)}
+                        title={`Insert import into ${activeFile?.name}`}
+                        className="opacity-0 group-hover:opacity-100 text-[10px] border border-grid px-1 py-0.2 text-muted hover:text-signal hover:border-signal bg-void transition-all"
+                      >
+                        + Import
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+        </div>
       </div>
 
       {/* Sidebar Footer Telemetry */}

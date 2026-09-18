@@ -135,3 +135,14 @@ export interface GitCommit {
   author: string;
   filesChanged: number;
 }
+
+export interface LibraryPackage {
+  id: string;
+  name: string;
+  version: string;
+  description: string;
+  importSnippet: string;
+  category: "core" | "crdt" | "ui" | "utility" | "npm";
+  isInstalled: boolean;
+  exports: string[];
+}

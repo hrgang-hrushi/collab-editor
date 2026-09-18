@@ -1,4 +1,4 @@
-import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite } from "./types";
+import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage } from "./types";
 
 export const CURRENT_USER: User = {
   id: "user-self",
@@ -421,5 +421,78 @@ export const INITIAL_COMMENTS: ContextualThread[] = [
         reactions: { "⚡": ["user-1"] },
       },
     ],
+  },
+];
+
+export const INITIAL_LIBRARIES: LibraryPackage[] = [
+  {
+    id: "lib-crux-daemon",
+    name: "@crux/daemon",
+    version: "2.4.0",
+    description: "Crux distributed mesh daemon SDK for peer synchronization & edge compute",
+    importSnippet: 'import { LocalDaemonClient, CruxCluster, broadcastMesh } from "@crux/daemon";',
+    category: "core",
+    isInstalled: true,
+    exports: ["LocalDaemonClient", "CruxCluster", "broadcastMesh", "subscribeChannel", "dispatchSignal", "createSyncStream"],
+  },
+  {
+    id: "lib-yjs",
+    name: "yjs",
+    version: "13.6.14",
+    description: "Shared types and CRDT framework for real-time collaborative editing",
+    importSnippet: 'import * as Y from "yjs";',
+    category: "crdt",
+    isInstalled: true,
+    exports: ["Doc", "Text", "Array", "Map", "applyUpdate", "encodeStateAsUpdate", "UndoManager"],
+  },
+  {
+    id: "lib-lodash",
+    name: "lodash",
+    version: "4.17.21",
+    description: "Modern JavaScript utility library delivering modularity, performance & extras",
+    importSnippet: 'import { debounce, throttle, cloneDeep } from "lodash";',
+    category: "utility",
+    isInstalled: true,
+    exports: ["debounce", "throttle", "cloneDeep", "merge", "groupBy", "keyBy", "uniq", "chunk"],
+  },
+  {
+    id: "lib-framer-motion",
+    name: "framer-motion",
+    version: "11.2.10",
+    description: "Production-ready declarative motion and gesture library for React",
+    importSnippet: 'import { motion, AnimatePresence } from "framer-motion";',
+    category: "ui",
+    isInstalled: true,
+    exports: ["motion", "AnimatePresence", "useAnimation", "useMotionValue", "useSpring"],
+  },
+  {
+    id: "lib-lucide-react",
+    name: "lucide-react",
+    version: "0.395.0",
+    description: "Beautiful & consistent icon toolkit designed for brutalist interfaces",
+    importSnippet: 'import { Terminal, Cpu, Sparkles, Folder } from "lucide-react";',
+    category: "ui",
+    isInstalled: true,
+    exports: ["Terminal", "Cpu", "Sparkles", "Folder", "Play", "Share2", "Users", "Layers"],
+  },
+  {
+    id: "lib-zod",
+    name: "zod",
+    version: "3.23.8",
+    description: "TypeScript-first schema validation with static type inference",
+    importSnippet: 'import { z } from "zod";',
+    category: "utility",
+    isInstalled: false,
+    exports: ["z", "infer", "ZodType", "ZodSchema"],
+  },
+  {
+    id: "lib-axios",
+    name: "axios",
+    version: "1.7.2",
+    description: "Promise based HTTP client for browser and node runtimes",
+    importSnippet: 'import axios from "axios";',
+    category: "utility",
+    isInstalled: false,
+    exports: ["axios", "AxiosResponse", "AxiosError", "AxiosRequestConfig"],
   },
 ];

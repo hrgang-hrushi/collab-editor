@@ -10,6 +10,7 @@ import {
   ExecutionResult,
   GitCommit,
   ShareInvite,
+  LibraryPackage,
 } from "./types";
 import { executeCode } from "./codeRunner";
 import { detectLanguage, saveFileToDisk } from "./fileUtils";
@@ -21,6 +22,7 @@ import {
   CURRENT_USER,
   MOCK_USERS,
   INITIAL_INVITES,
+  INITIAL_LIBRARIES,
 } from "./defaultData";
 
 interface WorkspaceState {
@@ -175,6 +177,14 @@ interface WorkspaceState {
   sendInvite: (invite: Omit<ShareInvite, "id" | "timestamp" | "status">) => void;
   acceptInvite: (inviteId: string) => void;
   declineInvite: (inviteId: string) => void;
+
+  // Libraries & Packages Actions
+  libraries: LibraryPackage[];
+  isLibraryModalOpen: boolean;
+  setLibraryModalOpen: (open: boolean) => void;
+  installLibrary: (lib: Partial<LibraryPackage> & { name: string }) => void;
+  uninstallLibrary: (libraryId: string) => void;
+  insertLibraryImport: (libraryId: string) => void;
 }
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
@@ -1085,4 +1095,69 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         i.id === inviteId ? { ...i, status: "declined" as const } : i
       ),
     })),
+
+  // Libraries & Packages Implementations
+  libraries: INITIAL_LIBRARIES,
+  isLibraryModalOpen: false,
+  setLibraryModalOpen: (open) => set({ isLibraryModalOpen: open }),
+
+  installLibrary: (lib) =>
+    set((state) => {
+      const existing = state.libraries.find((l) => l.name === lib.name || l.id === lib.id);
+      if (existing) {
+        return {
+          libraries: state.libraries.map((l) =>
+            l.id === existing.id ? { ...l, isInstalled: true } : l
+          ),
+        };
+      }
+      const safeVarName = lib.name.replace(/[^a-zA-Z0-9]/g, "");
+      const newLib: LibraryPackage = {
+        id: `lib-${Date.now()}`,
+        name: lib.name,
+        version: lib.version || "1.0.0",
+        description: lib.description || `Community package ${lib.name} for Crux IDE`,
+        importSnippet: lib.importSnippet || `import * as ${safeVarName} from "${lib.name}";`,
+        category: lib.category || "npm",
+        isInstalled: true,
+        exports: lib.exports || [safeVarName],
+      };
+      return {
+        libraries: [...state.libraries, newLib],
+      };
+    }),
+
+  uninstallLibrary: (libraryId) =>
+    set((state) => ({
+      libraries: state.libraries.map((l) =>
+        l.id === libraryId ? { ...l, isInstalled: false } : l
+      ),
+    })),
+
+  insertLibraryImport: (libraryId) => {
+    const state = get();
+    const lib = state.libraries.find((l) => l.id === libraryId);
+    if (!lib) return;
+
+    const activeFile = state.files.find((f) => f.id === state.activeFileId);
+    if (!activeFile) return;
+
+    // Check if import statement or package name already exists
+    if (activeFile.content.includes(`"${lib.name}"`) || activeFile.content.includes(`'${lib.name}'`)) {
+      state.addTerminalEntry({
+        cmd: `crux import ${lib.name}`,
+        output: [`[CRUX_IMPORT] Library '${lib.name}' is already imported in ${activeFile.name}`],
+        type: "info",
+      });
+      return;
+    }
+
+    const newContent = `${lib.importSnippet}\n${activeFile.content}`;
+    state.updateFileContent(activeFile.id, newContent);
+    state.addTerminalEntry({
+      cmd: `crux import ${lib.name}`,
+      output: [`[CRUX_IMPORT] Successfully injected '${lib.name}' import into ${activeFile.name}`],
+      type: "ok",
+    });
+  },
 }));

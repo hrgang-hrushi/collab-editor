@@ -12,6 +12,7 @@ import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
 import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
+import CruxLibraryModal from "./modals/CruxLibraryModal";
 import CruxBrandLogo from "./CruxBrandLogo";
 import {
   Layers,
@@ -356,6 +357,7 @@ export default function CruxEditorView() {
       <CruxShareModal />
       <CruxInboxModal />
       <CruxIdentityDrawer />
+      <CruxLibraryModal />
     </div>
   );
 }

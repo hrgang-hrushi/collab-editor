@@ -34,7 +34,7 @@ export default function ZenithEditorPane() {
 
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [isSplitScreen, setIsSplitScreen] = useState(false);
-  const [editorMode, setEditorMode] = useState<"zenith" | "raw">("zenith");
+  const [editorMode, setEditorMode] = useState<"zenith" | "raw">("raw");
   const [diffState, setDiffState] = useState<"pending" | "accepted" | "rejected">("pending");
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
@@ -156,9 +156,9 @@ export class StreamSyncer {
             <button
               onClick={() => setEditorMode(editorMode === "zenith" ? "raw" : "zenith")}
               className="px-2 py-0.5 text-[10px] font-mono border border-grid bg-void text-muted hover:text-signal uppercase transition-colors mr-2"
-              title="Toggle between Zenith Canonical Diff and Raw Editor"
+              title="Toggle between Live Editor and Diff Mock"
             >
-              {editorMode === "zenith" ? "View: Zenith" : "View: Raw"}
+              {editorMode === "zenith" ? "Edit Code" : "Diff Mock"}
             </button>
           )}
 

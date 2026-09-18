@@ -9,16 +9,29 @@ import {
   highlightActiveLine,
   highlightActiveLineGutter,
 } from "@codemirror/view";
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
+import {
+  closeBrackets,
+  closeBracketsKeymap,
+  autocompletion,
+  acceptCompletion,
+  completeAnyWord,
+  Completion,
+  CompletionContext,
+  CompletionResult,
+  snippetCompletion,
+} from "@codemirror/autocomplete";
+import { linter, lintGutter, Diagnostic } from "@codemirror/lint";
 import { javascript } from "@codemirror/lang-javascript";
 import { python } from "@codemirror/lang-python";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
-import { syntaxHighlighting, HighlightStyle } from "@codemirror/language";
+import { syntaxHighlighting, HighlightStyle, syntaxTree } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import { useWorkspaceStore } from "@/lib/store";
-import { FileNode } from "@/lib/types";
+import { FileNode, LibraryPackage } from "@/lib/types";
+import CruxPointerCursor from "../crux/CruxPointerCursor";
 import {
   Check,
   X,
@@ -27,6 +40,7 @@ import {
   CornerDownLeft,
   Loader2,
   Bot,
+  AlertTriangle,
 } from "lucide-react";
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
 
@@ -60,46 +74,418 @@ const cruxEditorTheme = EditorView.theme({
   "&": {
     height: "100%",
     fontSize: "13px",
-    backgroundColor: "#1e1e1e !important",
-    color: "#d4d4d4",
+    backgroundColor: "#000000 !important",
+    color: "#FFFFFF",
   },
   ".cm-content": {
-    fontFamily: "Menlo, Monaco, 'Courier New', var(--font-geist-mono), monospace",
-    padding: "8px 0",
-    caretColor: "#aeafad",
-    lineHeight: "1.55",
+    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', Menlo, Monaco, monospace",
+    padding: "12px 0",
+    caretColor: "#FFFFFF",
+    lineHeight: "1.6",
   },
   ".cm-cursor": {
-    borderLeftColor: "#aeafad !important",
+    borderLeftColor: "#FFFFFF !important",
     borderLeftWidth: "2px !important",
   },
   "&.cm-focused .cm-cursor": {
-    borderLeftColor: "#aeafad !important",
+    borderLeftColor: "#FFFFFF !important",
   },
   "&.cm-focused .cm-selectionBackground, ::selection, .cm-selectionLayer .cm-selectionBackground": {
-    backgroundColor: "#264f78 !important",
+    backgroundColor: "#222222 !important",
   },
   ".cm-activeLine": {
-    backgroundColor: "#282828 !important",
+    backgroundColor: "#0A0A0A !important",
   },
   ".cm-gutters": {
-    backgroundColor: "#1e1e1e !important",
-    color: "#858585 !important",
-    borderRight: "1px solid #2b2b2b !important",
+    backgroundColor: "#000000 !important",
+    color: "#555555 !important",
+    borderRight: "1px solid #222222 !important",
     paddingRight: "6px",
   },
   ".cm-activeLineGutter": {
-    backgroundColor: "#282828 !important",
-    color: "#c6c6c6 !important",
+    backgroundColor: "#0A0A0A !important",
+    color: "#FFFFFF !important",
   },
   ".cm-lineNumbers .cm-gutterElement": {
-    padding: "0 10px 0 8px !important",
+    padding: "0 12px 0 8px !important",
     fontSize: "12px",
     minWidth: "38px",
     textAlign: "right",
-    color: "#858585",
+    color: "#555555",
+  },
+  // Red Curvy Squiggly Underline for missing tokens / brackets / syntax errors
+  ".cm-lintRange-error": {
+    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 6 3' width='6' height='3'%3E%3Cpath d='M0 2.5 Q 1.5 0.5, 3 2.5 T 6 2.5' fill='none' stroke='%23FF453A' stroke-width='1.2'/%3E%3C/svg%3E") !important`,
+    backgroundRepeat: "repeat-x !important",
+    backgroundPosition: "bottom left !important",
+    paddingBottom: "2px !important",
+    textDecoration: "underline wavy #FF453A !important",
+    textDecorationThickness: "1.5px !important",
+    textUnderlineOffset: "3px !important",
+  },
+  ".cm-lintRange-warning": {
+    textDecoration: "underline wavy #ffd700 !important",
+  },
+  ".cm-lint-marker-error": {
+    content: "none",
+    width: "6px",
+    height: "6px",
+    backgroundColor: "#FF453A",
+    borderRadius: "0px",
+    display: "inline-block",
+    marginLeft: "2px",
+  },
+  // Crux Brutalist Autocomplete Popup
+  ".cm-tooltip.cm-tooltip-autocomplete": {
+    backgroundColor: "#0A0A0A !important",
+    border: "1px solid #222222 !important",
+    borderRadius: "0px !important",
+    boxShadow: "0 12px 32px rgba(0,0,0,0.95) !important",
+    padding: "4px !important",
+    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace !important",
+    minWidth: "260px !important",
+  },
+  ".cm-completionList": {
+    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace !important",
+    fontSize: "12px !important",
+  },
+  ".cm-completionList ul": {
+    maxHeight: "220px !important",
+  },
+  ".cm-completionList li": {
+    padding: "4px 8px !important",
+    borderRadius: "0px !important",
+    color: "#888888 !important",
+    display: "flex !important",
+    alignItems: "center !important",
+    gap: "8px !important",
+  },
+  ".cm-completionList li[aria-selected]": {
+    backgroundColor: "#181818 !important",
+    color: "#FFFFFF !important",
+    borderLeft: "2px solid #007AFF !important",
+  },
+  ".cm-completionLabel": {
+    fontWeight: "500 !important",
+    color: "#FFFFFF !important",
+  },
+  ".cm-completionDetail": {
+    fontStyle: "normal !important",
+    fontSize: "10px !important",
+    color: "#777777 !important",
+    marginLeft: "auto !important",
+    fontFamily: "var(--font-geist-mono), monospace !important",
+  },
+  ".cm-completionMatchedText": {
+    color: "#007AFF !important",
+    textDecoration: "none !important",
+    fontWeight: "bold !important",
+  },
+  // Crux Brutalist Lint Tooltip
+  ".cm-tooltip-lint": {
+    backgroundColor: "#0A0A0A !important",
+    border: "1px solid #222222 !important",
+    borderLeft: "2px solid #FF453A !important",
+    color: "#FFFFFF !important",
+    fontFamily: "var(--font-geist-mono), monospace !important",
+    fontSize: "11px !important",
+    borderRadius: "0px !important",
+    boxShadow: "0 8px 24px rgba(0,0,0,0.9) !important",
+    padding: "6px 10px !important",
+  },
+  ".cm-diagnostic-error": {
+    borderLeft: "none !important",
+    padding: "2px 0 !important",
+    color: "#FFFFFF !important",
   },
 });
+
+// Real-time Syntax & Unclosed Bracket Linter
+function cruxLinter(view: EditorView): Diagnostic[] {
+  const diagnostics: Diagnostic[] = [];
+  const doc = view.state.doc;
+  const docString = doc.toString();
+
+  // 1. Bracket & string balance check
+  const bracketStack: Array<{ char: string; pos: number }> = [];
+  let inDoubleQuote = false;
+  let doubleQuoteStart = -1;
+  let inSingleQuote = false;
+  let singleQuoteStart = -1;
+  let inBacktick = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+
+  for (let i = 0; i < docString.length; i++) {
+    const ch = docString[i];
+    const prev = i > 0 ? docString[i - 1] : "";
+    const next = i < docString.length - 1 ? docString[i + 1] : "";
+
+    // Comments handling
+    if (!inDoubleQuote && !inSingleQuote && !inBacktick) {
+      if (ch === "/" && next === "/" && !inBlockComment) {
+        inLineComment = true;
+        i++;
+        continue;
+      }
+      if (inLineComment && ch === "\n") {
+        inLineComment = false;
+        continue;
+      }
+      if (inLineComment) continue;
+
+      if (ch === "/" && next === "*" && !inLineComment) {
+        inBlockComment = true;
+        i++;
+        continue;
+      }
+      if (inBlockComment && ch === "*" && next === "/") {
+        inBlockComment = false;
+        i++;
+        continue;
+      }
+      if (inBlockComment) continue;
+    }
+
+    if (inLineComment || inBlockComment) continue;
+
+    // Quotes handling
+    if (ch === '"' && prev !== "\\" && !inSingleQuote && !inBacktick) {
+      if (!inDoubleQuote) {
+        inDoubleQuote = true;
+        doubleQuoteStart = i;
+      } else {
+        inDoubleQuote = false;
+        doubleQuoteStart = -1;
+      }
+      continue;
+    }
+    if (ch === "'" && prev !== "\\" && !inDoubleQuote && !inBacktick) {
+      if (!inSingleQuote) {
+        inSingleQuote = true;
+        singleQuoteStart = i;
+      } else {
+        inSingleQuote = false;
+        singleQuoteStart = -1;
+      }
+      continue;
+    }
+    if (ch === "`" && prev !== "\\" && !inDoubleQuote && !inSingleQuote) {
+      inBacktick = !inBacktick;
+      continue;
+    }
+
+    if (inDoubleQuote || inSingleQuote) {
+      if (ch === "\n") {
+        const start = inDoubleQuote ? doubleQuoteStart : singleQuoteStart;
+        diagnostics.push({
+          from: start,
+          to: i,
+          severity: "error",
+          message: inDoubleQuote
+            ? 'Unclosed string literal — missing \'"\''
+            : "Unclosed string literal — missing \"'\"",
+        });
+        inDoubleQuote = false;
+        inSingleQuote = false;
+      }
+      continue;
+    }
+
+    if (inBacktick) continue;
+
+    // Brackets check
+    if (ch === "(" || ch === "{" || ch === "[") {
+      bracketStack.push({ char: ch, pos: i });
+    } else if (ch === ")" || ch === "}" || ch === "]") {
+      const match = { ")": "(", "}": "{", "]": "[" }[ch];
+      if (bracketStack.length > 0 && bracketStack[bracketStack.length - 1].char === match) {
+        bracketStack.pop();
+      } else {
+        diagnostics.push({
+          from: i,
+          to: i + 1,
+          severity: "error",
+          message: `Unexpected closing '${ch}' without matching '${match}'`,
+        });
+      }
+    }
+  }
+
+  // Unclosed brackets remaining in stack
+  for (const item of bracketStack) {
+    const pair = { "(": ")", "{": "}", "[": "]" }[item.char];
+    diagnostics.push({
+      from: item.pos,
+      to: Math.min(doc.length, item.pos + 1),
+      severity: "error",
+      message: `Unclosed '${item.char}' — missing matching '${pair}'`,
+    });
+  }
+
+  // Unclosed string at EOF
+  if (inDoubleQuote && doubleQuoteStart >= 0) {
+    diagnostics.push({
+      from: doubleQuoteStart,
+      to: doc.length,
+      severity: "error",
+      message: 'Unclosed string literal — missing closing \'"\'',
+    });
+  }
+  if (inSingleQuote && singleQuoteStart >= 0) {
+    diagnostics.push({
+      from: singleQuoteStart,
+      to: doc.length,
+      severity: "error",
+      message: "Unclosed string literal — missing closing \"'\"",
+    });
+  }
+
+  // 2. Syntax Tree error detection (from Lezer AST)
+  try {
+    const tree = syntaxTree(view.state);
+    tree.iterate({
+      enter(node) {
+        if (node.type.isError) {
+          let from = node.from;
+          let to = node.to;
+          let message = "Syntax error";
+
+          if (from === to) {
+            from = Math.max(0, from - 1);
+            to = Math.min(doc.length, from + 1);
+            message = "Syntax error: missing expected token or operand";
+          }
+
+          if (!diagnostics.some((d) => Math.abs(d.from - from) <= 1 && Math.abs(d.to - to) <= 1)) {
+            diagnostics.push({
+              from,
+              to: Math.max(to, from + 1),
+              severity: "error",
+              message,
+            });
+          }
+        }
+      },
+    });
+  } catch (err) {
+    // AST safety
+  }
+
+  return diagnostics;
+}
+
+// Crux Autocompletion Provider
+function getCruxCompletions(
+  context: CompletionContext,
+  libraries: LibraryPackage[],
+  language: string
+): CompletionResult | null {
+  const word = context.matchBefore(/[\w$]*/);
+  if (!word || (word.from === word.to && !context.explicit)) return null;
+
+  const options: Completion[] = [];
+
+  // 1. Dynamic Library Exports from WorkspaceStore
+  libraries
+    .filter((l) => l.isInstalled)
+    .forEach((lib) => {
+      lib.exports.forEach((exp) => {
+        options.push({
+          label: exp,
+          type: "function",
+          detail: lib.name,
+          info: `Exported by ${lib.name} (v${lib.version})`,
+          boost: 3,
+        });
+      });
+    });
+
+  // 2. Core Crux Daemon & Mesh Architecture Symbols
+  options.push(
+    { label: "LocalDaemonClient", type: "class", detail: "@crux/daemon", info: "Client connection to local Crux mesh daemon (port 7447)", boost: 4 },
+    { label: "CruxCluster", type: "class", detail: "@crux/daemon", info: "Distributed state orchestrator for edge nodes", boost: 4 },
+    { label: "broadcastMesh", type: "function", detail: "@crux/daemon", info: "Broadcast low-latency message across local subnet", boost: 4 },
+    { label: "subscribeChannel", type: "function", detail: "@crux/daemon", boost: 3 },
+    { label: "acquireLock", type: "function", detail: "Crux Lock", info: "Acquire distributed mutex lock with timeout", boost: 4 },
+    { label: "acquireStreamLock", type: "function", detail: "Crux Lock", info: "Acquire stream mutex lock for peer sync", boost: 4 },
+    { label: "dispatchSignal", type: "function", detail: "@crux/daemon", boost: 3 },
+    { label: "StreamSyncer", type: "class", detail: "Crux Sync", boost: 3 },
+    { label: "ZenithNode", type: "class", detail: "Crux IDE", boost: 2 },
+    { label: "NexusPipeline", type: "class", detail: "Crux Pipeline", boost: 2 }
+  );
+
+  // 3. High-Value Snippets & Built-ins
+  options.push(
+    snippetCompletion("console.log(${1:data});", {
+      label: "console.log",
+      detail: "Log to output",
+      type: "function",
+      boost: 5,
+    }),
+    snippetCompletion("console.error(${1:err});", {
+      label: "console.error",
+      detail: "Log error to output",
+      type: "function",
+      boost: 4,
+    }),
+    snippetCompletion('import { ${1} } from "${2}";', {
+      label: "import",
+      detail: "ES Module import statement",
+      type: "keyword",
+      boost: 5,
+    }),
+    snippetCompletion("export async function ${1:name}(${2:params}): Promise<${3:void}> {\n\t${4}\n}", {
+      label: "async function",
+      detail: "Async function declaration",
+      type: "keyword",
+      boost: 4,
+    }),
+    snippetCompletion("const [${1:state}, set${2:State}] = useState(${3:initial});", {
+      label: "useState",
+      detail: "React state hook",
+      type: "function",
+      boost: 4,
+    }),
+    snippetCompletion("useEffect(() => {\n\t${1}\n\treturn () => {\n\t\t${2}\n\t};\n}, [${3}]);", {
+      label: "useEffect",
+      detail: "React effect hook",
+      type: "function",
+      boost: 4,
+    }),
+    snippetCompletion("try {\n\t${1}\n} catch (err) {\n\tconsole.error(err);\n}", {
+      label: "try-catch",
+      detail: "Try-catch error block",
+      type: "keyword",
+      boost: 4,
+    }),
+    snippetCompletion("interface ${1:Name} {\n\t${2:property}: ${3:string};\n}", {
+      label: "interface",
+      detail: "TypeScript interface declaration",
+      type: "keyword",
+      boost: 4,
+    })
+  );
+
+  // 4. Common keywords
+  const keywords = [
+    "const", "let", "var", "function", "return", "async", "await",
+    "export", "import", "class", "interface", "type", "extends",
+    "implements", "public", "private", "protected", "readonly", "static",
+    "new", "throw", "try", "catch", "finally", "if", "else", "switch",
+    "case", "break", "continue", "default", "true", "false", "null",
+    "undefined", "typeof", "instanceof", "void", "Promise", "Record", "Array"
+  ];
+  keywords.forEach((kw) => {
+    options.push({ label: kw, type: "keyword", boost: 1 });
+  });
+
+  return {
+    from: word.from,
+    options,
+    validFor: /^[\w$]*$/,
+  };
+}
 
 interface CodeMirrorEditorProps {
   file: FileNode;
@@ -121,6 +507,10 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   const setCursorPos = useWorkspaceStore((state) => state.setCursorPos);
   const triggerAiGenerate = useWorkspaceStore((state) => state.triggerAiGenerate);
   const isAiGenerating = useWorkspaceStore((state) => state.isAiGenerating);
+  const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
+  const libraries = useWorkspaceStore((state) => state.libraries);
+  const librariesRef = useRef(libraries);
+  librariesRef.current = libraries;
 
   // Active selection state for floating HUD
   const [selectedRange, setSelectedRange] = useState<{
@@ -188,10 +578,35 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         highlightActiveLineGutter(),
         highlightActiveLine(),
         history(),
+        closeBrackets(),
+        autocompletion({
+          activateOnTyping: true,
+          maxRenderedOptions: 12,
+          override: [
+            (context) => getCruxCompletions(context, librariesRef.current, file.language),
+            completeAnyWord,
+          ],
+        }),
+        linter(cruxLinter, { delay: 100 }),
+        lintGutter(),
         getLanguageExtension(file.language),
         syntaxHighlighting(cruxHighlightStyle),
         cruxEditorTheme,
-        keymap.of([...defaultKeymap, ...historyKeymap]),
+        keymap.of([
+          {
+            key: "Tab",
+            run: (view) => {
+              if (acceptCompletion(view)) {
+                return true;
+              }
+              return false;
+            },
+          },
+          indentWithTab,
+          ...closeBracketsKeymap,
+          ...defaultKeymap,
+          ...historyKeymap,
+        ]),
         ...(readOnly ? [EditorState.readOnly.of(true)] : []),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
@@ -348,9 +763,73 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col bg-[#07080b] font-code overflow-hidden select-text">
+    <div className="relative w-full h-full flex flex-col bg-void font-mono overflow-hidden select-text">
+      {/* Collaborative Suggestion Banner (if any pending for this file) */}
+      {pendingSuggestions.length > 0 && (
+        <div className="bg-surface border-b border-grid px-4 py-2 flex items-center justify-between z-20 text-xs font-mono shrink-0 select-none">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-accent1" />
+            <span className="text-signal font-semibold">{pendingSuggestions[0].author.name}</span>
+            <span className="text-muted">suggests an update:</span>
+            <span className="text-[11px] text-muted truncate max-w-sm border border-grid px-1.5 py-0.5 bg-void">
+              {pendingSuggestions[0].description}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleAcceptSuggestion(pendingSuggestions[0].id)}
+              className="px-2.5 py-0.5 bg-signal text-void font-bold text-[10px] uppercase border border-signal hover:opacity-90 transition-opacity"
+            >
+              Accept Diff
+            </button>
+            <button
+              onClick={() => rejectSuggestion(pendingSuggestions[0].id)}
+              className="px-2.5 py-0.5 bg-void text-muted font-bold text-[10px] uppercase border border-grid hover:text-signal hover:border-signal transition-colors"
+            >
+              Reject
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* CodeMirror Mount Point */}
-      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto" />
+      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative" />
+
+      {/* Collaborative Peer Cursors */}
+      {file.name === "stream_syncer.ts" && (
+        <>
+          <div className="absolute top-[108px] left-[380px] pointer-events-none z-20">
+            <CruxPointerCursor
+              name="Sarah Lin"
+              uid="CRX-9941-SL"
+              color="#38b6ff"
+            />
+          </div>
+          <div className="absolute top-[158px] left-[220px] pointer-events-none z-20">
+            <CruxPointerCursor
+              name="CruxAI"
+              uid="CRX-0001-AI"
+              color="#ff5757"
+            />
+          </div>
+        </>
+      )}
+
+      {Object.entries(remoteCursors)
+        .filter(([_, cursor]) => cursor.activeFileId === file.id)
+        .map(([userId, cursor]) => (
+          <div
+            key={userId}
+            className="absolute pointer-events-none z-20 transition-all duration-75"
+            style={{ top: `${cursor.y}px`, left: `${cursor.x}px` }}
+          >
+            <CruxPointerCursor
+              name={cursor.userName}
+              uid={cursor.userUid}
+              color={cursor.userColor}
+            />
+          </div>
+        ))}
 
       {/* Floating Selection Tooltip */}
       {selectedRange && selectedRange.coords && (
