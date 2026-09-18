@@ -256,12 +256,12 @@ export default function CruxOnboardingStartPage() {
                 </div>
               </div>
 
-              {/* Editorial Statement: 2 lines with 'dream IDE' highlighted in Arial MT */}
+              {/* Editorial Statement: 2 lines with 'dream IDE' in pure white unbolded Arial MT */}
               <div className="pt-2 pb-1">
-                <h2 className="font-sans text-2xl sm:text-3xl md:text-4xl text-[#888888] font-light tracking-tight leading-tight select-none text-center">
-                  Bringing the <span className="font-bold text-white">dream</span>
+                <h2 className="font-sans text-2xl sm:text-3xl md:text-4xl text-[#888888] font-normal tracking-tight leading-tight select-none text-center">
+                  Bringing the <span className="text-white">dream</span>
                   <br />
-                  <span className="font-bold text-white">IDE</span> to reality.
+                  <span className="text-white">IDE</span> to reality.
                 </h2>
               </div>
             </div>
