@@ -244,53 +244,51 @@ export default function CruxOnboardingStartPage() {
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
         {activeView === "welcome" ? (
-          <div className="w-full max-w-xl flex flex-col items-center text-center select-none space-y-4 my-auto py-4">
-            {/* Monolithic Crux Title Section */}
-            <div className="flex flex-col items-center justify-center space-y-1">
-              <div className="relative inline-flex items-center justify-center">
+          <div className="w-full max-w-xl flex flex-col items-center select-none gap-8 rounded-none">
+            {/* 1. Monolithic Crux Title with Anchored Badge Box */}
+            <div className="flex flex-col items-center select-none gap-3">
+              <div className="inline-flex items-center gap-2">
                 <h1 className="font-brand font-black text-white text-6xl sm:text-7xl md:text-8xl tracking-[0px] leading-none select-none text-center">
                   Crux
                 </h1>
-                <div className="absolute -top-1 -right-8 text-[9px] font-mono text-[#555555] border border-[#222222] px-1.5 py-0.5 bg-[#000000]">
+                <div className="self-start mt-1 border border-[#222222] bg-[#111111] px-1.5 py-0.5 text-[10px] font-mono text-[#888888] rounded-none select-none">
                   v1.2
                 </div>
               </div>
 
-              {/* Editorial Statement: Enlarged 2 lines in pure white Arial MT */}
-              <div className="pt-2">
-                <h2 className="font-sans text-3xl sm:text-5xl md:text-6xl text-white font-normal tracking-[-0.04em] leading-[1.08] select-none text-center max-w-2xl">
-                  Bringing the dream
-                  <br />
-                  IDE to reality.
-                </h2>
-              </div>
+              {/* 2. Precision Headline (Tight Leading, Pure White, -tracking-[0.02em]) */}
+              <h2 className="font-sans text-2xl sm:text-3xl md:text-[34px] text-white font-normal -tracking-[0.02em] leading-tight select-none text-center max-w-lg">
+                Bringing the dream
+                <br />
+                IDE to reality.
+              </h2>
             </div>
 
-            {/* Action Buttons Cluster with ultra-tight gap */}
-            <div className="w-full max-w-xs space-y-2 pt-1">
-              {/* Primary Action Button: Start Your Project */}
+            {/* 3. Utilitarian Button Deck (Exact h-10, text-[11px], rounded-none, Hardware Inversion) */}
+            <div className="w-full max-w-xs flex flex-col gap-2 rounded-none">
+              {/* Primary Action Button */}
               <button
                 onClick={() => switchTab("signup")}
-                className="w-full h-10 px-5 bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer border border-white"
+                className="w-full h-10 px-4 bg-white text-black font-sans font-bold text-[11px] uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer border border-white rounded-none"
               >
                 <span>START YOUR PROJECT</span>
                 <ArrowRight className="w-3.5 h-3.5 text-black" />
               </button>
 
-              {/* Secondary Navigation Row: Sign In & Account Settings */}
-              <div className="grid grid-cols-2 gap-1.5">
+              {/* Secondary Navigation Row */}
+              <div className="grid grid-cols-2 gap-2 rounded-none">
                 <button
                   onClick={() => switchTab("login")}
-                  className="h-8 px-2 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[9px] uppercase tracking-wider transition-none flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="h-10 px-3 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer rounded-none"
                 >
-                  <Lock className="w-2.5 h-2.5 text-[#666666] group-hover:text-black" />
+                  <Lock className="w-3 h-3 text-[#666666] group-hover:text-white" />
                   <span>SIGN IN</span>
                 </button>
                 <button
                   onClick={() => switchTab("settings")}
-                  className="h-8 px-2 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[9px] uppercase tracking-wider transition-none flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="h-10 px-3 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-[11px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer rounded-none"
                 >
-                  <Settings className="w-2.5 h-2.5 text-[#666666] group-hover:text-black" />
+                  <Settings className="w-3 h-3 text-[#666666] group-hover:text-white" />
                   <span>SETTINGS</span>
                 </button>
               </div>
