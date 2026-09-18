@@ -127,13 +127,14 @@ const cruxEditorTheme = EditorView.theme({
     textDecoration: "underline wavy #ffd700 !important",
   },
   ".cm-lint-marker-error": {
-    content: "none",
-    width: "6px",
-    height: "6px",
-    backgroundColor: "#FF453A",
-    borderRadius: "0px",
-    display: "inline-block",
-    marginLeft: "2px",
+    display: "none !important",
+  },
+  ".cm-lint-marker-warning": {
+    display: "none !important",
+  },
+  ".cm-gutter-lint": {
+    width: "0px !important",
+    display: "none !important",
   },
   // Crux Brutalist Autocomplete Popup
   ".cm-tooltip.cm-tooltip-autocomplete": {
@@ -939,18 +940,18 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       )}
 
       {/* Living Comment Gutter Markers */}
-      <div className="absolute top-4 right-4 z-20 space-y-2">
+      <div className={`absolute right-4 z-20 space-y-2 ${pendingSuggestions.length > 0 ? "top-12" : "top-3"}`}>
         {fileComments.map((thread) => (
           <div key={thread.id} className="relative">
             <button
               onClick={() =>
                 setActiveThreadId(activeThreadId === thread.id ? null : thread.id)
               }
-              className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#252526] border border-[#3e3e42] hover:border-[#007acc] text-[#cccccc] text-xs font-mono transition-colors"
+              className="flex items-center gap-1.5 px-2 py-0.5 rounded-none bg-[#0A0A0A] border border-[#222222] hover:border-[#444444] text-[#888888] hover:text-white text-[10.5px] font-mono transition-colors shadow-[2px_2px_0px_#161616]"
             >
-              <MessageSquare className="w-3.5 h-3.5 text-[#4ec9b0]" />
+              <MessageSquare className="w-3 h-3 text-[#38b6ff]" />
               <span>Line {thread.lineNumber}</span>
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4ec9b0]" />
+              <span className="w-1.5 h-1.5 rounded-none bg-[#38b6ff]" />
             </button>
 
             {/* Anchored Expanded Thread */}

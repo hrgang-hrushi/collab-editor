@@ -192,8 +192,8 @@ export default function ConnectorLayer() {
               strokeWidth="1.5"
             />
 
-            {/* TRAVELING CODE CHANGE BADGE & FLOWING PAYLOAD */}
-            <g>
+            {/* Smooth Traveling Signal Packet along wire */}
+            <circle r="3.5" fill={color} stroke="#000000" strokeWidth="1">
               <animateMotion
                 key={`motion-${edge.id}-${effectiveFlowSpeed}`}
                 path={pathData}
@@ -203,66 +203,12 @@ export default function ConnectorLayer() {
               <animate
                 key={`opacity-${edge.id}-${effectiveFlowSpeed}`}
                 attributeName="opacity"
-                values="0;1;1;1;0"
-                keyTimes="0;0.08;0.5;0.92;1"
+                values="0.2;1;1;0.2"
+                keyTimes="0;0.1;0.9;1"
                 dur={effectiveFlowSpeed}
                 repeatCount="indefinite"
               />
-
-              {/* Pulse Anchor Circle directly on the wire */}
-              <circle cx="0" cy="0" r="4" fill={color} stroke="#07080b" strokeWidth="2" />
-
-              {/* Hairline connector tick linking wire to badge */}
-              <line x1="0" y1="0" x2="0" y2="-12" stroke={color} strokeWidth="1" strokeDasharray="1 1" />
-
-              {/* Flowing Code Change Pill - Sharp, Flat Surface */}
-              <g transform="translate(0, -24)">
-                <rect
-                  x={-halfWidth}
-                  y="-11"
-                  width={badgeWidth}
-                  height="22"
-                  rx="0"
-                  ry="0"
-                  fill="#000000"
-                  stroke="#222222"
-                  strokeWidth="1"
-                />
-                {/* Contributor color accent stripe on left */}
-                <rect
-                  x={-halfWidth}
-                  y="-11"
-                  width="2"
-                  height="22"
-                  rx="0"
-                  ry="0"
-                  fill={color}
-                />
-                {/* Diff '+' indicator */}
-                <text
-                  x={-halfWidth + 8}
-                  y="4"
-                  fill="#FFFFFF"
-                  fontSize="10"
-                  fontFamily="monospace"
-                  fontWeight="bold"
-                >
-                  +
-                </text>
-                {/* Code snippet text flowing from source to target */}
-                <text
-                  x={-halfWidth + 18}
-                  y="4"
-                  fill="#FFFFFF"
-                  fontSize="9.5"
-                  fontFamily="monospace"
-                  fontWeight="500"
-                  letterSpacing="-0.2px"
-                >
-                  {payloadDisplay}
-                </text>
-              </g>
-            </g>
+            </circle>
 
             {/* TRAVELING SIGNAL PARTICLE 2: Staggered pulse following along curve */}
             <circle r="2" fill={color} opacity="0.8">
@@ -284,29 +230,29 @@ export default function ConnectorLayer() {
               />
             </circle>
 
-            {/* CENTRAL STATIC WIRE BADGE & TELEMETRY INSPECTOR */}
+            {/* CENTRAL WIRE BADGE & TELEMETRY INSPECTOR */}
             <foreignObject
-              x={isVertical ? midX + 16 : midX - 110}
-              y={isVertical ? midY - 14 : midY + 14}
-              width="220"
-              height={isHovered || isFocused ? "135" : "32"}
+              x={isVertical ? midX + 14 : midX - 90}
+              y={isVertical ? midY - 14 : midY - 14}
+              width="180"
+              height={isHovered || isFocused ? "135" : "30"}
               className="overflow-visible pointer-events-auto"
             >
               <div className="flex flex-col items-center">
                 {/* Main Wire Pill */}
                 <div
-                  className="flex items-center justify-between gap-2 px-2.5 py-1 rounded-none bg-[#0A0A0A] border border-[#222222] text-[11px] font-mono select-none transition-colors w-full shadow-[4px_4px_0px_#222222] text-[#888888]"
+                  className="flex items-center justify-between gap-1.5 px-2 py-0.5 rounded-none bg-[#0A0A0A] border border-[#222222] text-[10px] font-mono select-none transition-colors w-full shadow-[2px_2px_0px_#161616] text-[#888888] hover:border-[#444444]"
                 >
                   <div className="flex items-center gap-1.5 truncate">
                     <span
                       className="w-1.5 h-1.5 rounded-none shrink-0"
                       style={{ backgroundColor: color }}
                     />
-                    <span className="font-medium text-white truncate max-w-[125px]">
+                    <span className="font-medium text-white truncate max-w-[105px]">
                       {edge.codeSymbol || edge.label}
                     </span>
                   </div>
-                  <span className="text-[#888888] text-[9px] shrink-0 font-medium">
+                  <span className="text-[#666666] text-[8.5px] shrink-0 font-medium">
                     ➔ {targetFile.name.replace(".ts", "")}
                   </span>
                   <button
@@ -315,9 +261,9 @@ export default function ConnectorLayer() {
                       removeEdge(edge.id);
                     }}
                     title="Remove connection wire"
-                    className="text-[#888888] hover:text-[#FF453A] transition-colors p-0.5 ml-0.5 shrink-0 rounded-none hover:bg-[#222222]"
+                    className="text-[#666666] hover:text-[#FF453A] transition-colors p-0.5 ml-0.5 shrink-0 rounded-none hover:bg-[#222222]"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash2 className="w-2.5 h-2.5" />
                   </button>
                 </div>
 

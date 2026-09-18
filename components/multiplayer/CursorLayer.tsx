@@ -99,34 +99,43 @@ export default function CursorLayer() {
     const interval = setInterval(() => {
       const now = Date.now();
 
-      // Sarah Lin drifts inside auth.ts (inspecting Ed25519 signature checks)
-      const sarahLocalX = 180 + Math.sin(now / 2200) * 80 + (Math.random() * 20 - 10);
-      const sarahLocalY = 190 + Math.cos(now / 2600) * 55 + (Math.random() * 20 - 10);
+      // Sarah Lin inside auth.ts (inspecting Ed25519 signature checks)
+      const sarahLocalX = 180 + Math.sin(now / 2200) * 40;
+      const sarahLocalY = 150 + Math.cos(now / 2600) * 30;
       updateRemoteCursor("user-1", {
         offsetX: Math.round(sarahLocalX),
         offsetY: Math.round(sarahLocalY),
         targetX: Math.round(sarahLocalX),
         targetY: Math.round(sarahLocalY),
+        x: Math.round(sarahLocalX),
+        y: Math.round(sarahLocalY),
+        activeFileId: "file-auth",
       });
 
-      // CruxAI suggests optimizations inside database.ts (write ahead log ring buffer)
-      const cruxLocalX = 210 + Math.sin(now / 2800) * 75;
-      const cruxLocalY = 180 + Math.cos(now / 2400) * 45;
+      // CruxAI suggests optimizations inside stream_syncer.ts
+      const cruxLocalX = 240 + Math.sin(now / 2800) * 30;
+      const cruxLocalY = 135 + Math.cos(now / 2400) * 15;
       updateRemoteCursor("user-2", {
         offsetX: Math.round(cruxLocalX),
         offsetY: Math.round(cruxLocalY),
         targetX: Math.round(cruxLocalX),
         targetY: Math.round(cruxLocalY),
+        x: Math.round(cruxLocalX),
+        y: Math.round(cruxLocalY),
+        activeFileId: "file-stream-syncer",
       });
 
       // Marcus Vance profiles 120Hz lerp inside spatialEngine.ts
-      const marcusLocalX = 200 + Math.cos(now / 3000) * 90;
-      const marcusLocalY = 175 + Math.sin(now / 2700) * 50;
+      const marcusLocalX = 210 + Math.cos(now / 3000) * 45;
+      const marcusLocalY = 160 + Math.sin(now / 2700) * 25;
       updateRemoteCursor("user-3", {
         offsetX: Math.round(marcusLocalX),
         offsetY: Math.round(marcusLocalY),
         targetX: Math.round(marcusLocalX),
         targetY: Math.round(marcusLocalY),
+        x: Math.round(marcusLocalX),
+        y: Math.round(marcusLocalY),
+        activeFileId: "file-spatial",
       });
     }, 1600);
 
