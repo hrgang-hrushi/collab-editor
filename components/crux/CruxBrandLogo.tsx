@@ -39,9 +39,9 @@ export default function CruxBrandLogo({
           <div className="bg-[#222222] border border-[#333333]" />
         </div>
 
-        {/* Wordmark (Etna Sans Serif, tight tracking, heavy weight, C capitalized) */}
+        {/* Wordmark (Etna Sans Serif, 0 font spacing, heavy weight, C capitalized) */}
         <span
-          className="font-brand font-black tracking-[-0.05em] text-white"
+          className="font-brand font-black tracking-[0px] text-white"
           style={{ fontSize: Math.max(13, size * 0.75) }}
         >
           Crux

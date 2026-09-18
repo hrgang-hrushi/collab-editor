@@ -90,7 +90,7 @@ export default function CruxOnboardingStartPage() {
       <header className="relative z-20 h-9 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[10px] font-mono select-none">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-          <span className="font-brand font-black tracking-tight text-white text-xs">
+          <span className="font-brand font-black tracking-[0px] text-white text-xs">
             Crux
           </span>
           <span className="text-[#333333]">/</span>
@@ -247,7 +247,7 @@ export default function CruxOnboardingStartPage() {
                   type="submit"
                   className="w-full py-3 px-4 bg-white text-black font-brand font-black text-xs sm:text-sm -tracking-[0.02em] hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="font-brand">Crux</span> KERNEL</span>
+                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="font-brand tracking-[0px]">Crux</span> KERNEL</span>
                   <span className="font-mono text-xs">❯</span>
                 </button>
               </div>
