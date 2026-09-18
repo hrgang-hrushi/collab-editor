@@ -8,6 +8,7 @@ import VoidKeymapBar from "./VoidKeymapBar";
 import VoidSuggestionMatrix, { VoidSuggestion } from "./VoidSuggestionMatrix";
 import VoidTerminalStage from "./VoidTerminalStage";
 import { triggerHaptic } from "@/lib/haptics";
+import { playMechanicalClick, playMechanicalEnter } from "@/lib/sound";
 
 interface TerminalLine {
   id: string;
@@ -17,6 +18,8 @@ interface TerminalLine {
   isPeer?: boolean;
   peerTag?: string;
 }
+
+type FilterCategory = "ALL" | "AGENT" | "CLONE" | "RADAR" | "SPATIAL";
 
 export default function CruxOmnibarVoid() {
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
@@ -30,6 +33,7 @@ export default function CruxOmnibarVoid() {
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [activeFilter, setActiveFilter] = useState<FilterCategory>("ALL");
 
   // Terminal Stage state for clone/scaffold streaming
   const [terminalStage, setTerminalStage] = useState<{
@@ -58,11 +62,26 @@ export default function CruxOmnibarVoid() {
 
       if (e.key === "Escape") {
         e.preventDefault();
+        playMechanicalClick("low");
         setQuery("");
         return;
       }
 
-      // If user presses Cmd+K, allow palette
+      // Quick filter shortcuts: 1..5 if not focused or Alt+number
+      if (e.altKey && ["1", "2", "3", "4", "5"].includes(e.key)) {
+        e.preventDefault();
+        playMechanicalClick("mid");
+        const map: Record<string, FilterCategory> = {
+          "1": "ALL",
+          "2": "AGENT",
+          "3": "CLONE",
+          "4": "RADAR",
+          "5": "SPATIAL",
+        };
+        setActiveFilter(map[e.key]);
+        return;
+      }
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         return;
       }
@@ -102,6 +121,7 @@ export default function CruxOmnibarVoid() {
   // Launch into Crex Zenith IDE
   const launchIDE = useCallback(() => {
     ensureIdentity();
+    playMechanicalEnter();
     triggerHaptic("click");
     setZeroStateOpen(false);
   }, [ensureIdentity, setZeroStateOpen]);
@@ -110,6 +130,7 @@ export default function CruxOmnibarVoid() {
   const launchCanvas = useCallback(() => {
     ensureIdentity();
     setMode("canvas");
+    playMechanicalEnter();
     triggerHaptic("click");
     setZeroStateOpen(false);
   }, [ensureIdentity, setMode, setZeroStateOpen]);
@@ -118,6 +139,7 @@ export default function CruxOmnibarVoid() {
   const executeClone = useCallback(
     (repoUrl: string) => {
       ensureIdentity();
+      playMechanicalEnter();
       triggerHaptic("click");
       setTerminalStage({
         active: true,
@@ -125,7 +147,7 @@ export default function CruxOmnibarVoid() {
         command: `git clone ${repoUrl}`,
         lines: [
           { id: "1", text: `→ RESOLVING_REMOTE: ${repoUrl}` },
-          { id: "2", text: "→ ESTABLISHING TLS STREAM WITH EDGE CLUSTER..." },
+          { id: "2", text: "→ ESTABLISHING TLS STREAM WITH HARDWARE EDGE CLUSTERS..." },
         ],
         isRunning: true,
         isComplete: false,
@@ -164,6 +186,7 @@ export default function CruxOmnibarVoid() {
   const executeScaffold = useCallback(
     (promptText: string) => {
       ensureIdentity();
+      playMechanicalEnter();
       triggerHaptic("click");
       setTerminalStage({
         active: true,
@@ -223,12 +246,12 @@ export default function CruxOmnibarVoid() {
     [ensureIdentity]
   );
 
-  // Construct Dynamic Suggestion Matrix
+  // Construct Dynamic Suggestion Matrix with Rich Preview Details
   const suggestions = useMemo<VoidSuggestion[]>(() => {
     const q = query.trim().toLowerCase();
     const raw = query.trim();
 
-    // 1. If query is a URL or begins with clone
+    // 1. Direct Git Clone URL
     if (q.startsWith("http://") || q.startsWith("https://") || q.startsWith("git@") || q.startsWith("clone ")) {
       const url = raw.replace(/^clone\s+/i, "");
       return [
@@ -236,15 +259,21 @@ export default function CruxOmnibarVoid() {
           id: "s-clone-direct",
           category: "CLONE",
           title: `Clone Remote Git Repository`,
-          description: url,
+          description: "Streams objects directly into virtual hardware mount",
           commandSnippet: `clone ${url}`,
           badge: "GIT",
+          previewDetails: {
+            type: "GIT_PROTOCOL",
+            target: url,
+            payload: `FETCH_HEAD -> refs/heads/main\nTRANSPORT: SSH / TLS 1.3\nVIRTUAL_INODE: /mnt/dev/collab`,
+            meta: "PARALLEL_CHUNKS: 8 | ZERO_DISK_THROTTLE",
+          },
           action: () => executeClone(url),
         },
       ];
     }
 
-    // 2. If query begins with @CrexAI or ai:
+    // 2. Direct @CrexAI Scaffold Query
     if (q.startsWith("@crexai") || q.startsWith("@cruxai") || q.startsWith("ai:") || q.startsWith("scaffold ")) {
       const prompt = raw.replace(/^(@crexai|@cruxai|ai:|scaffold)\s*/i, "");
       return [
@@ -255,12 +284,18 @@ export default function CruxOmnibarVoid() {
           description: prompt || "Synthesize Next.js & TypeScript Architecture",
           commandSnippet: `@CrexAI scaffold ${prompt || "dashboard"}`,
           badge: "AGENTIC",
+          previewDetails: {
+            type: "NEURAL_SYNTHESIS",
+            target: prompt || "Next.js Dashboard",
+            payload: `AST_PLAN:\n  + app/dashboard/layout.tsx\n  + app/dashboard/page.tsx\n  + lib/hardware_bus.ts`,
+            meta: "INFERENCE: LOCAL_EDGE | 240 TOKENS/S",
+          },
           action: () => executeScaffold(prompt || "Next.js dashboard"),
         },
       ];
     }
 
-    // 3. If query mentions canvas or nexus
+    // 3. Direct Spatial Canvas Query
     if (q === "canvas" || q === "nexus" || q === "spatial") {
       return [
         {
@@ -270,6 +305,12 @@ export default function CruxOmnibarVoid() {
           description: "2D spatial graph with draggable file nodes",
           commandSnippet: "open canvas",
           badge: "NEXUS",
+          previewDetails: {
+            type: "SPATIAL_2D",
+            target: "Nexus Canvas Matrix",
+            payload: `GRAPH_NODES: 6 ACTIVE\nCONNECTIONS: 4 CONDUITS\nVIEWPORT: 100vw x 100vh INFINITE`,
+            meta: "RENDERER: HARDWARE_ACCELERATED",
+          },
           action: () => launchCanvas(),
         },
       ];
@@ -283,6 +324,12 @@ export default function CruxOmnibarVoid() {
         description: "Active collaborative workspace (3 peers online)",
         commandSnippet: "open crux-core",
         badge: "ACTIVE",
+        previewDetails: {
+          type: "LOCAL_WORKSPACE",
+          target: "~/projects/crux-core",
+          payload: `ACTIVE_FILES:\n  • stream_syncer.ts\n  • database.ts\n  • auth.ts`,
+          meta: "GIT: main* | 3 PEERS IN-SYNC",
+        },
         action: () => launchIDE(),
       },
       {
@@ -292,6 +339,12 @@ export default function CruxOmnibarVoid() {
         description: "Autonomous live machine code synthesizer",
         commandSnippet: "@CrexAI scaffold dashboard",
         badge: "AI CORE",
+        previewDetails: {
+          type: "AUTONOMOUS_SCAFFOLD",
+          target: "Next.js Bare-Metal Dashboard",
+          payload: `GENERATING:\n  • app/dashboard/page.tsx\n  • components/telemetry/CpuDie.tsx\n  • tailwind.config.ts`,
+          meta: "ZERO_DEPENDENCY_DRIFT",
+        },
         action: () => executeScaffold("Next.js dashboard with hardware brutalist tokens"),
       },
       {
@@ -301,6 +354,12 @@ export default function CruxOmnibarVoid() {
         description: "Fetch and mount remote git workspace",
         commandSnippet: "clone collab-editor",
         badge: "GIT",
+        previewDetails: {
+          type: "GIT_REMOTE",
+          target: "https://github.com/hrgang-hrushi/collab-editor",
+          payload: `ORIGIN: github.com:hrgang-hrushi/collab-editor\nBRANCH: main (ahead 1)\nDELTA: ZERO_CONFLICT`,
+          meta: "SSL: TLS_AES_256_GCM_SHA384",
+        },
         action: () => executeClone("https://github.com/hrgang-hrushi/collab-editor.git"),
       },
       {
@@ -310,6 +369,12 @@ export default function CruxOmnibarVoid() {
         description: "Pair-program live on file-spatial.ts",
         commandSnippet: "connect Marcus",
         badge: "PEER_LIVE",
+        previewDetails: {
+          type: "CRDT_MESH_PAIRING",
+          target: "Marcus Vance (CRX-5520-MV)",
+          payload: `// LIVE BUFFER: file-spatial.ts\nexport const Canvas = new InfiniteCanvas({\n  accelerated: true,\n  peerCount: 3\n});`,
+          meta: "CURSOR: Ln 42, Col 18 | RTT: 0.04ms",
+        },
         action: () => {
           setActiveFile("file-spatial");
           launchIDE();
@@ -322,6 +387,12 @@ export default function CruxOmnibarVoid() {
         description: "Spatial 2D hardware desk (Nexus Mode)",
         commandSnippet: "open canvas",
         badge: "NEXUS",
+        previewDetails: {
+          type: "NEXUS_ENGINE",
+          target: "Infinite Spatial Graph",
+          payload: `MODES:\n  [E] Structured Editor\n  [C] Spatial Canvas (Active)\n  [T] HyperTerminal Split`,
+          meta: "DRAG_SNAP: 16PX HARDWARE GRID",
+        },
         action: () => launchCanvas(),
       },
       {
@@ -331,6 +402,12 @@ export default function CruxOmnibarVoid() {
         description: "Instant empty buffer in Zenith editor",
         commandSnippet: "new untitled.ts",
         badge: "BUFFER",
+        previewDetails: {
+          type: "IN_MEMORY_BUFFER",
+          target: "untitled.ts",
+          payload: `// RAW BUFFER\nexport default function kernel() {\n  return "bare-metal";\n}`,
+          meta: "ENCODING: UTF-8 | CRLF_STRIPPED",
+        },
         action: () => {
           createFile("untitled.ts");
           launchIDE();
@@ -338,24 +415,29 @@ export default function CruxOmnibarVoid() {
       },
     ];
 
-    if (!q) return allOptions;
+    let filtered = allOptions;
+    if (activeFilter !== "ALL") {
+      filtered = filtered.filter((opt) => opt.category === activeFilter);
+    }
 
-    return allOptions.filter(
+    if (!q) return filtered;
+
+    return filtered.filter(
       (opt) =>
         opt.title.toLowerCase().includes(q) ||
         opt.description.toLowerCase().includes(q) ||
         opt.commandSnippet.toLowerCase().includes(q) ||
         opt.category.toLowerCase().includes(q)
     );
-  }, [query, executeClone, executeScaffold, launchCanvas, launchIDE, createFile, setActiveFile]);
+  }, [query, activeFilter, executeClone, executeScaffold, launchCanvas, launchIDE, createFile, setActiveFile]);
 
-  // Keep selected index in bounds
   useEffect(() => {
     setSelectedIndex(0);
-  }, [query]);
+  }, [query, activeFilter]);
 
-  // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    playMechanicalClick(e.key === "Enter" ? "high" : "mid");
+
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((prev) => (prev + 1) % Math.max(1, suggestions.length));
@@ -369,6 +451,7 @@ export default function CruxOmnibarVoid() {
       }
     } else if (e.key === "Enter") {
       e.preventDefault();
+      playMechanicalEnter();
       if (suggestions[selectedIndex]) {
         suggestions[selectedIndex].action();
       } else if (query.trim()) {
@@ -393,20 +476,65 @@ export default function CruxOmnibarVoid() {
         }}
       />
 
-      {/* Dead Center Omnibar Interface (Z-50) */}
-      <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-2">
-        <div className="w-full max-w-2xl flex flex-col items-center">
-          {/* Brand Display: Etna Sans Serif, tight tracking, heavy weight, solid fill */}
-          <div className="mb-6 flex flex-col items-center select-none text-center">
-            <h1 className="font-brand font-black text-white text-5xl -tracking-[0.05em] uppercase leading-none">
-              CREX
-            </h1>
-            <span className="font-mono text-[10px] text-[#444444] uppercase tracking-[0.2em] mt-1">
-              [BARE-METAL COLLABORATIVE EXECUTION KERNEL]
+      {/* Main Omnibar Interface Deck (Z-50) */}
+      <div className="relative z-50 flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-4xl flex flex-col items-center">
+          {/* 1. Monolithic Industrial Brand Centerpiece */}
+          <div className="mb-5 flex flex-col items-center select-none text-center">
+            <div className="relative">
+              <h1 className="font-brand font-black text-white text-7xl sm:text-8xl -tracking-[0.05em] uppercase leading-none select-none">
+                CREX
+              </h1>
+              <div className="absolute -top-1 -right-3 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
+                V1.2
+              </div>
+            </div>
+
+            {/* Hardware Telemetry Strip */}
+            <div className="flex items-center gap-2 font-mono text-[9px] text-[#555555] uppercase mt-2 tracking-wider">
+              <span>[KERNEL: RUNNING]</span>
+              <span className="text-[#222222]">/</span>
+              <span>[ARCH: BARE-METAL]</span>
+              <span className="text-[#222222]">/</span>
+              <span>[IPC: 0.04ms]</span>
+              <span className="text-[#222222]">/</span>
+              <span>[LOCK: ENCLAVE]</span>
+            </div>
+          </div>
+
+          {/* 2. Tactical Mode Selector Ribbon (1..5) */}
+          <div className="w-full flex items-center justify-between mb-2 font-mono text-[10px] select-none">
+            <div className="flex items-center gap-1">
+              {[
+                { id: "ALL", label: "[1: ALL]" },
+                { id: "AGENT", label: "[2: @CREXAI]" },
+                { id: "CLONE", label: "[3: CLONE]" },
+                { id: "RADAR", label: "[4: RADAR]" },
+                { id: "SPATIAL", label: "[5: NEXUS]" },
+              ].map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => {
+                    playMechanicalClick("low");
+                    setActiveFilter(f.id as FilterCategory);
+                  }}
+                  className={`px-2 py-0.5 border transition-none uppercase ${
+                    activeFilter === f.id
+                      ? "border-white bg-white text-black font-bold"
+                      : "border-[#222222] bg-[#000000] text-[#666666] hover:text-white hover:border-[#444444]"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+
+            <span className="text-[#333333] hidden sm:inline">
+              ALT+[1-5] QUICK SWITCH
             </span>
           </div>
 
-          {/* If Terminal Stage is Active: Show inline streaming terminal */}
+          {/* 3. The Omnibar Terminal Deck */}
           {terminalStage.active ? (
             <VoidTerminalStage
               title={terminalStage.title}
@@ -417,37 +545,59 @@ export default function CruxOmnibarVoid() {
               onFinish={() => launchIDE()}
             />
           ) : (
-            /* The Omnibar Blueprint: Dead Center, Arial MT Pro, text-2xl, border-b-2 border-white, no side/top borders */
             <div className="w-full border border-[#222222] bg-[#000000]">
-              <div className="px-4 py-3 flex items-center gap-3 bg-[#000000] border-b-2 border-white">
-                <span className="font-mono text-xl font-bold text-white select-none">
-                  ❯
+              {/* Upper Ruler Calibrations */}
+              <div className="h-2 border-b border-[#161616] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
+                <span>000</span>
+                <span>||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</span>
+                <span>512</span>
+              </div>
+
+              {/* Central Mechanical Input Row */}
+              <div className="px-4 py-3.5 flex items-center gap-3 bg-[#000000] border-b-2 border-white">
+                <span className="font-mono text-sm font-bold text-white select-none shrink-0 uppercase tracking-wider">
+                  CREX ❯
                 </span>
                 <input
                   ref={inputRef}
                   type="text"
                   value={query}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={(e) => {
+                    playMechanicalClick("mid");
+                    setQuery(e.target.value);
+                  }}
                   onKeyDown={handleKeyDown}
-                  placeholder="[EXECUTE COMMAND...]"
-                  className="flex-1 bg-transparent text-white font-sans text-2xl placeholder:text-[#444444] focus:outline-none caret-white selection:bg-[#222222]"
+                  placeholder="[EXECUTE COMMAND: clone, @CrexAI, open, connect, canvas...]"
+                  className="flex-1 bg-transparent text-white font-sans text-xl sm:text-2xl placeholder:text-[#333333] focus:outline-none caret-white selection:bg-[#222222]"
                   spellCheck={false}
                   autoComplete="off"
                 />
+                <span className="crex-cursor shrink-0" />
                 {query && (
                   <button
-                    onClick={() => setQuery("")}
-                    className="font-mono text-[11px] text-[#444444] hover:text-white px-2 py-0.5 border border-[#222222] hover:border-white transition-none uppercase"
+                    onClick={() => {
+                      playMechanicalClick("low");
+                      setQuery("");
+                    }}
+                    className="font-mono text-[10px] text-[#555555] hover:text-white px-2 py-0.5 border border-[#222222] hover:border-white transition-none uppercase"
                   >
                     [CLEAR]
                   </button>
                 )}
-                <div className="hidden sm:flex items-center gap-1 font-mono text-[10px] text-[#444444]">
-                  <span>[ENTER]</span>
+                <div className="hidden sm:flex items-center gap-1 font-mono text-[10px] text-[#444444] shrink-0">
+                  <span>DISPATCH</span>
+                  <span className="px-1 border border-[#222222] text-white">[↵]</span>
                 </div>
               </div>
 
-              {/* Suggestions / Results Matrix */}
+              {/* Lower Ruler Calibrations */}
+              <div className="h-2 border-b border-[#161616] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
+                <span>RAW_BUS</span>
+                <span>------------------------------------------------------------------------------------------------------------------------</span>
+                <span>INTERRUPT_0</span>
+              </div>
+
+              {/* Dual-Pane Suggestion & Telemetry Matrix */}
               <VoidSuggestionMatrix
                 suggestions={suggestions}
                 selectedIndex={selectedIndex}
