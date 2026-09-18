@@ -244,9 +244,9 @@ export default function CruxOnboardingStartPage() {
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
         {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
         {activeView === "welcome" ? (
-          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-10 my-auto py-8">
+          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-6 my-auto py-6">
             {/* Monolithic Crux Title Section */}
-            <div className="flex flex-col items-center justify-center space-y-3">
+            <div className="flex flex-col items-center justify-center space-y-2">
               <div className="relative inline-flex items-center justify-center">
                 <h1 className="font-brand font-black text-white text-6xl sm:text-7xl md:text-8xl tracking-[0px] leading-none select-none text-center">
                   Crux
@@ -256,21 +256,20 @@ export default function CruxOnboardingStartPage() {
                 </div>
               </div>
 
-              {/* Editorial Statement: Bringing the dream IDE to reality. in Arial MT */}
-              <div className="pt-2">
-                <h2 className="font-sans font-normal text-white text-2xl sm:text-3xl md:text-4xl tracking-tight leading-tight max-w-lg select-none text-center">
-                  Bringing the dream <br className="hidden sm:inline" />
-                  IDE to reality.
+              {/* Editorial Statement: Spread well on a single line / wide layout in Arial MT */}
+              <div className="pt-1">
+                <h2 className="font-sans font-normal text-white text-xl sm:text-2xl md:text-3xl tracking-tight leading-snug whitespace-nowrap select-none text-center">
+                  Bringing the dream IDE to reality.
                 </h2>
               </div>
             </div>
 
-            {/* Action Buttons Cluster */}
-            <div className="w-full max-w-sm space-y-3 pt-4">
+            {/* Action Buttons Cluster with reduced top gap */}
+            <div className="w-full max-w-sm space-y-2.5 pt-1">
               {/* Primary Action Button: Start Your Project */}
               <button
                 onClick={() => switchTab("signup")}
-                className="w-full h-12 px-6 bg-white text-black font-sans font-bold text-xs sm:text-sm uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer border border-white"
+                className="w-full h-11 px-6 bg-white text-black font-sans font-bold text-xs sm:text-sm uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer border border-white"
               >
                 <span>START YOUR PROJECT</span>
                 <ArrowRight className="w-4 h-4 text-black" />
@@ -280,14 +279,14 @@ export default function CruxOnboardingStartPage() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => switchTab("login")}
-                  className="h-10 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="h-9 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Lock className="w-3 h-3 text-[#666666] group-hover:text-black" />
                   <span>SIGN IN</span>
                 </button>
                 <button
                   onClick={() => switchTab("settings")}
-                  className="h-10 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="h-9 px-3 border border-[#222222] bg-[#000000] text-[#CCCCCC] hover:bg-white hover:text-black hover:border-white font-mono text-[10px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Settings className="w-3 h-3 text-[#666666] group-hover:text-black" />
                   <span>SETTINGS</span>
