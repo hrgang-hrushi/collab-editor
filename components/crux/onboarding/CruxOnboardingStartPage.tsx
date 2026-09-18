@@ -245,10 +245,10 @@ export default function CruxOnboardingStartPage() {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-3 px-4 bg-white text-black font-brand font-black text-xs sm:text-sm -tracking-[0.02em] hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 px-4 bg-white text-black font-sans font-bold text-xs sm:text-sm tracking-normal hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <span className="font-bold">INITIALIZE &amp; LAUNCH <span className="font-brand tracking-[0px]">Crux</span> KERNEL</span>
-                  <span className="font-mono text-xs">❯</span>
+                  <span className="font-bold">INITIALIZE &amp; LAUNCH CRUX KERNEL</span>
+                  <span className="font-sans font-bold text-xs">❯</span>
                 </button>
               </div>
             </form>
