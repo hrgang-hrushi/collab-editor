@@ -13,8 +13,8 @@ export default function CruxOnboardingStartPage() {
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
 
-  // Flow State: 'signup' (Create Developer Node), 'login' (Authenticate Node Key), or 'settings' (Account & Hardware Preferences)
-  const [activeView, setActiveView] = useState<"signup" | "login" | "settings">("signup");
+  // Flow State: 'welcome' (Monolithic Zero State Landing), 'signup' (Create Developer Node), 'login' (Authenticate Node Key), or 'settings' (Account & Hardware Preferences)
+  const [activeView, setActiveView] = useState<"welcome" | "signup" | "login" | "settings">("welcome");
 
   // Auth & Profile Form States
   const [name, setName] = useState(currentUser.name || "");
@@ -150,7 +150,7 @@ export default function CruxOnboardingStartPage() {
     }
   };
 
-  const switchTab = (tab: "signup" | "login" | "settings") => {
+  const switchTab = (tab: "welcome" | "signup" | "login" | "settings") => {
     playMechanicalClick("mid");
     triggerHaptic("tap");
     setErrorMsg("");
@@ -175,17 +175,37 @@ export default function CruxOnboardingStartPage() {
       <header className="relative z-20 h-9 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[10px] font-mono select-none">
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-          <span className="font-brand font-black tracking-[0px] text-white text-xs">
+          <button
+            onClick={() => switchTab("welcome")}
+            className="font-brand font-black tracking-[0px] text-white text-xs hover:text-white/80 transition-none"
+            title="Return to Start Enclave"
+          >
             Crux
-          </span>
+          </button>
           <span className="text-[#333333]">/</span>
           <span className="text-[#666666] uppercase tracking-widest text-[9px]">
-            {activeView === "signup" ? "INITIALIZE_NODE // SIGN_UP" : activeView === "login" ? "AUTHENTICATE // SIGN_IN" : "ACCOUNT_SETTINGS // HARDWARE_PREF"}
+            {activeView === "welcome"
+              ? "START_ENCLAVE // ZERO_STATE"
+              : activeView === "signup"
+              ? "INITIALIZE_NODE // SIGN_UP"
+              : activeView === "login"
+              ? "AUTHENTICATE // SIGN_IN"
+              : "ACCOUNT_SETTINGS // HARDWARE_PREF"}
           </span>
         </div>
 
         {/* Top-Right Navigation Switches */}
         <div className="flex items-center gap-1.5 text-[9px] font-mono">
+          <button
+            onClick={() => switchTab("welcome")}
+            className={`px-2 py-0.5 border transition-none uppercase ${
+              activeView === "welcome"
+                ? "bg-white text-black border-white font-bold"
+                : "bg-[#000000] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
+            }`}
+          >
+            00 // OVERVIEW
+          </button>
           <button
             onClick={() => switchTab("signup")}
             className={`px-2 py-0.5 border transition-none uppercase ${
@@ -222,70 +242,146 @@ export default function CruxOnboardingStartPage() {
 
       {/* 3. Central Start Board Matrix (Z-30) */}
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <div className="w-full max-w-xl border border-[#222222] bg-[#000000]">
-          {/* Card Title Strip with Hardware Mode Tabs */}
-          <div className="h-9 px-3 bg-[#111111] border-b border-[#222222] flex items-center justify-between font-mono text-[10px] select-none">
-            <div className="flex items-center gap-2 text-[#888888] uppercase tracking-wider">
-              <span className="text-white font-bold">SYS.ENCLAVE</span>
-              <span className="text-[#333333]">|</span>
-              <span className="text-white">
-                {activeView === "signup"
-                  ? "CREATE DEVELOPER NODE"
-                  : activeView === "login"
-                  ? "ATTACH EXISTING NODE KEY"
-                  : "CALIBRATE ACCOUNT & PREFERENCES"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[#444444] text-[9px]">
-              <span>ENCLAVE: 0x9B4E</span>
-              <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-            </div>
-          </div>
-
-          {/* Upper Ruler Micro-Calibrations */}
-          <div className="h-2 border-b border-[#181818] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
-            <span>000</span>
-            <span>||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</span>
-            <span>256</span>
-          </div>
-
-          {/* Form Content Deck */}
-          <div className="p-4 sm:p-6 space-y-5 bg-[#000000]">
-            {/* Header Description */}
-            <div className="space-y-1">
-              <div className="font-brand font-black text-white text-xl sm:text-2xl -tracking-[0.05em] uppercase">
-                {activeView === "signup"
-                  ? "NODE INITIALIZATION"
-                  : activeView === "login"
-                  ? "AUTHENTICATE NODE"
-                  : "ACCOUNT SETTINGS"}
+        {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
+        {activeView === "welcome" ? (
+          <div className="w-full max-w-2xl flex flex-col items-center text-center select-none space-y-8">
+            {/* Monolithic Crux Title Section */}
+            <div className="flex flex-col items-center justify-center space-y-3">
+              <div className="relative inline-flex items-center justify-center">
+                <h1 className="font-brand font-black text-white text-7xl sm:text-9xl tracking-[0px] leading-none select-none text-center">
+                  Crux
+                </h1>
+                <div className="absolute -top-1 -right-8 text-[9px] font-mono text-[#444444] border border-[#222222] px-1 bg-[#000000]">
+                  v1.2
+                </div>
               </div>
-              <p className="font-sans text-[11px] text-[#666666] leading-relaxed">
-                {activeView === "signup"
-                  ? "Crux compiles bare-metal collaborative buffers using cryptographic developer attestations. Register your identity to lock local memory rings and pair with mesh peers."
-                  : activeView === "login"
-                  ? "Enter your cryptographic Node UID or mesh routing email with master encryption key to unlock your local workspace keyring."
-                  : "Configure workspace keybindings, default compute dispatch targets, and hardware telemetry diagnostics."}
+              <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#666666]">
+                BARE-METAL COLLABORATIVE IDE // HARDWARE BRUTALISM
+              </div>
+            </div>
+
+            {/* Sub-Header Architectural Directive */}
+            <div className="max-w-lg border-y border-[#222222] py-3 px-4 bg-[#050505]">
+              <p className="font-sans text-xs sm:text-sm text-[#AAAAAA] leading-relaxed">
+                Zero telemetry leakage. Sub-10ms peer-to-peer CRDT sync with direct memory-mapped local compute rings. Initialize your enclave to mount your workspace.
               </p>
             </div>
 
-            {/* Error Message Display */}
-            {errorMsg && (
-              <div className="px-3 py-2 bg-[#111111] border-l-2 border-white text-white text-[10px] font-mono uppercase tracking-wider">
-                {errorMsg}
-              </div>
-            )}
+            {/* Primary Action Button: Start Your Project */}
+            <div className="w-full max-w-md space-y-3">
+              <button
+                onClick={() => switchTab("signup")}
+                className="w-full py-4 px-6 bg-white text-black font-sans font-bold text-sm sm:text-base uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-3 cursor-pointer border border-white"
+              >
+                <span>START YOUR PROJECT</span>
+                <ArrowRight className="w-4 h-4 text-black" />
+              </button>
 
-            {/* Success Message Display */}
-            {successMsg && (
-              <div className="px-3 py-2 bg-[#00FF00]/10 border-l-2 border-[#00FF00] text-[#00FF00] text-[10px] font-mono uppercase tracking-wider flex items-center gap-1.5">
-                <Check className="w-3.5 h-3.5" />
-                <span>{successMsg}</span>
+              {/* Secondary Navigation Row: Sign In & Account Settings */}
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <button
+                  onClick={() => switchTab("login")}
+                  className="py-2.5 px-3 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white font-mono text-[11px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-3 h-3 text-[#666666] group-hover:text-black" />
+                  <span>SIGN IN TO ENCLAVE</span>
+                </button>
+                <button
+                  onClick={() => switchTab("settings")}
+                  className="py-2.5 px-3 border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white font-mono text-[11px] uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Settings className="w-3 h-3 text-[#666666] group-hover:text-black" />
+                  <span>ACCOUNT SETTINGS</span>
+                </button>
               </div>
-            )}
+            </div>
 
-            {/* VIEW 1: SIGN UP (NEW DEVELOPER ENCLAVE) */}
-            {activeView === "signup" && (
+            {/* Hardware Stencil Micro-Telemetry */}
+            <div className="flex items-center gap-4 text-[9px] font-mono text-[#444444] uppercase tracking-widest pt-2">
+              <div className="flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
+                <span>P2P_MESH: READY</span>
+              </div>
+              <span>/</span>
+              <span>IPC: 0.08MS</span>
+              <span>/</span>
+              <span>0PX_BORDER_RADIUS</span>
+            </div>
+          </div>
+        ) : (
+          <div className="w-full max-w-xl border border-[#222222] bg-[#000000]">
+            {/* Card Title Strip with Hardware Mode Tabs */}
+            <div className="h-9 px-3 bg-[#111111] border-b border-[#222222] flex items-center justify-between font-mono text-[10px] select-none">
+              <div className="flex items-center gap-2 text-[#888888] uppercase tracking-wider">
+                <span className="text-white font-bold">SYS.ENCLAVE</span>
+                <span className="text-[#333333]">|</span>
+                <span className="text-white">
+                  {activeView === "signup"
+                    ? "CREATE DEVELOPER NODE"
+                    : activeView === "login"
+                    ? "ATTACH EXISTING NODE KEY"
+                    : "CALIBRATE ACCOUNT & PREFERENCES"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-[#444444] text-[9px]">
+                <span>ENCLAVE: 0x9B4E</span>
+                <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
+              </div>
+            </div>
+
+            {/* Upper Ruler Micro-Calibrations */}
+            <div className="h-2 border-b border-[#181818] bg-[#050505] flex items-center justify-between px-2 text-[6px] text-[#222222] font-mono select-none">
+              <span>000</span>
+              <span>||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||</span>
+              <span>256</span>
+            </div>
+
+            {/* Form Content Deck */}
+            <div className="p-4 sm:p-6 space-y-5 bg-[#000000]">
+              {/* Header Description */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="font-brand font-black text-white text-xl sm:text-2xl -tracking-[0.05em] uppercase">
+                    {activeView === "signup"
+                      ? "NODE INITIALIZATION"
+                      : activeView === "login"
+                      ? "AUTHENTICATE NODE"
+                      : "ACCOUNT SETTINGS"}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => switchTab("welcome")}
+                    className="font-mono text-[9px] text-[#666666] hover:text-white border border-[#222222] px-2 py-0.5 uppercase transition-none"
+                  >
+                    ← Back to Start
+                  </button>
+                </div>
+                <p className="font-sans text-[11px] text-[#666666] leading-relaxed">
+                  {activeView === "signup"
+                    ? "Crux compiles bare-metal collaborative buffers using cryptographic developer attestations. Register your identity to lock local memory rings and pair with mesh peers."
+                    : activeView === "login"
+                    ? "Enter your cryptographic Node UID or mesh routing email with master encryption key to unlock your local workspace keyring."
+                    : "Configure workspace keybindings, default compute dispatch targets, and hardware telemetry diagnostics."}
+                </p>
+              </div>
+
+              {/* Error Message Display */}
+              {errorMsg && (
+                <div className="px-3 py-2 bg-[#111111] border-l-2 border-white text-white text-[10px] font-mono uppercase tracking-wider">
+                  {errorMsg}
+                </div>
+              )}
+
+              {/* Success Message Display */}
+              {successMsg && (
+                <div className="px-3 py-2 bg-[#00FF00]/10 border-l-2 border-[#00FF00] text-[#00FF00] text-[10px] font-mono uppercase tracking-wider flex items-center gap-1.5">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{successMsg}</span>
+                </div>
+              )}
+
+              {/* VIEW 1: SIGN UP (NEW DEVELOPER ENCLAVE) */}
+              {activeView === "signup" && (
               <form onSubmit={handleSignUp} className="space-y-4">
                 {/* Input: Developer Name */}
                 <div className="space-y-1">
@@ -589,6 +685,7 @@ export default function CruxOnboardingStartPage() {
             <span className="text-white">[ZERO_RADIUS // HARDWARE_BRUTALISM]</span>
           </div>
         </div>
+        )}
       </main>
 
       {/* 4. Bottom Footer Calibration (Z-20) */}
