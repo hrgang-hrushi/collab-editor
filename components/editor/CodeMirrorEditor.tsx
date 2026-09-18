@@ -341,26 +341,68 @@ function cruxLinter(view: EditorView): Diagnostic[] {
     });
   }
 
-  // 2. Syntax Tree error detection (from Lezer AST)
+  // 2. Syntax Tree error detection (from Lezer AST with precision token targeting)
   try {
     const tree = syntaxTree(view.state);
     tree.iterate({
       enter(node) {
         if (node.type.isError) {
-          let from = node.from;
-          let to = node.to;
-          let message = "Syntax error";
+          let start = node.from;
+          let end = node.to;
 
-          if (from === to) {
-            from = Math.max(0, from - 1);
-            to = Math.min(doc.length, from + 1);
-            message = "Syntax error: missing expected token or operand";
+          if (start === end) {
+            let i = start - 1;
+            while (
+              i >= 0 &&
+              (docString[i] === " " ||
+                docString[i] === "\t" ||
+                docString[i] === "\n" ||
+                docString[i] === "\r")
+            ) {
+              i--;
+            }
+            if (i < 0) return;
+
+            end = i + 1;
+            let j = i;
+            if (/[a-zA-Z0-9_$]/.test(docString[j])) {
+              while (j >= 0 && /[a-zA-Z0-9_$]/.test(docString[j])) {
+                j--;
+              }
+              start = j + 1;
+            } else if (docString[j] === "." || docString[j] === ":" || docString[j] === ",") {
+              if (j > 0 && /[a-zA-Z0-9_$]/.test(docString[j - 1])) {
+                let k = j - 1;
+                while (k >= 0 && /[a-zA-Z0-9_$]/.test(docString[k])) {
+                  k--;
+                }
+                start = k + 1;
+              } else {
+                start = j;
+              }
+            } else {
+              start = Math.max(0, j);
+            }
           }
 
-          if (!diagnostics.some((d) => Math.abs(d.from - from) <= 1 && Math.abs(d.to - to) <= 1)) {
+          const snippet = docString.slice(start, end).trim();
+          // Never flag valid closing or opening braces unless genuine unclosed mismatch
+          if (snippet === "}" || snippet === ")" || snippet === "]" || !snippet) return;
+
+          let message = "Syntax error";
+          if (snippet === "const" || snippet === "let" || snippet === "var") {
+            message = `Syntax error: unexpected '${snippet}' keyword in class body`;
+          } else if (snippet.endsWith(".")) {
+            message = "Syntax error: identifier expected after '.'";
+          } else {
+            message = `Syntax error near '${snippet.slice(0, 18)}'`;
+          }
+
+          const finalEnd = Math.max(end, start + 1);
+          if (!diagnostics.some((d) => Math.abs(d.from - start) <= 1 && Math.abs(d.to - finalEnd) <= 1)) {
             diagnostics.push({
-              from,
-              to: Math.max(to, from + 1),
+              from: start,
+              to: finalEnd,
               severity: "error",
               message,
             });
@@ -795,25 +837,6 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       {/* CodeMirror Mount Point */}
       <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative" />
 
-      {/* Collaborative Peer Cursors */}
-      {file.name === "stream_syncer.ts" && (
-        <>
-          <div className="absolute top-[108px] left-[380px] pointer-events-none z-20">
-            <CruxPointerCursor
-              name="Sarah Lin"
-              uid="CRX-9941-SL"
-              color="#38b6ff"
-            />
-          </div>
-          <div className="absolute top-[158px] left-[220px] pointer-events-none z-20">
-            <CruxPointerCursor
-              name="CruxAI"
-              uid="CRX-0001-AI"
-              color="#ff5757"
-            />
-          </div>
-        </>
-      )}
 
       {Object.entries(remoteCursors)
         .filter(([_, cursor]) => cursor.activeFileId === file.id)

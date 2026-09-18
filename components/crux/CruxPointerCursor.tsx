@@ -35,12 +35,19 @@ function isLightColor(hex?: string): boolean {
  */
 export default function CruxPointerCursor({
   name = "Sarah Lin",
-  uid = "CRX-9941-SL",
+  uid,
   color = "#38b6ff",
   status,
   x,
   y,
 }: CruxPointerCursorProps) {
+  const resolvedUid =
+    uid ||
+    (name.toLowerCase().includes("ai") || name.toLowerCase().includes("copilot")
+      ? "CRX-0001-AI"
+      : name.toLowerCase().includes("marcus")
+      ? "CRX-5520-MV"
+      : "CRX-9941-SL");
   const textColor = isLightColor(color) ? "#000000" : "#FFFFFF";
 
   return (
@@ -79,7 +86,7 @@ export default function CruxPointerCursor({
           }}
         >
           <span>{name}</span>
-          {uid && <span className="opacity-75 text-[8.5px] font-mono font-normal tracking-tight">[{uid}]</span>}
+          {resolvedUid && <span className="opacity-75 text-[8.5px] font-mono font-normal tracking-tight">[{resolvedUid}]</span>}
           {status && <span className="opacity-70 text-[8px] uppercase tracking-wider">({status})</span>}
         </div>
       </div>

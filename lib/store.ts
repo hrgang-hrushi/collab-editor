@@ -203,33 +203,36 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     "user-1": {
       userId: "user-1",
       userName: "Sarah Lin",
-      userColor: "#007AFF",
-      x: 180,
-      y: 190,
-      targetX: 180,
-      targetY: 190,
-      offsetX: 180,
-      offsetY: 190,
+      userUid: "CRX-9941-SL",
+      userColor: "#38b6ff",
+      x: 390,
+      y: 92,
+      targetX: 390,
+      targetY: 92,
+      offsetX: 390,
+      offsetY: 92,
       activeFileId: "file-stream-syncer",
       lastUpdated: Date.now(),
     },
     "user-2": {
       userId: "user-2",
       userName: "CruxAI",
-      userColor: "#FF453A",
-      x: 220,
-      y: 170,
-      targetX: 220,
-      targetY: 170,
-      offsetX: 220,
-      offsetY: 170,
+      userUid: "CRX-0001-AI",
+      userColor: "#ff5757",
+      x: 230,
+      y: 136,
+      targetX: 230,
+      targetY: 136,
+      offsetX: 230,
+      offsetY: 136,
       activeFileId: "file-stream-syncer",
       lastUpdated: Date.now(),
     },
     "user-3": {
       userId: "user-3",
       userName: "Marcus Vance",
-      userColor: "#888888",
+      userUid: "CRX-5520-MV",
+      userColor: "#ff914d",
       x: 200,
       y: 160,
       targetX: 200,
@@ -301,6 +304,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       const fileName = trimmed.split("/").pop() || "new_file.ts";
       const lang = detectLanguage(fileName);
 
+      const palette = ["#007AFF", "#FF453A", "#38b6ff", "#00E5FF", "#ff914d", "#A855F7", "#10B981"];
+      const newColor = palette[state.files.length % palette.length];
+
       const newId = `file-${Date.now()}`;
       const newFile: FileNode = {
         id: newId,
@@ -316,6 +322,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         height: 440,
         zIndex: Math.max(...state.files.map((f) => f.zIndex), 10) + 1,
         status: "clean",
+        contributorColor: newColor,
+        contributorName: state.currentUser.name || "Developer",
       };
 
       return {
@@ -614,6 +622,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       if (ext === "html") lang = "html";
       if (ext === "json") lang = "json";
 
+      const palette = ["#007AFF", "#FF453A", "#38b6ff", "#00E5FF", "#ff914d", "#A855F7", "#10B981"];
+      const newColor = palette[state.files.length % palette.length];
+
       const newId = `file-${Date.now()}`;
       const newFile: FileNode = {
         id: newId,
@@ -629,6 +640,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         height: 440,
         zIndex: Math.max(...state.files.map((f) => f.zIndex), 10) + 1,
         status: "clean",
+        contributorColor: newColor,
+        contributorName: state.currentUser.name || "Developer",
       };
 
       return {

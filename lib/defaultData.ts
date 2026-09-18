@@ -147,7 +147,7 @@ export async function persistStateVector(docId: string, bytes: Uint8Array): Prom
     height: 440,
     zIndex: 10,
     activePeerIds: ["user-1"],
-    contributorColor: "#007AFF",
+    contributorColor: "#38b6ff",
     contributorName: "Sarah Lin",
     content: `import { SessionToken, CryptographicProof } from "./types";
 
@@ -193,7 +193,7 @@ export function createSessionHeader(token: SessionToken): Record<string, string>
     height: 380,
     zIndex: 8,
     activePeerIds: ["user-1"],
-    contributorColor: "#64748b",
+    contributorColor: "#00E5FF",
     contributorName: "Contracts",
     content: `export interface MeshPeer {
   id: string;
@@ -235,7 +235,7 @@ export interface SyncVector {
     height: 390,
     zIndex: 9,
     activePeerIds: ["user-3"],
-    contributorColor: "#7e889b",
+    contributorColor: "#ff914d",
     contributorName: "Marcus Vance",
     content: `/**
  * Physics-based 120Hz smooth cursor lerping engine.
@@ -306,7 +306,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-spatial",
     label: "calculateNextPosition()",
     type: "call",
-    color: "#222222",
+    color: "#ff914d",
     codeSymbol: "calculateNextPosition()",
     changeCode: "+ calculateNextPosition(dt)",
     originalSnippet: "- updateLinearPosition(pos)",
@@ -322,7 +322,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-auth",
     label: "SessionToken",
     type: "import",
-    color: "#007AFF",
+    color: "#00E5FF",
     codeSymbol: "SessionToken",
     changeCode: "+ export type SessionToken",
     originalSnippet: "- type RawToken = string",
@@ -338,7 +338,7 @@ export const INITIAL_EDGES: ArchitecturalEdge[] = [
     targetNodeId: "file-stream-syncer",
     label: "SyncVector",
     type: "import",
-    color: "#222222",
+    color: "#00E5FF",
     codeSymbol: "SyncVector",
     changeCode: "+ export interface SyncVector",
     originalSnippet: "- interface StateClock",

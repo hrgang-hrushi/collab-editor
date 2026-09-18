@@ -164,7 +164,17 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
     return <FileCode2 className="w-3.5 h-3.5 text-[#858585] shrink-0" />;
   };
 
-  const nodeColor = file.contributorColor || "#007AFF";
+  const nodeColor =
+    file.contributorColor ||
+    (file.name.includes("db") || file.name.includes("database")
+      ? "#FF453A"
+      : file.name.includes("auth")
+      ? "#38b6ff"
+      : file.name.includes("types")
+      ? "#00E5FF"
+      : file.name.includes("spatial")
+      ? "#ff914d"
+      : "#007AFF");
   const lines = (file.content || "").split("\n");
 
   return (
@@ -182,27 +192,47 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
         height: `${file.height || 420}px`,
         zIndex: file.zIndex || 1,
         border: isActive
-          ? "1px solid #007AFF"
+          ? `2px solid ${nodeColor}`
           : isConnectedToFocusedEdge
-          ? "1px solid #FFFFFF"
-          : "1px solid #222222",
+          ? "2px solid #FFFFFF"
+          : isHovered
+          ? `1.5px solid ${nodeColor}`
+          : `1px solid ${nodeColor}`,
         backgroundColor: "#000000",
-        boxShadow: "4px 4px 0px #222222",
+        boxShadow: isActive
+          ? `0 0 0 1px ${nodeColor}, 4px 4px 0px ${nodeColor}40`
+          : isConnectedToFocusedEdge
+          ? "0 0 0 1px #FFFFFF, 4px 4px 0px rgba(255,255,255,0.25)"
+          : isHovered
+          ? `4px 4px 0px ${nodeColor}30`
+          : "4px 4px 0px #161616",
         opacity: isDimmedByOtherFocus ? 0.35 : 1,
       }}
     >
       {/* Top Accent Line */}
       <div
         className="h-[2px] w-full shrink-0"
-        style={{ backgroundColor: isActive ? "#007AFF" : "#222222" }}
+        style={{
+          backgroundColor: nodeColor,
+          opacity: isActive ? 1 : 0.85,
+        }}
       />
 
       {/* Draggable Window Header */}
       <div
         onMouseDown={handleHeaderMouseDown}
-        className="h-8 px-2.5 flex items-center justify-between border-b border-[#222222] select-none cursor-grab active:cursor-grabbing bg-[#0A0A0A]"
+        className="h-8 px-2.5 flex items-center justify-between border-b select-none cursor-grab active:cursor-grabbing bg-[#0A0A0A]"
+        style={{
+          borderBottomColor: `${nodeColor}40`,
+        }}
       >
         <div className="flex items-center gap-2 overflow-hidden">
+          {/* Color-coded node indicator dot */}
+          <span
+            className="w-2 h-2 rounded-none shrink-0"
+            style={{ backgroundColor: nodeColor }}
+            title={`Color code: ${nodeColor}`}
+          />
           {getFileIcon(file.name)}
           <span className="font-mono text-xs font-semibold text-white tracking-tight truncate">
             {file.name}
@@ -335,8 +365,11 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                   <div
                     key={idx}
                     className={`flex items-center group py-0.5 px-1 rounded-none relative ${
-                      isPeerLine ? "bg-[#0A0A0A] border-l-2 border-[#007AFF]" : "hover:bg-[#0A0A0A]"
+                      isPeerLine ? "bg-[#0A0A0A] border-l-2" : "hover:bg-[#0A0A0A]"
                     }`}
+                    style={{
+                      borderLeftColor: isPeerLine ? nodeColor : undefined,
+                    }}
                   >
                     {/* Line number gutter */}
                     <span className="text-[#888888] select-none w-7 text-right pr-2 text-[10px] shrink-0 font-mono">
@@ -368,11 +401,19 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
 
           {/* Node Architectural Code Flow Status Strip */}
           {(outgoingEdges.length > 0 || incomingEdges.length > 0) && (
-            <div className="h-6 px-2.5 border-t border-[#222222] bg-[#0A0A0A] flex items-center justify-between text-[10px] font-mono select-none shrink-0">
+            <div
+              className="h-6 px-2.5 border-t bg-[#0A0A0A] flex items-center justify-between text-[10px] font-mono select-none shrink-0"
+              style={{
+                borderTopColor: `${nodeColor}40`,
+              }}
+            >
               <div className="flex items-center gap-2 truncate">
                 {incomingEdges.length > 0 && (
                   <div className="flex items-center gap-1.5 text-[#888888] truncate" title={`Consuming code from ${incomingEdges[0].sourceNodeId}`}>
-                    <span className="w-1.5 h-1.5 rounded-none bg-[#007AFF]" />
+                    <span
+                      className="w-1.5 h-1.5 rounded-none"
+                      style={{ backgroundColor: incomingEdges[0]?.color || "#007AFF" }}
+                    />
                     <span className="text-[#888888]">in:</span>
                     <span className="text-white font-medium truncate max-w-[130px]">
                       {incomingEdges[0].codeSymbol || incomingEdges[0].label}

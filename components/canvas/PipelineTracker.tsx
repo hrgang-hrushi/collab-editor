@@ -57,10 +57,10 @@ export default function PipelineTracker() {
   };
 
   const getEdgeContributor = (edge: typeof edges[0]) => {
-    if (edge.color === "#007AFF" || edge.color === "#06b6d4") return { name: "Sarah Lin", color: "#007AFF" };
-    if (edge.color === "#FF453A" || edge.color === "#8b5cf6") return { name: "CruxAI", color: "#FF453A" };
-    if (edge.color === "#888888" || edge.color === "#f59e0b") return { name: "Marcus Vance", color: "#888888" };
-    if (edge.color === "#00FF00" || edge.color === "#10b981") return { name: "Contracts", color: "#FFFFFF" };
+    if (edge.color === "#38b6ff" || edge.color === "#06b6d4") return { name: "Sarah Lin", color: "#38b6ff" };
+    if (edge.color === "#FF453A" || edge.color === "#ff5757" || edge.color === "#8b5cf6") return { name: "CruxAI", color: "#FF453A" };
+    if (edge.color === "#ff914d" || edge.color === "#888888" || edge.color === "#f59e0b") return { name: "Marcus Vance", color: "#ff914d" };
+    if (edge.color === "#00E5FF" || edge.color === "#00FF00" || edge.color === "#10b981") return { name: "Contracts", color: "#00E5FF" };
     return { name: "Principal", color: "#007AFF" };
   };
 
