@@ -330,8 +330,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
-  activeUsers: [CURRENT_USER, ...MOCK_USERS],
-  isOnboarded: typeof window !== "undefined" ? localStorage.getItem("crux_onboarded") === "true" : false,
+  isOnboarded: true,
   isIdentityDrawerOpen: false,
   isShareModalOpen: false,
   isInboxOpen: false,

@@ -2,6 +2,8 @@
 
 import React from "react";
 
+import { MetalBadge } from "metal-fx";
+
 interface CruxBrandLogoProps {
   size?: number;
   withText?: boolean;
@@ -46,6 +48,7 @@ export default function CruxBrandLogo({
         >
           Crux
         </span>
+        <MetalBadge>PRO</MetalBadge>
       </div>
     );
   }

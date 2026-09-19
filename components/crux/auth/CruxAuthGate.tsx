@@ -6,6 +6,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick, playMechanicalEnter } from "@/lib/sound";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup, sendSignInLinkToEmail } from "firebase/auth";
+import { BorderBeam } from "border-beam";
 
 interface CruxAuthGateProps {
   onSuccess?: () => void;
@@ -131,7 +132,8 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
       </div>
 
       {/* Main Stark Container */}
-      <div className="w-full bg-[#0A0A0A] border border-[#222222] p-4 flex flex-col gap-3 rounded-none">
+      <BorderBeam size="line" colorVariant="mono" strength={0.8} active={true} theme="dark">
+        <div className="w-full bg-[#0A0A0A] border border-[#222222] p-4 flex flex-col gap-3 rounded-none">
         {/* 1. GitHub OAuth Button */}
         <button
           type="button"
@@ -209,7 +211,8 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
             <span className="w-1.5 h-1.5 bg-white animate-hard-blink shrink-0" />
           </div>
         )}
-      </div>
+        </div>
+      </BorderBeam>
     </div>
   );
 }
