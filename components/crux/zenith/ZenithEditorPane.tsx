@@ -22,6 +22,7 @@ import {
 import { Rise, Morph } from "cube-motion/react";
 import CruxPointerCursor from "../CruxPointerCursor";
 import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
+import { triggerHaptic } from "@/lib/haptics";
 
 export default function ZenithEditorPane() {
   const files = useWorkspaceStore((state) => state.files);
@@ -37,6 +38,8 @@ export default function ZenithEditorPane() {
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
   const accessLevel = useWorkspaceStore((state) => state.accessLevel);
   const allowedFiles = useWorkspaceStore((state) => state.allowedFiles);
+  const activeSessionId = useWorkspaceStore((state) => state.activeSessionId);
+  const setActiveSessionId = useWorkspaceStore((state) => state.setActiveSessionId);
 
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [isSplitScreen, setIsSplitScreen] = useState(false);
@@ -57,13 +60,34 @@ export default function ZenithEditorPane() {
 
   const handleCopyP2PLink = () => {
     if (typeof window === "undefined") return;
-    let url = window.location.href;
-    if (!window.location.hash || !window.location.hash.startsWith("#session-")) {
-      const randomSession = "session-" + Math.random().toString(36).substring(2, 9);
-      url = `${window.location.origin}${window.location.pathname}#${randomSession}`;
-      window.location.hash = randomSession;
+    triggerHaptic("click");
+    let sid = activeSessionId;
+    if (!sid) {
+      const params = new URLSearchParams(window.location.search);
+      sid = params.get("session") || params.get("room");
+      if (!sid && window.location.hash.startsWith("#session-")) {
+        sid = window.location.hash.replace("#session-", "").split("?")[0];
+      }
+      if (!sid) {
+        sid = "session-" + Math.random().toString(36).substring(2, 9);
+      }
+      setActiveSessionId(sid);
     }
-    navigator.clipboard.writeText(url);
+
+    const currentParams = new URLSearchParams(window.location.search);
+    currentParams.set("session", sid);
+    const newRelativePathQuery =
+      window.location.pathname + "?" + currentParams.toString() + window.location.hash;
+    window.history.replaceState(null, "", newRelativePathQuery);
+
+    if (!window.location.hash || !window.location.hash.includes(sid)) {
+      window.location.hash = sid.startsWith("session-") ? sid : `session-${sid}`;
+    }
+
+    const fullUrl = `${window.location.origin}${window.location.pathname}?session=${sid}&access=full#${
+      sid.startsWith("session-") ? sid : `session-${sid}`
+    }`;
+    navigator.clipboard.writeText(fullUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };

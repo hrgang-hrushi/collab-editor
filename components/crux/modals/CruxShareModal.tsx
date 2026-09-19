@@ -25,15 +25,61 @@ export default function CruxShareModal() {
   const [errorMsg, setErrorMsg] = useState("");
   const [copiedMeshLink, setCopiedMeshLink] = useState(false);
 
-  const handleCopyDirectMeshLink = () => {
+  const activeSessionId = useWorkspaceStore((state) => state.activeSessionId);
+  const setActiveSessionId = useWorkspaceStore((state) => state.setActiveSessionId);
+
+  const getSessionId = (): string => {
+    if (activeSessionId) return activeSessionId;
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const querySession = params.get("session") || params.get("room");
+      if (querySession) return querySession;
+      if (window.location.hash.startsWith("#session-")) {
+        return window.location.hash.replace("#session-", "").split("?")[0];
+      }
+    }
+    return "session-" + Math.random().toString(36).substring(2, 9);
+  };
+
+  const getComputedShareUrl = (overrideAccess?: "full" | "limited" | "viewer") => {
+    if (typeof window === "undefined") return "";
+    const effectiveAccess = overrideAccess || accessLevel;
+    const base = `${window.location.origin}${window.location.pathname}`;
+    const sid = getSessionId();
+    const params = new URLSearchParams();
+    params.set("session", sid);
+    if (effectiveAccess === "viewer" || (overrideAccess === undefined && localViewerLock)) {
+      params.set("access", "viewer");
+    } else if (effectiveAccess === "limited") {
+      params.set("access", "limited");
+      if (selectedFiles.length > 0) {
+        params.set("files", selectedFiles.join(","));
+      }
+    } else {
+      params.set("access", "full");
+    }
+    return `${base}?${params.toString()}#${sid.startsWith("session-") ? sid : `session-${sid}`}`;
+  };
+
+  const handleCopyDirectMeshLink = (overrideAccess?: "full" | "limited" | "viewer") => {
     if (typeof window === "undefined") return;
     triggerHaptic("click");
-    let url = window.location.href;
-    if (!window.location.hash || !window.location.hash.startsWith("#session-")) {
-      const randomSession = "session-" + Math.random().toString(36).substring(2, 9);
-      url = `${window.location.origin}${window.location.pathname}#${randomSession}`;
-      window.location.hash = randomSession;
+    const sid = getSessionId();
+    setActiveSessionId(sid);
+
+    // Keep host URL matching session
+    const currentParams = new URLSearchParams(window.location.search);
+    if (!currentParams.get("session")) {
+      currentParams.set("session", sid);
+      const newRelativePathQuery =
+        window.location.pathname + "?" + currentParams.toString() + window.location.hash;
+      window.history.replaceState(null, "", newRelativePathQuery);
     }
+    if (!window.location.hash || !window.location.hash.includes(sid)) {
+      window.location.hash = sid.startsWith("session-") ? sid : `session-${sid}`;
+    }
+
+    const url = getComputedShareUrl(overrideAccess);
     navigator.clipboard.writeText(url);
     setCopiedMeshLink(true);
     setTimeout(() => setCopiedMeshLink(false), 2000);
@@ -88,6 +134,8 @@ export default function CruxShareModal() {
     triggerHaptic("tap");
   };
 
+  const computedUrl = getComputedShareUrl();
+
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 font-sans select-none animate-in fade-in duration-150">
       <div className="w-full max-w-lg bg-surface border border-grid shadow-[4px_4px_0px_#222222] flex flex-col overflow-hidden">
@@ -117,39 +165,73 @@ export default function CruxShareModal() {
           )}
 
           {/* Direct Share Link Box */}
-          <div className="p-3 bg-black border border-[#222222] flex items-center justify-between gap-3">
-            <div className="space-y-0.5 min-w-0">
+          <div className="p-3 bg-black border border-[#222222] space-y-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 text-white">
                 <Link2 className="w-3.5 h-3.5 text-white" />
                 <span className="text-xs font-bold uppercase font-mono tracking-wider">
                   Direct Collaboration Link
                 </span>
               </div>
-              <p className="text-[10px] text-[#888888] truncate font-mono">
-                Real-time collaboration link · No sign-in required
-              </p>
+              <span className="text-[10px] text-[#888888] font-mono uppercase">
+                {accessLevel === "viewer" || localViewerLock ? "Read-Only View" : `${accessLevel} Access`}
+              </span>
             </div>
-            <button
-              type="button"
-              onClick={handleCopyDirectMeshLink}
-              className={`px-3 py-1.5 text-[11px] font-mono uppercase tracking-wider border transition-none shrink-0 flex items-center gap-1.5 ${
-                copiedMeshLink
-                  ? "bg-white text-black border-white font-bold"
-                  : "bg-black text-white border-[#222222] hover:bg-white hover:text-black"
-              }`}
-            >
-              {copiedMeshLink ? (
-                <>
-                  <Check className="w-3 h-3 text-black" />
-                  <span>COPIED</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-3 h-3" />
-                  <span>COPY LINK</span>
-                </>
-              )}
-            </button>
+
+            {/* URL Input & Copy Button */}
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                readOnly
+                value={computedUrl}
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+                className="flex-1 bg-void border border-[#222222] px-2.5 py-1.5 text-[11px] font-mono text-signal outline-none focus:border-white select-all"
+              />
+              <button
+                type="button"
+                onClick={() => handleCopyDirectMeshLink()}
+                className={`px-3 py-1.5 text-[11px] font-mono uppercase tracking-wider border transition-none shrink-0 flex items-center gap-1.5 ${
+                  copiedMeshLink
+                    ? "bg-white text-black border-white font-bold"
+                    : "bg-black text-white border-[#222222] hover:bg-white hover:text-black"
+                }`}
+              >
+                {copiedMeshLink ? (
+                  <>
+                    <Check className="w-3 h-3 text-black" />
+                    <span>COPIED</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-3 h-3" />
+                    <span>COPY</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setAccessLevel("full");
+                  handleCopyDirectMeshLink("full");
+                }}
+                className="px-2 py-1 text-[9.5px] font-mono uppercase border border-[#222222] bg-void text-muted hover:text-signal hover:border-white transition-none"
+              >
+                Copy Full Edit Link
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccessLevel("viewer");
+                  handleCopyDirectMeshLink("viewer");
+                }}
+                className="px-2 py-1 text-[9.5px] font-mono uppercase border border-[#222222] bg-void text-muted hover:text-signal hover:border-white transition-none"
+              >
+                Copy View-Only Link
+              </button>
+            </div>
           </div>
 
           {/* 1. Recipient UID or Email */}

@@ -180,12 +180,63 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+
+      // 1. Session & Collaboration routing
+      const sessionParam = params.get("session") || params.get("room");
+      if (sessionParam) {
+        useWorkspaceStore.getState().setActiveSessionId(sessionParam);
+        if (!window.location.hash || !window.location.hash.includes(sessionParam)) {
+          window.location.hash = `session-${sessionParam}`;
+        }
+      } else {
+        const hash = window.location.hash.replace(/^#/, "").trim();
+        if (hash && hash.startsWith("session-")) {
+          const cleanSession = hash.replace("session-", "").split("?")[0];
+          useWorkspaceStore.getState().setActiveSessionId(cleanSession);
+        }
+      }
+
+      // 2. Access Level & Viewer Lock (Full / Limited / Viewer)
+      const urlAccess = params.get("access") || params.get("role");
+      const isViewer =
+        urlAccess === "viewer" ||
+        params.get("view") === "true" ||
+        params.get("readonly") === "true";
+
+      if (isViewer) {
+        useWorkspaceStore.getState().setAccessLevel("viewer");
+        useWorkspaceStore.getState().setViewerLock(true);
+      } else if (urlAccess === "limited") {
+        useWorkspaceStore.getState().setAccessLevel("limited");
+        const filesParam = params.get("files");
+        if (filesParam) {
+          useWorkspaceStore.getState().setAllowedFiles(filesParam.split(",").map((f) => f.trim()));
+        }
+      } else if (urlAccess === "full" || urlAccess === "edit" || urlAccess === "editor") {
+        useWorkspaceStore.getState().setAccessLevel("full");
+        useWorkspaceStore.getState().setViewerLock(false);
+      }
+
+      // 3. Active file selection from query param
+      const fileParam = params.get("file") || params.get("fileId");
+      if (fileParam) {
+        const matching = useWorkspaceStore.getState().files.find(
+          (f) => f.id === fileParam || f.name.toLowerCase() === fileParam.toLowerCase()
+        );
+        if (matching) {
+          useWorkspaceStore.getState().openTab(matching.id);
+          useWorkspaceStore.getState().setActiveFile(matching.id);
+        }
+      }
+
+      // 4. View Mode (Edit vs Canvas)
       const urlMode = params.get("mode");
       if (urlMode === "canvas" || urlMode === "nexus") {
         setMode("canvas");
       } else if (urlMode === "edit" || urlMode === "ide") {
         setMode("edit");
       }
+
       if (params.get("onboarding") === "true" || params.get("reset") === "true") {
         useWorkspaceStore.getState().setOnboarded(false);
       }
@@ -343,7 +394,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           </button>
 
           {/* High-Density Contiguous Hardware Brutalism Multiplayer Presence */}
-          <CruxMultiplayerPresence className="hidden xl:flex" />
+          <CruxMultiplayerPresence className="hidden md:flex" />
 
           {/* Window Layout Toggles */}
           <div className="flex items-center gap-1">
@@ -385,7 +436,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             className="px-3 py-1 text-[11px] font-medium border border-grid bg-void hover:bg-white hover:text-black transition-none text-signal uppercase flex items-center gap-1.5"
             title="Share Workspace with collaborator UID or Email"
           >
-            <Share2 className="w-3 h-3 text-white" />
+            <Share2 className="w-3 h-3 text-current" />
             <span>Share</span>
           </button>
         </div>

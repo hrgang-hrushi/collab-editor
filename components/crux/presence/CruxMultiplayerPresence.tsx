@@ -24,40 +24,53 @@ export default function CruxMultiplayerPresence({
   peers: propPeers,
 }: CruxMultiplayerPresenceProps) {
   const currentUser = useWorkspaceStore((state) => state.currentUser);
+  const activeUsers = useWorkspaceStore((state) => state.activeUsers);
   const setActiveFile = useWorkspaceStore((state) => state.setActiveFile);
   const openTab = useWorkspaceStore((state) => state.openTab);
   const toggleDrone = useWorkspaceStore((state) => state.toggleDrone);
   const setShareModalOpen = useWorkspaceStore((state) => state.setShareModalOpen);
 
-  // Default presence cells adhering strictly to Hardware Brutalism
-  // Local User: "SL" (or active operator), bg-white text-black
-  // Remote Peers: "MV", "AI", bg-transparent text-[#888888] hover:text-white
-  const defaultPeers: PresencePeer[] = [
-    {
-      id: "peer-self",
-      name: currentUser?.name || "Sarah Lin",
-      initials: "SL",
-      isSelf: true,
-      uid: currentUser?.uid || "CRX-9941-SL",
-    },
-    {
-      id: "peer-mv",
-      name: "Marcus Vance",
-      initials: "MV",
-      isSelf: false,
-      uid: "CRX-5520-MV",
-      activeFileId: "file-auth",
-    },
-    {
-      id: "peer-ai",
-      name: "CruxAI Copilot",
-      initials: "AI",
-      isSelf: false,
-      uid: "CRX-0001-AI",
-    },
-  ];
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  };
 
-  const activePeers = propPeers && propPeers.length > 0 ? propPeers : defaultPeers;
+  const activePeers: PresencePeer[] = React.useMemo(() => {
+    if (propPeers && propPeers.length > 0) return propPeers;
+
+    const selfName = currentUser?.name || "Local Operator";
+    const selfPeer: PresencePeer = {
+      id: "peer-self",
+      name: selfName,
+      initials: getInitials(selfName),
+      isSelf: true,
+      uid: currentUser?.uid || "CRX-LOCAL",
+    };
+
+    const peersList: PresencePeer[] = [selfPeer];
+
+    // Dynamically pull live peers from Yjs awareness
+    if (activeUsers && activeUsers.length > 0) {
+      const seen = new Set<string>([selfPeer.name.toLowerCase()]);
+      activeUsers.forEach((u) => {
+        if (u.isSelf || u.id === currentUser?.uid || seen.has(u.name.toLowerCase())) return;
+        seen.add(u.name.toLowerCase());
+        peersList.push({
+          id: u.id,
+          name: u.name,
+          initials: getInitials(u.name),
+          isSelf: false,
+          uid: u.uid,
+          activeFileId: u.activeFileId,
+        });
+      });
+    }
+
+    return peersList;
+  }, [propPeers, activeUsers, currentUser]);
 
   const handlePeerClick = (peer: PresencePeer) => {
     playMechanicalClick("high");
@@ -96,10 +109,10 @@ export default function CruxMultiplayerPresence({
             onClick={() => handlePeerClick(peer)}
             title={
               isLocal
-                ? `${peer.name} (You) · ${peer.uid || "Local"}`
-                : `${peer.name} (${peer.uid || "Remote Peer"}) · Click to jump to cursor`
+                ? `${peer.name} (You) · Click to share`
+                : `${peer.name} (${peer.uid || "Remote Peer"}) · Click to view active file`
             }
-            className={`px-2 py-1 font-mono text-[10px] uppercase tracking-widest leading-none border-r border-[#222222] last:border-r-0 rounded-none transition-none ${
+            className={`px-2 py-1 font-mono text-[10px] uppercase tracking-widest leading-none border-r border-[#222222] rounded-none transition-none ${
               isLocal
                 ? "bg-white text-black font-bold cursor-pointer"
                 : "bg-transparent text-[#888888] hover:text-white cursor-pointer"
@@ -109,6 +122,20 @@ export default function CruxMultiplayerPresence({
           </button>
         );
       })}
+
+      {/* Actionable Share Trigger */}
+      <button
+        type="button"
+        onClick={() => {
+          playMechanicalClick("high");
+          triggerHaptic("click");
+          setShareModalOpen(true);
+        }}
+        title="Share workspace or invite peers"
+        className="px-2 py-1 font-mono text-[10px] uppercase tracking-wider leading-none text-[#888888] hover:text-white hover:bg-[#111111] transition-none cursor-pointer"
+      >
+        {activePeers.length === 1 ? "+ SHARE" : "+"}
+      </button>
     </div>
   );
 }

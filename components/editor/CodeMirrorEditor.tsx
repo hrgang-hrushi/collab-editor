@@ -561,6 +561,7 @@ interface CodeMirrorEditorProps {
 export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorEditorProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const [activeEditorView, setActiveEditorView] = useState<EditorView | null>(null);
 
   const updateFileContent = useWorkspaceStore((state) => state.updateFileContent);
   const suggestions = useWorkspaceStore((state) => state.suggestions);
@@ -752,6 +753,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     });
 
     viewRef.current = view;
+    setActiveEditorView(view);
 
     // Sync Yjs text changes into local workspace store
     const ytextObserver = () => {
@@ -764,6 +766,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       session.ytext.unobserve(ytextObserver);
       view.destroy();
       viewRef.current = null;
+      setActiveEditorView(null);
     };
   }, [file.id, getLanguageExtension, readOnly, isMonochromeTheme]);
 
@@ -903,7 +906,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
 
       {/* CodeMirror Mount Point with Real-Time Lerping Remote Cursor Overlay */}
       <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative">
-        <RemoteCursorInterpolator view={viewRef.current} awareness={awarenessInstance} />
+        <RemoteCursorInterpolator view={activeEditorView} awareness={awarenessInstance} />
       </div>
 
       {Object.entries(remoteCursors)

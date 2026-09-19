@@ -11,6 +11,8 @@
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { Awareness } from "y-protocols/awareness";
+import { useWorkspaceStore } from "@/lib/store";
+import { User } from "@/lib/types";
 
 export interface CrexPeerUser {
   name: string;
@@ -48,7 +50,7 @@ export function getSignalingUrls(): string[] {
       window.location.hostname === "127.0.0.1";
 
     if (isHttps) {
-      return ["wss://y-webrtc-eu.fly.dev"];
+      return ["wss://y-webrtc-eu.fly.dev", "wss://signaling.yjs.dev"];
     }
 
     if (isLocal) {
@@ -68,13 +70,38 @@ const sessionCache = new Map<string, CrexCRDTSession>();
  * Generates or extracts a deterministic room hash from URL or file ID.
  */
 export function getDeterministicRoomName(fileId: string, customHash?: string): string {
+  if (customHash) {
+    const clean = customHash.replace(/^#/, "").split("?")[0].trim();
+    if (clean) return `${clean}-${fileId}`;
+  }
+
+  // 0. Check store activeSessionId first
+  try {
+    const storeSession = useWorkspaceStore.getState().activeSessionId;
+    if (storeSession && storeSession.trim()) {
+      return `session-${storeSession.trim()}-${fileId}`;
+    }
+  } catch {
+    // ignore
+  }
+
   if (typeof window !== "undefined") {
+    // 1. Check URL query params for ?session=... or ?room=...
+    const params = new URLSearchParams(window.location.search);
+    const querySession = params.get("session") || params.get("room");
+    if (querySession && querySession.trim()) {
+      return `session-${querySession.trim()}-${fileId}`;
+    }
+
+    // 2. Check URL hash for #session-...
     const hash = window.location.hash.replace(/^#/, "").trim();
     if (hash && hash.startsWith("session-")) {
-      return `${hash}-${fileId}`;
+      const cleanHash = hash.split("?")[0].trim();
+      return `${cleanHash}-${fileId}`;
     }
   }
-  return `crex-mesh-${fileId}`;
+
+  return `crux-mesh-${fileId}`;
 }
 
 /**
@@ -104,6 +131,7 @@ export function initCrexCRDTSession(
       uid: user.uid,
       isTyping: false,
       lastActive: Date.now(),
+      activeFileId: fileId,
     });
     return existing;
   }
@@ -111,16 +139,41 @@ export function initCrexCRDTSession(
   const ydoc = new Y.Doc();
   const ytext = ydoc.getText("codemirror");
 
-  // If local document is empty and we have initial content, populate it
-  if (ytext.length === 0 && initialContent) {
+  const isJoiningSession = (() => {
+    if (typeof window === "undefined") return false;
+    const params = new URLSearchParams(window.location.search);
+    return (
+      params.has("session") ||
+      params.has("room") ||
+      window.location.hash.startsWith("#session-")
+    );
+  })();
+
+  // If local document is empty and we have initial content:
+  // For joining peers, allow a brief sync window before populating to avoid duplicate text merges
+  if (!isJoiningSession && ytext.length === 0 && initialContent) {
     ytext.insert(0, initialContent);
+  } else if (isJoiningSession && ytext.length === 0 && initialContent) {
+    const fallbackTimer = setTimeout(() => {
+      if (ytext.length === 0 && initialContent) {
+        ytext.insert(0, initialContent);
+      }
+    }, 600);
+
+    const onFirstSync = () => {
+      if (ytext.length > 0) {
+        clearTimeout(fallbackTimer);
+        ytext.unobserve(onFirstSync);
+      }
+    };
+    ytext.observe(onFirstSync);
   }
 
   const provider = new WebrtcProvider(roomName, ydoc, {
     signaling: getSignalingUrls(),
     awareness: new Awareness(ydoc),
-    maxConns: 20 + Math.floor(Math.random() * 15),
-    filterBcConns: true,
+    maxConns: 30,
+    filterBcConns: false,
     peerOpts: {},
   });
 
@@ -132,7 +185,38 @@ export function initCrexCRDTSession(
     uid: user.uid,
     isTyping: false,
     lastActive: Date.now(),
+    activeFileId: fileId,
   });
+
+  const updateConnectedUsers = () => {
+    try {
+      const states = awareness.getStates();
+      const liveUsers: User[] = [];
+      states.forEach((state: any, clientID: number) => {
+        if (!state || !state.user) return;
+        const u = state.user;
+        liveUsers.push({
+          id: u.uid || `client-${clientID}`,
+          name: u.name || `Peer-${clientID.toString().slice(-4)}`,
+          email: `${(u.name || "peer").toLowerCase().replace(/\s+/g, "")}@mesh.local`,
+          color: u.color || "#FFFFFF",
+          avatar: "",
+          status: clientID === ydoc.clientID ? "active" : "idle",
+          uid: u.uid || `CRX-${clientID.toString().slice(-4)}`,
+          activeFileId: u.activeFileId || fileId,
+          isSelf: clientID === ydoc.clientID,
+        });
+      });
+      if (liveUsers.length > 0) {
+        useWorkspaceStore.getState().setActiveUsers(liveUsers);
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  awareness.on("change", updateConnectedUsers);
+  updateConnectedUsers();
 
   const session: CrexCRDTSession = {
     ydoc,
@@ -141,6 +225,7 @@ export function initCrexCRDTSession(
     awareness,
     destroy: () => {
       try {
+        awareness.off("change", updateConnectedUsers);
         provider.destroy();
         ydoc.destroy();
       } catch {

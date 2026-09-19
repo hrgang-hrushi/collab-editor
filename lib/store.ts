@@ -213,6 +213,9 @@ interface WorkspaceState {
   setAccessLevel: (level: "full" | "limited" | "viewer") => void;
   setAllowedFiles: (files: string[]) => void;
   setAllowedLineRange: (range?: { start: number; end: number }) => void;
+  setActiveUsers: (users: User[]) => void;
+  activeSessionId: string | null;
+  setActiveSessionId: (sessionId: string | null) => void;
 
   // Collaborative Inbox Actions
   setInboxOpen: (open: boolean) => void;
@@ -339,6 +342,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
   activeUsers: MOCK_USERS,
+  activeSessionId: null,
   isOnboarded: true,
   isIdentityDrawerOpen: false,
   isShareModalOpen: false,
@@ -1432,6 +1436,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   setAccessLevel: (accessLevel) => set({ accessLevel }),
   setAllowedFiles: (allowedFiles) => set({ allowedFiles }),
   setAllowedLineRange: (allowedLineRange) => set({ allowedLineRange }),
+  setActiveUsers: (activeUsers) => set({ activeUsers }),
+  setActiveSessionId: (activeSessionId) => set({ activeSessionId }),
 
   sendInvite: (inviteData) => {
     const newInvite: ShareInvite = {

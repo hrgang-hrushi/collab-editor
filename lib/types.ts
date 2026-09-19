@@ -13,6 +13,8 @@ export interface User {
   telemetryEnabled?: boolean;
   keymapPreference?: "default" | "jetbrains" | "vscode" | "vim";
   defaultComputeTarget?: "local" | "bedrock" | "copilot";
+  activeFileId?: string;
+  status?: "active" | "idle";
 }
 
 export interface ShareInvite {

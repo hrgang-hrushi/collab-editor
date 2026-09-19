@@ -223,22 +223,9 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
                 },
               }).range(from, to)
             );
+            // Selection Ribbon is handled natively by CodeMirror decorations.
+            // Caret line and name badge are smoothly rendered via RemoteCursorInterpolator (Framer Motion 60fps lerp).
           }
-
-          // 2. Opposing Cursors: Strict 2px vertical line with sharp tag
-          decos.push(
-            Decoration.widget({
-              side: headPos.index - anchorPos.index >= 0 ? 1 : -1,
-              block: false,
-              widget: new CrexBrutalistCaretWidget({
-                name,
-                color,
-                uid,
-                isIdle,
-                isTyping,
-              }),
-            }).range(headPos.index)
-          );
         });
 
         this.decorations = Decoration.set(decos, true);

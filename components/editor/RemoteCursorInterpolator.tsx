@@ -102,7 +102,9 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
 
       const updatedPeers: PeerInterpolationState[] = [];
       const now = Date.now();
-      const editorRect = view.dom.getBoundingClientRect();
+      const containerRect = containerRef.current
+        ? containerRef.current.getBoundingClientRect()
+        : view.dom.getBoundingClientRect();
 
       awareness.getStates().forEach((state: any, clientID: number) => {
         if (clientID === ydoc.clientID) return;
@@ -114,6 +116,11 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
         const coords = view.coordsAtPos(headPos.index);
         if (!coords) return;
 
+        // Verify if cursor is within visible vertical range
+        const isVisible =
+          coords.top >= containerRect.top - 20 &&
+          coords.top <= containerRect.bottom + 20;
+
         const user = state.user || {};
         const name = user.name || `Peer-${clientID.toString().slice(-4)}`;
         const color = user.color || "#FFFFFF";
@@ -122,9 +129,9 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
         const isIdle = now - lastActive > 3000;
         const isTyping = !isIdle && !!state.isTyping;
 
-        // Relative coordinates inside the editor DOM
-        const relX = coords.left - editorRect.left;
-        const relY = coords.top - editorRect.top;
+        // Relative coordinates inside the interpolator container DOM
+        const relX = coords.left - containerRect.left;
+        const relY = coords.top - containerRect.top;
 
         updatedPeers.push({
           clientID,
@@ -135,7 +142,7 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
           isTyping,
           x: relX,
           y: relY,
-          visible: true,
+          visible: isVisible,
         });
       });
 
@@ -143,10 +150,19 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
     };
 
     awareness.on("change", updatePeers);
+    const scrollEl = view.scrollDOM;
+    if (scrollEl) {
+      scrollEl.addEventListener("scroll", updatePeers, { passive: true });
+    }
+    window.addEventListener("resize", updatePeers);
     const interval = setInterval(updatePeers, 100);
 
     return () => {
       awareness.off("change", updatePeers);
+      if (scrollEl) {
+        scrollEl.removeEventListener("scroll", updatePeers);
+      }
+      window.removeEventListener("resize", updatePeers);
       clearInterval(interval);
     };
   }, [view, awareness]);
