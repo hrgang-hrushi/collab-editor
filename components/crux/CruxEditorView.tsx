@@ -10,7 +10,6 @@ import CruxDualStateHud from "./agent/CruxDualStateHud";
 import CruxMultiplayerPresence from "./presence/CruxMultiplayerPresence";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
-import CruxGaTourBanner from "./onboarding/CruxGaTourBanner";
 import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
 import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
@@ -591,7 +590,6 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <CruxInboxModal />
       <CruxIdentityDrawer />
       <CruxLibraryModal />
-      <CruxGaTourBanner />
       <CruxTimelineHistoryDrawer />
       {isAuthGateOpen && (
         <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
