@@ -256,8 +256,8 @@ export default function CruxOnboardingStartPage() {
                 </div>
               </div>
 
-              {/* 2. Precision Headline (Enlarged Scale, Tight Leading, Pure White, -tracking-[0.02em]) */}
-              <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-white font-normal -tracking-[0.025em] leading-[1.05] select-none text-center max-w-2xl">
+              {/* 2. Precision Headline (Enlarged Scale, Tight Leading, Pure White, -tracking-[0.02em], Light Weight) */}
+              <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-white font-light -tracking-[0.025em] leading-[1.05] select-none text-center max-w-2xl">
                 Bringing the dream
                 <br />
                 IDE to reality.
