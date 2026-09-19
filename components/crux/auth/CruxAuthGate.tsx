@@ -46,6 +46,7 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
   };
 
   const handleOAuth = async (provider: "github" | "google") => {
+    if (status === "transmitting") return;
     playMechanicalClick("mid");
     triggerHaptic("tap");
     setStatus("transmitting");
@@ -91,9 +92,15 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         setStatusMsg(`${provider === "github" ? "GitHub" : "Google"} Sign-In is not enabled in Firebase Console.`);
       } else if (err?.code === "auth/popup-closed-by-user") {
         setStatusMsg("Sign-in window was closed.");
+      } else if (err?.code === "auth/cancelled-popup-request") {
+        setStatusMsg("Sign-in request was interrupted. Please click once and complete the login in the popup window.");
+      } else if (err?.code === "auth/popup-blocked") {
+        setStatusMsg("Popup was blocked by your browser. Please allow popups for localhost.");
+        setProviderFallback(provider);
       } else {
         const errCode = err?.code ? String(err.code).toUpperCase().replace(/-/g, "_") : "GATEWAY_TIMEOUT";
         setStatusMsg(`[ERR: ${errCode}]`);
+        setProviderFallback(provider);
       }
     }
   };
@@ -181,8 +188,9 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         {/* 1. GitHub OAuth Button */}
         <button
           type="button"
+          disabled={status === "transmitting"}
           onClick={() => handleOAuth("github")}
-          className="h-10 w-full border border-[#222222] bg-transparent text-[#888888] flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-widest transition-none cursor-pointer rounded-none hover:bg-white hover:text-black hover:border-white"
+          className="h-10 w-full border border-[#222222] bg-transparent text-[#888888] flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-widest transition-none cursor-pointer rounded-none hover:bg-white hover:text-black hover:border-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {/* Monochrome GitHub SVG Icon: pure #888888, fills black on button hover via currentColor */}
           <svg
@@ -202,8 +210,9 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         {/* 2. Google OAuth Button */}
         <button
           type="button"
+          disabled={status === "transmitting"}
           onClick={() => handleOAuth("google")}
-          className="h-10 w-full border border-[#222222] bg-transparent text-[#888888] flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-widest transition-none cursor-pointer rounded-none hover:bg-white hover:text-black hover:border-white"
+          className="h-10 w-full border border-[#222222] bg-transparent text-[#888888] flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-widest transition-none cursor-pointer rounded-none hover:bg-white hover:text-black hover:border-white disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {/* Flat Monochrome Google SVG Icon: forbidden from colorful brand styling */}
           <svg
