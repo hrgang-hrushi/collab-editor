@@ -577,7 +577,9 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
   const libraries = useWorkspaceStore((state) => state.libraries);
   const isMonochromeTheme = useWorkspaceStore((state) => state.isMonochromeTheme);
+  const recordFileRevision = useWorkspaceStore((state) => state.recordFileRevision);
   const librariesRef = useRef(libraries);
+  const revisionTimerRef = useRef<NodeJS.Timeout | null>(null);
   librariesRef.current = libraries;
 
   // Active selection state for floating HUD
@@ -652,11 +654,8 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     crdtSessionRef.current = session;
     setAwarenessInstance(session.awareness);
 
-    // Initial content from Y.Text or fallback to file.content
-    const initialDoc = session.ytext.toString() || file.content;
-    if (session.ytext.length === 0 && file.content) {
-      session.ytext.insert(0, file.content);
-    }
+    // Initial content directly from Y.Text (which was initialized on first room creation in initCrexCRDTSession)
+    const initialDoc = session.ytext.toString();
 
     // 2. Build CodeMirror state with Yjs sync and Brutalist cursor plugins
     const syncConfig = new YSyncConfig(session.ytext, session.awareness);
@@ -706,6 +705,22 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
           if (update.docChanged) {
             const newContent = update.state.doc.toString();
             updateFileContent(file.id, newContent);
+
+            // Debounced revision history logging
+            if (revisionTimerRef.current) clearTimeout(revisionTimerRef.current);
+            revisionTimerRef.current = setTimeout(() => {
+              const lines = newContent.length > 0 ? newContent.split("\n").length : 0;
+              recordFileRevision({
+                fileId: file.id,
+                fileName: file.name,
+                summary:
+                  newContent.length === 0
+                    ? "Emptied buffer (0 lines remaining)"
+                    : `Edited buffer (${lines} lines, ${newContent.length} chars)`,
+                content: newContent,
+                changeType: newContent.length === 0 ? "delete_all" : "modify",
+              });
+            }, 2500);
           }
 
           if (update.selectionSet) {

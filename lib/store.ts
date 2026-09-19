@@ -14,6 +14,7 @@ import {
   TerminalSession,
   CrexRunProfile,
   DiscoveredModelRuntime,
+  FileRevision,
 } from "./types";
 import { executeCode } from "./codeRunner";
 import { detectLanguage, saveFileToDisk } from "./fileUtils";
@@ -28,6 +29,8 @@ import {
   INITIAL_INVITES,
   INITIAL_LIBRARIES,
   WORKSPACE_TEMPLATES,
+  INITIAL_REVISIONS,
+  getCalendarGroupTitle,
 } from "./defaultData";
 
 interface WorkspaceState {
@@ -125,10 +128,29 @@ interface WorkspaceState {
   loadStarterWorkspace: () => void;
   deleteFile: (id: string) => void;
   renameFile: (id: string, newName: string) => void;
+  setFiles: (files: FileNode[]) => void;
   updateFileContent: (id: string, content: string) => void;
   updateFilePosition: (id: string, x: number, y: number) => void;
   bringToFront: (id: string) => void;
   saveActiveFile: () => Promise<boolean>;
+
+  // Revision History & Timeline State & Actions
+  fileRevisions: FileRevision[];
+  isHistoryDrawerOpen: boolean;
+  setHistoryDrawerOpen: (open: boolean) => void;
+  toggleHistoryDrawer: () => void;
+  recordFileRevision: (revision: {
+    fileId: string;
+    fileName: string;
+    summary: string;
+    author?: string;
+    content: string;
+    changeType?: "create" | "modify" | "delete_all" | "restore" | "checkpoint";
+    diffSummary?: { added: number; removed: number };
+  }) => void;
+  restoreFileRevision: (revisionId: string) => void;
+  createManualCheckpoint: (fileId: string, summary?: string) => void;
+  clearFileRevisions: (fileId?: string) => void;
 
   // Code Execution & Terminal Actions
   runActiveFile: () => Promise<ExecutionResult | null>;
@@ -355,6 +377,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   allowedLineRange: undefined,
   inboxInvites: INITIAL_INVITES,
   remoteCursors: {},
+  fileRevisions: INITIAL_REVISIONS,
+  isHistoryDrawerOpen: false,
 
   projectName: "crux-core",
   files: INITIAL_FILES,
@@ -927,12 +951,187 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       ),
     })),
 
+  setFiles: (files) => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("crux_workspace_files", JSON.stringify(files));
+      } catch {}
+    }
+    set({ files });
+  },
+
   updateFileContent: (id, content) =>
-    set((state) => ({
-      files: state.files.map((f) =>
-        f.id === id ? { ...f, content, status: "modified", isDirty: true } : f
-      ),
-    })),
+    set((state) => {
+      const targetFile = state.files.find((f) => f.id === id);
+      const updatedFiles = state.files.map((f) =>
+        f.id === id ? { ...f, content, status: "modified" as const, isDirty: true } : f
+      );
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_workspace_files", JSON.stringify(updatedFiles));
+        } catch {}
+      }
+
+      // If the file was emptied (previous non-empty, now empty):
+      let revisions = state.fileRevisions;
+      if (targetFile && targetFile.content && targetFile.content.length > 0 && content.length === 0) {
+        const now = Date.now();
+        const dateObj = new Date(now);
+        const timeString = dateObj.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+        const dateString = dateObj.toISOString().split("T")[0];
+        const newRev: FileRevision = {
+          id: `rev-${now}-${Math.random().toString(36).slice(2, 7)}`,
+          fileId: id,
+          fileName: targetFile.name,
+          timestamp: now,
+          dateString,
+          calendarGroup: getCalendarGroupTitle(now),
+          timeString,
+          summary: `Cleared buffer (deleted all ${targetFile.content.split("\n").length} lines)`,
+          author: state.currentUser.name ? `${state.currentUser.name} [${state.currentUser.uid || "CRX"}]` : "Operator",
+          content: "",
+          linesCount: 0,
+          charsCount: 0,
+          changeType: "delete_all",
+          diffSummary: { added: 0, removed: targetFile.content.split("\n").length },
+        };
+        revisions = [newRev, ...state.fileRevisions];
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("crux_file_revisions", JSON.stringify(revisions.slice(0, 50)));
+          } catch {}
+        }
+      }
+
+      return { files: updatedFiles, fileRevisions: revisions };
+    }),
+
+  setHistoryDrawerOpen: (isHistoryDrawerOpen) => set({ isHistoryDrawerOpen }),
+  toggleHistoryDrawer: () => set((state) => ({ isHistoryDrawerOpen: !state.isHistoryDrawerOpen })),
+
+  recordFileRevision: (revData) =>
+    set((state) => {
+      const now = Date.now();
+      const dateObj = new Date(now);
+      const timeString = dateObj.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      const dateString = dateObj.toISOString().split("T")[0];
+      const newRev: FileRevision = {
+        id: `rev-${now}-${Math.random().toString(36).slice(2, 7)}`,
+        fileId: revData.fileId,
+        fileName: revData.fileName,
+        timestamp: now,
+        dateString,
+        calendarGroup: getCalendarGroupTitle(now),
+        timeString,
+        summary: revData.summary,
+        author: revData.author || (state.currentUser.name ? `${state.currentUser.name} [${state.currentUser.uid || "CRX"}]` : "Operator"),
+        content: revData.content,
+        linesCount: revData.content ? revData.content.split("\n").length : 0,
+        charsCount: revData.content.length,
+        changeType: revData.changeType || "modify",
+        diffSummary: revData.diffSummary,
+      };
+
+      const updatedRevs = [newRev, ...state.fileRevisions.filter((r) => r.id !== newRev.id)].slice(0, 50);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_file_revisions", JSON.stringify(updatedRevs));
+        } catch {}
+      }
+      return { fileRevisions: updatedRevs };
+    }),
+
+  restoreFileRevision: (revisionId) =>
+    set((state) => {
+      const targetRev = state.fileRevisions.find((r) => r.id === revisionId);
+      if (!targetRev) return state;
+
+      const updatedFiles = state.files.map((f) =>
+        f.id === targetRev.fileId
+          ? { ...f, content: targetRev.content, status: "modified" as const, isDirty: true }
+          : f
+      );
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_workspace_files", JSON.stringify(updatedFiles));
+        } catch {}
+      }
+
+      // Record the restore event in timeline
+      const now = Date.now();
+      const dateObj = new Date(now);
+      const restoreRev: FileRevision = {
+        id: `rev-restore-${now}`,
+        fileId: targetRev.fileId,
+        fileName: targetRev.fileName,
+        timestamp: now,
+        dateString: dateObj.toISOString().split("T")[0],
+        calendarGroup: getCalendarGroupTitle(now),
+        timeString: dateObj.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+        summary: `Reverted buffer to snapshot from ${targetRev.timeString} (${targetRev.calendarGroup})`,
+        author: state.currentUser.name ? `${state.currentUser.name} [${state.currentUser.uid || "CRX"}]` : "Operator",
+        content: targetRev.content,
+        linesCount: targetRev.linesCount,
+        charsCount: targetRev.charsCount,
+        changeType: "restore",
+        diffSummary: { added: targetRev.linesCount, removed: 0 },
+      };
+
+      const updatedRevs = [restoreRev, ...state.fileRevisions].slice(0, 50);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_file_revisions", JSON.stringify(updatedRevs));
+        } catch {}
+      }
+
+      return { files: updatedFiles, fileRevisions: updatedRevs, activeFileId: targetRev.fileId };
+    }),
+
+  createManualCheckpoint: (fileId, summary) =>
+    set((state) => {
+      const targetFile = state.files.find((f) => f.id === fileId);
+      if (!targetFile) return state;
+
+      const now = Date.now();
+      const dateObj = new Date(now);
+      const cpRev: FileRevision = {
+        id: `cp-${now}`,
+        fileId: targetFile.id,
+        fileName: targetFile.name,
+        timestamp: now,
+        dateString: dateObj.toISOString().split("T")[0],
+        calendarGroup: getCalendarGroupTitle(now),
+        timeString: dateObj.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+        summary: summary || `Manual Checkpoint: ${targetFile.content.split("\n").length} lines committed`,
+        author: state.currentUser.name ? `${state.currentUser.name} [${state.currentUser.uid || "CRX"}]` : "Operator",
+        content: targetFile.content,
+        linesCount: targetFile.content ? targetFile.content.split("\n").length : 0,
+        charsCount: targetFile.content.length,
+        changeType: "checkpoint",
+      };
+
+      const updatedRevs = [cpRev, ...state.fileRevisions].slice(0, 50);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_file_revisions", JSON.stringify(updatedRevs));
+        } catch {}
+      }
+      return { fileRevisions: updatedRevs };
+    }),
+
+  clearFileRevisions: (fileId) =>
+    set((state) => {
+      const updatedRevs = fileId
+        ? state.fileRevisions.filter((r) => r.fileId !== fileId)
+        : [];
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("crux_file_revisions", JSON.stringify(updatedRevs));
+        } catch {}
+      }
+      return { fileRevisions: updatedRevs };
+    }),
 
   updateFilePosition: (id, x, y) =>
     set((state) => ({

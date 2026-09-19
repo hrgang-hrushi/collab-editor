@@ -1,4 +1,4 @@
-import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage, WorkspaceTemplate } from "./types";
+import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage, WorkspaceTemplate, FileRevision } from "./types";
 
 export const CURRENT_USER: User = {
   id: "user-self",
@@ -659,4 +659,80 @@ Welcome to Crux v1.0 (General Availability).
     activeFileId: "file-main",
   },
 };
+
+export function getCalendarGroupTitle(timestamp: number): string {
+  const date = new Date(timestamp);
+  const now = new Date();
+
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
+
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear();
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const formattedDate = `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+
+  if (isToday) return `Today — ${formattedDate}`;
+  if (isYesterday) return `Yesterday — ${formattedDate}`;
+  return formattedDate;
+}
+
+export const INITIAL_REVISIONS: FileRevision[] = [
+  {
+    id: "rev-init-stream",
+    fileId: "file-stream-syncer",
+    fileName: "stream_syncer.ts",
+    timestamp: Date.now() - 1000 * 60 * 42,
+    dateString: new Date().toISOString().split("T")[0],
+    calendarGroup: getCalendarGroupTitle(Date.now() - 1000 * 60 * 42),
+    timeString: "5:48 PM",
+    summary: "Base checkpoint initialized: Mutual exclusion lock daemon client",
+    author: "Operator [CRX-7447-HG]",
+    content: INITIAL_FILES[0].content,
+    linesCount: INITIAL_FILES[0].content.split("\n").length,
+    charsCount: INITIAL_FILES[0].content.length,
+    changeType: "checkpoint",
+    diffSummary: { added: 18, removed: 0 },
+  },
+  {
+    id: "rev-init-db",
+    fileId: "file-database",
+    fileName: "database.ts",
+    timestamp: Date.now() - 1000 * 60 * 95,
+    dateString: new Date().toISOString().split("T")[0],
+    calendarGroup: getCalendarGroupTitle(Date.now() - 1000 * 60 * 95),
+    timeString: "4:55 PM",
+    summary: "WAL persistence baseline: Monotonic vector clock ring buffer",
+    author: "CruxAI [CRX-0001-AI]",
+    content: INITIAL_FILES[1].content,
+    linesCount: INITIAL_FILES[1].content.split("\n").length,
+    charsCount: INITIAL_FILES[1].content.length,
+    changeType: "checkpoint",
+    diffSummary: { added: 24, removed: 0 },
+  },
+  {
+    id: "rev-init-auth",
+    fileId: "file-auth",
+    fileName: "auth.ts",
+    timestamp: Date.now() - 1000 * 60 * 60 * 25,
+    dateString: new Date(Date.now() - 1000 * 60 * 60 * 25).toISOString().split("T")[0],
+    calendarGroup: getCalendarGroupTitle(Date.now() - 1000 * 60 * 60 * 25),
+    timeString: "5:05 PM",
+    summary: "Initial commit: Ed25519 subtle WebCrypto attestation subsystem",
+    author: "Sarah Lin [CRX-9941-SL]",
+    content: INITIAL_FILES[2].content,
+    linesCount: INITIAL_FILES[2].content.split("\n").length,
+    charsCount: INITIAL_FILES[2].content.length,
+    changeType: "create",
+    diffSummary: { added: 32, removed: 0 },
+  },
+];
+
 

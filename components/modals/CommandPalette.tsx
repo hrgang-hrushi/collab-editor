@@ -7,6 +7,7 @@ import {
   FileCode,
   Layers,
   Sparkles,
+  History,
   Layout,
   RotateCcw,
   CheckCheck,
@@ -27,6 +28,7 @@ import {
   Lock,
   SplitSquareVertical,
   Contrast,
+  GitCommit,
 } from "lucide-react";
 import { exportWorkspaceAsZip } from "@/lib/fileUtils";
 
@@ -54,6 +56,9 @@ export default function CommandPalette() {
   const toggleMonochromeTheme = useWorkspaceStore((state) => state.toggleMonochromeTheme);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
+  const setHistoryDrawerOpen = useWorkspaceStore((state) => state.setHistoryDrawerOpen);
+  const createManualCheckpoint = useWorkspaceStore((state) => state.createManualCheckpoint);
+  const activeFileId = useWorkspaceStore((state) => state.activeFileId);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -240,6 +245,24 @@ export default function CommandPalette() {
       category: "System",
       icon: <Sparkles className="w-4 h-4 text-[#858585]" />,
       action: () => setOnboarded(false),
+    },
+    {
+      id: "cmd-open-history",
+      title: "Open Revision History & Timeline",
+      category: "History",
+      icon: <History className="w-4 h-4 text-[#858585]" />,
+      action: () => setHistoryDrawerOpen(true),
+    },
+    {
+      id: "cmd-create-checkpoint",
+      title: "Create Revision Checkpoint for Active File",
+      category: "History",
+      icon: <GitCommit className="w-4 h-4 text-[#858585]" />,
+      action: () => {
+        if (activeFileId) {
+          createManualCheckpoint(activeFileId, "Manual checkpoint via Command Palette");
+        }
+      },
     },
   ];
 

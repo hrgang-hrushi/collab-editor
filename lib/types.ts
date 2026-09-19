@@ -193,3 +193,24 @@ export interface WorkspaceTemplate {
   activeFileId: string;
 }
 
+export interface FileRevision {
+  id: string;
+  fileId: string;
+  fileName: string;
+  timestamp: number;
+  dateString: string;
+  calendarGroup: string;
+  timeString: string;
+  summary: string;
+  author: string;
+  content: string;
+  linesCount: number;
+  charsCount: number;
+  changeType: "create" | "modify" | "delete_all" | "restore" | "checkpoint";
+  diffSummary?: {
+    added: number;
+    removed: number;
+  };
+}
+
+

@@ -16,6 +16,7 @@ import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
+import CruxTimelineHistoryDrawer from "./history/CruxTimelineHistoryDrawer";
 import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
 import CruxErrorBoundary from "./CruxErrorBoundary";
@@ -26,6 +27,7 @@ import { Morph } from "cube-motion/react";
 import {
   Layers,
   Code,
+  History,
   Search,
   PanelLeft,
   Terminal,
@@ -74,6 +76,8 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   const setShareModalOpen = useWorkspaceStore((state) => state.setShareModalOpen);
   const isInboxOpen = useWorkspaceStore((state) => state.isInboxOpen);
   const setInboxOpen = useWorkspaceStore((state) => state.setInboxOpen);
+  const setHistoryDrawerOpen = useWorkspaceStore((state) => state.setHistoryDrawerOpen);
+  const fileRevisions = useWorkspaceStore((state) => state.fileRevisions);
 
   const mode = useWorkspaceStore((state) => state.mode);
   const projectName = useWorkspaceStore((state) => state.projectName);
@@ -145,6 +149,24 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
         } catch {
           // ignore parsing error
         }
+      }
+      const savedFiles = localStorage.getItem("crux_workspace_files");
+      if (savedFiles) {
+        try {
+          const parsedFiles = JSON.parse(savedFiles);
+          if (Array.isArray(parsedFiles) && parsedFiles.length > 0) {
+            useWorkspaceStore.getState().setFiles(parsedFiles);
+          }
+        } catch {}
+      }
+      const savedRevs = localStorage.getItem("crux_file_revisions");
+      if (savedRevs) {
+        try {
+          const parsedRevs = JSON.parse(savedRevs);
+          if (Array.isArray(parsedRevs) && parsedRevs.length > 0) {
+            useWorkspaceStore.setState({ fileRevisions: parsedRevs });
+          }
+        } catch {}
       }
     }
   }, [setOnboarded, setUserProfile]);
@@ -531,6 +553,17 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             <span className="text-[10px] tracking-wider uppercase">IN SYNC</span>
           </div>
           <span className="text-[10px] text-muted">Speed: 0.08ms</span>
+
+          {/* Revision History & Timeline Button */}
+          <button
+            onClick={() => setHistoryDrawerOpen(true)}
+            className="flex items-center gap-1.5 px-2 py-0.5 border border-[#222222] hover:border-white text-[#CCCCCC] hover:text-black hover:bg-white transition-none cursor-pointer text-[10px]"
+            title="Open Revision History & Timeline (Undo / Restore)"
+          >
+            <History className="w-3 h-3 text-current" />
+            <span className="font-bold uppercase tracking-wider">HISTORY</span>
+            <span className="text-[9px] opacity-70">({fileRevisions.length})</span>
+          </button>
         </div>
         <div className="flex items-center gap-4 text-muted">
           <span>Ln {cursorPos?.line || 1}, Col {cursorPos?.col || 1}</span>
@@ -559,6 +592,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <CruxIdentityDrawer />
       <CruxLibraryModal />
       <CruxGaTourBanner />
+      <CruxTimelineHistoryDrawer />
       {isAuthGateOpen && (
         <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
           <CruxAuthGate

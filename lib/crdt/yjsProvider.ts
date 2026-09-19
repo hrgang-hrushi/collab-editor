@@ -65,6 +65,8 @@ export const DEFAULT_SIGNALING = ["wss://y-webrtc-eu.fly.dev"];
 
 // Active sessions cache indexed by fileId/room
 const sessionCache = new Map<string, CrexCRDTSession>();
+// Track rooms that have been initialized with initial template content to avoid re-inserting into empty buffers
+const initializedRooms = new Set<string>();
 
 /**
  * Generates or extracts a deterministic room hash from URL or file ID.
@@ -149,24 +151,28 @@ export function initCrexCRDTSession(
     );
   })();
 
-  // If local document is empty and we have initial content:
-  // For joining peers, allow a brief sync window before populating to avoid duplicate text merges
-  if (!isJoiningSession && ytext.length === 0 && initialContent) {
-    ytext.insert(0, initialContent);
-  } else if (isJoiningSession && ytext.length === 0 && initialContent) {
-    const fallbackTimer = setTimeout(() => {
-      if (ytext.length === 0 && initialContent) {
-        ytext.insert(0, initialContent);
-      }
-    }, 600);
+  // Only populate initial template content on the very first creation of this room.
+  // If the room has been initialized, do not re-insert initial content into an emptied file buffer.
+  const hasBeenInitialized = initializedRooms.has(roomName);
+  if (!hasBeenInitialized) {
+    initializedRooms.add(roomName);
+    if (!isJoiningSession && ytext.length === 0 && initialContent) {
+      ytext.insert(0, initialContent);
+    } else if (isJoiningSession && ytext.length === 0 && initialContent) {
+      const fallbackTimer = setTimeout(() => {
+        if (ytext.length === 0 && initialContent) {
+          ytext.insert(0, initialContent);
+        }
+      }, 600);
 
-    const onFirstSync = () => {
-      if (ytext.length > 0) {
-        clearTimeout(fallbackTimer);
-        ytext.unobserve(onFirstSync);
-      }
-    };
-    ytext.observe(onFirstSync);
+      const onFirstSync = () => {
+        if (ytext.length > 0) {
+          clearTimeout(fallbackTimer);
+          ytext.unobserve(onFirstSync);
+        }
+      };
+      ytext.observe(onFirstSync);
+    }
   }
 
   const provider = new WebrtcProvider(roomName, ydoc, {
