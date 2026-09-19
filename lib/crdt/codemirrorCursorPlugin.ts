@@ -132,6 +132,20 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
       constructor(view: EditorView) {
         this.decorations = Decoration.none;
 
+        // Broadcast initial cursor position immediately upon mount
+        try {
+          const conf = view.state.facet(ySyncFacet);
+          if (conf && conf.ytext && conf.ytext.doc) {
+            const mainSel = view.state.selection.main;
+            const anchor = Y.createRelativePositionFromTypeIndex(conf.ytext, mainSel.anchor);
+            const head = Y.createRelativePositionFromTypeIndex(conf.ytext, mainSel.head);
+            awareness.setLocalStateField("cursor", { anchor, head });
+            awareness.setLocalStateField("lastActive", Date.now());
+          }
+        } catch {
+          // ignore
+        }
+
         this.awarenessListener = () => {
           view.requestMeasure();
           view.dispatch({}); // trigger update
@@ -161,7 +175,7 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
 
         // Track local cursor position into awareness
         const localState = awareness.getLocalState();
-        if (update.view.hasFocus && localState) {
+        if ((update.view.hasFocus || update.selectionSet || update.docChanged) && localState) {
           const mainSel = update.state.selection.main;
           const anchor = Y.createRelativePositionFromTypeIndex(ytext, mainSel.anchor);
           const head = Y.createRelativePositionFromTypeIndex(ytext, mainSel.head);

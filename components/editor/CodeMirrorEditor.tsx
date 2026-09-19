@@ -762,8 +762,33 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     };
     session.ytext.observe(ytextObserver);
 
+    // Sync remote peer mouse movements from awareness into remoteCursors store
+    const awarenessMouseObserver = () => {
+      try {
+        const states = session.awareness.getStates();
+        states.forEach((state: any, clientID: number) => {
+          if (clientID === session.ydoc.clientID) return;
+          if (state && state.mouse && state.user) {
+            const u = state.user;
+            useWorkspaceStore.getState().updateRemoteCursor(`client-${clientID}`, {
+              userName: u.name || `Peer-${clientID.toString().slice(-4)}`,
+              userColor: u.color || "#FFFFFF",
+              userUid: u.uid || `CRX-${clientID.toString().slice(-4)}`,
+              activeFileId: state.mouse.fileId || file.id,
+              x: state.mouse.x,
+              y: state.mouse.y,
+            });
+          }
+        });
+      } catch {
+        // ignore
+      }
+    };
+    session.awareness.on("change", awarenessMouseObserver);
+
     return () => {
       session.ytext.unobserve(ytextObserver);
+      session.awareness.off("change", awarenessMouseObserver);
       view.destroy();
       viewRef.current = null;
       setActiveEditorView(null);
@@ -874,11 +899,28 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     setIsAiBarOpen(false);
   };
 
+  const handleContainerMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!crdtSessionRef.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.round(e.clientX - rect.left);
+    const y = Math.round(e.clientY - rect.top);
+    crdtSessionRef.current.awareness.setLocalStateField("mouse", {
+      x,
+      y,
+      fileId: file.id,
+    });
+  };
+
+  const handleContainerMouseLeave = () => {
+    if (!crdtSessionRef.current) return;
+    crdtSessionRef.current.awareness.setLocalStateField("mouse", null);
+  };
+
   return (
     <div className="relative w-full h-full flex flex-col bg-void font-mono overflow-hidden select-text">
       {/* Collaborative Suggestion Banner (if any pending for this file) */}
       {pendingSuggestions.length > 0 && (
-        <div className="bg-surface border-b border-grid px-4 py-2 flex items-center justify-between z-20 text-xs font-mono shrink-0 select-none">
+        <div className="h-9 px-3 bg-surface border-b border-grid flex items-center justify-between text-xs font-mono select-none">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-accent1" />
             <span className="text-signal font-semibold">{pendingSuggestions[0].author.name}</span>
@@ -905,25 +947,35 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       )}
 
       {/* CodeMirror Mount Point with Real-Time Lerping Remote Cursor Overlay */}
-      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative">
+      <div
+        ref={containerRef}
+        onMouseMove={handleContainerMouseMove}
+        onMouseLeave={handleContainerMouseLeave}
+        className="flex-1 w-full h-full overflow-auto relative"
+      >
         <RemoteCursorInterpolator view={activeEditorView} awareness={awarenessInstance} />
-      </div>
 
-      {Object.entries(remoteCursors)
-        .filter(([_, cursor]) => cursor.activeFileId === file.id)
-        .map(([userId, cursor]) => (
-          <div
-            key={userId}
-            className="absolute pointer-events-none z-20 transition-all duration-75"
-            style={{ top: `${cursor.y}px`, left: `${cursor.x}px` }}
-          >
-            <CruxPointerCursor
-              name={cursor.userName}
-              uid={cursor.userUid}
-              color={cursor.userColor}
-            />
-          </div>
-        ))}
+        {Object.entries(remoteCursors)
+          .filter(
+            ([_, cursor]) =>
+              cursor.activeFileId === file.id &&
+              cursor.x !== undefined &&
+              cursor.y !== undefined
+          )
+          .map(([userId, cursor]) => (
+            <div
+              key={userId}
+              className="absolute pointer-events-none z-50 transition-all duration-75"
+              style={{ top: `${cursor.y}px`, left: `${cursor.x}px` }}
+            >
+              <CruxPointerCursor
+                name={cursor.userName}
+                uid={cursor.userUid}
+                color={cursor.userColor}
+              />
+            </div>
+          ))}
+      </div>
 
       {/* Floating Selection Tooltip */}
       {selectedRange && selectedRange.coords && (

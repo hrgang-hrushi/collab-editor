@@ -35,14 +35,16 @@ interface PeerInterpolationState {
  * Single Smoothly Lerped Peer Cursor Element using Framer Motion Spring
  */
 const SmoothPeerCursor: React.FC<{ peer: PeerInterpolationState }> = ({ peer }) => {
+  const x = useMotionValue(peer.x);
+  const y = useMotionValue(peer.y);
   // Motion values with high-speed, critically damped springs (sub-10ms feel)
-  const springX = useSpring(peer.x, { stiffness: 450, damping: 35 });
-  const springY = useSpring(peer.y, { stiffness: 450, damping: 35 });
+  const springX = useSpring(x, { stiffness: 500, damping: 32 });
+  const springY = useSpring(y, { stiffness: 500, damping: 32 });
 
   useEffect(() => {
-    springX.set(peer.x);
-    springY.set(peer.y);
-  }, [peer.x, peer.y, springX, springY]);
+    x.set(peer.x);
+    y.set(peer.y);
+  }, [peer.x, peer.y, x, y]);
 
   if (!peer.visible) return null;
 
@@ -59,27 +61,27 @@ const SmoothPeerCursor: React.FC<{ peer: PeerInterpolationState }> = ({ peer }) 
     >
       {/* 2px Solid or Dashed Vertical Line */}
       <div
-        className="w-[2px] h-[1.25em]"
+        className="w-[2px] h-[1.3em]"
         style={{
           backgroundColor: peer.isIdle ? "transparent" : peer.color,
-          borderLeft: peer.isIdle ? "2px dashed #444444" : "none",
+          borderLeft: peer.isIdle ? "2px dashed #666666" : "none",
           borderRadius: "0px",
         }}
       />
 
       {/* Sharp 0px-radius rectangular name tag pinned above cursor */}
       <div
-        className="absolute bottom-full left-0 mb-[2px] px-1 py-[1px] font-sans text-[10px] font-semibold uppercase leading-none tracking-[0px] whitespace-nowrap border border-[#222222]"
+        className="absolute bottom-full left-0 mb-[2px] px-1.5 py-[2px] font-sans text-[10px] font-bold uppercase leading-none tracking-[0px] whitespace-nowrap border border-[#222222]"
         style={{
           backgroundColor: peer.color,
           color: isLight ? "#000000" : "#FFFFFF",
           borderRadius: "0px",
-          opacity: peer.isIdle ? 0.5 : 1.0,
-          borderColor: peer.isIdle ? "#444444" : "#222222",
+          opacity: peer.isIdle ? 0.6 : 1.0,
+          borderColor: peer.isIdle ? "#555555" : "#222222",
         }}
       >
         <span>{peer.name}</span>
-        {peer.isTyping && <span className="ml-1 text-[8px] animate-pulse">●</span>}
+        {peer.isTyping && <span className="ml-1 text-[8px] animate-pulse text-[#00FF00]">●</span>}
       </div>
     </motion.div>
   );
