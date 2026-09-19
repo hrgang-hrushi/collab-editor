@@ -246,7 +246,7 @@ export default function CruxOnboardingStartPage() {
         {activeView === "welcome" ? (
           <div className="w-full max-w-3xl flex flex-col items-center select-none gap-8 rounded-none">
             {/* 1. Monolithic Crux Title with Anchored Badge Box */}
-            <div className="flex flex-col items-center select-none gap-2.5">
+            <div className="flex flex-col items-center select-none gap-[5px]">
               <div className="inline-flex items-center gap-3">
                 <h1 className="font-brand font-black text-white text-9xl sm:text-[116px] md:text-[132px] tracking-[0px] leading-none select-none text-center">
                   Crux
