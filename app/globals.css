@@ -320,4 +320,28 @@ kbd {
   padding: 1px 0px;
 }
 
+@keyframes crexBounce {
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+}
+
+.crex-dot-1 {
+  animation: crexBounce 1.2s infinite ease-in-out;
+  animation-delay: -0.32s;
+}
+
+.crex-dot-2 {
+  animation: crexBounce 1.2s infinite ease-in-out;
+  animation-delay: -0.16s;
+}
+
+.crex-dot-3 {
+  animation: crexBounce 1.2s infinite ease-in-out;
+}
+
+
 

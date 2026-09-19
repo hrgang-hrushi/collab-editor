@@ -44,24 +44,19 @@ export interface CrexCRDTSession {
  */
 export function getSignalingUrls(): string[] {
   if (typeof window !== "undefined") {
-    const isHttps = window.location.protocol === "https:";
     const isLocal =
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1";
 
-    if (isHttps) {
-      return ["wss://y-webrtc-eu.fly.dev", "wss://signaling.yjs.dev"];
-    }
-
     if (isLocal) {
-      return ["ws://localhost:4444", "wss://y-webrtc-eu.fly.dev"];
+      return ["ws://localhost:4444", "wss://y-webrtc-eu.fly.dev", "wss://y-webrtc.fly.dev"];
     }
   }
 
-  return ["wss://y-webrtc-eu.fly.dev"];
+  return ["wss://y-webrtc-eu.fly.dev", "wss://y-webrtc.fly.dev"];
 }
 
-export const DEFAULT_SIGNALING = ["wss://y-webrtc-eu.fly.dev"];
+export const DEFAULT_SIGNALING = ["wss://y-webrtc-eu.fly.dev", "wss://y-webrtc.fly.dev"];
 
 // Active sessions cache indexed by fileId/room
 const sessionCache = new Map<string, CrexCRDTSession>();

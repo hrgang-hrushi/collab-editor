@@ -45,7 +45,6 @@ import {
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
 import { initCrexCRDTSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import { createCrexBrutalistCursorExtension } from "@/lib/crdt/codemirrorCursorPlugin";
-import RemoteCursorInterpolator from "./RemoteCursorInterpolator";
 import { ySyncFacet, ySync, YSyncConfig } from "y-codemirror.next";
 
 // Official VS Code Dark+ Color Palette
@@ -973,8 +972,6 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         onMouseLeave={handleContainerMouseLeave}
         className="flex-1 w-full h-full overflow-auto relative"
       >
-        <RemoteCursorInterpolator view={activeEditorView} awareness={awarenessInstance} />
-
         {Object.entries(remoteCursors)
           .filter(
             ([_, cursor]) =>
