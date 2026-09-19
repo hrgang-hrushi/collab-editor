@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import vm from "vm";
 import ts from "typescript";
+import { exec } from "child_process";
+import fs from "fs/promises";
+import path from "path";
+import os from "os";
 
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
@@ -20,6 +24,139 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // 1. JAVA RUNTIME HANDLER
+    if (filename.endsWith(".java") || body.language === "java") {
+      let tmpDir: string | null = null;
+      try {
+        tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "crux-java-"));
+        const classMatch = code.match(/public\s+class\s+([A-Za-z0-9_]+)/);
+        const inferredClassName = classMatch ? classMatch[1] : filename.replace(/\.java$/, "");
+        const actualJavaFileName = `${inferredClassName}.java`;
+        const javaFilePath = path.join(tmpDir, actualJavaFileName);
+
+        await fs.writeFile(javaFilePath, code, "utf8");
+
+        const execResult = await new Promise<{ stdout: string; stderr: string; success: boolean }>((resolve) => {
+          exec(
+            `javac "${actualJavaFileName}" && java "${inferredClassName}"`,
+            {
+              cwd: tmpDir || undefined,
+              timeout: 6000,
+              maxBuffer: 1024 * 1024,
+            },
+            (err: any, out: string, serr: string) => {
+              if (err) {
+                resolve({ stdout: out || "", stderr: serr || err.message, success: false });
+              } else {
+                resolve({ stdout: out || "", stderr: serr || "", success: true });
+              }
+            }
+          );
+        });
+
+        const durationMs = Date.now() - startTime;
+
+        if (!execResult.success && execResult.stderr.includes("Unable to locate a Java Runtime")) {
+          return NextResponse.json({
+            stdout: [],
+            stderr: [
+              `[Crux Runner] JDK (Java Development Kit) is required to compile and execute Java files ('${filename}').`,
+              "The local host does not have a working JDK installed (install via 'brew install openjdk' or adoptium.net).",
+              "Note: Crux's in-memory execution sandbox natively runs TypeScript and JavaScript.",
+            ],
+            durationMs,
+            success: false,
+            timestamp: Date.now(),
+            fileName: filename,
+          });
+        }
+
+        const outLines = execResult.stdout ? execResult.stdout.trim().split("\n").filter(Boolean) : [];
+        const errLines = execResult.stderr ? execResult.stderr.trim().split("\n").filter(Boolean) : [];
+
+        return NextResponse.json({
+          stdout: outLines,
+          stderr: errLines,
+          durationMs,
+          success: execResult.success,
+          timestamp: Date.now(),
+          fileName: filename,
+        });
+      } catch (jErr: any) {
+        return NextResponse.json({
+          stdout: [],
+          stderr: [jErr?.message || String(jErr)],
+          durationMs: Date.now() - startTime,
+          success: false,
+          timestamp: Date.now(),
+          fileName: filename,
+        });
+      } finally {
+        if (tmpDir) {
+          try {
+            await fs.rm(tmpDir, { recursive: true, force: true });
+          } catch {}
+        }
+      }
+    }
+
+    // 2. PYTHON RUNTIME HANDLER
+    if (filename.endsWith(".py") || body.language === "python") {
+      let tmpDir: string | null = null;
+      try {
+        tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), "crux-py-"));
+        const pyFilePath = path.join(tmpDir, filename);
+        await fs.writeFile(pyFilePath, code, "utf8");
+
+        const execResult = await new Promise<{ stdout: string; stderr: string; success: boolean }>((resolve) => {
+          exec(
+            `python3 "${filename}"`,
+            {
+              cwd: tmpDir || undefined,
+              timeout: 6000,
+              maxBuffer: 1024 * 1024,
+            },
+            (err: any, out: string, serr: string) => {
+              if (err) {
+                resolve({ stdout: out || "", stderr: serr || err.message, success: false });
+              } else {
+                resolve({ stdout: out || "", stderr: serr || "", success: true });
+              }
+            }
+          );
+        });
+
+        const durationMs = Date.now() - startTime;
+        const outLines = execResult.stdout ? execResult.stdout.trim().split("\n").filter(Boolean) : [];
+        const errLines = execResult.stderr ? execResult.stderr.trim().split("\n").filter(Boolean) : [];
+
+        return NextResponse.json({
+          stdout: outLines,
+          stderr: errLines,
+          durationMs,
+          success: execResult.success,
+          timestamp: Date.now(),
+          fileName: filename,
+        });
+      } catch (pErr: any) {
+        return NextResponse.json({
+          stdout: [],
+          stderr: [pErr?.message || String(pErr)],
+          durationMs: Date.now() - startTime,
+          success: false,
+          timestamp: Date.now(),
+          fileName: filename,
+        });
+      } finally {
+        if (tmpDir) {
+          try {
+            await fs.rm(tmpDir, { recursive: true, force: true });
+          } catch {}
+        }
+      }
+    }
+
+    // 3. TYPESCRIPT / JAVASCRIPT SANDBOXED EVALUATION
     // Build a map of workspace files for multi-file imports
     const fileMap = new Map<string, string>();
     for (const f of files) {

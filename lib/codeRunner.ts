@@ -32,6 +32,21 @@ export async function executeCode(
     console.warn("Server runner unavailable, falling back to client eval:", apiErr);
   }
 
+  // Check if non-JS language in offline client fallback
+  if (filename.endsWith(".java") || language === "java") {
+    return {
+      stdout: [],
+      stderr: [
+        "[Crux Runner] Java execution requires a server-side runtime with JDK installed.",
+        "Unable to evaluate Java in browser-only client fallback.",
+      ],
+      durationMs: Date.now() - startTime,
+      success: false,
+      timestamp: Date.now(),
+      fileName: filename,
+    };
+  }
+
   // Client-side fallback for simple JavaScript execution
   const stdout: string[] = [];
   const stderr: string[] = [];

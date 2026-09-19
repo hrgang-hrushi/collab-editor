@@ -659,13 +659,24 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
     logLines.push(`✓ Done in ${result.durationMs}ms (exit: ${result.success ? 0 : 1})`);
 
+    const formatRunCmd = (fileName: string) => {
+      if (fileName.endsWith(".java")) {
+        const cls = fileName.replace(/\.java$/, "");
+        return `javac ${fileName} && java ${cls}`;
+      }
+      if (fileName.endsWith(".py")) {
+        return `python3 ${fileName}`;
+      }
+      return `node ${fileName}`;
+    };
+
     set((s) => ({
       isExecuting: false,
       lastExecutionResult: result,
       terminalHistory: [
         ...s.terminalHistory,
         {
-          cmd: `node ${activeFile.name}`,
+          cmd: formatRunCmd(activeFile.name),
           output: logLines,
           type: result.success ? "ok" : "err",
         },
@@ -695,13 +706,24 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (result.returnValue !== undefined) logLines.push(`=> ${result.returnValue}`);
     logLines.push(`✓ Done in ${result.durationMs}ms`);
 
+    const formatRunCmd = (fileName: string) => {
+      if (fileName.endsWith(".java")) {
+        const cls = fileName.replace(/\.java$/, "");
+        return `javac ${fileName} && java ${cls}`;
+      }
+      if (fileName.endsWith(".py")) {
+        return `python3 ${fileName}`;
+      }
+      return `node ${fileName}`;
+    };
+
     set((s) => ({
       isExecuting: false,
       lastExecutionResult: result,
       terminalHistory: [
         ...s.terminalHistory,
         {
-          cmd: `node ${targetFile.name}`,
+          cmd: formatRunCmd(targetFile.name),
           output: logLines,
           type: result.success ? "ok" : "err",
         },
