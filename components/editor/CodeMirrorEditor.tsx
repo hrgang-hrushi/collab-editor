@@ -27,7 +27,7 @@ import { python } from "@codemirror/lang-python";
 import { css } from "@codemirror/lang-css";
 import { html } from "@codemirror/lang-html";
 import { json } from "@codemirror/lang-json";
-import { syntaxHighlighting, HighlightStyle, syntaxTree } from "@codemirror/language";
+import { syntaxHighlighting, HighlightStyle, defaultHighlightStyle, syntaxTree } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 import { useWorkspaceStore } from "@/lib/store";
 import { FileNode, LibraryPackage } from "@/lib/types";
@@ -682,7 +682,8 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         linter(cruxLinter, { delay: 100 }),
         lintGutter(),
         getLanguageExtension(file.language),
-        syntaxHighlighting(isMonochromeTheme ? cruxMonochromeHighlightStyle : cruxHighlightStyle),
+        syntaxHighlighting(cruxHighlightStyle),
+        syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
         cruxEditorTheme,
         keymap.of([
           {

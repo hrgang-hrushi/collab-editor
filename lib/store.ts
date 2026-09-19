@@ -457,7 +457,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   isAiPromptOpen: false,
   isAiGenerating: false,
 
-  isMonochromeTheme: true,
+  isMonochromeTheme: false,
   isZeroStateOpen: false,
   launchSequenceState: "idle",
 
