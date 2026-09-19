@@ -74,14 +74,14 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
           <div className="h-3.5 w-[1px] bg-[#222222]" />
           <div className="flex items-center gap-2 font-mono text-[11px]">
             <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-            <span className="font-bold uppercase tracking-wider text-white">LIBRARIES.DEV // EFFECTS_ENGINE</span>
+            <span className="font-bold uppercase tracking-wider text-white">Component Effects</span>
           </div>
         </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-3 font-mono text-[10px]">
           <span className="text-[#666666] hidden sm:inline">
-            [01: ORB · 02: BEAM · 03: GOOEY · 04: METAL]
+            Thinking Orb · Border Beam · Liquid Gooey · Metal FX
           </span>
           {onLaunchIde && (
             <button
@@ -91,7 +91,7 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
               }}
               className="px-2.5 py-1 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none uppercase flex items-center gap-1"
             >
-              <span>[WORKSPACE_KERNEL]</span>
+              <span>Open Code Editor</span>
               <ArrowUpRight className="w-3 h-3" />
             </button>
           )}
@@ -194,10 +194,10 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
               >
                 <div className="p-4 bg-[#0E0E0E] border border-[#222222] font-mono text-xs text-center space-y-1">
                   <div className="font-bold text-white uppercase tracking-wider text-[11px]">
-                    [ENCLAVE_BEAM_ACTIVE]
+                    Border Beam Active
                   </div>
                   <p className="text-[9px] text-[#888888]">
-                    Animated border glow riding perimeter
+                    Animated glowing border effect
                   </p>
                 </div>
               </BorderBeam>
@@ -328,7 +328,7 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
           <div className="h-48 bg-[#000000] border border-[#222222] flex flex-col items-center justify-center p-3 relative overflow-hidden gap-3">
             <div className="flex items-center gap-3">
               <MetalText font="700 16px Arial, sans-serif" color="#FFFFFF">
-                CRUX KERNEL
+                Crux
               </MetalText>
               <MetalBadge>PRO</MetalBadge>
             </div>
@@ -344,12 +344,12 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
                 ref={metalButtonRef}
                 className="px-5 py-2.5 bg-transparent border border-white/20 text-white font-mono text-xs uppercase tracking-wider cursor-pointer rounded-none transition-none"
               >
-                DISPATCH METAL CORE ↵
+                Click Me ↵
               </button>
             </MetalFx>
 
             <span className="font-mono text-[9px] text-[#666666] uppercase">
-              WEBGL2 REAL-TIME LIQUID METAL SHADER
+              Liquid Metal Shader Effect
             </span>
           </div>
 
@@ -407,9 +407,9 @@ export default function CruxLibrariesDirectView({ onLaunchIde }: CruxLibrariesDi
         </section>
       </main>
 
-      {/* 3. HARDWARE FOOTER */}
+      {/* 3. FOOTER */}
       <footer className="h-8 px-4 bg-[#050505] border-t border-[#222222] flex items-center justify-between font-mono text-[9px] text-[#444444] shrink-0">
-        <div>[LIBRARIES.DEV // HARDWARE_BRUTALISM_ENGINE]</div>
+        <div>Component Effects Demo</div>
         <div className="flex items-center gap-3">
           <span>THINKING-ORBS</span>
           <span>·</span>
