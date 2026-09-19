@@ -171,74 +171,7 @@ export default function CruxOnboardingStartPage() {
         />
       </div>
 
-      {/* 2. Top Telemetry & Status Calibration Bar (Z-20) */}
-      <header className="relative z-20 h-9 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[10px] font-mono select-none">
-        <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 bg-white animate-hard-blink" />
-          <button
-            onClick={() => switchTab("welcome")}
-            className="font-brand font-black tracking-[0px] text-white text-xs hover:text-white/80 transition-none"
-            title="Return to Start Enclave"
-          >
-            Crux
-          </button>
-          <span className="text-[#333333]">/</span>
-          <span className="text-[#666666] uppercase tracking-widest text-[9px]">
-            {activeView === "welcome"
-              ? "START_ENCLAVE // ZERO_STATE"
-              : activeView === "signup"
-              ? "INITIALIZE_NODE // SIGN_UP"
-              : activeView === "login"
-              ? "AUTHENTICATE // SIGN_IN"
-              : "ACCOUNT_SETTINGS // HARDWARE_PREF"}
-          </span>
-        </div>
 
-        {/* Top-Right Navigation Switches */}
-        <div className="flex items-center gap-1.5 text-[9px] font-mono">
-          <button
-            onClick={() => switchTab("welcome")}
-            className={`px-2 py-0.5 border transition-none uppercase ${
-              activeView === "welcome"
-                ? "bg-white text-black border-white font-bold"
-                : "bg-[#000000] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
-            }`}
-          >
-            00 // OVERVIEW
-          </button>
-          <button
-            onClick={() => switchTab("signup")}
-            className={`px-2 py-0.5 border transition-none uppercase ${
-              activeView === "signup"
-                ? "bg-white text-black border-white font-bold"
-                : "bg-[#000000] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
-            }`}
-          >
-            01 // SIGN UP
-          </button>
-          <button
-            onClick={() => switchTab("login")}
-            className={`px-2 py-0.5 border transition-none uppercase ${
-              activeView === "login"
-                ? "bg-white text-black border-white font-bold"
-                : "bg-[#000000] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
-            }`}
-          >
-            02 // SIGN IN
-          </button>
-          <button
-            onClick={() => switchTab("settings")}
-            className={`px-2 py-0.5 border transition-none uppercase flex items-center gap-1 ${
-              activeView === "settings"
-                ? "bg-white text-black border-white font-bold"
-                : "bg-[#000000] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
-            }`}
-          >
-            <Settings className="w-2.5 h-2.5" />
-            <span>03 // SETTINGS</span>
-          </button>
-        </div>
-      </header>
 
       {/* 3. Central Start Board Matrix (Z-30) */}
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
@@ -673,16 +606,6 @@ export default function CruxOnboardingStartPage() {
         </div>
         )}
       </main>
-
-      {/* 4. Bottom Footer Calibration (Z-20) */}
-      <footer className="relative z-20 h-7 border-t border-[#222222] bg-[#000000] flex items-center justify-between px-3 text-[9px] font-mono text-[#444444] select-none">
-        <div>[crux_dom_kernel // v1.2.0]</div>
-        <div className="flex items-center gap-3">
-          <span>ETNA SANS SERIF / ARIAL MT PRO</span>
-          <span className="text-[#222222]">|</span>
-          <span className="text-white">HARDWARE BRUTALISM</span>
-        </div>
-      </footer>
     </div>
   );
 }
