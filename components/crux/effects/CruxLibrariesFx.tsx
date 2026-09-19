@@ -324,7 +324,12 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
                 <MetalText font="700 16px Arial, sans-serif" color="#FFFFFF">
                   CRUX KERNEL
                 </MetalText>
-                <MetalBadge>PRO</MetalBadge>
+                <div className="relative inline-flex items-center select-none">
+                  <MetalBadge textColor="#FFFFFF">PRO</MetalBadge>
+                  <span className="absolute inset-0 flex items-center justify-center font-sans font-black text-[10.5px] tracking-wider text-white z-30 pointer-events-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]">
+                    PRO
+                  </span>
+                </div>
               </div>
 
               <MetalFx
