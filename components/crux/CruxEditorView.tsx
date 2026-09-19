@@ -162,23 +162,41 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       .catch(() => {/* keep defaults */});
   }, []);
 
-  // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
+  const handleSetMode = (nextMode: "edit" | "canvas") => {
+    triggerHaptic("toggle");
+    setMode(nextMode);
+    if (typeof window !== "undefined") {
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set("mode", nextMode);
+        window.history.replaceState({}, "", url.toString());
+      } catch {}
+    }
+  };
+
+  // URL query parameter parsing on initial mount only
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("mode") === "edit" || params.get("mode") === "ide") {
+      const urlMode = params.get("mode");
+      if (urlMode === "canvas" || urlMode === "nexus") {
+        setMode("canvas");
+      } else if (urlMode === "edit" || urlMode === "ide") {
         setMode("edit");
       }
       if (params.get("onboarding") === "true" || params.get("reset") === "true") {
         useWorkspaceStore.getState().setOnboarded(false);
       }
     }
+  }, [setMode]);
 
+  // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.code === "Space") {
         e.preventDefault();
-        triggerHaptic("toggle");
-        setMode(mode === "canvas" ? "edit" : "canvas");
+        const currentMode = useWorkspaceStore.getState().mode;
+        handleSetMode(currentMode === "canvas" ? "edit" : "canvas");
       } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
         e.preventDefault();
         toggleSidebar();
@@ -192,7 +210,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [mode, setMode, toggleSidebar, toggleTerminal]);
+  }, [toggleSidebar, toggleTerminal]);
 
   const menuItems = ["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"];
 
@@ -243,20 +261,22 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
         {/* Segmented Control: Editor vs Canvas */}
         <div className="flex items-center bg-void border border-grid p-0.5">
           <button
-            onClick={() => setMode("edit")}
-            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors ${
+            type="button"
+            onClick={() => handleSetMode("edit")}
+            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors cursor-pointer ${
               !isNexus
-                ? "bg-grid text-signal"
+                ? "bg-grid text-signal font-bold"
                 : "text-muted hover:text-signal"
             }`}
           >
             Editor
           </button>
           <button
-            onClick={() => setMode("canvas")}
-            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors ${
+            type="button"
+            onClick={() => handleSetMode("canvas")}
+            className={`px-4 py-1 text-[11px] font-medium tracking-wide uppercase transition-colors cursor-pointer ${
               isNexus
-                ? "bg-grid text-signal"
+                ? "bg-grid text-signal font-bold"
                 : "text-muted hover:text-signal"
             }`}
           >
@@ -477,7 +497,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
                     openTab(fileId);
                     setActiveFile(fileId);
                   }
-                  setMode("edit");
+                  handleSetMode("edit");
                 }}
               />
             </CruxErrorBoundary>

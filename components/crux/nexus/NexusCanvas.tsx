@@ -54,6 +54,16 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const panStartRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
+  const panX = Number.isFinite(canvasTransform?.panX) ? canvasTransform.panX : 80;
+  const panY = Number.isFinite(canvasTransform?.panY) ? canvasTransform.panY : 60;
+  const zoom = Number.isFinite(canvasTransform?.zoom) && canvasTransform.zoom > 0 ? canvasTransform.zoom : 0.52;
+
+  useEffect(() => {
+    if (!files || files.length === 0) {
+      useWorkspaceStore.getState().loadStarterWorkspace();
+    }
+  }, [files?.length]);
+
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -455,7 +465,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         id="nexus-canvas-plane"
         className="absolute top-0 left-0 w-full h-full origin-top-left transition-transform duration-75 ease-out"
         style={{
-          transform: `translate3d(${canvasTransform.panX}px, ${canvasTransform.panY}px, 0) scale(${canvasTransform.zoom})`,
+          transform: `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`,
           willChange: "transform",
         }}
       >
