@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ThinkingOrb } from "thinking-orbs";
 import {
   Bot,
   Sparkles,
@@ -363,7 +364,7 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
               className="p-3 rounded-none bg-[#0A0A0A] border border-[#222222] space-y-2 text-xs"
             >
               <div className="flex items-center gap-2 text-white font-medium">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#FF453A]" />
+                <ThinkingOrb state="searching" size={20} theme="dark" />
                 <span>CruxAI Synthesizing Patch...</span>
               </div>
 

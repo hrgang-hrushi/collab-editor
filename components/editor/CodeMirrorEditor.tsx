@@ -43,6 +43,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
+import { initCrexCRDTSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { createCrexBrutalistCursorExtension } from "@/lib/crdt/codemirrorCursorPlugin";
+import RemoteCursorInterpolator from "./RemoteCursorInterpolator";
+import { ySyncFacet, ySync, YSyncConfig } from "y-codemirror.next";
 
 // Official VS Code Dark+ Color Palette
 const cruxHighlightStyle = HighlightStyle.define([
@@ -68,6 +72,25 @@ const cruxHighlightStyle = HighlightStyle.define([
   { tag: [t.propertyName, t.attributeName], color: "#9cdcfe" },
   { tag: [t.variableName], color: "#9cdcfe" },
   { tag: [t.bracket, t.punctuation], color: "#ffd700" },
+]);
+
+// Crux Pure Black & White (Monochrome Brutalist) Syntax Highlighting
+const cruxMonochromeHighlightStyle = HighlightStyle.define([
+  { tag: [t.keyword, t.controlKeyword, t.moduleKeyword], color: "#FFFFFF", fontWeight: "700" },
+  { tag: [t.typeName, t.className, t.namespace], color: "#FFFFFF", fontWeight: "600", textDecoration: "underline", textUnderlineOffset: "3px" },
+  { tag: [t.function(t.variableName), t.function(t.propertyName), t.labelName], color: "#FFFFFF", fontWeight: "600" },
+  { tag: [t.definition(t.name)], color: "#FFFFFF", fontWeight: "500" },
+  { tag: [t.variableName, t.propertyName, t.attributeName], color: "#E0E0E0" },
+  { tag: [t.name, t.deleted, t.character, t.macroName], color: "#D4D4D4" },
+  { tag: [t.string, t.special(t.string)], color: "#A8A8A8", fontStyle: "italic" },
+  { tag: [t.number, t.bool, t.null, t.atom, t.self], color: "#FFFFFF", fontWeight: "500" },
+  { tag: [t.operator, t.operatorKeyword], color: "#FFFFFF" },
+  { tag: [t.bracket, t.punctuation, t.separator], color: "#777777" },
+  { tag: [t.meta, t.comment], color: "#555555", fontStyle: "italic" },
+  { tag: [t.url, t.escape, t.regexp, t.link], color: "#E0E0E0" },
+  { tag: t.strong, fontWeight: "bold" },
+  { tag: t.emphasis, fontStyle: "italic" },
+  { tag: t.strikethrough, textDecoration: "line-through" },
 ]);
 
 const cruxEditorTheme = EditorView.theme({
@@ -98,20 +121,20 @@ const cruxEditorTheme = EditorView.theme({
   },
   ".cm-gutters": {
     backgroundColor: "#000000 !important",
-    color: "#555555 !important",
+    color: "#444444 !important",
     borderRight: "1px solid #222222 !important",
-    paddingRight: "6px",
+    width: "48px !important",
   },
   ".cm-activeLineGutter": {
-    backgroundColor: "#0A0A0A !important",
+    backgroundColor: "#111111 !important",
     color: "#FFFFFF !important",
   },
   ".cm-lineNumbers .cm-gutterElement": {
-    padding: "0 12px 0 8px !important",
+    padding: "0 8px 0 0 !important",
     fontSize: "12px",
-    minWidth: "38px",
+    width: "48px !important",
     textAlign: "right",
-    color: "#555555",
+    color: "#444444",
   },
   // Red Curvy Squiggly Underline for missing tokens / brackets / syntax errors
   ".cm-lintRange-error": {
@@ -552,6 +575,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   const isAiGenerating = useWorkspaceStore((state) => state.isAiGenerating);
   const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
   const libraries = useWorkspaceStore((state) => state.libraries);
+  const isMonochromeTheme = useWorkspaceStore((state) => state.isMonochromeTheme);
   const librariesRef = useRef(libraries);
   librariesRef.current = libraries;
 
@@ -606,7 +630,11 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     }
   }, []);
 
-  // Mount CodeMirror 6 instance
+  // Active Yjs CRDT Session for real-time WebRTC P2P mesh
+  const crdtSessionRef = useRef<CrexCRDTSession | null>(null);
+  const [awarenessInstance, setAwarenessInstance] = useState<any>(null);
+
+  // Mount CodeMirror 6 instance with native Yjs CRDT & WebRTC bindings
   useEffect(() => {
     if (typeof window !== "undefined") {
       (window as any).__cm_mounted__ = ((window as any).__cm_mounted__ || 0) + 1;
@@ -614,9 +642,30 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     }
     if (!containerRef.current) return;
 
+    // 1. Initialize P2P Yjs document & awareness via WebRTC
+    const session = initCrexCRDTSession(file.id, file.content, {
+      name: currentUser.name || "Principal Developer",
+      color: currentUser.color || "#FFFFFF",
+      uid: currentUser.uid || "CRX-7447-HG",
+    });
+    crdtSessionRef.current = session;
+    setAwarenessInstance(session.awareness);
+
+    // Initial content from Y.Text or fallback to file.content
+    const initialDoc = session.ytext.toString() || file.content;
+    if (session.ytext.length === 0 && file.content) {
+      session.ytext.insert(0, file.content);
+    }
+
+    // 2. Build CodeMirror state with Yjs sync and Brutalist cursor plugins
+    const syncConfig = new YSyncConfig(session.ytext, session.awareness);
+
     const startState = EditorState.create({
-      doc: file.content,
+      doc: initialDoc,
       extensions: [
+        ySyncFacet.of(syncConfig),
+        ySync,
+        createCrexBrutalistCursorExtension(session.awareness),
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
@@ -633,7 +682,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         linter(cruxLinter, { delay: 100 }),
         lintGutter(),
         getLanguageExtension(file.language),
-        syntaxHighlighting(cruxHighlightStyle),
+        syntaxHighlighting(isMonochromeTheme ? cruxMonochromeHighlightStyle : cruxHighlightStyle),
         cruxEditorTheme,
         keymap.of([
           {
@@ -695,11 +744,19 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
 
     viewRef.current = view;
 
+    // Sync Yjs text changes into local workspace store
+    const ytextObserver = () => {
+      const updatedText = session.ytext.toString();
+      updateFileContent(file.id, updatedText);
+    };
+    session.ytext.observe(ytextObserver);
+
     return () => {
+      session.ytext.unobserve(ytextObserver);
       view.destroy();
       viewRef.current = null;
     };
-  }, [file.id, getLanguageExtension, readOnly]);
+  }, [file.id, getLanguageExtension, readOnly, isMonochromeTheme]);
 
   // Keep editor content in sync when updated externally (e.g. accepted suggestion)
   useEffect(() => {
@@ -835,9 +892,10 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         </div>
       )}
 
-      {/* CodeMirror Mount Point */}
-      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative" />
-
+      {/* CodeMirror Mount Point with Real-Time Lerping Remote Cursor Overlay */}
+      <div ref={containerRef} className="flex-1 w-full h-full overflow-auto relative">
+        <RemoteCursorInterpolator view={viewRef.current} awareness={awarenessInstance} />
+      </div>
 
       {Object.entries(remoteCursors)
         .filter(([_, cursor]) => cursor.activeFileId === file.id)

@@ -9,11 +9,17 @@ import NexusCanvas from "./nexus/NexusCanvas";
 import CruxAgentPanel from "./agent/CruxAgentPanel";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
+import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
 import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
+import CruxLibrariesFx from "./effects/CruxLibrariesFx";
+import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import {
   Layers,
   Code,
@@ -38,10 +44,19 @@ import { triggerHaptic } from "@/lib/haptics";
 
 export default function CruxEditorView() {
   const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [isLibrariesFxOpen, setIsLibrariesFxOpen] = useState(false);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
+  const [gitInfo, setGitInfo] = useState<{ branch: string; isDirty: boolean }>({
+    branch: "main",
+    isDirty: false,
+  });
 
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
+  const isZeroStateOpen = useWorkspaceStore((state) => state.isZeroStateOpen);
+  const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
+  const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const viewerLock = useWorkspaceStore((state) => state.viewerLock);
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
   const inboxInvites = useWorkspaceStore((state) => state.inboxInvites);
@@ -70,18 +85,78 @@ export default function CruxEditorView() {
 
   const pendingInvitesCount = inboxInvites.filter((inv) => inv.status === "pending").length;
 
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(typeof window !== "undefined");
+  const [livePeers, setLivePeers] = useState<Array<{ name: string; color: string; uid?: string }>>([]);
+
+  const isNexus = mode === "canvas";
+
+  const activeFile =
+    files && files.length > 0
+      ? files.find((f) => f.id === activeFileId) ||
+        files.find((f) => f.name === "stream_syncer.ts") ||
+        files[0]
+      : null;
+
+  // Continuously listen to active Yjs awareness peer states
+  useEffect(() => {
+    const checkAwareness = () => {
+      if (!activeFile?.id) return;
+      const session = getActiveCrexCRDTSession(activeFile.id);
+      if (session && session.awareness) {
+        const states = session.awareness.getStates();
+        const peersList: Array<{ name: string; color: string; uid?: string }> = [];
+        states.forEach((st: any, clientID: number) => {
+          if (st.user) {
+            peersList.push({
+              name: st.user.name || `Peer-${clientID}`,
+              color: st.user.color || "#FFFFFF",
+              uid: st.user.uid,
+            });
+          }
+        });
+        setLivePeers(peersList);
+      }
+    };
+
+    const interval = setInterval(checkAwareness, 500);
+    checkAwareness();
+    return () => clearInterval(interval);
+  }, [activeFile?.id]);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const isNexus = mode === "canvas";
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const cleanName = firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "operator";
+        setUserProfile({
+          name: cleanName,
+          email: firebaseUser.email || `${cleanName}@auth`,
+          color: "#FFFFFF",
+          uid: firebaseUser.uid.slice(0, 8),
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [setUserProfile]);
 
-  const activeFile =
-    files.find((f) => f.id === activeFileId) ||
-    files.find((f) => f.name === "stream_syncer.ts") ||
-    files[0];
+  useEffect(() => {
+    fetch("/api/git", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "branch" }),
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.branch) {
+          setGitInfo({ branch: data.branch, isDirty: !!data.isDirty });
+        }
+      })
+      .catch(() => {/* keep defaults */});
+  }, []);
 
   // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
   useEffect(() => {
@@ -89,6 +164,9 @@ export default function CruxEditorView() {
       const params = new URLSearchParams(window.location.search);
       if (params.get("mode") === "edit" || params.get("mode") === "ide") {
         setMode("edit");
+      }
+      if (params.get("onboarding") === "true" || params.get("reset") === "true") {
+        useWorkspaceStore.getState().setOnboarded(false);
       }
     }
 
@@ -125,8 +203,9 @@ export default function CruxEditorView() {
     );
   }
 
-  if (!isOnboarded) {
-    return <CruxOnboardingStartPage />;
+
+  if (isZeroStateOpen) {
+    return <CruxOmnibarVoid />;
   }
 
   return (
@@ -189,7 +268,7 @@ export default function CruxEditorView() {
             className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-grid border border-grid text-signal text-[11px] font-mono transition-colors"
             title="Developer Identity & Keyring (Click to switch user or copy UID)"
           >
-            <div className="w-1.5 h-1.5 rounded-full bg-[#00FF00]" />
+            <div className="w-1.5 h-1.5 bg-white" />
             <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
             <span className="text-[10px] text-muted">[{currentUser.uid || "CRX-7447"}]</span>
           </button>
@@ -232,21 +311,51 @@ export default function CruxEditorView() {
             )}
           </button>
 
-          {/* Active Collaborators */}
+          {/* Active Collaborators (Dynamic WebRTC Mesh Awareness + Mock Fallbacks) */}
           <div
             className="hidden xl:flex items-center gap-1 cursor-pointer"
             onClick={() => setShareModalOpen(true)}
-            title="Active Peers in Room (Click to open Share / Invites)"
+            title={`Active Peers in Mesh (${livePeers.length > 0 ? livePeers.length : 3} connected) · Click to open Share`}
           >
-            <div className="px-1.5 py-0.5 bg-accent1 text-void text-[9px] font-mono font-bold leading-none" title="Sarah Lin (CRX-9941-SL)">
-              SL
-            </div>
-            <div className="px-1.5 py-0.5 bg-void border border-grid text-muted text-[9px] font-mono leading-none" title="Marcus Vance (CRX-5520-MV)">
-              MV
-            </div>
-            <div className="px-1.5 py-0.5 bg-accent2 text-signal text-[9px] font-mono font-bold leading-none" title="CruxAI Copilot (CRX-0001-AI)">
-              AI
-            </div>
+            {livePeers.length > 0 ? (
+              livePeers.map((peer, idx) => {
+                const initials = peer.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .join("")
+                  .toUpperCase()
+                  .slice(0, 2) || "P";
+                return (
+                  <div
+                    key={idx}
+                    className="px-1.5 py-0.5 text-[9px] font-mono font-bold leading-none border transition-none"
+                    style={{
+                      backgroundColor: idx === 0 ? "#FFFFFF" : idx === 1 ? "#888888" : "#444444",
+                      color: idx === 0 ? "#000000" : "#FFFFFF",
+                      borderColor: "#222222",
+                    }}
+                    title={`${peer.name} (${peer.uid || "Peer"})`}
+                  >
+                    {initials}
+                  </div>
+                );
+              })
+            ) : (
+              <>
+                <div className="px-1.5 py-0.5 bg-white text-black text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Sarah Lin (CRX-9941-SL)">
+                  SL
+                </div>
+                <div className="px-1.5 py-0.5 bg-[#888888] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Marcus Vance (CRX-5520-MV)">
+                  MV
+                </div>
+                <div className="px-1.5 py-0.5 bg-[#444444] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="CruxAI Copilot (CRX-0001-AI)">
+                  AI
+                </div>
+              </>
+            )}
+            <span className="text-[9px] font-mono text-[#444444] ml-0.5 uppercase tracking-tighter">
+              [{livePeers.length > 0 ? livePeers.length : 3} MESH]
+            </span>
           </div>
 
           {/* Window Layout Toggles */}
@@ -280,6 +389,35 @@ export default function CruxEditorView() {
             </button>
           </div>
 
+          {/* FX Matrix Trigger (Libraries.dev: Orb, Beam, Gooey, Metal) */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setIsLibrariesFxOpen(true);
+            }}
+            title="Libraries.dev Effects Matrix (Orb, Beam, Gooey, Metal)"
+            className={`px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider border transition-none flex items-center gap-1.5 ${
+              isLibrariesFxOpen
+                ? "bg-white text-black border-white"
+                : "bg-void text-muted border-grid hover:text-white hover:border-white"
+            }`}
+          >
+            <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
+            <span>FX MATRIX</span>
+          </button>
+
+          {/* Auth Gate Trigger */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setIsAuthGateOpen(true);
+            }}
+            title="Open Hardware Brutalist Auth Gate"
+            className="px-2 py-1 text-[10px] font-mono text-muted hover:text-white border border-grid hover:border-white bg-void transition-none uppercase"
+          >
+            [AUTH]
+          </button>
+
           {/* Share Button */}
           <button
             onClick={() => {
@@ -294,6 +432,19 @@ export default function CruxEditorView() {
           </button>
         </div>
       </header>
+
+      {/* 1b. CRUX MENU BAR (24px, VS Code-style clickable menu items) */}
+      <div className="h-6 border-b border-[#111111] bg-[#050505] flex items-center px-4 shrink-0 select-none">
+        {menuItems.map((item) => (
+          <button
+            key={item}
+            onClick={() => setCommandPaletteOpen(true)}
+            className="px-3 h-full text-[11px] text-[#666666] hover:text-white hover:bg-[#111111] transition-colors font-sans"
+          >
+            {item}
+          </button>
+        ))}
+      </div>
 
       {/* 2. MAIN LAYOUT */}
       <div className="flex flex-1 overflow-hidden">
@@ -338,18 +489,32 @@ export default function CruxEditorView() {
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5 hover:text-signal cursor-pointer">
             <GitBranch className="w-3 h-3 text-muted" />
-            <span className="text-signal">main*</span>
+            <span className="text-signal">{gitInfo.branch}{gitInfo.isDirty ? "*" : ""}</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-[#00FF00]" />
+            <span className="w-1.5 h-1.5 bg-white" />
             <span className="text-[10px] tracking-wider uppercase">CRDT IN-SYNC</span>
           </div>
           <span className="text-[10px] text-muted">Daemon: 0.08ms</span>
         </div>
         <div className="flex items-center gap-4 text-muted">
           <span>Ln {cursorPos?.line || 1}, Col {cursorPos?.col || 1}</span>
+          {activeFile && (
+            <span className="hidden md:inline">
+              {activeFile.content.split('\n').length}L · {activeFile.content.split(/\s+/).filter(Boolean).length}W
+            </span>
+          )}
           <span className="hidden sm:inline">UTF-8</span>
-          <span className="uppercase text-signal font-medium">TypeScript</span>
+          <span className="uppercase text-signal font-medium">
+            {({
+              typescript: "TypeScript",
+              javascript: "JavaScript",
+              python: "Python",
+              json: "JSON",
+              markdown: "Markdown",
+              plaintext: "Plain Text",
+            } as Record<string, string>)[activeFile?.language ?? "plaintext"] ?? "Plain Text"}
+          </span>
         </div>
       </footer>
 
@@ -358,6 +523,18 @@ export default function CruxEditorView() {
       <CruxInboxModal />
       <CruxIdentityDrawer />
       <CruxLibraryModal />
+      <CruxLibrariesFx
+        isOpen={isLibrariesFxOpen}
+        onClose={() => setIsLibrariesFxOpen(false)}
+      />
+      {isAuthGateOpen && (
+        <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
+          <CruxAuthGate
+            onSuccess={() => setIsAuthGateOpen(false)}
+            onCancel={() => setIsAuthGateOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -33,3 +33,9 @@ Thumbs.db
 
 # Vercel
 .vercel
+
+# Rust & Tauri
+target/
+src-tauri/target/
+crex-engine/target/
+*.wasm

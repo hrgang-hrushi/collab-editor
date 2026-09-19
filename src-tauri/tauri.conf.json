@@ -1,0 +1,89 @@
+{
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/dev/tooling/cli/schema.json",
+  "build": {
+    "beforeBuildCommand": "npm run build",
+    "beforeDevCommand": "npm run dev",
+    "devPath": "http://localhost:3000",
+    "distDir": "../out"
+  },
+  "package": {
+    "productName": "Crux",
+    "version": "1.0.0"
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "shell": {
+        "all": false,
+        "execute": true,
+        "open": true,
+        "scope": [
+          {
+            "name": "python3",
+            "cmd": "python3",
+            "args": true
+          },
+          {
+            "name": "rustc",
+            "cmd": "rustc",
+            "args": true
+          },
+          {
+            "name": "gcc",
+            "cmd": "gcc",
+            "args": true
+          },
+          {
+            "name": "javac",
+            "cmd": "javac",
+            "args": true
+          },
+          {
+            "name": "java",
+            "cmd": "java",
+            "args": true
+          },
+          {
+            "name": "swiftc",
+            "cmd": "swiftc",
+            "args": true
+          }
+        ]
+      },
+      "fs": {
+        "all": true,
+        "scope": ["$TEMP/*"]
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "Crux Systems 2026",
+      "identifier": "systems.crux.desktop",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ]
+    },
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "title": "Crux",
+        "width": 1440,
+        "height": 900,
+        "minWidth": 960,
+        "minHeight": 600,
+        "resizable": true,
+        "fullscreen": false,
+        "transparent": false,
+        "decorations": true,
+        "theme": "Dark"
+      }
+    ]
+  }
+}

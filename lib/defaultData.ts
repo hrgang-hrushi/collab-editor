@@ -93,10 +93,20 @@ export const INITIAL_FILES: FileNode[] = [
 
 export class StreamSyncer {
   timeout = 5000;
-  async acquireLock() {
-    await this.daemon.
+  daemon = new LocalDaemonClient({ port: 7447 });
+
+  async acquireLock(channel = "stream-mesh-primary") {
+    console.log(\`[StreamSyncer] Requesting mutual exclusion lock for: \${channel}...\`);
+    const ticket = await this.daemon.acquireLock(channel);
+    console.log(\`[StreamSyncer] Lock acquired successfully! Ticket: \${ticket.ticketId}\`);
+    return ticket;
   }
 }
+
+const syncer = new StreamSyncer();
+syncer.acquireLock().then((ticket) => {
+  console.log(\`[StreamSyncer] Mesh channel ready on origin: \${ticket.origin}\`);
+});
 `,
   },
   {
@@ -134,6 +144,11 @@ export async function persistStateVector(docId: string, bytes: Uint8Array): Prom
 
   return monotonicSequence;
 }
+
+// Verification write
+persistStateVector("doc-primary", new Uint8Array([1, 0, 1])).then((seq) => {
+  console.log(\`[WAL] Committed frame sequence #\${seq} to ring buffer\`);
+});
 `,
   },
   {
@@ -180,6 +195,8 @@ export function createSessionHeader(token: SessionToken): Record<string, string>
     "X-Crux-Peer-Id": token.payload.peerId,
   };
 }
+
+console.log("[Auth] Cryptographic attestation engine loaded. WebCrypto Ed25519 subsystem online.");
 `,
   },
   {
@@ -263,6 +280,10 @@ export class SpatialPhysicsEngine {
     };
   }
 }
+
+const engine = new SpatialPhysicsEngine();
+const step = engine.calculateNextPosition({ x: 0, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 0 }, 0.016);
+console.log(\`[SpatialPhysicsEngine] 120Hz lerp initialized. Next vector: (\${step.pos.x.toFixed(2)}, \${step.pos.y.toFixed(2)})\`);
 `,
   },
 ];

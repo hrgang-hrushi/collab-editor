@@ -1,5 +1,82 @@
-@import url('/fonts/fonts.css');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@font-face {
+  font-family: 'Etna Sans Serif';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna Sans Serif';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna Sans Serif';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna Sans Serif';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna Sans Serif';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
+
+@font-face {
+  font-family: 'Etna';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/etna-free-font.otf') format('opentype');
+}
 
 @tailwind base;
 @tailwind components;
@@ -8,16 +85,19 @@
 @layer base {
   :root {
     --ide-bg: #000000;
-    --ide-sidebar: #0A0A0A;
-    --ide-activity: #0A0A0A;
-    --ide-titlebar: #0A0A0A;
-    --ide-statusbar: #0A0A0A;
+    --ide-sidebar: #111111;
+    --ide-activity: #111111;
+    --ide-titlebar: #111111;
+    --ide-statusbar: #111111;
     --ide-border: #222222;
-    --ide-accent: #007AFF;
-    --ide-accent-ai: #FF453A;
     --ide-fg: #FFFFFF;
-    --ide-fg-muted: #888888;
-    --ide-line-num: #888888;
+    --ide-fg-muted: #444444;
+    --ide-line-num: #444444;
+  }
+
+  * {
+    border-radius: 0px !important;
+    box-shadow: none !important;
   }
 
   html {
@@ -25,13 +105,13 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     color-scheme: dark;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-family: "Arial MT Pro", "Arial MT", Arial, Helvetica, sans-serif;
   }
 
   body {
     background-color: #000000;
     color: #FFFFFF;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    font-family: "Arial MT Pro", "Arial MT", Arial, Helvetica, sans-serif;
     font-size: 12px;
     letter-spacing: -0.01em;
     overflow: hidden;
@@ -40,45 +120,82 @@
 }
 
 @layer components {
-  /* Brutalist Panels & Surfaces */
-  .crux-panel {
-    background-color: #0A0A0A;
+  /* Hardware Brutalist Panels & Flush Dividers */
+  .crex-panel {
+    background-color: #111111;
     border: 1px solid #222222;
     border-radius: 0px;
   }
 
-  .crux-card {
+  .crex-card {
     background-color: #000000;
     border: 1px solid #222222;
     border-radius: 0px;
   }
 
-  /* Brutalist Flat Buttons (No Drop Shadows, 1px borders) */
-  .btn-crux-primary {
-    @apply h-6 px-2.5 rounded-none bg-[#007AFF] text-white text-[12px] font-medium tracking-tight
-           hover:bg-[#0062cc] active:bg-[#004bb5] transition-none flex items-center justify-center gap-1.5 
-           border border-[#007AFF] focus:outline-none;
+  /* Tactile Mechanical Buttons (Instant Inversion, No Transition) */
+  .btn-crex {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    padding: 0 8px;
+    font-family: "Arial MT Pro", Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    background-color: transparent;
+    color: #FFFFFF;
+    border: 1px solid #222222;
+    transition: none !important;
+    cursor: pointer;
   }
 
-  .btn-crux-secondary {
-    @apply h-6 px-2 rounded-none bg-transparent hover:bg-[#222222] text-[#888888] hover:text-white text-[12px] 
-           transition-none flex items-center justify-center gap-1.5 
-           border border-[#222222] focus:outline-none;
+  .btn-crex:hover {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
   }
 
-  .btn-crux-ghost {
-    @apply h-6 px-1.5 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] text-[12px] 
-           transition-none flex items-center justify-center gap-1;
+  .btn-crex:focus {
+    outline: none;
+    border-color: #FFFFFF;
   }
 }
 
-/* Subtle #222222 Dot Grid Canvas */
-.canvas-dot-grid,
-.crux-dot-grid {
-  background-color: #000000;
-  background-image: 
-    radial-gradient(circle at 1px 1px, #222222 1px, transparent 0);
-  background-size: 24px 24px;
+/* The Crex Effect: Spinny Blur with Radial Void Mask */
+@keyframes crexSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.crex-spinny-blur {
+  animation: crexSpin 30s linear infinite;
+  filter: blur(8px) brightness(0.8);
+  transform-origin: center center;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 75%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 1) 15%, rgba(0, 0, 0, 0) 75%);
+}
+
+/* Hard 500ms Blink Block Cursor */
+@keyframes hardBlink500ms {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.crex-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.2em;
+  vertical-align: -0.2em;
+  background-color: #FFFFFF;
+  animation: hardBlink500ms 1s steps(1, start) infinite;
 }
 
 /* CodeMirror Selection & Typography */
@@ -93,47 +210,32 @@
   border-left-width: 2px !important;
 }
 
-/* Minimalist Scrollbar: 4px, #222222 */
+/* Strict 2px Hardware Scrollbar */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 2px;
+  height: 2px;
 }
 ::-webkit-scrollbar-track {
   background: #000000;
 }
 ::-webkit-scrollbar-thumb {
   background: #222222;
-  border-radius: 0px;
+  border-radius: 0px !important;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #333333;
+  background: #444444;
 }
 
-/* Keyboard Shortcut Badge */
+/* Brutalist Keyboard Badges */
 kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: inherit;
+  font-family: "JetBrains Mono", monospace;
   font-size: 10px;
-  font-weight: 500;
   padding: 1px 4px;
-  border-radius: 2px;
-  background-color: #0A0A0A;
+  border-radius: 0px;
+  background-color: #111111;
   border: 1px solid #222222;
-  color: #888888;
-}
-
-/* Subtle Conduit Flow Animation */
-@keyframes wireFlowForward {
-  from {
-    stroke-dashoffset: 16;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.animate-wire-flow {
-  animation: wireFlowForward 1.2s linear infinite;
+  color: #FFFFFF;
 }

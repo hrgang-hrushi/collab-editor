@@ -6,62 +6,95 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       fontFamily: {
+        brand: [
+          '"Etna Sans Serif"',
+          'Etna',
+          '"Arial MT Pro"',
+          'Arial',
+          'sans-serif',
+        ],
+        display: [
+          '"Arial MT Pro"',
+          '"Arial MT"',
+          'Arial',
+          'Helvetica',
+          'sans-serif',
+        ],
+        space: [
+          '"Arial MT Pro"',
+          '"Arial MT"',
+          'Arial',
+          'Helvetica',
+          'sans-serif',
+        ],
         sans: [
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "SF Pro Display",
-          "Segoe UI",
-          "sans-serif",
+          '"Arial MT Pro"',
+          '"Arial MT"',
+          'Arial',
+          'Helvetica',
+          'sans-serif',
         ],
         mono: [
-          "var(--font-geist-mono)",
-          "Geist Mono",
-          "JetBrains Mono",
-          "SF Mono",
-          "ui-monospace",
-          "Menlo",
-          "Monaco",
-          "Consolas",
-          "monospace",
+          '"Arial MT Pro"',
+          '"Arial MT"',
+          'Arial',
+          'Helvetica',
+          'sans-serif',
         ],
       },
       colors: {
-        // Crux Brutalist Color Palette (DESIGN.md)
+        // Crex Hardware Brutalism Monochrome Palette
         void: "#000000",
-        surface: "#0A0A0A",
+        silk: "#FFFFFF",
+        silicon: "#111111",
         grid: "#222222",
+        muted: "#444444",
+
+        // Aliases for system compatibility
+        surface: "#111111",
         signal: "#FFFFFF",
-        dim: "#888888",
-        crux: {
-          blue: "#007AFF",       // Accent 1 (User 1 Cursor, Primary action)
-          crimson: "#FF453A",    // Accent 2 (CruxAI Crimson)
-          green: "#00FF00",      // Diff Addition
-        },
+        dim: "#444444",
+
         border: {
           DEFAULT: "#222222",
-          subtle: "#161616",
-          strong: "#333333",
+          subtle: "#111111",
+          strong: "#222222",
         },
       },
       borderRadius: {
         none: "0px",
-        xs: "2px",
-        sm: "2px",
-        DEFAULT: "2px",
-        md: "4px",
-        lg: "4px",
-        xl: "4px",
-        "2xl": "4px",
-        full: "9999px",
+        xs: "0px",
+        sm: "0px",
+        DEFAULT: "0px",
+        md: "0px",
+        lg: "0px",
+        xl: "0px",
+        "2xl": "0px",
+        full: "0px",
       },
       boxShadow: {
         none: "none",
-        hard: "4px 4px 0px #222222", // Canvas cards hard drop shadow (Section 6)
+        DEFAULT: "none",
+        sm: "none",
+        md: "none",
+        lg: "none",
+        xl: "none",
+        "2xl": "none",
+      },
+      animation: {
+        "spin-slow": "spin 30s linear infinite",
+        "hard-blink": "hardBlink 1s steps(1, start) infinite",
+      },
+      keyframes: {
+        hardBlink: {
+          "0%, 49%": { opacity: "1" },
+          "50%, 100%": { opacity: "0" },
+        },
       },
     },
   },

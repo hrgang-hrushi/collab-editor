@@ -10,6 +10,9 @@ export interface User {
   accessLevel?: "full" | "limited" | "viewer";
   allowedFiles?: string[];
   allowedLineRange?: { start: number; end: number };
+  telemetryEnabled?: boolean;
+  keymapPreference?: "default" | "jetbrains" | "vscode" | "vim";
+  defaultComputeTarget?: "local" | "bedrock" | "copilot";
 }
 
 export interface ShareInvite {
@@ -59,6 +62,7 @@ export interface FileNode {
   height: number;
   zIndex: number;
   isMinimized?: boolean;
+  isDirty?: boolean;
   status?: "clean" | "modified" | "suggesting";
   activePeerIds?: string[];
   contributorColor?: string;
@@ -145,4 +149,34 @@ export interface LibraryPackage {
   category: "core" | "crdt" | "ui" | "utility" | "npm";
   isInstalled: boolean;
   exports: string[];
+}
+
+export type { CrexRunProfile, DiscoveredModelRuntime, DiscoveryReport } from "@/daemon/types";
+
+export interface TerminalPeerInput {
+  userId: string;
+  userName: string;
+  userColor: string;
+  cursorCol: number;
+  lastActive: number;
+}
+
+export interface TerminalSession {
+  id: string;
+  name: string;
+  type: "sh" | "server" | "ai" | "output";
+  cwd: string;
+  lines: import("./ansiParser").AnsiLine[];
+  history: string[];
+  historyIndex: number;
+  inputVal: string;
+  isStreaming: boolean;
+  activePid: number | null;
+  lastExitCode: number | null;
+  peerInputs?: Record<string, TerminalPeerInput>;
+  lastDiagnosis?: {
+    summary: string;
+    suggestedCommand?: string;
+    suggestedDiff?: string;
+  } | null;
 }
