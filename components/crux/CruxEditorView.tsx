@@ -14,6 +14,8 @@ import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
+import CruxLibrariesFx from "./effects/CruxLibrariesFx";
+import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
 import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import {
@@ -40,6 +42,8 @@ import { triggerHaptic } from "@/lib/haptics";
 
 export default function CruxEditorView() {
   const [isAgentOpen, setIsAgentOpen] = useState(false);
+  const [isLibrariesFxOpen, setIsLibrariesFxOpen] = useState(false);
+  const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [gitInfo, setGitInfo] = useState<{ branch: string; isDirty: boolean }>({
     branch: "main",
@@ -78,15 +82,17 @@ export default function CruxEditorView() {
 
   const pendingInvitesCount = inboxInvites.filter((inv) => inv.status === "pending").length;
 
-  const [isMounted, setIsMounted] = useState(false);
+  const [isMounted, setIsMounted] = useState(typeof window !== "undefined");
   const [livePeers, setLivePeers] = useState<Array<{ name: string; color: string; uid?: string }>>([]);
 
   const isNexus = mode === "canvas";
 
   const activeFile =
-    files.find((f) => f.id === activeFileId) ||
-    files.find((f) => f.name === "stream_syncer.ts") ||
-    files[0];
+    files && files.length > 0
+      ? files.find((f) => f.id === activeFileId) ||
+        files.find((f) => f.name === "stream_syncer.ts") ||
+        files[0]
+      : null;
 
   // Continuously listen to active Yjs awareness peer states
   useEffect(() => {
@@ -367,6 +373,35 @@ export default function CruxEditorView() {
             </button>
           </div>
 
+          {/* FX Matrix Trigger (Libraries.dev: Orb, Beam, Gooey, Metal) */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setIsLibrariesFxOpen(true);
+            }}
+            title="Libraries.dev Effects Matrix (Orb, Beam, Gooey, Metal)"
+            className={`px-2.5 py-1 text-[10px] font-mono font-bold uppercase tracking-wider border transition-none flex items-center gap-1.5 ${
+              isLibrariesFxOpen
+                ? "bg-white text-black border-white"
+                : "bg-void text-muted border-grid hover:text-white hover:border-white"
+            }`}
+          >
+            <span className="w-1.5 h-1.5 bg-white animate-hard-blink" />
+            <span>FX MATRIX</span>
+          </button>
+
+          {/* Auth Gate Trigger */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setIsAuthGateOpen(true);
+            }}
+            title="Open Hardware Brutalist Auth Gate"
+            className="px-2 py-1 text-[10px] font-mono text-muted hover:text-white border border-grid hover:border-white bg-void transition-none uppercase"
+          >
+            [AUTH]
+          </button>
+
           {/* Share Button */}
           <button
             onClick={() => {
@@ -472,6 +507,18 @@ export default function CruxEditorView() {
       <CruxInboxModal />
       <CruxIdentityDrawer />
       <CruxLibraryModal />
+      <CruxLibrariesFx
+        isOpen={isLibrariesFxOpen}
+        onClose={() => setIsLibrariesFxOpen(false)}
+      />
+      {isAuthGateOpen && (
+        <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
+          <CruxAuthGate
+            onSuccess={() => setIsAuthGateOpen(false)}
+            onCancel={() => setIsAuthGateOpen(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }
