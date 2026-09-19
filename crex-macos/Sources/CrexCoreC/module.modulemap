@@ -1,0 +1,4 @@
+module CrexCoreC [system] {
+    header "include/crex_core.h"
+    export *
+}
