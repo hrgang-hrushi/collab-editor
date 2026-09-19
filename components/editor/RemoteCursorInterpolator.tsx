@@ -26,6 +26,7 @@ interface PeerInterpolationState {
   uid: string;
   isIdle: boolean;
   isTyping: boolean;
+  isSelecting: boolean;
   x: number;
   y: number;
   visible: boolean;
@@ -59,29 +60,44 @@ const SmoothPeerCursor: React.FC<{ peer: PeerInterpolationState }> = ({ peer }) 
         willChange: "transform",
       }}
     >
-      {/* 2px Solid or Dashed Vertical Line */}
+      {/* 2.5px Vertical Caret Line with rounded corner curve radius in peer color */}
       <div
-        className="w-[2px] h-[1.3em]"
+        className="w-[2.5px] h-[1.3em] rounded-[2px] transition-all"
         style={{
           backgroundColor: peer.isIdle ? "transparent" : peer.color,
           borderLeft: peer.isIdle ? "2px dashed #666666" : "none",
-          borderRadius: "0px",
+          boxShadow: peer.isTyping ? `0 0 8px ${peer.color}` : "none",
         }}
       />
 
-      {/* Sharp 0px-radius rectangular name tag pinned above cursor */}
+      {/* Collaborator Name Tag pinned above cursor line with corner curve radius in peer color */}
       <div
-        className="absolute bottom-full left-0 mb-[2px] px-1.5 py-[2px] font-sans text-[10px] font-bold uppercase leading-none tracking-[0px] whitespace-nowrap border border-[#222222]"
+        className="absolute bottom-full left-0 mb-[3px] px-2 py-[2px] font-sans text-[10px] font-semibold tracking-[0px] whitespace-nowrap flex items-center gap-1.5 shadow-md rounded-[4px]"
         style={{
           backgroundColor: peer.color,
           color: isLight ? "#000000" : "#FFFFFF",
-          borderRadius: "0px",
+          borderColor: peer.color,
+          borderWidth: "1px",
+          borderStyle: "solid",
           opacity: peer.isIdle ? 0.6 : 1.0,
-          borderColor: peer.isIdle ? "#555555" : "#222222",
         }}
       >
         <span>{peer.name}</span>
-        {peer.isTyping && <span className="ml-1 text-[8px] animate-pulse text-[#00FF00]">●</span>}
+        {peer.isTyping && (
+          <span className="inline-flex items-center gap-0.5 text-[9px] font-normal lowercase opacity-95">
+            <span>typing</span>
+            <span className="inline-flex gap-0.5 ml-0.5">
+              <span className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:-0.3s]" />
+              <span className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:-0.15s]" />
+              <span className="w-1 h-1 rounded-full bg-current animate-bounce" />
+            </span>
+          </span>
+        )}
+        {!peer.isTyping && peer.isSelecting && (
+          <span className="text-[9px] font-normal lowercase opacity-90">
+            selecting
+          </span>
+        )}
       </div>
     </motion.div>
   );
@@ -115,6 +131,11 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
         const headPos = Y.createAbsolutePositionFromRelativePosition(state.cursor.head, ydoc);
         if (!headPos || headPos.type !== ytext) return;
 
+        const anchorPos = state.cursor.anchor
+          ? Y.createAbsolutePositionFromRelativePosition(state.cursor.anchor, ydoc)
+          : null;
+        const isSelecting = !!(anchorPos && anchorPos.type === ytext && anchorPos.index !== headPos.index);
+
         const coords = view.coordsAtPos(headPos.index);
         if (!coords) return;
 
@@ -142,6 +163,7 @@ export default function RemoteCursorInterpolator({ view, awareness }: RemoteCurs
           uid,
           isIdle,
           isTyping,
+          isSelecting,
           x: relX,
           y: relY,
           visible: isVisible,

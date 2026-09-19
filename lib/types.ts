@@ -43,6 +43,8 @@ export interface SpatialCursor {
   targetY: number;
   offsetX?: number;
   offsetY?: number;
+  status?: string;
+  isTyping?: boolean;
   activeFileId?: string;
   lastUpdated: number;
   selection?: {

@@ -246,6 +246,95 @@ export function initCrexCRDTSession(
 }
 
 /**
+ * Generates deterministic room name for the real-time shared Canvas session.
+ */
+export function getDeterministicCanvasRoomName(): string {
+  try {
+    const storeSession = useWorkspaceStore.getState().activeSessionId;
+    if (storeSession && storeSession.trim()) {
+      return `session-${storeSession.trim()}-canvas`;
+    }
+  } catch {
+    // ignore
+  }
+
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    const querySession = params.get("session") || params.get("room");
+    if (querySession && querySession.trim()) {
+      return `session-${querySession.trim()}-canvas`;
+    }
+
+    const hash = window.location.hash.replace(/^#/, "").trim();
+    if (hash && hash.startsWith("session-")) {
+      const cleanHash = hash.split("?")[0].trim();
+      return `${cleanHash}-canvas`;
+    }
+  }
+
+  return "crux-canvas-nexus";
+}
+
+/**
+ * Initializes or retrieves existing CRDT session specifically for the real-time Spatial Canvas.
+ */
+export function initCrexCanvasSession(user: CrexPeerUser): CrexCRDTSession {
+  const roomName = getDeterministicCanvasRoomName();
+
+  if (sessionCache.has(roomName)) {
+    const existing = sessionCache.get(roomName)!;
+    existing.awareness.setLocalStateField("user", {
+      name: user.name,
+      color: user.color,
+      uid: user.uid,
+      isTyping: false,
+      lastActive: Date.now(),
+    });
+    return existing;
+  }
+
+  const ydoc = new Y.Doc();
+  const ytext = ydoc.getText("canvas-meta");
+
+  const provider = new WebrtcProvider(roomName, ydoc, {
+    signaling: getSignalingUrls(),
+    awareness: new Awareness(ydoc),
+    maxConns: 30,
+    filterBcConns: false,
+    peerOpts: {},
+  });
+
+  const awareness = provider.awareness;
+
+  awareness.setLocalStateField("user", {
+    name: user.name,
+    color: user.color,
+    uid: user.uid,
+    isTyping: false,
+    lastActive: Date.now(),
+  });
+
+  const session: CrexCRDTSession = {
+    ydoc,
+    ytext,
+    provider,
+    awareness,
+    destroy: () => {
+      try {
+        provider.destroy();
+        ydoc.destroy();
+      } catch {
+        // ignore
+      }
+      sessionCache.delete(roomName);
+    },
+  };
+
+  sessionCache.set(roomName, session);
+  return session;
+}
+
+/**
  * Peer Color Assignment Palette (Strict Hardware Brutalism):
  * Peer 1: #FFFFFF (White silk, text inverts to black)
  * Peer 2: #888888 (Silicon mid-tone)

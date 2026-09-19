@@ -49,16 +49,16 @@ export class CrexBrutalistCaretWidget extends WidgetType {
     wrap.style.display = "inline";
     wrap.style.zIndex = "100";
 
-    // 1. Remote Cursor Line (2px vertical line, 0px radius)
+    // 1. Remote Cursor Line with corner radius in peer color
     const line = document.createElement("span");
     line.className = "crex-remote-cursor-line";
     line.style.position = "absolute";
     line.style.top = "0px";
     line.style.left = "-1px";
-    line.style.width = "2px";
+    line.style.width = "2.5px";
     line.style.height = "1.25em";
     line.style.backgroundColor = this.color;
-    line.style.borderRadius = "0px";
+    line.style.borderRadius = "2px";
     line.style.zIndex = "101";
 
     if (this.isIdle) {
@@ -67,21 +67,20 @@ export class CrexBrutalistCaretWidget extends WidgetType {
       line.style.width = "2px";
     }
 
-    // 2. Sharp Name Tag pinned above cursor line in Arial MT Pro, text-[10px]
+    // 2. Collaborator Name Tag pinned above cursor line with corner curve radius
     const tag = document.createElement("div");
     tag.className = "crex-remote-name-tag";
     tag.style.position = "absolute";
     tag.style.bottom = "100%";
     tag.style.left = "-1px";
-    tag.style.marginBottom = "2px";
-    tag.style.padding = "1px 4px";
+    tag.style.marginBottom = "3px";
+    tag.style.padding = "2px 6px";
     tag.style.fontFamily = '"Arial MT Pro", "Arial MT", Arial, Helvetica, sans-serif';
     tag.style.fontSize = "10px";
     tag.style.fontWeight = "600";
     tag.style.lineHeight = "1";
     tag.style.letterSpacing = "0px";
-    tag.style.textTransform = "uppercase";
-    tag.style.borderRadius = "0px";
+    tag.style.borderRadius = "4px";
     tag.style.whiteSpace = "nowrap";
     tag.style.boxSizing = "border-box";
     tag.style.zIndex = "102";
@@ -90,7 +89,7 @@ export class CrexBrutalistCaretWidget extends WidgetType {
     const isLight = this.color.toLowerCase() === "#ffffff" || this.color.toLowerCase() === "#fff";
     tag.style.backgroundColor = this.color;
     tag.style.color = isLight ? "#000000" : "#FFFFFF";
-    tag.style.border = "1px solid #222222";
+    tag.style.border = `1px solid ${this.color}`;
 
     if (this.isIdle) {
       tag.style.opacity = "0.5";
@@ -221,24 +220,34 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
           const from = Math.min(anchorPos.index, headPos.index);
           const to = Math.max(anchorPos.index, headPos.index);
 
-          // 1. Selection Ribbon: 15% opacity flat fill (no rounded corners, no glow)
+          // 1. Selection Ribbon: tinted background with corner curve radius matching pointer color
           if (from !== to) {
-            // Convert hex color to rgba with 0.15 opacity
-            const r = parseInt(color.slice(1, 3) || "ff", 16);
-            const g = parseInt(color.slice(3, 5) || "ff", 16);
-            const b = parseInt(color.slice(5, 7) || "ff", 16);
-            const rgbaFill = `rgba(${isNaN(r) ? 255 : r}, ${isNaN(g) ? 255 : g}, ${isNaN(b) ? 255 : b}, 0.15)`;
+            const hexToRgba = (hex: string, alpha: number) => {
+              if (!hex) return `rgba(255, 255, 255, ${alpha})`;
+              let clean = hex.replace("#", "").trim();
+              if (clean.length === 3) {
+                clean = clean.split("").map((c) => c + c).join("");
+              }
+              if (clean.length === 6) {
+                const r = parseInt(clean.slice(0, 2), 16);
+                const g = parseInt(clean.slice(2, 4), 16);
+                const b = parseInt(clean.slice(4, 6), 16);
+                return `rgba(${isNaN(r) ? 255 : r}, ${isNaN(g) ? 255 : g}, ${isNaN(b) ? 255 : b}, ${alpha})`;
+              }
+              return `rgba(255, 255, 255, ${alpha})`;
+            };
+
+            const rgbaFill = hexToRgba(color, 0.28);
+            const rgbaBorder = hexToRgba(color, 0.65);
 
             decos.push(
               Decoration.mark({
                 class: "crex-remote-selection-ribbon",
                 attributes: {
-                  style: `background-color: ${rgbaFill} !important; border-radius: 0px !important; outline: none !important; box-shadow: none !important;`,
+                  style: `background-color: ${rgbaFill} !important; border-radius: 4px !important; outline: 1px solid ${rgbaBorder} !important; box-decoration-break: clone; -webkit-box-decoration-break: clone;`,
                 },
               }).range(from, to)
             );
-            // Selection Ribbon is handled natively by CodeMirror decorations.
-            // Caret line and name badge are smoothly rendered via RemoteCursorInterpolator (Framer Motion 60fps lerp).
           }
         });
 

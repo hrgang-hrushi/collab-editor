@@ -6,6 +6,7 @@ import EditorNode from "@/components/canvas/EditorNode";
 import ConnectorLayer from "@/components/canvas/ConnectorLayer";
 import CursorLayer from "@/components/multiplayer/CursorLayer";
 import PipelineTracker from "@/components/canvas/PipelineTracker";
+import { initCrexCanvasSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import {
   Layers,
   ZoomIn,
@@ -58,11 +59,64 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
   const panY = Number.isFinite(canvasTransform?.panY) ? canvasTransform.panY : 60;
   const zoom = Number.isFinite(canvasTransform?.zoom) && canvasTransform.zoom > 0 ? canvasTransform.zoom : 0.52;
 
+  const currentUser = useWorkspaceStore((state) => state.currentUser);
+  const canvasSessionRef = useRef<CrexCRDTSession | null>(null);
+
   useEffect(() => {
     if (!files || files.length === 0) {
       useWorkspaceStore.getState().loadStarterWorkspace();
     }
   }, [files?.length]);
+
+  // Real-time WebRTC Multiplayer Synchronization on Spatial Canvas
+  useEffect(() => {
+    const session = initCrexCanvasSession({
+      name: currentUser.name || "Collaborator",
+      color: currentUser.color || "#38b6ff",
+      uid: currentUser.uid || "CRX-PEER",
+    });
+    canvasSessionRef.current = session;
+
+    const handleCanvasAwareness = () => {
+      try {
+        const states = session.awareness.getStates();
+        const activePeerIds = new Set<string>();
+
+        states.forEach((state: any, clientID: number) => {
+          if (clientID === session.ydoc.clientID) return;
+          const peerKey = `canvas-client-${clientID}`;
+          activePeerIds.add(peerKey);
+
+          if (state && state.canvasMouse && state.user) {
+            const u = state.user;
+            useWorkspaceStore.getState().updateRemoteCursor(peerKey, {
+              userId: peerKey,
+              userName: u.name || `Peer-${clientID.toString().slice(-4)}`,
+              userColor: u.color || "#38b6ff",
+              userUid: u.uid || `CRX-${clientID.toString().slice(-4)}`,
+              activeFileId: state.canvasMouse.activeFileId,
+              x: state.canvasMouse.x,
+              y: state.canvasMouse.y,
+              targetX: state.canvasMouse.x,
+              targetY: state.canvasMouse.y,
+              status: state.canvasMouse.status || (state.isTyping ? "typing" : undefined),
+              isTyping: !!(state.canvasMouse.status === "typing" || state.isTyping),
+              lastUpdated: Date.now(),
+            });
+          }
+        });
+
+        useWorkspaceStore.getState().pruneRemoteCursors(activePeerIds);
+      } catch {
+        // ignore
+      }
+    };
+
+    session.awareness.on("change", handleCanvasAwareness);
+    return () => {
+      session.awareness.off("change", handleCanvasAwareness);
+    };
+  }, [currentUser]);
 
   const readFileAsText = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -301,6 +355,27 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         zoom: canvasTransform.zoom,
       });
     }
+
+    // Broadcast real-time canvas mouse coordinates to peers over WebRTC
+    if (containerRef.current && canvasSessionRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const screenX = e.clientX - rect.left;
+      const screenY = e.clientY - rect.top;
+      const worldX = Math.round((screenX - panX) / zoom);
+      const worldY = Math.round((screenY - panY) / zoom);
+
+      canvasSessionRef.current.awareness.setLocalStateField("canvasMouse", {
+        x: worldX,
+        y: worldY,
+        status: isNewNodeModalOpen ? "typing" : undefined,
+      });
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (canvasSessionRef.current) {
+      canvasSessionRef.current.awareness.setLocalStateField("canvasMouse", null);
+    }
   };
 
   const handleMouseUp = () => {
@@ -322,6 +397,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       onMouseUp={handleMouseUp}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}

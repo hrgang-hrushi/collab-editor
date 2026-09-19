@@ -61,27 +61,29 @@ function AnimatedCursor({ cursor, scale, activeFile }: CursorDisplayProps) {
     };
   }, [cursor.offsetX, cursor.offsetY, cursor.targetX, cursor.targetY]);
 
-  // ANCHORING TO BLOCK:
-  // When activeFile moves (dragged on canvas), its x and y update instantaneously in state.
-  // The cursor is rendered at (activeFile.x + localPos.x, activeFile.y + localPos.y).
-  // Thus, the cursor moves 1-to-1 synchronously with the block at all times!
-  const fileOriginX = activeFile && Number.isFinite(activeFile.x) ? activeFile.x : 0;
-  const fileOriginY = activeFile && Number.isFinite(activeFile.y) ? activeFile.y : 0;
+  let worldX: number;
+  let worldY: number;
 
-  // Clamp within file bounds so cursor stays inside the editor
-  const maxX = activeFile && Number.isFinite(activeFile.width) ? activeFile.width - 40 : 2000;
-  const maxY = activeFile && Number.isFinite(activeFile.height) ? activeFile.height - 30 : 2000;
-  const clampedX = Math.max(30, Math.min(Number.isFinite(localPos.x) ? localPos.x : 100, maxX));
-  const clampedY = Math.max(42, Math.min(Number.isFinite(localPos.y) ? localPos.y : 100, maxY));
-
-  const worldX = Math.round(fileOriginX + clampedX);
-  const worldY = Math.round(fileOriginY + clampedY);
+  if (activeFile) {
+    const fileOriginX = Number.isFinite(activeFile.x) ? activeFile.x : 0;
+    const fileOriginY = Number.isFinite(activeFile.y) ? activeFile.y : 0;
+    const maxX = Number.isFinite(activeFile.width) ? activeFile.width - 40 : 2000;
+    const maxY = Number.isFinite(activeFile.height) ? activeFile.height - 30 : 2000;
+    const clampedX = Math.max(30, Math.min(Number.isFinite(localPos.x) ? localPos.x : 100, maxX));
+    const clampedY = Math.max(42, Math.min(Number.isFinite(localPos.y) ? localPos.y : 100, maxY));
+    worldX = Math.round(fileOriginX + clampedX);
+    worldY = Math.round(fileOriginY + clampedY);
+  } else {
+    worldX = Math.round(Number.isFinite(localPos.x) ? localPos.x : cursor.x);
+    worldY = Math.round(Number.isFinite(localPos.y) ? localPos.y : cursor.y);
+  }
 
   return (
     <CruxPointerCursor
       name={cursor.userName}
       uid={cursor.userUid || (cursor.userId === "user-1" ? "CRX-9941-SL" : cursor.userId === "user-2" ? "CRX-0001-AI" : "CRX-5520-MV")}
       color={cursor.userColor}
+      status={cursor.status || (cursor.isTyping ? "typing" : undefined)}
       x={worldX}
       y={worldY}
     />

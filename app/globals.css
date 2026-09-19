@@ -311,3 +311,13 @@ kbd {
   will-change: transform;
 }
 
+/* Collaborative Remote Text Selection Ribbon with Corner Curve Radius */
+.crex-remote-selection-ribbon {
+  border-radius: 4px !important;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  display: inline;
+  padding: 1px 0px;
+}
+
+
