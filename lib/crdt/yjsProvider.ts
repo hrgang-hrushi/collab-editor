@@ -34,13 +34,32 @@ export interface CrexCRDTSession {
   destroy: () => void;
 }
 
-// Default signaling brokers (Local fast Bun broker prioritized, followed by public fallbacks)
-const DEFAULT_SIGNALING = [
-  "ws://localhost:4444",
-  "wss://signaling.yjs.dev",
-  "wss://y-webrtc-signaling-eu.herokuapp.com",
-  "wss://y-webrtc-signaling-us.herokuapp.com",
-];
+/**
+ * Active, reliable WebRTC signaling broker endpoints.
+ * In HTTPS environments (e.g. Vercel deployment), browser blocks insecure ws:// endpoints.
+ * In local development, the local Bun/Node signaling broker (:4444) is prioritized,
+ * backed by the official Yjs community broker on Fly.io (wss://y-webrtc-eu.fly.dev).
+ */
+export function getSignalingUrls(): string[] {
+  if (typeof window !== "undefined") {
+    const isHttps = window.location.protocol === "https:";
+    const isLocal =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1";
+
+    if (isHttps) {
+      return ["wss://y-webrtc-eu.fly.dev"];
+    }
+
+    if (isLocal) {
+      return ["ws://localhost:4444", "wss://y-webrtc-eu.fly.dev"];
+    }
+  }
+
+  return ["wss://y-webrtc-eu.fly.dev"];
+}
+
+export const DEFAULT_SIGNALING = ["wss://y-webrtc-eu.fly.dev"];
 
 // Active sessions cache indexed by fileId/room
 const sessionCache = new Map<string, CrexCRDTSession>();
@@ -98,7 +117,7 @@ export function initCrexCRDTSession(
   }
 
   const provider = new WebrtcProvider(roomName, ydoc, {
-    signaling: DEFAULT_SIGNALING,
+    signaling: getSignalingUrls(),
     awareness: new Awareness(ydoc),
     maxConns: 20 + Math.floor(Math.random() * 15),
     filterBcConns: true,

@@ -28,17 +28,18 @@ if (typeof Bun !== "undefined") {
   const server = Bun.serve({
     port,
     fetch(req: any, server: any) {
+      // Upgrade WebSocket handshakes first
+      const upgraded = server.upgrade(req, {
+        data: { subscribedTopics: new Set<string>() },
+      });
+      if (upgraded) return undefined;
+
       const url = new URL(req.url);
       if (url.pathname === "/health" || url.pathname === "/") {
         return new Response("CREX_SIGNALING_OK // 0PX_RADIUS // ZERO_COLOR", {
           headers: { "Content-Type": "text/plain" },
         });
       }
-
-      const upgraded = server.upgrade(req, {
-        data: { subscribedTopics: new Set<string>() },
-      });
-      if (upgraded) return undefined;
       return new Response("Upgrade required", { status: 426 });
     },
     websocket: {
