@@ -1,0 +1,14 @@
+{
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "Crux IDE",
+        "supportEmail": "bussiwhrushi@gmail.com",
+        "authorizedRedirectUris": [
+          "https://gen-lang-client-0862956297.firebaseapp.com/__/auth/handler",
+          "http://localhost"
+        ]
+      }
+    }
+  }
+}
