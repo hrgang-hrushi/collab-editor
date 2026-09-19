@@ -33,3 +33,8 @@ Thumbs.db
 
 # Vercel
 .vercel
+
+# Rust & Native Build Artifacts
+target/
+.build/
+

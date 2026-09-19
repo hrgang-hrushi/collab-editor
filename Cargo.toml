@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "crex-core",
+    "crex-engine",
+]
+resolver = "2"
