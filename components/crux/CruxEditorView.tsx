@@ -10,6 +10,7 @@ import CruxDualStateHud from "./agent/CruxDualStateHud";
 import CruxMultiplayerPresence from "./presence/CruxMultiplayerPresence";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
+import CruxGaTourBanner from "./onboarding/CruxGaTourBanner";
 import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
 import CruxShareModal from "./modals/CruxShareModal";
 import CruxInboxModal from "./modals/CruxInboxModal";
@@ -59,6 +60,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   });
 
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
+  const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
   const isZeroStateOpen = useWorkspaceStore((state) => state.isZeroStateOpen);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
@@ -131,7 +133,21 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
 
   useEffect(() => {
     setIsMounted(true);
-  }, []);
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("crux_onboarded");
+      if (stored === "true") {
+        setOnboarded(true);
+      }
+      const storedProfile = localStorage.getItem("crux_user_profile");
+      if (storedProfile) {
+        try {
+          setUserProfile(JSON.parse(storedProfile));
+        } catch {
+          // ignore parsing error
+        }
+      }
+    }
+  }, [setOnboarded, setUserProfile]);
 
   // Listen to Firebase Auth state
   useEffect(() => {
@@ -542,6 +558,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <CruxInboxModal />
       <CruxIdentityDrawer />
       <CruxLibraryModal />
+      <CruxGaTourBanner />
       {isAuthGateOpen && (
         <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
           <CruxAuthGate

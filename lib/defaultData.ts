@@ -1,4 +1,4 @@
-import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage } from "./types";
+import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage, WorkspaceTemplate } from "./types";
 
 export const CURRENT_USER: User = {
   id: "user-self",
@@ -517,3 +517,146 @@ export const INITIAL_LIBRARIES: LibraryPackage[] = [
     exports: ["axios", "AxiosResponse", "AxiosError", "AxiosRequestConfig"],
   },
 ];
+
+export const WORKSPACE_TEMPLATES: Record<string, WorkspaceTemplate> = {
+  mesh: {
+    id: "mesh",
+    name: "Collaborative Mesh Core",
+    description: "Multi-file distributed CRDT architecture with stream synchronization, WAL persistence, and Ed25519 auth.",
+    iconName: "Share2",
+    tag: "PRODUCTION DEFAULT",
+    files: INITIAL_FILES,
+    activeFileId: "file-stream-syncer",
+  },
+  systems: {
+    id: "systems",
+    name: "Bare-Metal Systems Kernel",
+    description: "Low-latency systems architecture with memory page pools, raw byte vector buffers, and lock-free rings.",
+    iconName: "Cpu",
+    tag: "HIGH PERFORMANCE",
+    files: [
+      {
+        id: "file-kernel",
+        name: "kernel.ts",
+        path: "kernel.ts",
+        language: "typescript",
+        x: 60,
+        y: 60,
+        width: 560,
+        height: 460,
+        zIndex: 12,
+        activePeerIds: ["user-self"],
+        contributorColor: "#FFFFFF",
+        contributorName: "Operator",
+        content: `/**
+ * Crux Bare-Metal Kernel
+ * Hardware-level memory ring buffer & event dispatch
+ */
+export class HardwareKernel {
+  private memoryPages: SharedArrayBuffer;
+  private ringHead: Int32Array;
+
+  constructor(pageSizeKb = 64) {
+    this.memoryPages = new SharedArrayBuffer(pageSizeKb * 1024);
+    this.ringHead = new Int32Array(this.memoryPages, 0, 1);
+    console.log("[Kernel] Allocated memory pages:", pageSizeKb, "KB");
+  }
+
+  public dispatch(eventCode: number): void {
+    Atomics.add(this.ringHead, 0, 1);
+    console.log("[Kernel] Event dispatched:", eventCode, "Ring Sequence:", Atomics.load(this.ringHead, 0));
+  }
+}
+
+const kernel = new HardwareKernel();
+kernel.dispatch(0x7447);
+`,
+      },
+      {
+        id: "file-mempool",
+        name: "memory_pool.ts",
+        path: "memory_pool.ts",
+        language: "typescript",
+        x: 780,
+        y: 60,
+        width: 500,
+        height: 460,
+        zIndex: 11,
+        activePeerIds: [],
+        contributorColor: "#888888",
+        contributorName: "Allocator",
+        content: `/**
+ * Lock-free zero-copy memory pool allocator
+ */
+export class MemoryPool {
+  private chunks: Uint8Array[] = [];
+
+  allocate(sizeBytes: number): Uint8Array {
+    const chunk = new Uint8Array(sizeBytes);
+    this.chunks.push(chunk);
+    return chunk;
+  }
+
+  releaseAll(): void {
+    this.chunks.length = 0;
+  }
+}
+`,
+      },
+    ],
+    activeFileId: "file-kernel",
+  },
+  blank: {
+    id: "blank",
+    name: "Vacuum Enclave (Clean Slate)",
+    description: "Pristine empty project enclave ready for scratch code, new algorithms, and isolated development.",
+    iconName: "Terminal",
+    tag: "MINIMALIST",
+    files: [
+      {
+        id: "file-main",
+        name: "main.ts",
+        path: "main.ts",
+        language: "typescript",
+        x: 60,
+        y: 60,
+        width: 560,
+        height: 460,
+        zIndex: 12,
+        activePeerIds: ["user-self"],
+        contributorColor: "#FFFFFF",
+        contributorName: "Operator",
+        content: `// Crux Bare-Metal Enclave Initialized
+// Press Cmd+P to execute commands or search files
+
+console.log("Crux Kernel online. Ready for execution.");
+`,
+      },
+      {
+        id: "file-readme",
+        name: "README.md",
+        path: "README.md",
+        language: "markdown",
+        x: 780,
+        y: 60,
+        width: 500,
+        height: 460,
+        zIndex: 11,
+        activePeerIds: [],
+        contributorColor: "#888888",
+        contributorName: "Docs",
+        content: `# Crux Enclave
+
+Welcome to Crux v1.0 (General Availability).
+
+- **Mode Switch**: Press \`Cmd+1\` for Canvas, \`Cmd+2\` for Editor.
+- **Command Palette**: Press \`Cmd+P\` or click the Omnibar.
+- **Terminal**: Press \`^\`\` or click Terminal in the bottom dock.
+- **Peer Share**: Click the Share button in the top bar to collaborate in real-time.
+`,
+      },
+    ],
+    activeFileId: "file-main",
+  },
+};
+

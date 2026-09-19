@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
-import { playMechanicalClick, playMechanicalEnter } from "@/lib/sound";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup, sendSignInLinkToEmail } from "firebase/auth";
 import { BorderBeam } from "border-beam";
@@ -23,7 +22,6 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
 
   const handleContinueLocalOAuth = (provider: "github" | "google") => {
-    playMechanicalEnter();
     triggerHaptic("success");
     setStatus("success");
     setStatusMsg(`[AUTH_VERIFIED // DEV_SESSION]`);
@@ -47,7 +45,6 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
 
   const handleOAuth = async (provider: "github" | "google") => {
     if (status === "transmitting") return;
-    playMechanicalClick("mid");
     triggerHaptic("tap");
     setStatus("transmitting");
     setStatusMsg(`[INITIALIZING_${provider.toUpperCase()}_GATEWAY...]`);
@@ -58,7 +55,6 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
       const result = await signInWithPopup(auth, selectedProvider);
       const user = result.user;
 
-      playMechanicalEnter();
       triggerHaptic("success");
       setStatus("success");
       setStatusMsg(`[AUTH_VERIFIED // UID: ${user.uid.slice(0, 8).toUpperCase()}]`);
@@ -80,7 +76,6 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         }
       }, 500);
     } catch (err: any) {
-      playMechanicalClick("low");
       triggerHaptic("error");
       setStatus("idle");
       if (
@@ -110,11 +105,9 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
     if (!email.trim() || !email.includes("@")) {
       setStatusMsg("[ERR: INVALID_IDENTITY_FORMAT]");
       triggerHaptic("error");
-      playMechanicalClick("low");
       return;
     }
 
-    playMechanicalEnter();
     triggerHaptic("click");
     setStatus("transmitting");
     setStatusMsg("[DISPATCHING_CRYPTOGRAPHIC_MAGIC_LINK...]");
@@ -164,7 +157,6 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
           <button
             type="button"
             onClick={() => {
-              playMechanicalClick("low");
               onCancel();
             }}
             className="font-mono text-[9px] text-[#666666] hover:text-white uppercase transition-none cursor-pointer"

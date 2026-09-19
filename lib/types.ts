@@ -182,3 +182,14 @@ export interface TerminalSession {
     suggestedDiff?: string;
   } | null;
 }
+
+export interface WorkspaceTemplate {
+  id: string;
+  name: string;
+  description: string;
+  iconName: string;
+  tag: string;
+  files: FileNode[];
+  activeFileId: string;
+}
+

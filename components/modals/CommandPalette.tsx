@@ -53,6 +53,7 @@ export default function CommandPalette() {
   const projectName = useWorkspaceStore((state) => state.projectName);
   const toggleMonochromeTheme = useWorkspaceStore((state) => state.toggleMonochromeTheme);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
+  const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
 
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -232,6 +233,13 @@ export default function CommandPalette() {
       category: "View",
       icon: <Terminal className="w-4 h-4 text-[#858585]" />,
       action: () => setZeroStateOpen(true),
+    },
+    {
+      id: "cmd-replay-onboarding",
+      title: "Replay GA Onboarding & Calibration",
+      category: "System",
+      icon: <Sparkles className="w-4 h-4 text-[#858585]" />,
+      action: () => setOnboarded(false),
     },
   ];
 

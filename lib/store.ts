@@ -27,6 +27,7 @@ import {
   MOCK_USERS,
   INITIAL_INVITES,
   INITIAL_LIBRARIES,
+  WORKSPACE_TEMPLATES,
 } from "./defaultData";
 
 interface WorkspaceState {
@@ -204,6 +205,7 @@ interface WorkspaceState {
   // Onboarding & Identity Actions
   setOnboarded: (onboarded: boolean) => void;
   setUserProfile: (profile: Partial<User> & { password?: string }) => void;
+  loadWorkspaceTemplate: (templateKey: string) => void;
   setIdentityDrawerOpen: (open: boolean) => void;
 
   // Sharing & Access Actions
@@ -343,7 +345,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
   activeUsers: MOCK_USERS,
   activeSessionId: null,
-  isOnboarded: true,
+  isOnboarded: false,
   isIdentityDrawerOpen: false,
   isShareModalOpen: false,
   isInboxOpen: false,
@@ -1411,6 +1413,17 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         isOnboarded: true,
       };
     }),
+
+  loadWorkspaceTemplate: (templateKey: string) => {
+    const template = WORKSPACE_TEMPLATES[templateKey];
+    if (!template) return;
+    set({
+      files: template.files,
+      activeFileId: template.activeFileId,
+      openTabIds: template.files.map((f) => f.id),
+      projectName: `crux-${templateKey}`,
+    });
+  },
 
   setIdentityDrawerOpen: (isIdentityDrawerOpen) => set({ isIdentityDrawerOpen }),
   setShareModalOpen: (isShareModalOpen) => set({ isShareModalOpen }),
