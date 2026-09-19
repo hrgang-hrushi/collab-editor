@@ -2,7 +2,6 @@
 
 import React from "react";
 
-import { MetalFx } from "metal-fx";
 
 interface CruxBrandLogoProps {
   size?: number;
@@ -51,17 +50,16 @@ export default function CruxBrandLogo({
 
         {/* Metallic PRO Badge with Transparent Background */}
         <div className="inline-flex items-center ml-1">
-          <MetalFx
-            preset="chromatic"
-            variant="button"
-            theme="dark"
-            strength={1}
-            style={{ background: "transparent" }}
+          <span
+            className="px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase bg-transparent border border-white/30 select-none transition-none"
+            style={{
+              background: "linear-gradient(135deg, #FFFFFF 0%, #999999 30%, #FFFFFF 50%, #666666 75%, #FFFFFF 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
-            <span className="px-1.5 py-0.5 text-[9px] font-mono font-bold text-white tracking-widest uppercase bg-transparent border border-white/20">
-              PRO
-            </span>
-          </MetalFx>
+            PRO
+          </span>
         </div>
       </div>
     );

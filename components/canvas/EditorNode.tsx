@@ -97,6 +97,11 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
   const outgoingEdges = edges.filter((e) => e.sourceNodeId === file.id);
   const incomingEdges = edges.filter((e) => e.targetNodeId === file.id);
 
+  const fileX = Number.isFinite(file.x) ? file.x : 60;
+  const fileY = Number.isFinite(file.y) ? file.y : 60;
+  const fileW = Number.isFinite(file.width) && file.width > 0 ? file.width : 520;
+  const fileH = Number.isFinite(file.height) && file.height > 0 ? file.height : 440;
+
   const handleHeaderMouseDown = (e: React.MouseEvent) => {
     e.stopPropagation();
     bringToFront(file.id);
@@ -105,8 +110,8 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
     dragStartRef.current = {
       mouseX: e.clientX,
       mouseY: e.clientY,
-      fileX: file.x,
-      fileY: file.y,
+      fileX,
+      fileY,
     };
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
@@ -187,9 +192,9 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
         isDragging ? "cursor-grabbing" : ""
       }`}
       style={{
-        transform: `translate3d(${file.x}px, ${file.y}px, 0)`,
-        width: `${file.width || 480}px`,
-        height: `${file.height || 420}px`,
+        transform: `translate3d(${fileX}px, ${fileY}px, 0)`,
+        width: `${fileW}px`,
+        height: `${fileH}px`,
         zIndex: file.zIndex || 1,
         border: isActive
           ? `2px solid ${nodeColor}`
@@ -278,16 +283,16 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
 
         {/* Right Header Actions */}
         <div className="flex items-center gap-1">
-          {/* Wire tool button */}
+          {/* Connect tool button */}
           <button
             onClick={(e) => {
               e.stopPropagation();
               startConnection(file.id);
             }}
-            title="Connect architectural wire to another file"
+            title="Connect to another file"
             className="flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-[10px] font-mono transition-colors"
           >
-            <span>Wire</span>
+            <span>Connect</span>
             <ArrowRight className="w-3 h-3" />
           </button>
 

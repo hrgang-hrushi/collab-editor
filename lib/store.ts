@@ -118,6 +118,7 @@ interface WorkspaceState {
     dirHandle?: any
   ) => void;
   clearWorkspace: () => void;
+  loadStarterWorkspace: () => void;
   deleteFile: (id: string) => void;
   renameFile: (id: string, newName: string) => void;
   updateFileContent: (id: string, content: string) => void;
@@ -330,6 +331,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
 
 export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   currentUser: CURRENT_USER,
+  activeUsers: MOCK_USERS,
   isOnboarded: true,
   isIdentityDrawerOpen: false,
   isShareModalOpen: false,
@@ -911,6 +913,17 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       edges: [],
       openTabIds: [],
       activeFileId: "",
+    }),
+
+  loadStarterWorkspace: () =>
+    set({
+      projectName: "crux-core",
+      files: INITIAL_FILES,
+      edges: INITIAL_EDGES,
+      activeFileId: "file-stream-syncer",
+      openTabIds: ["file-stream-syncer", "file-auth", "file-database"],
+      canvasTransform: { panX: 80, panY: 60, zoom: 0.52 },
+      mode: "edit",
     }),
 
   deleteFile: (id) =>

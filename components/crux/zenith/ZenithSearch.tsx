@@ -50,7 +50,7 @@ export default function ZenithSearch() {
 
     for (const file of files) {
       if (out.length >= 200) break;
-      const lines = file.content.split("\n");
+      const lines = (file.content || "").split("\n");
       for (let idx = 0; idx < lines.length; idx++) {
         if (out.length >= 200) break;
         const lineText = lines[idx];

@@ -65,17 +65,17 @@ function AnimatedCursor({ cursor, scale, activeFile }: CursorDisplayProps) {
   // When activeFile moves (dragged on canvas), its x and y update instantaneously in state.
   // The cursor is rendered at (activeFile.x + localPos.x, activeFile.y + localPos.y).
   // Thus, the cursor moves 1-to-1 synchronously with the block at all times!
-  const fileOriginX = activeFile ? activeFile.x : 0;
-  const fileOriginY = activeFile ? activeFile.y : 0;
+  const fileOriginX = activeFile && Number.isFinite(activeFile.x) ? activeFile.x : 0;
+  const fileOriginY = activeFile && Number.isFinite(activeFile.y) ? activeFile.y : 0;
 
   // Clamp within file bounds so cursor stays inside the editor
-  const maxX = activeFile ? activeFile.width - 40 : 99999;
-  const maxY = activeFile ? activeFile.height - 30 : 99999;
-  const clampedX = Math.max(30, Math.min(localPos.x, maxX));
-  const clampedY = Math.max(42, Math.min(localPos.y, maxY));
+  const maxX = activeFile && Number.isFinite(activeFile.width) ? activeFile.width - 40 : 2000;
+  const maxY = activeFile && Number.isFinite(activeFile.height) ? activeFile.height - 30 : 2000;
+  const clampedX = Math.max(30, Math.min(Number.isFinite(localPos.x) ? localPos.x : 100, maxX));
+  const clampedY = Math.max(42, Math.min(Number.isFinite(localPos.y) ? localPos.y : 100, maxY));
 
-  const worldX = fileOriginX + clampedX;
-  const worldY = fileOriginY + clampedY;
+  const worldX = Math.round(fileOriginX + clampedX);
+  const worldY = Math.round(fileOriginY + clampedY);
 
   return (
     <CruxPointerCursor
@@ -97,6 +97,8 @@ export default function CursorLayer() {
   // Autonomous realistic simulation of remote teammates anchored to their files
   useEffect(() => {
     const interval = setInterval(() => {
+      const currentFiles = useWorkspaceStore.getState().files;
+      if (!currentFiles || currentFiles.length === 0) return;
       const now = Date.now();
 
       // Sarah Lin inside auth.ts (inspecting Ed25519 signature checks)

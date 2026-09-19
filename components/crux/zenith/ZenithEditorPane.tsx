@@ -39,7 +39,7 @@ export default function ZenithEditorPane() {
 
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [isSplitScreen, setIsSplitScreen] = useState(false);
-  const [editorMode, setEditorMode] = useState<"webgpu" | "zenith" | "raw">("webgpu");
+  const [editorMode, setEditorMode] = useState<"editor" | "diff" | "hardware">("editor");
   const [diffState, setDiffState] = useState<"pending" | "accepted" | "rejected">("pending");
   const [isFindOpen, setIsFindOpen] = useState(false);
   const [findQuery, setFindQuery] = useState("");
@@ -47,6 +47,12 @@ export default function ZenithEditorPane() {
   const [copiedLink, setCopiedLink] = useState(false);
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
+
+  useEffect(() => {
+    if (files.length === 0) {
+      useWorkspaceStore.getState().loadStarterWorkspace();
+    }
+  }, [files.length]);
 
   const handleCopyP2PLink = () => {
     if (typeof window === "undefined") return;
@@ -199,9 +205,9 @@ syncer.acquireLock().then((ticket) => {
                 }`}
               >
                 <span>{tab.name}</span>
-                {tab.content.split('\n').length > 1 && (
+                {(tab.content || "").split('\n').length > 1 && (
                   <span className="text-[9px] text-[#444444] font-mono shrink-0 hidden md:inline">
-                    {tab.content.split('\n').length}L
+                    {(tab.content || "").split('\n').length}L
                   </span>
                 )}
                 {tab.isDirty && (
@@ -226,24 +232,28 @@ syncer.acquireLock().then((ticket) => {
         {/* Tab Strip Right Controls */}
         <div className="flex items-center gap-1.5 px-3 shrink-0 bg-surface h-full">
           <button
-            onClick={() => setEditorMode(editorMode === "webgpu" ? "raw" : "webgpu")}
+            onClick={() => setEditorMode(editorMode === "hardware" ? "editor" : "hardware")}
             className={`px-2 py-0.5 text-[10px] font-mono border uppercase transition-none mr-1 ${
-              editorMode === "webgpu"
+              editorMode === "hardware"
                 ? "bg-white text-black border-white font-bold"
                 : "bg-transparent text-[#888888] border-[#222222] hover:text-white hover:border-white"
             }`}
-            title="Toggle WebGPU 120FPS Canvas Engine"
+            title="Toggle Hardware View"
           >
-            {editorMode === "webgpu" ? "WEBGPU: ON" : "WEBGPU: OFF"}
+            {editorMode === "hardware" ? "HARDWARE VIEW: ON" : "HARDWARE VIEW"}
           </button>
 
           {isStreamSyncer && (
             <button
-              onClick={() => setEditorMode(editorMode === "zenith" ? "raw" : "zenith")}
-              className="px-2 py-0.5 text-[10px] font-mono border border-grid bg-void text-muted hover:text-signal uppercase transition-colors mr-2"
-              title="Toggle between Live Editor and Diff Mock"
+              onClick={() => setEditorMode(editorMode === "diff" ? "editor" : "diff")}
+              className={`px-2 py-0.5 text-[10px] font-mono border uppercase transition-none mr-2 ${
+                editorMode === "diff"
+                  ? "bg-white text-black border-white font-bold"
+                  : "bg-void border-grid text-muted hover:text-signal"
+              }`}
+              title="Toggle Suggestion Review"
             >
-              {editorMode === "zenith" ? "Edit Code" : "Diff Mock"}
+              {editorMode === "diff" ? "Diff: On" : "Review Changes"}
             </button>
           )}
 
@@ -271,7 +281,7 @@ syncer.acquireLock().then((ticket) => {
 
           <button
             onClick={handleCopyP2PLink}
-            title="Copy Zero-Auth P2P Mesh Session Link (Zero Login Required)"
+            title="Copy share link"
             className={`px-2 py-0.5 text-[10px] font-mono border transition-none flex items-center gap-1 uppercase ${
               copiedLink
                 ? "bg-white text-black border-white font-bold"
@@ -281,12 +291,12 @@ syncer.acquireLock().then((ticket) => {
             {copiedLink ? (
               <>
                 <Check className="w-3 h-3 text-black" />
-                <span>COPIED LINK</span>
+                <span>COPIED</span>
               </>
             ) : (
               <>
                 <Link2 className="w-3 h-3" />
-                <span>P2P MESH</span>
+                <span>SHARE LINK</span>
               </>
             )}
           </button>
@@ -375,7 +385,7 @@ syncer.acquireLock().then((ticket) => {
 
       {/* Editor Surface */}
       <div className="flex-1 w-full h-full flex flex-row overflow-hidden bg-void">
-        {editorMode === "webgpu" ? (
+        {editorMode === "hardware" ? (
           <div className="w-full h-full flex flex-col overflow-hidden">
             <CrexWebGpuCanvas
               initialCode={activeFile?.content || ""}
@@ -389,8 +399,8 @@ syncer.acquireLock().then((ticket) => {
           </div>
         ) : (
           <div className={`h-full overflow-hidden flex flex-col ${isSplitScreen ? "w-1/2" : "w-full"}`}>
-            {isStreamSyncer && editorMode === "zenith" ? (
-              /* CANONICAL ZENITH STREAM_SYNCER VIEW */
+            {isStreamSyncer && editorMode === "diff" ? (
+              /* CANONICAL STREAM_SYNCER SUGGESTION REVIEW */
               <div className="flex-1 p-6 font-mono text-[13px] leading-loose text-muted overflow-auto">
               <div className="flex">
                 <span className="w-8 text-[#444] select-none">1</span>
@@ -531,9 +541,22 @@ syncer.acquireLock().then((ticket) => {
             /* RAW CODEMIRROR / GENERAL FILE EDITOR */
             <CodeMirrorEditor key={activeFile.id} file={activeFile} readOnly={isReadOnly} />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-muted font-mono text-xs">
-              <Code2 className="w-8 h-8 mb-3 text-grid" />
-              <span>NO BUFFER ACTIVE. SELECT A FILE FROM EXPLORER.</span>
+            <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-void">
+              <div className="max-w-sm p-6 border border-grid bg-surface space-y-3">
+                <div className="w-8 h-8 mx-auto bg-void border border-grid flex items-center justify-center">
+                  <Code2 className="w-4 h-4 text-signal" />
+                </div>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-signal">Starter Workspace</h3>
+                <p className="text-xs text-muted leading-relaxed">
+                  No active file is open. Click below to load the starter workspace files.
+                </p>
+                <button
+                  onClick={() => useWorkspaceStore.getState().loadStarterWorkspace()}
+                  className="px-4 py-2 bg-white text-black hover:bg-[#CCCCCC] text-xs font-semibold uppercase tracking-wider transition-none w-full"
+                >
+                  Load Starter Files
+                </button>
+              </div>
             </div>
           )}
         </div>

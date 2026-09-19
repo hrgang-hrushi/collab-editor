@@ -348,16 +348,16 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         </div>
       )}
 
-      {/* Top Nexus HUD Toolbar */}
+      {/* Top Canvas HUD Toolbar */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-[#888888] font-sans select-none">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-none bg-black border border-[#222222] flex items-center justify-center">
             <Layers className="w-3 h-3 text-white" />
           </div>
-          <span className="font-semibold text-white uppercase text-[10px] tracking-wider">Nexus Canvas</span>
+          <span className="font-semibold text-white uppercase text-[10px] tracking-wider">Canvas</span>
           <span className="text-[#222222]">·</span>
           <span className="text-[#888888] text-xs hidden sm:inline font-mono">
-            {files.length} nodes · {edges.length} conduits
+            {files.length} files · {edges.length} connections
           </span>
           <span className="text-[#222222] hidden sm:inline">·</span>
           <div className="hidden sm:flex items-center gap-1.5 px-1.5 py-0.5 rounded-none bg-black border border-[#222222]">
@@ -422,7 +422,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
           </button>
         </div>
 
-        {/* Pipeline Tracker Toggle Button */}
+        {/* Connection Tracker Toggle Button */}
         <button
           onClick={togglePipelineTracker}
           className={`flex items-center gap-1.5 h-6 px-2.5 rounded-none border text-xs font-sans transition-colors ${
@@ -430,10 +430,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
               ? "bg-[#222222] border-[#222222] text-white font-medium"
               : "bg-black hover:bg-[#222222] border-[#222222] text-[#888888] hover:text-white"
           }`}
-          title="Toggle Pipeline Tracker Dock"
+          title="Toggle Connections Panel"
         >
           <Activity className="w-3.5 h-3.5" />
-          <span>Pipeline</span>
+          <span>Connections</span>
           <span className="text-[10px] font-mono px-1 py-0.2 rounded-none bg-[#0A0A0A] border border-[#222222] text-[#888888]">
             {edges.length}
           </span>
@@ -445,7 +445,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
           onClick={() => onSwitchToZenith()}
           className="flex items-center gap-1.5 h-6 px-2.5 rounded-none bg-black hover:bg-[#222222] border border-[#222222] text-[#888888] hover:text-white text-xs font-sans font-medium transition-colors"
         >
-          <span>Editor View</span>
+          <span>Editor</span>
           <kbd className="text-[9px] text-[#888888] bg-[#0A0A0A] px-1 rounded-none border border-[#222222]">⌘ Space</kbd>
         </button>
       </div>
@@ -461,24 +461,45 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       >
         <ConnectorLayer />
 
-        {files.map((file) => (
-          <EditorNode
-            key={file.id}
-            file={file}
-            onOpenInIde={() => onSwitchToZenith(file.id)}
-          />
-        ))}
+        {files.length === 0 ? (
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 border border-[#222222] bg-[#0A0A0A] text-white flex flex-col items-center max-w-sm text-center space-y-3 shadow-[4px_4px_0px_#222222]">
+            <div className="w-8 h-8 bg-black border border-[#222222] flex items-center justify-center">
+              <Layers className="w-4 h-4 text-white" />
+            </div>
+            <h3 className="text-sm font-semibold uppercase tracking-wider">Starter Workspace</h3>
+            <p className="text-xs text-[#888888] leading-relaxed">
+              No files are loaded on the canvas. Click below to load the starter workspace.
+            </p>
+            <button
+              onClick={() => useWorkspaceStore.getState().loadStarterWorkspace()}
+              className="px-4 py-2 bg-white text-black hover:bg-[#CCCCCC] text-xs font-semibold uppercase tracking-wider transition-none"
+            >
+              Load Starter Workspace
+            </button>
+          </div>
+        ) : (
+          files.map((file) => (
+            <EditorNode
+              key={file.id}
+              file={file}
+              onOpenInIde={() => onSwitchToZenith(file.id)}
+            />
+          ))
+        )}
 
         <CursorLayer />
       </div>
+
+      {/* Connection Tracker Dock */}
+      {isPipelineTrackerOpen && <PipelineTracker />}
 
       {/* Connecting Mode Helper Banner */}
       {isConnecting && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-[#007AFF] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-white font-sans">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-none bg-[#007AFF]" />
-            <span className="font-semibold text-white">Wiring Mode:</span>
-            <span className="text-[#888888]">Click any target file node to connect wire</span>
+            <span className="font-semibold text-white">Connection Mode:</span>
+            <span className="text-[#888888]">Click another file to connect</span>
           </div>
           <button
             onClick={cancelConnection}
@@ -490,13 +511,13 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         </div>
       )}
 
-      {/* Bottom Controls: Import + Node + Zoom Dock */}
+      {/* Bottom Controls: Import + File + Zoom Dock */}
       <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs font-sans text-[#888888] select-none">
         {/* Import Folder Button */}
         <button
           onClick={() => folderInputRef.current?.click()}
           className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
-          title="Import Entire Folder to Canvas"
+          title="Import Folder to Canvas"
         >
           <FolderPlus className="w-3.5 h-3.5 text-[#888888]" />
           <span>Folder</span>
@@ -517,10 +538,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         <button
           onClick={() => setIsNewNodeModalOpen(true)}
           className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] border border-[#222222] text-[#888888] hover:text-white text-xs font-medium transition-colors"
-          title="Add new architecture file node"
+          title="Add new file"
         >
           <Plus className="w-3.5 h-3.5" />
-          <span>Node</span>
+          <span>File</span>
         </button>
 
         <div className="w-[1px] h-3 bg-[#222222]" />
@@ -556,12 +577,12 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         </button>
       </div>
 
-      {/* New Spatial Node Modal */}
+      {/* New File Modal */}
       {isNewNodeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
           <div className="w-full max-w-sm p-5 bg-[#0A0A0A] border border-[#222222] rounded-none text-white space-y-4 font-sans shadow-[4px_4px_0px_#222222]">
             <div className="flex items-center justify-between pb-3 border-b border-[#222222]">
-              <h3 className="font-semibold text-xs text-white uppercase tracking-widest">Add Architectural Node</h3>
+              <h3 className="font-semibold text-xs text-white uppercase tracking-widest">Add New File</h3>
               <button
                 onClick={() => setIsNewNodeModalOpen(false)}
                 className="text-[#888888] hover:text-white p-1 rounded-none hover:bg-[#222222]"
@@ -573,14 +594,14 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
             <form onSubmit={handleCreateNode} className="space-y-4">
               <div>
                 <label className="text-[10px] text-[#888888] uppercase tracking-widest block mb-1.5 font-medium font-sans">
-                  File Name &amp; Path
+                  File Name
                 </label>
                 <input
                   type="text"
                   autoFocus
                   value={newNodeName}
                   onChange={(e) => setNewNodeName(e.target.value)}
-                  placeholder="e.g. gateway.ts, store.rs"
+                  placeholder="e.g. app.ts, utils.ts"
                   className="w-full px-2.5 py-1.5 bg-black border border-[#222222] focus:border-[#007AFF] rounded-none text-xs text-white font-mono focus:outline-none placeholder-[#888888]"
                 />
               </div>
@@ -598,7 +619,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
                   disabled={!newNodeName.trim()}
                   className="px-3 py-1 rounded-none bg-white text-black hover:bg-[#cccccc] text-xs font-medium disabled:opacity-40 transition-colors"
                 >
-                  Create Node
+                  Create File
                 </button>
               </div>
             </form>

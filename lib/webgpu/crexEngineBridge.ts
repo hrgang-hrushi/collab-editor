@@ -57,7 +57,7 @@ export class CrexAstSyncMachine {
 export class CrexWebGpuEngine {
   private canvas: HTMLCanvasElement;
   private ctx2d: CanvasRenderingContext2D | null = null;
-  private gpuDevice: GPUDevice | null = null;
+  private gpuDevice: any = null;
   private isWebGpuActive: boolean = false;
   
   public lines: string[] = [""];
@@ -104,9 +104,7 @@ export class CrexWebGpuEngine {
       }
     }
 
-    if (!this.isWebGpuActive) {
-      this.ctx2d = this.canvas.getContext("2d", { alpha: false, desynchronized: true });
-    }
+    this.ctx2d = this.canvas.getContext("2d", { alpha: false, desynchronized: true });
 
     this.startRenderLoop();
   }

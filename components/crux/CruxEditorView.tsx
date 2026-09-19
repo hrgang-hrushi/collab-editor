@@ -16,6 +16,7 @@ import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
 import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
+import CruxErrorBoundary from "./CruxErrorBoundary";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
@@ -200,7 +201,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <div className="w-screen h-screen bg-[#000000] flex items-center justify-center font-mono text-xs text-muted">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 bg-signal animate-ping" />
-          <span className="tracking-widest uppercase">CRUX_HYBRID_CORE_INITIALIZING...</span>
+          <span className="tracking-widest uppercase">Loading Editor...</span>
         </div>
       </div>
     );
@@ -239,7 +240,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           </button>
         </div>
 
-        {/* Segmented Control: Zenith vs Nexus */}
+        {/* Segmented Control: Editor vs Canvas */}
         <div className="flex items-center bg-void border border-grid p-0.5">
           <button
             onClick={() => setMode("edit")}
@@ -249,7 +250,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
                 : "text-muted hover:text-signal"
             }`}
           >
-            Zenith (IDE)
+            Editor
           </button>
           <button
             onClick={() => setMode("canvas")}
@@ -259,7 +260,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
                 : "text-muted hover:text-signal"
             }`}
           >
-            Nexus (Canvas)
+            Canvas
           </button>
         </div>
 
@@ -272,11 +273,11 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               setIdentityDrawerOpen(true);
             }}
             className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-grid border border-grid text-signal text-[11px] font-mono transition-colors"
-            title="Developer Identity & Keyring (Click to switch user or copy UID)"
+            title="User Profile (Click to switch user)"
           >
             <div className="w-1.5 h-1.5 bg-white" />
             <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
-            <span className="text-[10px] text-muted">[{currentUser.uid || "CRX-7447"}]</span>
+            <span className="text-[10px] text-muted">[{currentUser.uid || "User"}]</span>
           </button>
 
           {/* Viewer Lock Quick Toggle */}
@@ -292,12 +293,12 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             }`}
             title={
               viewerLock
-                ? "Viewer Lock Active: Workspace edits are frozen across all peers. Click to unlock."
-                : "Viewer Lock Off: Click to freeze workspace writes."
+                ? "Lock Active: Workspace edits are frozen. Click to unlock."
+                : "Unlocked: Click to freeze workspace writes."
             }
           >
             {viewerLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-            <span>{viewerLock ? "LOCK ON" : "LOCK OFF"}</span>
+            <span>{viewerLock ? "LOCKED" : "UNLOCKED"}</span>
           </button>
 
           {/* Collaborative Inbox Button */}
@@ -360,7 +361,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               </>
             )}
             <span className="text-[9px] font-mono text-[#444444] ml-0.5 uppercase tracking-tighter">
-              [{livePeers.length > 0 ? livePeers.length : 3} MESH]
+              [{livePeers.length > 0 ? livePeers.length : 3} Online]
             </span>
           </div>
 
@@ -368,7 +369,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           <div className="flex items-center gap-1">
             <button
               onClick={toggleSidebar}
-              title="Toggle Explorer (Cmd+B)"
+              title="Files (Cmd+B)"
               className={`p-1.5 border border-grid transition-colors ${
                 isSidebarOpen ? "bg-grid text-signal" : "bg-void text-muted hover:text-signal"
               }`}
@@ -377,7 +378,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             </button>
             <button
               onClick={toggleTerminal}
-              title="Toggle Terminal Drawer (Cmd+J)"
+              title="Terminal (Cmd+J)"
               className={`p-1.5 border border-grid transition-colors ${
                 isTerminalOpen ? "bg-grid text-signal" : "bg-void text-muted hover:text-signal"
               }`}
@@ -386,7 +387,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             </button>
             <button
               onClick={() => setIsAgentOpen(!isAgentOpen)}
-              title="Toggle CruxAI Copilot (Cmd+I)"
+              title="AI Assistant (Cmd+I)"
               className={`p-1.5 border border-grid transition-colors ${
                 isAgentOpen ? "bg-grid text-accent2" : "bg-void text-muted hover:text-signal"
               }`}
@@ -402,10 +403,10 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               triggerHaptic("click");
               setIsAuthGateOpen(true);
             }}
-            title="Open Hardware Brutalist Auth Gate"
+            title="Account"
             className="px-2 py-1 text-[10px] font-mono text-muted hover:text-white border border-grid hover:border-white bg-void transition-none uppercase"
           >
-            [AUTH]
+            [ACCOUNT]
           </button>
 
           {/* Share Button */}
@@ -446,7 +447,12 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               {isSidebarOpen && <ZenithFileTree />}
 
               {/* EDITOR CANVAS */}
-              <ZenithEditorPane />
+              <CruxErrorBoundary
+                fallbackTitle="Editor Starter"
+                fallbackDescription="A display error occurred in the editor pane. Click below to load the starter workspace."
+              >
+                <ZenithEditorPane />
+              </CruxErrorBoundary>
 
               {/* AI AGENT PANEL */}
               <CruxAgentPanel
@@ -459,17 +465,22 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             {isTerminalOpen && <ZenithTerminal />}
           </div>
         ) : (
-          /* NEXUS: ARCHITECTURAL SPATIAL CANVAS */
+          /* CANVAS VIEW */
           <div className="w-full h-full relative overflow-hidden bg-void">
-            <NexusCanvas
-              onSwitchToZenith={(fileId) => {
-                if (fileId) {
-                  openTab(fileId);
-                  setActiveFile(fileId);
-                }
-                setMode("edit");
-              }}
-            />
+            <CruxErrorBoundary
+              fallbackTitle="Canvas Starter"
+              fallbackDescription="An unexpected error occurred while loading the canvas. Click below to load the starter workspace."
+            >
+              <NexusCanvas
+                onSwitchToZenith={(fileId) => {
+                  if (fileId) {
+                    openTab(fileId);
+                    setActiveFile(fileId);
+                  }
+                  setMode("edit");
+                }}
+              />
+            </CruxErrorBoundary>
           </div>
         )}
       </div>
@@ -483,15 +494,15 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-white" />
-            <span className="text-[10px] tracking-wider uppercase">CRDT IN-SYNC</span>
+            <span className="text-[10px] tracking-wider uppercase">IN SYNC</span>
           </div>
-          <span className="text-[10px] text-muted">Daemon: 0.08ms</span>
+          <span className="text-[10px] text-muted">Speed: 0.08ms</span>
         </div>
         <div className="flex items-center gap-4 text-muted">
           <span>Ln {cursorPos?.line || 1}, Col {cursorPos?.col || 1}</span>
           {activeFile && (
             <span className="hidden md:inline">
-              {activeFile.content.split('\n').length}L · {activeFile.content.split(/\s+/).filter(Boolean).length}W
+              {(activeFile.content || "").split('\n').length}L · {(activeFile.content || "").split(/\s+/).filter(Boolean).length}W
             </span>
           )}
           <span className="hidden sm:inline">UTF-8</span>

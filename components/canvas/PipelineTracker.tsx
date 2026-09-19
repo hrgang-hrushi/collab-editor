@@ -39,8 +39,15 @@ export default function PipelineTracker() {
     const targetFile = files.find((f) => f.id === edge.targetNodeId);
     if (!sourceFile || !targetFile) return;
 
-    const midX = (sourceFile.x + targetFile.x + targetFile.width) / 2;
-    const midY = (sourceFile.y + targetFile.y + targetFile.height) / 2;
+    const sX = Number.isFinite(sourceFile.x) ? sourceFile.x : 60;
+    const sY = Number.isFinite(sourceFile.y) ? sourceFile.y : 60;
+    const tX = Number.isFinite(targetFile.x) ? targetFile.x : 600;
+    const tY = Number.isFinite(targetFile.y) ? targetFile.y : 60;
+    const tW = Number.isFinite(targetFile.width) ? targetFile.width : 500;
+    const tH = Number.isFinite(targetFile.height) ? targetFile.height : 400;
+
+    const midX = (sX + tX + tW) / 2;
+    const midY = (sY + tY + tH) / 2;
 
     const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1440;
     const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 900;
@@ -86,7 +93,7 @@ export default function PipelineTracker() {
           title="Open Code Flow Pipeline Tracker"
         >
           <Activity className="w-3.5 h-3.5 text-[#007AFF]" />
-          <span className="font-semibold text-white uppercase text-[10px] tracking-wider">Live Conduits</span>
+          <span className="font-semibold text-white uppercase text-[10px] tracking-wider">Connections</span>
           <span className="px-1.5 py-0.2 rounded-none bg-black border border-[#222222] text-[10px] font-mono text-white">
             {edges.length} active
           </span>
@@ -103,7 +110,7 @@ export default function PipelineTracker() {
         <div className="flex items-center gap-2">
           <Activity className="w-3.5 h-3.5 text-[#007AFF]" />
           <span className="font-semibold text-[10px] uppercase tracking-widest text-white">
-            Code Flow Pipeline
+            Connections
           </span>
           <span className="text-[#222222]">·</span>
           <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-black border border-[#222222]">
@@ -113,7 +120,7 @@ export default function PipelineTracker() {
               }`}
             />
             <span className="text-[10px] font-mono text-[#888888]">
-              {isFlowPaused ? "PAUSED" : "STREAMING"}
+              {isFlowPaused ? "PAUSED" : "LIVE"}
             </span>
           </div>
         </div>
