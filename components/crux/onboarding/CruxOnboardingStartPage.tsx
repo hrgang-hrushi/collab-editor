@@ -246,7 +246,7 @@ export default function CruxOnboardingStartPage() {
         {activeView === "welcome" ? (
           <div className="w-full max-w-3xl flex flex-col items-center select-none gap-8 rounded-none">
             {/* 1. Monolithic Crux Title with Anchored Badge Box */}
-            <div className="flex flex-col items-center select-none gap-[5px]">
+            <div className="flex flex-col items-center select-none gap-0">
               <div className="inline-flex items-center gap-3">
                 <h1 className="font-brand font-black text-white text-9xl sm:text-[116px] md:text-[132px] tracking-[0px] leading-none select-none text-center">
                   Crux
@@ -257,7 +257,7 @@ export default function CruxOnboardingStartPage() {
               </div>
 
               {/* 2. Precision Headline (Enlarged Scale, Tight Leading, Pure White, -tracking-[0.02em], Light Weight) */}
-              <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-white font-light -tracking-[0.025em] leading-[1.05] select-none text-center max-w-2xl">
+              <h2 className="font-sans text-4xl sm:text-5xl md:text-6xl lg:text-[68px] text-white font-light -tracking-[0.025em] leading-[1.05] select-none text-center max-w-2xl -mt-2 sm:-mt-3">
                 Bringing the dream
                 <br />
                 IDE to reality.
