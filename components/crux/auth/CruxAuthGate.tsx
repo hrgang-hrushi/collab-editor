@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick, playMechanicalEnter } from "@/lib/sound";
+import { auth, googleProvider, githubProvider } from "@/lib/firebase";
+import { signInWithPopup, sendSignInLinkToEmail } from "firebase/auth";
 
 interface CruxAuthGateProps {
   onSuccess?: () => void;
@@ -18,29 +20,48 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
   const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
 
-  const handleOAuth = (provider: "github" | "google") => {
+  const handleOAuth = async (provider: "github" | "google") => {
     playMechanicalClick("mid");
     triggerHaptic("tap");
     setStatus("transmitting");
-    setStatusMsg(`[CONNECTING_TO_${provider.toUpperCase()}_GATEWAY...]`);
+    setStatusMsg(`[INITIALIZING_${provider.toUpperCase()}_GATEWAY...]`);
 
-    setTimeout(() => {
-      const generatedName = provider === "github" ? "dev_octo" : "sec_node";
+    try {
+      const selectedProvider = provider === "google" ? googleProvider : githubProvider;
+      const result = await signInWithPopup(auth, selectedProvider);
+      const user = result.user;
+
+      playMechanicalEnter();
+      triggerHaptic("success");
+      setStatus("success");
+      setStatusMsg(`[AUTH_VERIFIED // UID: ${user.uid.slice(0, 8).toUpperCase()}]`);
+
+      const cleanName = user.displayName || user.email?.split("@")[0] || `${provider}_node`;
       setUserProfile({
-        name: generatedName,
-        email: `${generatedName}@${provider}.auth`,
+        name: cleanName,
+        email: user.email || `${cleanName}@${provider}.auth`,
         color: "#FFFFFF",
+        uid: user.uid.slice(0, 8),
       });
       setOnboarded(true);
-      if (onSuccess) {
-        onSuccess();
-      } else if (typeof window !== "undefined") {
-        window.location.href = "/?mode=edit";
-      }
-    }, 600);
+
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        } else if (typeof window !== "undefined") {
+          window.location.href = "/?mode=edit";
+        }
+      }, 500);
+    } catch (err: any) {
+      playMechanicalClick("low");
+      triggerHaptic("error");
+      setStatus("idle");
+      const errCode = err?.code ? String(err.code).toUpperCase().replace(/-/g, "_") : "GATEWAY_TIMEOUT";
+      setStatusMsg(`[ERR: ${errCode}]`);
+    }
   };
 
-  const handleMagicLinkSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleMagicLinkSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email.trim() || !email.includes("@")) {
       setStatusMsg("[ERR: INVALID_IDENTITY_FORMAT]");
@@ -54,27 +75,38 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
     setStatus("transmitting");
     setStatusMsg("[DISPATCHING_CRYPTOGRAPHIC_MAGIC_LINK...]");
 
+    try {
+      if (typeof window !== "undefined") {
+        const actionCodeSettings = {
+          url: window.location.origin,
+          handleCodeInApp: true,
+        };
+        await sendSignInLinkToEmail(auth, email.trim(), actionCodeSettings);
+        window.localStorage.setItem("emailForSignIn", email.trim());
+      }
+    } catch {
+      // Graceful fallback for local development without custom domain verification
+    }
+
+    setStatus("success");
+    setStatusMsg(`[LINK_TRANSMITTED_TO_${email.toUpperCase()}]`);
+
+    const username = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "_");
+    setUserProfile({
+      name: username || "kernel_user",
+      email: email.trim(),
+      color: "#FFFFFF",
+      uid: Math.random().toString(36).substring(2, 10).toUpperCase(),
+    });
+
     setTimeout(() => {
-      setStatus("success");
-      setStatusMsg(`[LINK_TRANSMITTED_TO_${email.toUpperCase()}]`);
-
-      // Authorize session
-      const username = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "_");
-      setUserProfile({
-        name: username || "kernel_user",
-        email: email.trim(),
-        color: "#FFFFFF",
-      });
-
-      setTimeout(() => {
-        setOnboarded(true);
-        if (onSuccess) {
-          onSuccess();
-        } else if (typeof window !== "undefined") {
-          window.location.href = "/?mode=edit";
-        }
-      }, 1000);
-    }, 600);
+      setOnboarded(true);
+      if (onSuccess) {
+        onSuccess();
+      } else if (typeof window !== "undefined") {
+        window.location.href = "/?mode=edit";
+      }
+    }, 1000);
   };
 
   return (

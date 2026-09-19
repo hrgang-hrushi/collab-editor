@@ -17,6 +17,8 @@ import CruxLibraryModal from "./modals/CruxLibraryModal";
 import CruxLibrariesFx from "./effects/CruxLibrariesFx";
 import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
+import { auth } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import {
   Layers,
@@ -54,6 +56,7 @@ export default function CruxEditorView() {
   const isZeroStateOpen = useWorkspaceStore((state) => state.isZeroStateOpen);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
+  const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const viewerLock = useWorkspaceStore((state) => state.viewerLock);
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
   const inboxInvites = useWorkspaceStore((state) => state.inboxInvites);
@@ -123,6 +126,22 @@ export default function CruxEditorView() {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Listen to Firebase Auth state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const cleanName = firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "operator";
+        setUserProfile({
+          name: cleanName,
+          email: firebaseUser.email || `${cleanName}@auth`,
+          color: "#FFFFFF",
+          uid: firebaseUser.uid.slice(0, 8),
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [setUserProfile]);
 
   useEffect(() => {
     fetch("/api/git", {

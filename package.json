@@ -28,6 +28,7 @@
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "fast-xml-parser": "^5.11.1",
+    "firebase": "^12.19.0",
     "framer-motion": "^13.4.0",
     "geist": "^1.7.2",
     "jszip": "^3.10.2",
