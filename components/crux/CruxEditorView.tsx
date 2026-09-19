@@ -6,7 +6,7 @@ import ZenithFileTree from "./zenith/ZenithFileTree";
 import ZenithEditorPane from "./zenith/ZenithEditorPane";
 import ZenithTerminal from "./zenith/ZenithTerminal";
 import NexusCanvas from "./nexus/NexusCanvas";
-import CruxAgentPanel from "./agent/CruxAgentPanel";
+import CruxDualStateHud from "./agent/CruxDualStateHud";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
 import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
@@ -207,6 +207,9 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "i") {
         e.preventDefault();
         setIsAgentOpen((prev) => !prev);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        useWorkspaceStore.getState().toggleDrone();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -243,7 +246,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <header className="h-12 border-b border-grid bg-surface flex items-center justify-between px-4 z-30 shrink-0 font-sans select-none">
         <div className="flex items-center gap-4">
           {/* Crux / Crex Brand Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCommandPaletteOpen(true)} title="Crux Platform (Cmd+K)">
+          <div className="flex items-center gap-2 cursor-pointer" onClick={() => setCommandPaletteOpen(true)} title="Crux Platform (Cmd+P)">
             <CruxBrandLogo size={18} withText={true} />
           </div>
 
@@ -408,7 +411,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             </button>
             <button
               onClick={() => setIsAgentOpen(!isAgentOpen)}
-              title="AI Assistant (Cmd+I)"
+              title="AI Assistant (Cmd+I Anchor / Cmd+K Drone)"
               className={`p-1.5 border border-grid transition-colors ${
                 isAgentOpen ? "bg-grid text-accent2" : "bg-void text-muted hover:text-signal"
               }`}
@@ -475,10 +478,10 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
                 <ZenithEditorPane />
               </CruxErrorBoundary>
 
-              {/* AI AGENT PANEL */}
-              <CruxAgentPanel
-                isOpen={isAgentOpen}
-                onClose={() => setIsAgentOpen(false)}
+              {/* DUAL-STATE HUD (STATE A: THE ANCHOR, STATE B: THE DRONE) */}
+              <CruxDualStateHud
+                isAnchorOpen={isAgentOpen}
+                onCloseAnchor={() => setIsAgentOpen(false)}
               />
             </div>
 

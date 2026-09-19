@@ -57,6 +57,9 @@ interface WorkspaceState {
   isConnectingNodes: boolean;
   connectionSourceId: string | null;
   cursorPos: { line: number; col: number };
+  cursorScreenCoords: { x: number; y: number };
+  aiHudState: "anchor" | "drone";
+  isDroneOpen: boolean;
 
   // Live Code Execution & Terminal
   isExecuting: boolean;
@@ -183,6 +186,10 @@ interface WorkspaceState {
 
   setCommandPaletteOpen: (open: boolean) => void;
   setCursorPos: (pos: { line: number; col: number }) => void;
+  setCursorScreenCoords: (coords: { x: number; y: number }) => void;
+  setAiHudState: (mode: "anchor" | "drone") => void;
+  setIsDroneOpen: (open: boolean) => void;
+  toggleDrone: () => void;
   setAiPromptOpen: (open: boolean) => void;
   triggerAiGenerate: (prompt: string) => Promise<void>;
   updateRemoteCursor: (userId: string, data: Partial<SpatialCursor>) => void;
@@ -405,6 +412,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   isConnectingNodes: false,
   connectionSourceId: null,
   cursorPos: { line: 1, col: 1 },
+  cursorScreenCoords: { x: 380, y: 180 },
+  aiHudState: "anchor",
+  isDroneOpen: false,
 
   isExecuting: false,
   lastExecutionResult: null,
@@ -1332,6 +1342,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   },
   setCommandPaletteOpen: (isCommandPaletteOpen) => set({ isCommandPaletteOpen }),
   setCursorPos: (cursorPos) => set({ cursorPos }),
+  setCursorScreenCoords: (cursorScreenCoords) => set({ cursorScreenCoords }),
+  setAiHudState: (aiHudState) => set({ aiHudState }),
+  setIsDroneOpen: (isDroneOpen) => set({ isDroneOpen }),
+  toggleDrone: () => set((s) => ({ isDroneOpen: !s.isDroneOpen, aiHudState: "drone" })),
   setAiPromptOpen: (isAiPromptOpen) => set({ isAiPromptOpen }),
 
   triggerAiGenerate: async (prompt: string) => {

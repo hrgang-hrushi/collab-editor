@@ -714,6 +714,14 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
               col: sel.head - line.from + 1,
             });
 
+            const headCoords = viewRef.current?.coordsAtPos(sel.head);
+            if (headCoords) {
+              useWorkspaceStore.getState().setCursorScreenCoords({
+                x: Math.round(headCoords.left),
+                y: Math.round(headCoords.bottom),
+              });
+            }
+
             if (!sel.empty) {
               const selectedText = update.state.doc.sliceString(sel.from, sel.to);
               const coords = viewRef.current?.coordsAtPos(sel.to);
