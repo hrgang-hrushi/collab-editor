@@ -239,3 +239,13 @@ kbd {
   border: 1px solid #222222;
   color: #FFFFFF;
 }
+
+/* Metallic Badge Transparent Background */
+.metal-fx-root[style*="transparent"] {
+  background: transparent !important;
+}
+
+.metal-fx-root[style*="transparent"] .metal-fx-inner {
+  display: none !important;
+}
+
