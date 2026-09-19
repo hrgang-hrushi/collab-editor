@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-
+import { MetalBadge } from "metal-fx";
 
 interface CruxBrandLogoProps {
   size?: number;
@@ -48,18 +48,18 @@ export default function CruxBrandLogo({
           Crux
         </span>
 
-        {/* Metallic PRO Badge with Transparent Background */}
-        <div className="inline-flex items-center ml-1">
-          <span
-            className="px-1.5 py-0.5 text-[9px] font-mono font-bold tracking-widest uppercase bg-transparent border border-white/30 select-none transition-none"
-            style={{
-              background: "linear-gradient(135deg, #FFFFFF 0%, #999999 30%, #FFFFFF 50%, #666666 75%, #FFFFFF 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
+        {/* Metallic PRO Badge with Transparent Background and Real-Time WebGL Shader Animation */}
+        <div className="metal-badge-transparent inline-flex items-center ml-1">
+          <MetalBadge
+            theme="dark"
+            scale={0.72}
+            textColor="#FFFFFF"
+            core={{ r: 0, blur: 0, a: 0, size: 0 }}
+            gradient={0}
+            glow={0}
           >
             PRO
-          </span>
+          </MetalBadge>
         </div>
       </div>
     );
