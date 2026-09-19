@@ -1,13 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import dynamic from "next/dynamic";
+
+const CruxLibrariesDirectView = dynamic(
+  () => import("@/components/crux/effects/CruxLibrariesDirectView"),
+  { ssr: false }
+);
 
 const CruxEditorView = dynamic(() => import("@/components/crux/CruxEditorView"), {
   ssr: false,
 });
 
 export default function CruxPage() {
-  return <CruxEditorView />;
-}
+  const [activeView, setActiveView] = useState<"effects" | "ide">("effects");
 
+  if (activeView === "ide") {
+    return <CruxEditorView onBackToEffects={() => setActiveView("effects")} />;
+  }
+
+  return <CruxLibrariesDirectView onLaunchIde={() => setActiveView("ide")} />;
+}
