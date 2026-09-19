@@ -104,7 +104,7 @@ export default function CruxLibraryModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 font-sans select-none animate-in fade-in duration-100">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 font-sans select-none animate-in fade-in duration-100">
       <div className="w-full max-w-2xl bg-void border border-grid shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
         {/* Header */}
         <div className="px-5 py-3.5 border-b border-grid flex items-center justify-between bg-surface shrink-0">

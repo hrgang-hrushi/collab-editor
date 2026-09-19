@@ -766,11 +766,15 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     const awarenessMouseObserver = () => {
       try {
         const states = session.awareness.getStates();
+        const activePeerIds = new Set<string>();
         states.forEach((state: any, clientID: number) => {
           if (clientID === session.ydoc.clientID) return;
+          const peerKey = `client-${clientID}`;
+          activePeerIds.add(peerKey);
           if (state && state.mouse && state.user) {
             const u = state.user;
-            useWorkspaceStore.getState().updateRemoteCursor(`client-${clientID}`, {
+            useWorkspaceStore.getState().updateRemoteCursor(peerKey, {
+              userId: peerKey,
               userName: u.name || `Peer-${clientID.toString().slice(-4)}`,
               userColor: u.color || "#FFFFFF",
               userUid: u.uid || `CRX-${clientID.toString().slice(-4)}`,
@@ -780,6 +784,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
             });
           }
         });
+        useWorkspaceStore.getState().pruneRemoteCursors(activePeerIds);
       } catch {
         // ignore
       }
@@ -965,7 +970,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
           .map(([userId, cursor]) => (
             <div
               key={userId}
-              className="absolute pointer-events-none z-50 transition-all duration-75"
+              className="absolute pointer-events-none z-20 transition-all duration-75"
               style={{ top: `${cursor.y}px`, left: `${cursor.x}px` }}
             >
               <CruxPointerCursor

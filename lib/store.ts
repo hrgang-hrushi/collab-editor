@@ -193,8 +193,8 @@ interface WorkspaceState {
   setAiPromptOpen: (open: boolean) => void;
   triggerAiGenerate: (prompt: string) => Promise<void>;
   updateRemoteCursor: (userId: string, data: Partial<SpatialCursor>) => void;
-
-  // Live Flow & Pipeline Tracking Actions
+  removeRemoteCursor: (userId: string) => void;
+  pruneRemoteCursors: (activeUserIds: Set<string>) => void;
   setFlowSpeedFactor: (factor: number) => void;
   toggleFlowPause: () => void;
   setFocusedEdgeId: (id: string | null) => void;
@@ -352,50 +352,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   allowedFiles: ["stream_syncer.ts", "database.ts", "auth.ts"],
   allowedLineRange: undefined,
   inboxInvites: INITIAL_INVITES,
-  remoteCursors: {
-    "user-1": {
-      userId: "user-1",
-      userName: "Sarah Lin",
-      userUid: "CRX-9941-SL",
-      userColor: "#38b6ff",
-      x: 220,
-      y: 140,
-      targetX: 220,
-      targetY: 140,
-      offsetX: 220,
-      offsetY: 140,
-      activeFileId: "file-auth",
-      lastUpdated: Date.now(),
-    },
-    "user-2": {
-      userId: "user-2",
-      userName: "CruxAI",
-      userUid: "CRX-0001-AI",
-      userColor: "#ff5757",
-      x: 230,
-      y: 136,
-      targetX: 230,
-      targetY: 136,
-      offsetX: 230,
-      offsetY: 136,
-      activeFileId: "file-stream-syncer",
-      lastUpdated: Date.now(),
-    },
-    "user-3": {
-      userId: "user-3",
-      userName: "Marcus Vance",
-      userUid: "CRX-5520-MV",
-      userColor: "#ff914d",
-      x: 200,
-      y: 160,
-      targetX: 200,
-      targetY: 160,
-      offsetX: 200,
-      offsetY: 160,
-      activeFileId: "file-spatial",
-      lastUpdated: Date.now(),
-    },
-  },
+  remoteCursors: {},
 
   projectName: "crux-core",
   files: INITIAL_FILES,
@@ -1381,17 +1338,45 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   updateRemoteCursor: (userId: string, data: Partial<SpatialCursor>) =>
     set((state) => {
       const existing = state.remoteCursors[userId];
-      if (!existing) return state;
+      const base: SpatialCursor = existing || {
+        userId,
+        userName: data.userName || "Anonymous",
+        userColor: data.userColor || "#FFFFFF",
+        userUid: data.userUid || `CRX-${userId.slice(-4)}`,
+        x: data.x ?? 0,
+        y: data.y ?? 0,
+        targetX: data.targetX ?? data.x ?? 0,
+        targetY: data.targetY ?? data.y ?? 0,
+        lastUpdated: Date.now(),
+      };
       return {
         remoteCursors: {
           ...state.remoteCursors,
           [userId]: {
-            ...existing,
+            ...base,
             ...data,
             lastUpdated: Date.now(),
           },
         },
       };
+    }),
+
+  removeRemoteCursor: (userId: string) =>
+    set((state) => {
+      const next = { ...state.remoteCursors };
+      delete next[userId];
+      return { remoteCursors: next };
+    }),
+
+  pruneRemoteCursors: (activeUserIds: Set<string>) =>
+    set((state) => {
+      const next: Record<string, SpatialCursor> = {};
+      for (const [id, cursor] of Object.entries(state.remoteCursors)) {
+        if (activeUserIds.has(id)) {
+          next[id] = cursor;
+        }
+      }
+      return { remoteCursors: next };
     }),
 
   setFlowSpeedFactor: (flowSpeedFactor) => set({ flowSpeedFactor }),

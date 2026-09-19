@@ -280,8 +280,8 @@ export default function CommandPalette() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/80 font-sans">
-      <div className="w-full max-w-xl bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] overflow-hidden text-white">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 px-4 bg-black/80 font-sans">
+      <div className="w-full max-w-xl bg-[#0A0A0A] border border-[#222222] rounded-none overflow-hidden text-white">
         {/* Search Bar Input */}
         <div className="flex items-center px-3 py-2 border-b border-[#222222] gap-2.5 bg-black">
           <Search className="w-4 h-4 text-[#888888] shrink-0" />

@@ -137,7 +137,7 @@ export default function CruxShareModal() {
   const computedUrl = getComputedShareUrl();
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 font-sans select-none animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 font-sans select-none animate-in fade-in duration-150">
       <div className="w-full max-w-lg bg-surface border border-grid shadow-[4px_4px_0px_#222222] flex flex-col overflow-hidden">
         {/* Header */}
         <div className="h-11 px-4 border-b border-grid bg-void flex items-center justify-between">

@@ -34,7 +34,7 @@ function isLightColor(hex?: string): boolean {
  * - Smooth 3px corner radius with flush top-left anchor to the arrow notch
  */
 export default function CruxPointerCursor({
-  name = "Sarah Lin",
+  name = "Peer",
   uid,
   color = "#38b6ff",
   status,
@@ -47,7 +47,7 @@ export default function CruxPointerCursor({
       ? "CRX-0001-AI"
       : name.toLowerCase().includes("marcus")
       ? "CRX-5520-MV"
-      : "CRX-9941-SL");
+      : "CRX-PEER");
   const textColor = isLightColor(color) ? "#000000" : "#FFFFFF";
 
   return (

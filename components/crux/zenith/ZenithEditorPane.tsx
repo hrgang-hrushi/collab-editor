@@ -20,7 +20,6 @@ import {
   Link2,
 } from "lucide-react";
 import { Rise, Morph } from "cube-motion/react";
-import CruxPointerCursor from "../CruxPointerCursor";
 import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
 import { triggerHaptic } from "@/lib/haptics";
 
@@ -505,20 +504,11 @@ syncer.acquireLock().then((ticket) => {
                   </div>
                 )}
 
-                {/* Addition Line with Peer Cursor */}
+                {/* Addition Line */}
                 {diffState !== "rejected" && (
                   <div className="px-2 py-1 bg-[#00FF00]/10 text-signal border-l-2 border-[#00FF00] flex relative">
                     <span className="w-6 text-[#00FF00]/50 select-none">4</span>
                     <span>+   timeout = Math.min(5 * 1000, 30000);</span>
-
-                    {/* Collaborative Peer Cursor: Sarah Lin */}
-                    <div className="absolute top-0 left-[390px] pointer-events-none z-10">
-                      <CruxPointerCursor
-                        name="Sarah Lin"
-                        uid="CRX-9941-SL"
-                        color="#38b6ff"
-                      />
-                    </div>
                   </div>
                 )}
               </div>
@@ -534,15 +524,6 @@ syncer.acquireLock().then((ticket) => {
               <div className="flex relative">
                 <span className="w-8 text-[#444] select-none">7</span>
                 <span>    const ticket = await this.daemon.acquireLock(channel);</span>
-
-                {/* AI Co-Pilot Cursor: CruxAI */}
-                <div className="absolute top-0 left-[360px] pointer-events-none z-10">
-                  <CruxPointerCursor
-                    name="CruxAI"
-                    uid="CRX-0001-AI"
-                    color="#ff5757"
-                  />
-                </div>
               </div>
               <div className="flex">
                 <span className="w-8 text-[#444] select-none">8</span>

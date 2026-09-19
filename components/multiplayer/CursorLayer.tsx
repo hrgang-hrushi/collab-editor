@@ -92,57 +92,6 @@ export default function CursorLayer() {
   const remoteCursors = useWorkspaceStore((state) => state.remoteCursors);
   const files = useWorkspaceStore((state) => state.files);
   const zoom = useWorkspaceStore((state) => state.canvasTransform.zoom);
-  const updateRemoteCursor = useWorkspaceStore((state) => state.updateRemoteCursor);
-
-  // Autonomous realistic simulation of remote teammates anchored to their files
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentFiles = useWorkspaceStore.getState().files;
-      if (!currentFiles || currentFiles.length === 0) return;
-      const now = Date.now();
-
-      // Sarah Lin inside auth.ts (inspecting Ed25519 signature checks)
-      const sarahLocalX = 180 + Math.sin(now / 2200) * 40;
-      const sarahLocalY = 150 + Math.cos(now / 2600) * 30;
-      updateRemoteCursor("user-1", {
-        offsetX: Math.round(sarahLocalX),
-        offsetY: Math.round(sarahLocalY),
-        targetX: Math.round(sarahLocalX),
-        targetY: Math.round(sarahLocalY),
-        x: Math.round(sarahLocalX),
-        y: Math.round(sarahLocalY),
-        activeFileId: "file-auth",
-      });
-
-      // CruxAI suggests optimizations inside stream_syncer.ts
-      const cruxLocalX = 240 + Math.sin(now / 2800) * 30;
-      const cruxLocalY = 135 + Math.cos(now / 2400) * 15;
-      updateRemoteCursor("user-2", {
-        offsetX: Math.round(cruxLocalX),
-        offsetY: Math.round(cruxLocalY),
-        targetX: Math.round(cruxLocalX),
-        targetY: Math.round(cruxLocalY),
-        x: Math.round(cruxLocalX),
-        y: Math.round(cruxLocalY),
-        activeFileId: "file-stream-syncer",
-      });
-
-      // Marcus Vance profiles 120Hz lerp inside spatialEngine.ts
-      const marcusLocalX = 210 + Math.cos(now / 3000) * 45;
-      const marcusLocalY = 160 + Math.sin(now / 2700) * 25;
-      updateRemoteCursor("user-3", {
-        offsetX: Math.round(marcusLocalX),
-        offsetY: Math.round(marcusLocalY),
-        targetX: Math.round(marcusLocalX),
-        targetY: Math.round(marcusLocalY),
-        x: Math.round(marcusLocalX),
-        y: Math.round(marcusLocalY),
-        activeFileId: "file-spatial",
-      });
-    }, 1600);
-
-    return () => clearInterval(interval);
-  }, [updateRemoteCursor]);
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-visible">
