@@ -5,6 +5,7 @@ import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick, playMechanicalEnter, playMagneticPulse } from "@/lib/sound";
 import MagneticNeedleField from "../void/MagneticNeedleField";
+import CruxAuthGate from "../auth/CruxAuthGate";
 import { Settings, User, Lock, Key, Shield, Check, Sliders, Cpu, ArrowRight } from "lucide-react";
 
 export default function CruxOnboardingStartPage() {
@@ -218,6 +219,8 @@ export default function CruxOnboardingStartPage() {
               </div>
             </div>
           </div>
+        ) : activeView === "signup" || activeView === "login" ? (
+          <CruxAuthGate onCancel={() => switchTab("welcome")} />
         ) : (
           <div className="w-full max-w-xl border border-[#222222] bg-[#000000]">
             {/* Card Title Strip with Hardware Mode Tabs */}
@@ -225,13 +228,7 @@ export default function CruxOnboardingStartPage() {
               <div className="flex items-center gap-2 text-[#888888] uppercase tracking-wider">
                 <span className="text-white font-bold">SYS.ENCLAVE</span>
                 <span className="text-[#333333]">|</span>
-                <span className="text-white">
-                  {activeView === "signup"
-                    ? "CREATE DEVELOPER NODE"
-                    : activeView === "login"
-                    ? "ATTACH EXISTING NODE KEY"
-                    : "CALIBRATE ACCOUNT & PREFERENCES"}
-                </span>
+                <span className="text-white">CALIBRATE ACCOUNT &amp; PREFERENCES</span>
               </div>
               <div className="flex items-center gap-2 text-[#444444] text-[9px]">
                 <span>ENCLAVE: 0x9B4E</span>
@@ -252,11 +249,7 @@ export default function CruxOnboardingStartPage() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <div className="font-brand font-black text-white text-xl sm:text-2xl -tracking-[0.05em] uppercase">
-                    {activeView === "signup"
-                      ? "NODE INITIALIZATION"
-                      : activeView === "login"
-                      ? "AUTHENTICATE NODE"
-                      : "ACCOUNT SETTINGS"}
+                    ACCOUNT SETTINGS
                   </div>
                   <button
                     type="button"
@@ -267,11 +260,7 @@ export default function CruxOnboardingStartPage() {
                   </button>
                 </div>
                 <p className="font-sans text-[11px] text-[#666666] leading-relaxed">
-                  {activeView === "signup"
-                    ? "Crux compiles bare-metal collaborative buffers using cryptographic developer attestations. Register your identity to lock local memory rings and pair with mesh peers."
-                    : activeView === "login"
-                    ? "Enter your cryptographic Node UID or mesh routing email with master encryption key to unlock your local workspace keyring."
-                    : "Configure workspace keybindings, default compute dispatch targets, and hardware telemetry diagnostics."}
+                  Configure workspace keybindings, default compute dispatch targets, and hardware telemetry diagnostics.
                 </p>
               </div>
 
@@ -290,205 +279,7 @@ export default function CruxOnboardingStartPage() {
                 </div>
               )}
 
-              {/* VIEW 1: SIGN UP (NEW DEVELOPER ENCLAVE) */}
-              {activeView === "signup" && (
-              <form onSubmit={handleSignUp} className="space-y-4">
-                {/* Input: Developer Name */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center font-mono text-[9px] uppercase tracking-widest text-[#555555]">
-                    <label htmlFor="dev-name">01 // DEVELOPER NAME</label>
-                    <span className="text-[#333333]">[ASCII_STR]</span>
-                  </div>
-                  <input
-                    id="dev-name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      playMechanicalClick("mid");
-                      setName(e.target.value);
-                    }}
-                    placeholder="e.g. Hrushikesh Gangala"
-                    className="w-full bg-[#000000] border border-[#222222] focus:border-white px-3 py-2 text-xs text-white font-mono placeholder:text-[#333333] outline-none transition-none"
-                    autoFocus
-                    spellCheck={false}
-                    autoComplete="off"
-                  />
-                </div>
-
-                {/* Input: Email Address */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center font-mono text-[9px] uppercase tracking-widest text-[#555555]">
-                    <label htmlFor="mesh-email">02 // MESH ROUTING IDENTIFIER (EMAIL)</label>
-                    <span className="text-[#333333]">[RFC_5322]</span>
-                  </div>
-                  <input
-                    id="mesh-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      playMechanicalClick("mid");
-                      setEmail(e.target.value);
-                    }}
-                    placeholder="e.g. hrushi@crux.engine"
-                    className="w-full bg-[#000000] border border-[#222222] focus:border-white px-3 py-2 text-xs text-white font-mono placeholder:text-[#333333] outline-none transition-none"
-                    spellCheck={false}
-                    autoComplete="off"
-                  />
-                </div>
-
-                {/* Input: Master Key / Password */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center font-mono text-[9px] uppercase tracking-widest text-[#555555]">
-                    <label htmlFor="master-key">03 // LOCAL MASTER ENCRYPTION KEY</label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playMechanicalClick("low");
-                        setShowPassword(!showPassword);
-                      }}
-                      className="text-[#666666] hover:text-white transition-none uppercase text-[8px] border border-[#222222] px-1"
-                    >
-                      {showPassword ? "[MASK]" : "[REVEAL]"}
-                    </button>
-                  </div>
-                  <input
-                    id="master-key"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => {
-                      playMechanicalClick("mid");
-                      setPassword(e.target.value);
-                    }}
-                    placeholder="••••••••••••••••"
-                    className="w-full bg-[#000000] border border-[#222222] focus:border-white px-3 py-2 text-xs text-white font-mono placeholder:text-[#333333] outline-none transition-none"
-                    autoComplete="off"
-                  />
-                </div>
-
-                {/* Cryptographic UID Display Box */}
-                <div className="p-3 bg-[#080808] border border-[#222222] space-y-1.5 font-mono">
-                  <div className="flex items-center justify-between text-[9px] text-[#555555] uppercase tracking-wider">
-                    <span>[ASSIGNED_CRYPTOGRAPHIC_NODE_UID]</span>
-                    <button
-                      type="button"
-                      onClick={handleCopyUid}
-                      className="text-white hover:bg-white hover:text-black px-1.5 py-0.5 border border-[#333333] transition-none uppercase"
-                    >
-                      {copiedUid ? "[COPIED_TO_CLIPBOARD]" : "[COPY_UID]"}
-                    </button>
-                  </div>
-                  <div className="text-sm font-bold text-white tracking-widest flex items-center justify-between">
-                    <span>{generatedUid}</span>
-                    <span className="text-[9px] text-[#444444] font-normal">[ED25519_OK]</span>
-                  </div>
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3 px-4 bg-white text-black font-sans font-bold text-xs sm:text-sm tracking-normal hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span className="font-bold">INITIALIZE &amp; LAUNCH CRUX KERNEL</span>
-                    <span className="font-sans font-bold text-xs">❯</span>
-                  </button>
-                </div>
-
-                <div className="text-center pt-1 font-mono text-[10px] text-[#666666]">
-                  Already have an authenticated node?{" "}
-                  <button
-                    type="button"
-                    onClick={() => switchTab("login")}
-                    className="text-white underline hover:no-underline font-bold"
-                  >
-                    Sign In instead
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* VIEW 2: SIGN IN (ATTACH EXISTING NODE KEY) */}
-            {activeView === "login" && (
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center font-mono text-[9px] uppercase tracking-widest text-[#555555]">
-                    <label htmlFor="login-id">01 // NODE UID OR EMAIL IDENTIFIER</label>
-                    <span className="text-[#333333]">[ID_OR_EMAIL]</span>
-                  </div>
-                  <input
-                    id="login-id"
-                    type="text"
-                    value={loginIdentifier}
-                    onChange={(e) => {
-                      playMechanicalClick("mid");
-                      setLoginIdentifier(e.target.value);
-                    }}
-                    placeholder="e.g. CRX-7447-HG or hrushi@crux.engine"
-                    className="w-full bg-[#000000] border border-[#222222] focus:border-white px-3 py-2 text-xs text-white font-mono placeholder:text-[#333333] outline-none transition-none"
-                    autoFocus
-                    spellCheck={false}
-                    autoComplete="off"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center font-mono text-[9px] uppercase tracking-widest text-[#555555]">
-                    <label htmlFor="login-key">02 // MASTER ENCRYPTION KEY</label>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        playMechanicalClick("low");
-                        setShowPassword(!showPassword);
-                      }}
-                      className="text-[#666666] hover:text-white transition-none uppercase text-[8px] border border-[#222222] px-1"
-                    >
-                      {showPassword ? "[MASK]" : "[REVEAL]"}
-                    </button>
-                  </div>
-                  <input
-                    id="login-key"
-                    type={showPassword ? "text" : "password"}
-                    value={loginKey}
-                    onChange={(e) => {
-                      playMechanicalClick("mid");
-                      setLoginKey(e.target.value);
-                    }}
-                    placeholder="••••••••••••••••"
-                    className="w-full bg-[#000000] border border-[#222222] focus:border-white px-3 py-2 text-xs text-white font-mono placeholder:text-[#333333] outline-none transition-none"
-                    autoComplete="off"
-                  />
-                </div>
-
-                <div className="p-3 bg-[#080808] border border-[#222222] text-[10px] font-mono text-[#666666] flex items-center gap-2">
-                  <Key className="w-3.5 h-3.5 text-white shrink-0" />
-                  <span>Your master key remains localized in memory and is never transmitted over external network hops.</span>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3 px-4 bg-white text-black font-sans font-bold text-xs sm:text-sm tracking-normal hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span className="font-bold">ATTACH NODE &amp; LAUNCH CRUX</span>
-                    <span className="font-sans font-bold text-xs">❯</span>
-                  </button>
-                </div>
-
-                <div className="text-center pt-1 font-mono text-[10px] text-[#666666]">
-                  Need a new developer enclave?{" "}
-                  <button
-                    type="button"
-                    onClick={() => switchTab("signup")}
-                    className="text-white underline hover:no-underline font-bold"
-                  >
-                    Create Node
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* VIEW 3: ACCOUNT & HARDWARE SETTINGS */}
-            {activeView === "settings" && (
+              {/* ACCOUNT & HARDWARE SETTINGS */}
               <form onSubmit={handleSaveSettings} className="space-y-4 font-mono text-xs">
                 {/* Keymap Preference */}
                 <div className="space-y-1.5">
@@ -583,7 +374,6 @@ export default function CruxOnboardingStartPage() {
                   </button>
                 </div>
               </form>
-            )}
           </div>
 
           {/* Lower Hardware Telemetry Stencil */}
