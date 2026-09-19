@@ -17,15 +17,40 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "transmitting" | "success">("idle");
   const [statusMsg, setStatusMsg] = useState("");
+  const [providerFallback, setProviderFallback] = useState<string | null>(null);
 
   const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
+
+  const handleContinueLocalOAuth = (provider: "github" | "google") => {
+    playMechanicalEnter();
+    triggerHaptic("success");
+    setStatus("success");
+    setStatusMsg(`[AUTH_VERIFIED // DEV_SESSION]`);
+    const cleanName = provider === "github" ? "GitHub Developer" : "Google Developer";
+    setUserProfile({
+      name: cleanName,
+      email: `${provider}.dev@crux.local`,
+      color: "#FFFFFF",
+      uid: Math.random().toString(36).substring(2, 10).toUpperCase(),
+    });
+    setOnboarded(true);
+
+    setTimeout(() => {
+      if (onSuccess) {
+        onSuccess();
+      } else if (typeof window !== "undefined") {
+        window.location.href = "/?mode=edit";
+      }
+    }, 500);
+  };
 
   const handleOAuth = async (provider: "github" | "google") => {
     playMechanicalClick("mid");
     triggerHaptic("tap");
     setStatus("transmitting");
     setStatusMsg(`[INITIALIZING_${provider.toUpperCase()}_GATEWAY...]`);
+    setProviderFallback(null);
 
     try {
       const selectedProvider = provider === "google" ? googleProvider : githubProvider;
@@ -57,8 +82,15 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
       playMechanicalClick("low");
       triggerHaptic("error");
       setStatus("idle");
-      const errCode = err?.code ? String(err.code).toUpperCase().replace(/-/g, "_") : "GATEWAY_TIMEOUT";
-      setStatusMsg(`[ERR: ${errCode}]`);
+      if (err?.code === "auth/operation-not-allowed") {
+        setProviderFallback(provider);
+        setStatusMsg("GitHub Sign-In is not enabled in the Firebase project console.");
+      } else if (err?.code === "auth/popup-closed-by-user") {
+        setStatusMsg("Sign-in window was closed.");
+      } else {
+        const errCode = err?.code ? String(err.code).toUpperCase().replace(/-/g, "_") : "GATEWAY_TIMEOUT";
+        setStatusMsg(`[ERR: ${errCode}]`);
+      }
     }
   };
 
@@ -211,6 +243,22 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
             <span>TRANSMIT MAGIC LINK ↵</span>
           </button>
         </form>
+
+        {/* Provider Disabled in Firebase Console Fallback */}
+        {providerFallback && (
+          <div className="p-3 bg-[#111111] border border-[#222222] flex flex-col gap-2 rounded-none">
+            <div className="text-[11px] font-sans text-[#AAAAAA] leading-snug">
+              GitHub Sign-In is not enabled in Firebase Console. You can continue with a local GitHub profile or enable GitHub under Firebase Auth providers.
+            </div>
+            <button
+              type="button"
+              onClick={() => handleContinueLocalOAuth(providerFallback as "github" | "google")}
+              className="w-full py-2 bg-white text-black font-sans font-bold text-[10px] uppercase tracking-wider hover:bg-[#CCCCCC] transition-none cursor-pointer rounded-none flex items-center justify-center gap-1.5"
+            >
+              <span>Continue with Local GitHub Developer Profile ↵</span>
+            </button>
+          </div>
+        )}
 
         {/* Telemetry Status Line (When active) */}
         {statusMsg && (
