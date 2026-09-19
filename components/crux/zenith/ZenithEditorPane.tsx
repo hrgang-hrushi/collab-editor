@@ -20,6 +20,7 @@ import {
   Link2,
 } from "lucide-react";
 import CruxPointerCursor from "../CruxPointerCursor";
+import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
 
 export default function ZenithEditorPane() {
   const files = useWorkspaceStore((state) => state.files);
@@ -38,7 +39,7 @@ export default function ZenithEditorPane() {
 
   const [savedFeedback, setSavedFeedback] = useState(false);
   const [isSplitScreen, setIsSplitScreen] = useState(false);
-  const [editorMode, setEditorMode] = useState<"zenith" | "raw">("raw");
+  const [editorMode, setEditorMode] = useState<"webgpu" | "zenith" | "raw">("webgpu");
   const [diffState, setDiffState] = useState<"pending" | "accepted" | "rejected">("pending");
   const [isFindOpen, setIsFindOpen] = useState(false);
   const [findQuery, setFindQuery] = useState("");
@@ -224,6 +225,18 @@ syncer.acquireLock().then((ticket) => {
 
         {/* Tab Strip Right Controls */}
         <div className="flex items-center gap-1.5 px-3 shrink-0 bg-surface h-full">
+          <button
+            onClick={() => setEditorMode(editorMode === "webgpu" ? "raw" : "webgpu")}
+            className={`px-2 py-0.5 text-[10px] font-mono border uppercase transition-none mr-1 ${
+              editorMode === "webgpu"
+                ? "bg-white text-black border-white font-bold"
+                : "bg-transparent text-[#888888] border-[#222222] hover:text-white hover:border-white"
+            }`}
+            title="Toggle WebGPU 120FPS Canvas Engine"
+          >
+            {editorMode === "webgpu" ? "WEBGPU: ON" : "WEBGPU: OFF"}
+          </button>
+
           {isStreamSyncer && (
             <button
               onClick={() => setEditorMode(editorMode === "zenith" ? "raw" : "zenith")}
@@ -362,10 +375,23 @@ syncer.acquireLock().then((ticket) => {
 
       {/* Editor Surface */}
       <div className="flex-1 w-full h-full flex flex-row overflow-hidden bg-void">
-        <div className={`h-full overflow-hidden flex flex-col ${isSplitScreen ? "w-1/2" : "w-full"}`}>
-          {isStreamSyncer && editorMode === "zenith" ? (
-            /* CANONICAL ZENITH STREAM_SYNCER VIEW */
-            <div className="flex-1 p-6 font-mono text-[13px] leading-loose text-muted overflow-auto">
+        {editorMode === "webgpu" ? (
+          <div className="w-full h-full flex flex-col overflow-hidden">
+            <CrexWebGpuCanvas
+              initialCode={activeFile?.content || ""}
+              initialLanguage={activeFile?.language || "rust"}
+              onCodeChange={(newCode) => {
+                if (activeFile) {
+                  updateFileContent(activeFile.id, newCode);
+                }
+              }}
+            />
+          </div>
+        ) : (
+          <div className={`h-full overflow-hidden flex flex-col ${isSplitScreen ? "w-1/2" : "w-full"}`}>
+            {isStreamSyncer && editorMode === "zenith" ? (
+              /* CANONICAL ZENITH STREAM_SYNCER VIEW */
+              <div className="flex-1 p-6 font-mono text-[13px] leading-loose text-muted overflow-auto">
               <div className="flex">
                 <span className="w-8 text-[#444] select-none">1</span>
                 <span>import &#123; LocalDaemonClient &#125; from &quot;@crux/daemon&quot;;</span>
@@ -511,6 +537,7 @@ syncer.acquireLock().then((ticket) => {
             </div>
           )}
         </div>
+        )}
 
         {/* Split Screen Secondary Editor */}
         {isSplitScreen && (

@@ -176,45 +176,48 @@ export default function CruxOnboardingStartPage() {
 
       {/* 3. Central Start Board Matrix (Z-30) */}
       <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        {/* VIEW 0: WELCOME & START YOUR PROJECT LANDING DECK */}
+        {/* VIEW 0: BARE-METAL HARDWARE LAUNCH GATE */}
         {activeView === "welcome" ? (
           <div className="w-full max-w-3xl flex flex-col items-center select-none gap-8 rounded-none">
-            {/* 1. Monolithic Crux Title with Anchored Badge Box */}
-            <div className="inline-flex items-center gap-3">
+            {/* 1. Monolithic Crux Title (Strictly Capital C Only, 0 Tracking, No Floating Badges) */}
+            <div className="flex flex-col items-center">
               <h1 className="font-brand font-black text-white text-9xl sm:text-[116px] md:text-[132px] tracking-[0px] leading-none select-none text-center">
                 Crux
               </h1>
-              <div className="self-start mt-3 border border-[#222222] bg-[#111111] px-2 py-0.5 text-xs font-mono text-[#888888] rounded-none select-none">
-                v1.2
-              </div>
             </div>
 
-            {/* 3. Utilitarian Button Deck (Enlarged Scale, Exact h-14, text-sm, rounded-none, Hardware Inversion) */}
+            {/* 2. Utilitarian Hardware Launch Triggers */}
             <div className="w-full max-w-md flex flex-col gap-3 rounded-none">
-              {/* Primary Action Button */}
+              {/* Primary Kernel Boot Trigger */}
               <button
-                onClick={() => switchTab("signup")}
-                className="w-full h-14 px-6 bg-white text-black font-sans font-bold text-sm uppercase tracking-wider hover:bg-white hover:text-black hover:invert transition-none flex items-center justify-center gap-3 cursor-pointer border border-white rounded-none"
+                onClick={() => {
+                  playMechanicalEnter();
+                  playMagneticPulse();
+                  triggerHaptic("click");
+                  setOnboarded(true);
+                  setZeroStateOpen(false);
+                }}
+                className="w-full h-14 px-6 bg-white text-black font-sans font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white hover:border-white transition-none flex items-center justify-center gap-3 cursor-pointer border border-white rounded-none"
               >
-                <span>START YOUR PROJECT</span>
-                <ArrowRight className="w-4 h-4 text-black" />
+                <span>[INITIALIZE WORKSPACE]</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
 
-              {/* Secondary Navigation Row */}
+              {/* Secondary Hardware Controls */}
               <div className="grid grid-cols-2 gap-3 rounded-none">
                 <button
-                  onClick={() => switchTab("login")}
+                  onClick={() => switchTab("signup")}
                   className="h-12 px-4 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
                 >
-                  <Lock className="w-4 h-4 text-[#666666] group-hover:text-white" />
-                  <span>SIGN IN</span>
+                  <Lock className="w-4 h-4 text-[#666666]" />
+                  <span>[AUTHENTICATE]</span>
                 </button>
                 <button
                   onClick={() => switchTab("settings")}
                   className="h-12 px-4 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
                 >
-                  <Settings className="w-4 h-4 text-[#666666] group-hover:text-white" />
-                  <span>SETTINGS</span>
+                  <Settings className="w-4 h-4 text-[#666666]" />
+                  <span>[SETTINGS]</span>
                 </button>
               </div>
             </div>
