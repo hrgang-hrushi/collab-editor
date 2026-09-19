@@ -19,6 +19,7 @@ import {
   Share2,
   Link2,
 } from "lucide-react";
+import { Rise, Morph } from "cube-motion/react";
 import CruxPointerCursor from "../CruxPointerCursor";
 import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
 
@@ -191,7 +192,7 @@ syncer.acquireLock().then((ticket) => {
     <main className="flex-1 bg-[#000000] flex flex-col relative overflow-hidden font-sans select-text">
       {/* Crex Header: h-8 bg-[#111111] border-b border-[#222222] */}
       <div className="flex h-8 border-b border-[#222222] bg-[#111111] items-center justify-between select-none shrink-0 overflow-x-auto">
-        <div className="flex items-center h-full overflow-x-auto">
+        <Rise as="div" targets="children" className="flex items-center h-full overflow-x-auto">
           {openFiles.map((tab) => {
             const isActive = tab.id === activeFile?.id;
             return (
@@ -227,7 +228,7 @@ syncer.acquireLock().then((ticket) => {
               </div>
             );
           })}
-        </div>
+        </Rise>
 
         {/* Tab Strip Right Controls */}
         <div className="flex items-center gap-1.5 px-3 shrink-0 bg-surface h-full">
@@ -289,16 +290,11 @@ syncer.acquireLock().then((ticket) => {
             }`}
           >
             {copiedLink ? (
-              <>
-                <Check className="w-3 h-3 text-black" />
-                <span>COPIED</span>
-              </>
+              <Check className="w-3 h-3 text-black" />
             ) : (
-              <>
-                <Link2 className="w-3 h-3" />
-                <span>SHARE LINK</span>
-              </>
+              <Link2 className="w-3 h-3" />
             )}
+            <Morph active={copiedLink} off="SHARE LINK" on="COPIED" />
           </button>
 
           <button
@@ -541,7 +537,7 @@ syncer.acquireLock().then((ticket) => {
             /* RAW CODEMIRROR / GENERAL FILE EDITOR */
             <CodeMirrorEditor key={activeFile.id} file={activeFile} readOnly={isReadOnly} />
           ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-void">
+            <Rise className="w-full h-full flex flex-col items-center justify-center p-8 text-center bg-void">
               <div className="max-w-sm p-6 border border-grid bg-surface space-y-3">
                 <div className="w-8 h-8 mx-auto bg-void border border-grid flex items-center justify-center">
                   <Code2 className="w-4 h-4 text-signal" />
@@ -557,7 +553,7 @@ syncer.acquireLock().then((ticket) => {
                   Load Starter Files
                 </button>
               </div>
-            </div>
+            </Rise>
           )}
         </div>
         )}

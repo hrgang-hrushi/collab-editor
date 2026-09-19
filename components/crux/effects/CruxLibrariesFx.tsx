@@ -5,6 +5,7 @@ import { ThinkingOrb } from "thinking-orbs";
 import { BorderBeam } from "border-beam";
 import { Liquid } from "liquid-gooey";
 import { MetalFx, MetalText, MetalBadge, useMetalBend } from "metal-fx";
+import { Rise, Morph } from "cube-motion/react";
 import { X, Play, Pause, Sparkles, Layers, Sliders, ArrowUp, RefreshCw, Zap } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick } from "@/lib/sound";
@@ -63,6 +64,11 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
 
   // Hook for metal cursor bend
   useMetalBend(metalButtonRef);
+
+  // Cube Motion State
+  const [cubeMorphActive, setCubeMorphActive] = useState(false);
+  const [cubeRiseCount, setCubeRiseCount] = useState(3);
+  const [cubeTriggerKey, setCubeTriggerKey] = useState(0);
 
   if (!isOpen) return null;
 
@@ -390,6 +396,83 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
                 >
                   RIM {metalInnerShadow ? "ON" : "OFF"}
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 5. CUBE MOTION */}
+          <div className="border border-[#222222] bg-[#0A0A0A] p-4 flex flex-col gap-3 rounded-none">
+            <div className="flex items-center justify-between border-b border-[#222222] pb-2 font-mono text-xs">
+              <span className="font-bold text-white uppercase tracking-wider">05 // CUBE_MOTION</span>
+              <span className="text-[10px] text-[#888888]">npm i cube-motion</span>
+            </div>
+
+            {/* Cube Motion Stage */}
+            <div className="h-40 bg-[#000000] border border-[#222222] flex flex-col items-center justify-center p-3 relative overflow-hidden gap-3">
+              <button
+                onClick={() => {
+                  playMechanicalClick("mid");
+                  setCubeMorphActive(!cubeMorphActive);
+                }}
+                className="px-4 py-2 border border-white bg-transparent text-white font-mono text-xs uppercase tracking-wider transition-none hover:bg-white hover:text-black cursor-pointer"
+              >
+                <Morph
+                  active={cubeMorphActive}
+                  off="DEPLOY PIPELINE"
+                  on="PIPELINE RUNNING"
+                />
+              </button>
+
+              <Rise key={cubeTriggerKey} as="div" targets="children" className="flex items-center gap-2">
+                {Array.from({ length: cubeRiseCount }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="px-3 py-1 bg-[#111111] border border-[#222222] text-[10px] font-mono text-white"
+                  >
+                    NODE_{i + 1}
+                  </div>
+                ))}
+              </Rise>
+
+              <span className="font-mono text-[9px] text-[#666666] uppercase">
+                WEB ANIMATIONS API · ZERO-DIAL MOTION ENGINE
+              </span>
+            </div>
+
+            {/* Controls */}
+            <div className="space-y-2 font-mono text-[10px]">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    playMechanicalClick("low");
+                    setCubeTriggerKey((k) => k + 1);
+                  }}
+                  className="px-2 py-1 border border-white bg-white text-black font-bold uppercase transition-none text-[9px]"
+                >
+                  RE-TRIGGER RISE
+                </button>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => {
+                      playMechanicalClick("high");
+                      setCubeRiseCount((c) => Math.max(1, c - 1));
+                    }}
+                    className="px-2 py-0.5 border border-[#222222] text-[#888888] hover:text-white"
+                  >
+                    -
+                  </button>
+                  <span className="text-white px-1">{cubeRiseCount} NODES</span>
+                  <button
+                    onClick={() => {
+                      playMechanicalClick("high");
+                      setCubeRiseCount((c) => Math.min(6, c + 1));
+                    }}
+                    className="px-2 py-0.5 border border-[#222222] text-[#888888] hover:text-white"
+                  >
+                    +
+                  </button>
+                </div>
               </div>
             </div>
           </div>

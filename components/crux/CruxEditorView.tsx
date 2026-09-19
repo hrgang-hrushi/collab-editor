@@ -20,6 +20,7 @@ import CruxErrorBoundary from "./CruxErrorBoundary";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { Morph } from "cube-motion/react";
 import {
   Layers,
   Code,
@@ -318,7 +319,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             }
           >
             {viewerLock ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-            <span>{viewerLock ? "LOCKED" : "UNLOCKED"}</span>
+            <Morph active={viewerLock} off="UNLOCKED" on="LOCKED" />
           </button>
 
           {/* Collaborative Inbox Button */}
