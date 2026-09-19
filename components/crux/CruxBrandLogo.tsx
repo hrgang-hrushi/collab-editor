@@ -48,19 +48,7 @@ export default function CruxBrandLogo({
           Crux
         </span>
 
-        {/* Metallic PRO Badge with Transparent Background and Real-Time WebGL Shader Animation */}
-        <div className="metal-badge-transparent inline-flex items-center ml-1">
-          <MetalBadge
-            theme="dark"
-            scale={0.72}
-            textColor="#FFFFFF"
-            core={{ r: 0, blur: 0, a: 0, size: 0 }}
-            gradient={0}
-            glow={0}
-          >
-            PRO
-          </MetalBadge>
-        </div>
+        <MetalBadge>PRO</MetalBadge>
       </div>
     );
   }
