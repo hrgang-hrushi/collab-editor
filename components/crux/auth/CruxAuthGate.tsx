@@ -82,9 +82,13 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
       playMechanicalClick("low");
       triggerHaptic("error");
       setStatus("idle");
-      if (err?.code === "auth/operation-not-allowed") {
+      if (
+        err?.code === "auth/operation-not-allowed" ||
+        err?.code === "auth/configuration-not-found" ||
+        err?.code === "auth/admin-restricted-operation"
+      ) {
         setProviderFallback(provider);
-        setStatusMsg("GitHub Sign-In is not enabled in the Firebase project console.");
+        setStatusMsg(`${provider === "github" ? "GitHub" : "Google"} Sign-In is not enabled in Firebase Console.`);
       } else if (err?.code === "auth/popup-closed-by-user") {
         setStatusMsg("Sign-in window was closed.");
       } else {
@@ -248,14 +252,14 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         {providerFallback && (
           <div className="p-3 bg-[#111111] border border-[#222222] flex flex-col gap-2 rounded-none">
             <div className="text-[11px] font-sans text-[#AAAAAA] leading-snug">
-              GitHub Sign-In is not enabled in Firebase Console. You can continue with a local GitHub profile or enable GitHub under Firebase Auth providers.
+              {providerFallback === "github" ? "GitHub" : "Google"} Sign-In is not enabled in Firebase Console. You can continue with a local profile or enable the provider under Firebase Console &gt; Authentication.
             </div>
             <button
               type="button"
               onClick={() => handleContinueLocalOAuth(providerFallback as "github" | "google")}
               className="w-full py-2 bg-white text-black font-sans font-bold text-[10px] uppercase tracking-wider hover:bg-[#CCCCCC] transition-none cursor-pointer rounded-none flex items-center justify-center gap-1.5"
             >
-              <span>Continue with Local GitHub Developer Profile ↵</span>
+              <span>Continue with Local {providerFallback === "github" ? "GitHub" : "Google"} Profile ↵</span>
             </button>
           </div>
         )}
