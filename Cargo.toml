@@ -2,5 +2,6 @@
 members = [
     "crex-core",
     "crex-engine",
+    "crex-daemon",
 ]
 resolver = "2"
