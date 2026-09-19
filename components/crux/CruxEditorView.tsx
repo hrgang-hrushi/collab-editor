@@ -7,6 +7,7 @@ import ZenithEditorPane from "./zenith/ZenithEditorPane";
 import ZenithTerminal from "./zenith/ZenithTerminal";
 import NexusCanvas from "./nexus/NexusCanvas";
 import CruxDualStateHud from "./agent/CruxDualStateHud";
+import CruxMultiplayerPresence from "./presence/CruxMultiplayerPresence";
 import CommandPalette from "@/components/modals/CommandPalette";
 import CruxOnboardingStartPage from "./onboarding/CruxOnboardingStartPage";
 import CruxOmnibarVoid from "./void/CruxOmnibarVoid";
@@ -301,7 +302,6 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           >
             <div className="w-1.5 h-1.5 bg-white" />
             <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
-            <span className="text-[10px] text-muted">[{currentUser.uid || "User"}]</span>
           </button>
 
           {/* Viewer Lock Quick Toggle */}
@@ -310,9 +310,9 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               triggerHaptic("toggle");
               toggleViewerLock();
             }}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider border transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider border transition-none ${
               viewerLock
-                ? "bg-accent2/20 border-accent2 text-accent2 font-bold"
+                ? "bg-white text-black border-white font-bold"
                 : "bg-void border-grid text-muted hover:text-signal"
             }`}
             title={
@@ -336,58 +336,14 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
           >
             <Inbox className="w-3.5 h-3.5" />
             {pendingInvitesCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-accent1 text-void text-[9px] font-mono font-bold w-4 h-4 flex items-center justify-center leading-none">
+              <span className="absolute -top-1 -right-1 bg-white text-black text-[9px] font-mono font-bold w-3.5 h-3.5 flex items-center justify-center leading-none border border-[#222222]">
                 {pendingInvitesCount}
               </span>
             )}
           </button>
 
-          {/* Active Collaborators (Dynamic WebRTC Mesh Awareness + Mock Fallbacks) */}
-          <div
-            className="hidden xl:flex items-center gap-1 cursor-pointer"
-            onClick={() => setShareModalOpen(true)}
-            title={`Active Peers in Mesh (${livePeers.length > 0 ? livePeers.length : 3} connected) · Click to open Share`}
-          >
-            {livePeers.length > 0 ? (
-              livePeers.map((peer, idx) => {
-                const initials = peer.name
-                  .split(" ")
-                  .map((w) => w[0])
-                  .join("")
-                  .toUpperCase()
-                  .slice(0, 2) || "P";
-                return (
-                  <div
-                    key={idx}
-                    className="px-1.5 py-0.5 text-[9px] font-mono font-bold leading-none border transition-none"
-                    style={{
-                      backgroundColor: idx === 0 ? "#FFFFFF" : idx === 1 ? "#888888" : "#444444",
-                      color: idx === 0 ? "#000000" : "#FFFFFF",
-                      borderColor: "#222222",
-                    }}
-                    title={`${peer.name} (${peer.uid || "Peer"})`}
-                  >
-                    {initials}
-                  </div>
-                );
-              })
-            ) : (
-              <>
-                <div className="px-1.5 py-0.5 bg-white text-black text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Sarah Lin (CRX-9941-SL)">
-                  SL
-                </div>
-                <div className="px-1.5 py-0.5 bg-[#888888] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="Marcus Vance (CRX-5520-MV)">
-                  MV
-                </div>
-                <div className="px-1.5 py-0.5 bg-[#444444] text-white text-[9px] font-mono font-bold leading-none border border-[#222222]" title="CruxAI Copilot (CRX-0001-AI)">
-                  AI
-                </div>
-              </>
-            )}
-            <span className="text-[9px] font-mono text-[#444444] ml-0.5 uppercase tracking-tighter">
-              [{livePeers.length > 0 ? livePeers.length : 3} Online]
-            </span>
-          </div>
+          {/* High-Density Contiguous Hardware Brutalism Multiplayer Presence */}
+          <CruxMultiplayerPresence className="hidden xl:flex" />
 
           {/* Window Layout Toggles */}
           <div className="flex items-center gap-1">
@@ -413,25 +369,12 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               onClick={() => setIsAgentOpen(!isAgentOpen)}
               title="AI Assistant (Cmd+I Anchor / Cmd+K Drone)"
               className={`p-1.5 border border-grid transition-colors ${
-                isAgentOpen ? "bg-grid text-accent2" : "bg-void text-muted hover:text-signal"
+                isAgentOpen ? "bg-white text-black" : "bg-void text-muted hover:text-signal"
               }`}
             >
               <Sparkles className="w-3.5 h-3.5" />
             </button>
           </div>
-
-
-          {/* Auth Gate Trigger */}
-          <button
-            onClick={() => {
-              triggerHaptic("click");
-              setIsAuthGateOpen(true);
-            }}
-            title="Account"
-            className="px-2 py-1 text-[10px] font-mono text-muted hover:text-white border border-grid hover:border-white bg-void transition-none uppercase"
-          >
-            [ACCOUNT]
-          </button>
 
           {/* Share Button */}
           <button
@@ -439,10 +382,10 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
               triggerHaptic("click");
               setShareModalOpen(true);
             }}
-            className="px-3 py-1 text-[11px] font-medium border border-grid bg-void hover:bg-grid transition-colors text-signal uppercase flex items-center gap-1.5"
+            className="px-3 py-1 text-[11px] font-medium border border-grid bg-void hover:bg-white hover:text-black transition-none text-signal uppercase flex items-center gap-1.5"
             title="Share Workspace with collaborator UID or Email"
           >
-            <Share2 className="w-3 h-3 text-accent1" />
+            <Share2 className="w-3 h-3 text-white" />
             <span>Share</span>
           </button>
         </div>

@@ -7,6 +7,7 @@ import {
   FileCode2,
   GitBranch,
 } from "lucide-react";
+import CruxMultiplayerPresence from "./presence/CruxMultiplayerPresence";
 
 interface CruxHeaderProps {
   onToggleSuggestMode?: () => void;
@@ -51,16 +52,7 @@ export default function CruxHeader({
 
       {/* Right: Flat Collaborator Badges & Actions */}
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1">
-          <div className="px-1.5 py-0.5 text-[10px] bg-black border border-[#222222] text-white">
-            <span className="text-[#007AFF] mr-1 font-bold">●</span>
-            <span>SL</span>
-          </div>
-
-          <div className="px-1.5 py-0.5 text-[10px] bg-black border border-[#222222] text-[#FF453A] font-semibold">
-            <span>@CruxAI</span>
-          </div>
-        </div>
+        <CruxMultiplayerPresence />
 
         <div className="h-3 w-[1px] bg-[#222222] mx-0.5" />
 
