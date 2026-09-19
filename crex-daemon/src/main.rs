@@ -1,4 +1,8 @@
+pub mod router;
+
+use router::{AiRouter, RouteEntry};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::net::{SocketAddr, TcpStream};
 use std::path::Path;
@@ -26,6 +30,8 @@ pub struct HardwareState {
     pub logical_cores: usize,
     pub services: Vec<ModelServiceInfo>,
     pub workspace_tasks: Vec<WorkspaceTask>,
+    pub ai_routes: HashMap<String, RouteEntry>,
+    pub active_ai_provider: String,
 }
 
 fn check_port(port: u16) -> bool {
@@ -100,6 +106,17 @@ fn parse_idea_configurations(root: &Path) -> Vec<WorkspaceTask> {
 }
 
 fn main() {
+    let mut ai_router = AiRouter::new();
+
+    // Check if invoked with a route command e.g. `crex-daemon --route "> route add openai sk-..."`
+    let args: Vec<String> = std::env::args().collect();
+    if args.len() >= 3 && args[1] == "--route" {
+        let cmd = args[2..].join(" ");
+        let result = ai_router.handle_omnibar_command(&cmd);
+        println!("{}", result);
+        return;
+    }
+
     let current_dir = std::env::current_dir().unwrap_or_else(|_| Path::new(".").to_path_buf());
     let services = discover_model_services();
 
@@ -114,6 +131,8 @@ fn main() {
             .unwrap_or(4),
         services,
         workspace_tasks,
+        ai_routes: ai_router.routes,
+        active_ai_provider: ai_router.active_provider,
     };
 
     let json = serde_json::to_string_pretty(&state).unwrap_or_else(|_| "{}".to_string());
