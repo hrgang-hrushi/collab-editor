@@ -111,7 +111,7 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
   };
 
   return (
-    <div className="w-full max-w-sm flex flex-col gap-1 select-none font-sans">
+    <div className="w-full max-w-[460px] flex flex-col gap-1 select-none font-sans relative">
       {/* Top Header Label: sitting right above the border box */}
       <div className="flex items-center justify-between px-0.5">
         <span className="font-sans text-[10px] text-[#888888] uppercase tracking-wider text-left">
@@ -131,9 +131,17 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
         )}
       </div>
 
-      {/* Main Stark Container */}
-      <BorderBeam size="line" colorVariant="mono" strength={0.8} active={true} theme="dark">
-        <div className="w-full bg-[#0A0A0A] border border-[#222222] p-4 flex flex-col gap-3 rounded-none">
+      {/* Main Stark Container with Slow Wide Metallic Beam */}
+      <BorderBeam
+        size="line"
+        colorVariant="mono"
+        strength={1}
+        brightness={2.0}
+        duration={8}
+        active={true}
+        theme="dark"
+      >
+        <div className="w-full bg-[#0A0A0A] border border-[#222222] p-5 flex flex-col gap-3 rounded-none relative">
         {/* 1. GitHub OAuth Button */}
         <button
           type="button"
@@ -211,6 +219,29 @@ export default function CruxAuthGate({ onSuccess, onCancel }: CruxAuthGateProps)
             <span className="w-1.5 h-1.5 bg-white animate-hard-blink shrink-0" />
           </div>
         )}
+
+        {/* Extended wide metallic flow sheen along the bottom border */}
+        <div className="relative overflow-hidden w-full h-[1.5px] -mt-[1px] pointer-events-none">
+          <div
+            className="w-[180%] h-full -ml-[40%] animate-metallic-sweep"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.08) 15%, rgba(255,255,255,0.85) 50%, rgba(255,255,255,0.08) 85%, transparent 100%)",
+            }}
+          />
+        </div>
+
+        {/* Ambient wide metallic bloom projection underneath bottom border */}
+        <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-[85%] h-8 pointer-events-none overflow-visible flex justify-center">
+          <div
+            className="w-full h-full animate-metallic-sweep"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 50%, transparent 80%)",
+              filter: "blur(14px)",
+            }}
+          />
+        </div>
         </div>
       </BorderBeam>
     </div>
