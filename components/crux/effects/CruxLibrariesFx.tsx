@@ -408,7 +408,7 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
             </div>
 
             {/* Cube Motion Stage */}
-            <div className="h-40 bg-[#000000] border border-[#222222] flex flex-col items-center justify-center p-3 relative overflow-hidden gap-3">
+            <div className="h-40 bg-transparent border border-[#222222] flex flex-col items-center justify-center p-3 relative overflow-hidden gap-3">
               <button
                 onClick={() => {
                   playMechanicalClick("mid");
@@ -427,7 +427,7 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
                 {Array.from({ length: cubeRiseCount }).map((_, i) => (
                   <div
                     key={i}
-                    className="px-3 py-1 bg-[#111111] border border-[#222222] text-[10px] font-mono text-white"
+                    className="px-3 py-1 bg-transparent border border-[#222222] text-[10px] font-mono text-white"
                   >
                     NODE_{i + 1}
                   </div>

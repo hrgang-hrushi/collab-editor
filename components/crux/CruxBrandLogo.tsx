@@ -48,7 +48,17 @@ export default function CruxBrandLogo({
           Crux
         </span>
 
-        <MetalBadge>PRO</MetalBadge>
+        <div className="metal-badge-transparent inline-flex items-center ml-1">
+          <MetalBadge
+            theme="dark"
+            textColor="#FFFFFF"
+            core={{ r: 0, blur: 0, a: 0, size: 0 }}
+            gradient={0}
+            glow={0}
+          >
+            PRO
+          </MetalBadge>
+        </div>
       </div>
     );
   }
