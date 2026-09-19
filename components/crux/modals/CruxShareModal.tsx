@@ -94,9 +94,9 @@ export default function CruxShareModal() {
         {/* Header */}
         <div className="h-11 px-4 border-b border-grid bg-void flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-accent1" />
+            <span className="w-2 h-2 bg-white" />
             <span className="text-xs font-bold uppercase tracking-widest text-signal">
-              Share Workspace // Peer Mesh
+              Share Workspace
             </span>
           </div>
           <button
@@ -116,17 +116,17 @@ export default function CruxShareModal() {
             </div>
           )}
 
-          {/* Zero-Auth Direct Mesh Link Box */}
+          {/* Direct Share Link Box */}
           <div className="p-3 bg-black border border-[#222222] flex items-center justify-between gap-3">
             <div className="space-y-0.5 min-w-0">
               <div className="flex items-center gap-1.5 text-white">
                 <Link2 className="w-3.5 h-3.5 text-white" />
                 <span className="text-xs font-bold uppercase font-mono tracking-wider">
-                  Zero-Auth P2P Live Mesh Link
+                  Direct Collaboration Link
                 </span>
               </div>
               <p className="text-[10px] text-[#888888] truncate font-mono">
-                Direct WebRTC DataChannel · Sub-10ms peer sync · Zero sign-in required
+                Real-time collaboration link · No sign-in required
               </p>
             </div>
             <button

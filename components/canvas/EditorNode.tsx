@@ -319,7 +319,7 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
                 e.stopPropagation();
                 onOpenInIde(file.id);
               }}
-              title="Open full editor view in IDE (Zenith)"
+              title="Open in Editor"
               className="p-1 rounded-none text-[#888888] hover:text-white hover:bg-[#222222] border border-transparent transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5" />

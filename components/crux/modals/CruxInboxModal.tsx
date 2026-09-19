@@ -46,7 +46,7 @@ export default function CruxInboxModal() {
       allowedLineRange: { start: 1, end: 20 },
       viewerLock: false,
     });
-    setToastMsg("Simulated incoming mesh invitation received!");
+    setToastMsg("Simulated incoming workspace invitation received!");
     setTimeout(() => setToastMsg(""), 1500);
   };
 

@@ -63,14 +63,14 @@ export default function CruxIdentityDrawer() {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-[10px] uppercase text-muted tracking-wider">EMAIL MESH</span>
+              <span className="text-[10px] uppercase text-muted tracking-wider">EMAIL</span>
               <span className="text-muted">{currentUser.email || "principal@crux.dev"}</span>
             </div>
 
             <div className="flex items-center justify-between pt-2 border-t border-grid">
               <div className="space-y-0.5">
-                <span className="text-[10px] uppercase text-muted tracking-wider block">CRYPTOGRAPHIC UID</span>
-                <span className="text-sm font-bold text-accent1 tracking-wide">{currentUser.uid || "CRX-7447-HG"}</span>
+                <span className="text-[10px] uppercase text-muted tracking-wider block">USER ID</span>
+                <span className="text-sm font-bold text-white tracking-wide">{currentUser.uid || "CRX-7447-HG"}</span>
               </div>
               <button
                 onClick={handleCopyUid}

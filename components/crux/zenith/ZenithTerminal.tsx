@@ -1098,7 +1098,7 @@ function TerminalPaneView({
               [READ-ONLY: Observing Host — Terminal Input Suspended by Host]
             </span>
           </div>
-          <span className="text-muted text-[10px]">Edge WebRTC Mesh Active (0.08ms)</span>
+          <span className="text-muted text-[10px]">Connected (0.08ms)</span>
         </div>
       ) : (
         /* INTERACTIVE PROMPT WITH MULTIPLAYER PEER CURSORS */

@@ -54,17 +54,17 @@ export default function CruxOnboardingStartPage() {
     e.preventDefault();
     if (!name.trim()) {
       playMechanicalClick("low");
-      setErrorMsg("[ERR: DEVELOPER_NAME_REQUIRED // ENCLAVE_REJECTED]");
+      setErrorMsg("Name is required.");
       return;
     }
     if (!email.trim() || !email.includes("@")) {
       playMechanicalClick("low");
-      setErrorMsg("[ERR: INVALID_MESH_ROUTING_EMAIL // TLS_FAILED]");
+      setErrorMsg("Please enter a valid email address.");
       return;
     }
     if (!password.trim()) {
       playMechanicalClick("low");
-      setErrorMsg("[ERR: MASTER_KEY_REQUIRED // KEYRING_LOCKED]");
+      setErrorMsg("Password is required.");
       return;
     }
 
@@ -93,12 +93,12 @@ export default function CruxOnboardingStartPage() {
     e.preventDefault();
     if (!loginIdentifier.trim()) {
       playMechanicalClick("low");
-      setErrorMsg("[ERR: UID_OR_EMAIL_REQUIRED // AUTH_ABORTED]");
+      setErrorMsg("Email or User ID is required.");
       return;
     }
     if (!loginKey.trim()) {
       playMechanicalClick("low");
-      setErrorMsg("[ERR: MASTER_ENCRYPTION_KEY_REQUIRED // ENCLAVE_LOCKED]");
+      setErrorMsg("Password is required.");
       return;
     }
 
@@ -138,7 +138,7 @@ export default function CruxOnboardingStartPage() {
       telemetryEnabled,
     });
 
-    setSuccessMsg("[ACCOUNT_SETTINGS_SYNCHRONIZED_TO_ENCLAVE]");
+    setSuccessMsg("Settings saved.");
     setTimeout(() => setSuccessMsg(""), 2000);
   };
 
@@ -199,25 +199,25 @@ export default function CruxOnboardingStartPage() {
                 }}
                 className="w-full h-14 px-6 bg-white text-black font-sans font-bold text-sm uppercase tracking-wider hover:bg-black hover:text-white hover:border-white transition-none flex items-center justify-center gap-3 cursor-pointer border border-white rounded-none"
               >
-                <span>[INITIALIZE WORKSPACE]</span>
+                <span>Open Workspace</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-              {/* Secondary Hardware Controls */}
+              {/* Secondary Controls */}
               <div className="grid grid-cols-2 gap-3 rounded-none">
                 <button
                   onClick={() => switchTab("signup")}
                   className="h-12 px-4 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
                 >
                   <Lock className="w-4 h-4 text-[#666666]" />
-                  <span>[AUTHENTICATE]</span>
+                  <span>Sign In</span>
                 </button>
                 <button
                   onClick={() => switchTab("settings")}
                   className="h-12 px-4 border border-[#222222] bg-transparent text-[#888888] hover:text-white hover:border-white transition-none font-mono text-xs sm:text-[13px] uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
                 >
                   <Settings className="w-4 h-4 text-[#666666]" />
-                  <span>[SETTINGS]</span>
+                  <span>Settings</span>
                 </button>
               </div>
             </div>

@@ -84,7 +84,7 @@ export default function CruxMultiplayerPresence({
   return (
     <div
       role="group"
-      aria-label="Active Mesh Peers"
+      aria-label="Active Collaborators"
       className={`flex items-center border border-[#222222] rounded-none select-none bg-black ${className}`}
     >
       {activePeers.map((peer, idx) => {

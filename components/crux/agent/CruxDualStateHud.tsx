@@ -61,7 +61,7 @@ export default function CruxDualStateHud({
     {
       id: "init",
       role: "agent",
-      content: "Crex Agnostic AI Copilot ready. Route prompts or configure via `> route add [provider] [token]`.",
+      content: "AI Assistant ready. Ask questions, generate code, or configure routes with `> route add [provider] [token]`.",
       provider: "crex-router",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
@@ -301,7 +301,7 @@ export default function CruxDualStateHud({
           <div className="flex items-center gap-2">
             <GripHorizontal className="w-3.5 h-3.5 text-[#666666]" />
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-white">
-              [DRONE // AGNOSTIC_ROUTER]
+              AI Assistant
             </span>
             <span className="text-[9px] font-mono bg-void px-1 border border-[#222222] text-[#888888] uppercase">
               {activeRoute.provider}
@@ -312,15 +312,15 @@ export default function CruxDualStateHud({
             <button
               type="button"
               onClick={dockToAnchor}
-              title="Dock to Anchor (Fixed 30% Right Panel)"
+              title="Dock to sidebar"
               className="px-1.5 py-0.5 text-[9px] font-mono uppercase bg-void hover:bg-white hover:text-black border border-[#222222] transition-none text-[#888888]"
             >
-              [DOCK ↙]
+              Dock ↙
             </button>
             <button
               type="button"
               onClick={() => setIsDroneOpen(false)}
-              title="Unmount Drone (Esc)"
+              title="Close (Esc)"
               className="p-1 hover:bg-white hover:text-black transition-none text-[#888888]"
             >
               <X className="w-3.5 h-3.5" />
@@ -435,7 +435,7 @@ export default function CruxDualStateHud({
               <Bot className="w-3 h-3 text-white" />
             </div>
             <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
-              [STATE A // ANCHOR]
+              AI Assistant
             </span>
             <span className="px-1.5 py-0.5 text-[9px] font-mono bg-void border border-[#222222] text-[#888888] uppercase">
               {activeRoute.provider}
@@ -445,17 +445,17 @@ export default function CruxDualStateHud({
           <div className="flex items-center gap-1">
             <button
               onClick={switchToDrone}
-              title="Detach to Drone (Floating Execution Window)"
+              title="Pop out into floating window"
               className="px-2 py-0.5 text-[9px] font-mono uppercase bg-void hover:bg-white hover:text-black border border-[#222222] text-[#888888] transition-none"
             >
-              [DETACH ↗]
+              Float ↗
             </button>
             <button
               onClick={() => {
                 playMechanicalClick("low");
                 onCloseAnchor();
               }}
-              title="Close Anchor Panel"
+              title="Close panel"
               className="p-1 text-[#666666] hover:text-white border border-[#222222] hover:bg-white hover:text-black transition-none"
             >
               <X className="w-3 h-3" />
@@ -546,8 +546,8 @@ export default function CruxDualStateHud({
           </div>
 
           <div className="flex items-center justify-between text-[9px] font-mono text-[#555555]">
-            <span>CMD+K SUMMONS DRONE AT CURSOR</span>
-            <span>ESC UNMOUNTS</span>
+            <span>CMD+K OPENS AT CURSOR</span>
+            <span>ESC TO CLOSE</span>
           </div>
         </div>
       </aside>
