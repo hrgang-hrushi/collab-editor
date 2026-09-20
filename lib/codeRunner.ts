@@ -1,44 +1,79 @@
+import { invoke } from "@tauri-apps/api/core";
 import { ExecutionResult, FileNode } from "./types";
 
+interface TauriExecutionResult {
+  stdout: string;
+  stderr: string;
+  exit_code: number;
+  execution_time_ms: number;
+}
+
 /**
- * Executes code using the Next.js sandboxed runner API
- * with automatic fallback to client-side evaluation if offline.
+ * Executes code using native Tauri IPC to spawn native OS subprocesses in Rust.
  */
 export async function executeCode(
   code: string,
   language: string,
   filename: string,
-  files: FileNode[]
+  _files: FileNode[] = []
 ): Promise<ExecutionResult> {
   const startTime = Date.now();
+  const currentLang = language.toLowerCase();
+  const editorContent = code;
 
+  // 1. Primary execution route: Native Tauri Rust IPC subprocess
   try {
-    const response = await fetch("/api/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code,
-        language,
-        filename,
-        files: files.map((f) => ({ path: f.path, name: f.name, content: f.content })),
-      }),
+    const raw = await invoke<TauriExecutionResult>("execute_code", {
+      language: currentLang,
+      sourceCode: editorContent,
     });
 
-    if (response.ok) {
-      const data: ExecutionResult = await response.json();
-      return data;
+    const stdoutLines = raw.stdout
+      ? raw.stdout.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
+      : [];
+    const stderrLines = raw.stderr
+      ? raw.stderr.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
+      : [];
+
+    return {
+      stdout: stdoutLines,
+      stderr: stderrLines,
+      durationMs: Number(raw.execution_time_ms) || (Date.now() - startTime),
+      success: raw.exit_code === 0,
+      timestamp: Date.now(),
+      fileName: filename,
+    };
+  } catch (ipcErr: any) {
+    const errMsg = ipcErr?.message || String(ipcErr);
+    // If not in Tauri desktop shell (e.g. browser environment), fall back gracefully
+    if (
+      errMsg.includes("__TAURI_INTERNALS__") ||
+      errMsg.includes("window.__TAURI__") ||
+      errMsg.includes("IPC") ||
+      typeof window === "undefined" ||
+      !(window as any).__TAURI_INTERNALS__
+    ) {
+      console.warn("[Crux IPC] Tauri runtime unavailable in browser context, using client fallback:", errMsg);
+    } else {
+      console.error("[Crux IPC] Tauri command execution failed:", errMsg);
+      return {
+        stdout: [],
+        stderr: [`[Crux Rust IPC Error] ${errMsg}`],
+        durationMs: Date.now() - startTime,
+        success: false,
+        timestamp: Date.now(),
+        fileName: filename,
+      };
     }
-  } catch (apiErr) {
-    console.warn("Server runner unavailable, falling back to client eval:", apiErr);
   }
 
-  // Check if non-JS language in offline client fallback
-  if (filename.endsWith(".java") || language === "java") {
+  // Non-JS fallback when outside Tauri runtime
+  if (filename.endsWith(".java") || currentLang === "java") {
     return {
       stdout: [],
       stderr: [
-        "[Crux Runner] Java execution requires a server-side runtime with JDK installed.",
-        "Unable to evaluate Java in browser-only client fallback.",
+        "[Crux Desktop Runner] Native Java execution requires the Crex Tauri desktop app.",
+        "Please run inside the Tauri desktop shell to invoke native javac / java subprocesses.",
       ],
       durationMs: Date.now() - startTime,
       success: false,
@@ -47,7 +82,21 @@ export async function executeCode(
     };
   }
 
-  // Client-side fallback for simple JavaScript execution
+  if (filename.endsWith(".py") || currentLang === "python") {
+    return {
+      stdout: [],
+      stderr: [
+        "[Crux Desktop Runner] Native Python execution requires the Crex Tauri desktop app.",
+        "Please run inside the Tauri desktop shell to invoke native python3 subprocesses.",
+      ],
+      durationMs: Date.now() - startTime,
+      success: false,
+      timestamp: Date.now(),
+      fileName: filename,
+    };
+  }
+
+  // Client-side fallback for simple JavaScript execution in pure browser
   const stdout: string[] = [];
   const stderr: string[] = [];
 
@@ -64,13 +113,11 @@ export async function executeCode(
       origErr(...args);
     };
 
-    // Strip basic TypeScript interfaces/types for client-side eval
-    let sanitizedCode = code
+    const sanitizedCode = code
       .replace(/:\s*(string|number|boolean|any|void|Record<[^>]+>|Array<[^>]+>|Promise<[^>]+>|[A-Z][a-zA-Z0-9<>]*)/g, "")
       .replace(/interface\s+[A-Za-z0-9_]+\s*\{[^}]*\}/g, "")
       .replace(/type\s+[A-Za-z0-9_]+\s*=[^;]+;/g, "");
 
-    // Run using Function constructor
     const runFn = new Function(sanitizedCode);
     const retVal = runFn();
 

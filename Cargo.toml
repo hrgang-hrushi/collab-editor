@@ -4,4 +4,7 @@ members = [
     "crex-engine",
     "crex-daemon",
 ]
+exclude = [
+    "src-tauri",
+]
 resolver = "2"
