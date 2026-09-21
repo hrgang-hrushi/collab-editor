@@ -216,19 +216,45 @@ export async function readFileList(
 }
 
 /**
- * Save file directly back to disk if handle exists
+ * Save file directly back to disk (via Tauri native IPC or FileSystemFileHandle)
  */
 export async function saveFileToDisk(file: FileNode): Promise<boolean> {
-  if (!file.handle) return false;
-  try {
-    const writable = await file.handle.createWritable();
-    await writable.write(file.content);
-    await writable.close();
-    return true;
-  } catch (err) {
-    console.error(`Failed to save file ${file.name} to disk:`, err);
-    return false;
+  // 1. Try native Tauri IPC if running in desktop environment
+  if (
+    typeof window !== "undefined" &&
+    Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__)
+  ) {
+    try {
+      const { invoke } = await import("@tauri-apps/api/core");
+      const targetPath = file.path;
+      if (targetPath) {
+        const res = await invoke<{ success: boolean }>("write_file_to_disk", {
+          filePath: targetPath,
+          content: file.content,
+        });
+        if (res?.success) {
+          return true;
+        }
+      }
+    } catch (tauriErr) {
+      console.warn("[Crux FS] Tauri native file write failed, falling back to Web File API:", tauriErr);
+    }
   }
+
+  // 2. Web File System Access API handle
+  if (file.handle) {
+    try {
+      const writable = await file.handle.createWritable();
+      await writable.write(file.content);
+      await writable.close();
+      return true;
+    } catch (err) {
+      console.error(`Failed to save file ${file.name} to disk:`, err);
+      return false;
+    }
+  }
+
+  return false;
 }
 
 /**

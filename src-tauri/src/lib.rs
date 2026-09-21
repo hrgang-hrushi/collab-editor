@@ -164,6 +164,8 @@ pub mod commands {
 pub use commands::execute_code;
 pub mod migration;
 pub use migration::{scan_existing_ides, migrate_ide_assets};
+pub mod fs_ops;
+pub use fs_ops::{list_directory_tree, read_file_from_disk, write_file_to_disk};
 
 pub fn run() {
     tauri::Builder::default()
@@ -171,7 +173,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::execute_code,
             migration::scan_existing_ides,
-            migration::migrate_ide_assets
+            migration::migrate_ide_assets,
+            fs_ops::list_directory_tree,
+            fs_ops::read_file_from_disk,
+            fs_ops::write_file_to_disk
         ])
         .run(tauri::generate_context!())
         .expect("error while running Crex desktop application");
