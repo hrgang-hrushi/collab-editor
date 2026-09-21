@@ -22,6 +22,7 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import CruxMinimalistMigrationCard from "../migration/CruxMinimalistMigrationCard";
 
 export default function CruxOnboardingStartPage() {
   const currentUser = useWorkspaceStore((state) => state.currentUser);
@@ -265,6 +266,9 @@ export default function CruxOnboardingStartPage() {
                   <span>CONNECT NODE KEY</span>
                 </button>
               </div>
+
+              {/* Minimalist Migration Entry Point */}
+              <CruxMinimalistMigrationCard />
             </div>
 
             {/* Hardware Telemetry Spec Matrix */}

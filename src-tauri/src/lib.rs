@@ -162,11 +162,17 @@ pub mod commands {
 }
 
 pub use commands::execute_code;
+pub mod migration;
+pub use migration::{scan_existing_ides, migrate_ide_assets};
 
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::default().build())
-        .invoke_handler(tauri::generate_handler![commands::execute_code])
+        .invoke_handler(tauri::generate_handler![
+            commands::execute_code,
+            migration::scan_existing_ides,
+            migration::migrate_ide_assets
+        ])
         .run(tauri::generate_context!())
         .expect("error while running Crex desktop application");
 }

@@ -15,6 +15,10 @@ export interface User {
   defaultComputeTarget?: "local" | "bedrock" | "copilot";
   activeFileId?: string;
   status?: "active" | "idle";
+  customKeybindings?: Record<string, string>;
+  migratedTheme?: string;
+  customAiRules?: string[];
+  migratedFrom?: string;
 }
 
 export interface ShareInvite {

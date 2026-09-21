@@ -39,3 +39,5 @@ target/
 .build/
 
 .env*
+
+ideal-memory/
