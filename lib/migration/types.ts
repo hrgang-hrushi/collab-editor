@@ -28,6 +28,7 @@ export interface DiscoveredAgentSkill {
 
 export interface IdeScanManifest {
   timestamp: number;
+  permission_granted?: boolean;
   ides: DetectedIde[];
   extensions: ExtensionSummary[];
   rules_files: string[];

@@ -283,20 +283,59 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   // Global hotkeys: Cmd+Space (toggle mode) & Cmd+B (sidebar) & Cmd+J (terminal) & Cmd+I (agent)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.code === "Space") {
+      const isCmd = e.metaKey || e.ctrlKey;
+      const isAlt = e.altKey;
+      const isShift = e.shiftKey;
+      const key = e.key.toLowerCase();
+
+      // Check user's migrated custom keybindings
+      let combo = "";
+      if (isAlt) combo += "alt+";
+      if (isCmd) combo += "cmd+";
+      if (isShift) combo += "shift+";
+      combo += key;
+
+      const customBindings = useWorkspaceStore.getState().currentUser.customKeybindings || {};
+      const customAction = customBindings[combo] || customBindings[`${isCmd ? "cmd+" : ""}${key}`];
+
+      if (customAction) {
+        if (customAction === "toggleAgent") {
+          e.preventDefault();
+          setIsAgentOpen((prev) => !prev);
+          return;
+        } else if (customAction === "toggleFileTree") {
+          e.preventDefault();
+          toggleSidebar();
+          return;
+        } else if (customAction === "toggleTerminal") {
+          e.preventDefault();
+          toggleTerminal();
+          return;
+        } else if (customAction === "openCommandPalette") {
+          e.preventDefault();
+          useWorkspaceStore.getState().setCommandPaletteOpen(true);
+          return;
+        } else if (customAction === "saveActiveFile") {
+          e.preventDefault();
+          useWorkspaceStore.getState().saveActiveFile();
+          return;
+        }
+      }
+
+      if (isCmd && e.code === "Space") {
         e.preventDefault();
         const currentMode = useWorkspaceStore.getState().mode;
         handleSetMode(currentMode === "canvas" ? "edit" : "canvas");
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+      } else if (isCmd && key === "b") {
         e.preventDefault();
         toggleSidebar();
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
+      } else if (isCmd && key === "j") {
         e.preventDefault();
         toggleTerminal();
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "i") {
+      } else if (isCmd && key === "i") {
         e.preventDefault();
         setIsAgentOpen((prev) => !prev);
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      } else if (isCmd && key === "k") {
         e.preventDefault();
         useWorkspaceStore.getState().toggleDrone();
       }

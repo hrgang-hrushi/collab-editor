@@ -36,6 +36,7 @@ pub struct DiscoveredAgentSkill {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct IdeScanManifest {
     pub timestamp: u64,
+    pub permission_granted: bool,
     pub ides: Vec<DetectedIde>,
     pub extensions: Vec<ExtensionSummary>,
     pub rules_files: Vec<String>,
@@ -47,11 +48,13 @@ pub struct IdeScanManifest {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MigrationResult {
     pub success: bool,
+    pub permission_granted: bool,
     pub imported_settings_count: usize,
     pub imported_keybindings_count: usize,
     pub imported_theme: Option<String>,
     pub imported_rules_count: usize,
     pub message: String,
+    pub cursorrules_content: Option<String>,
 }
 
 /// Strips single-line and multi-line comments from JSON string
@@ -279,7 +282,13 @@ impl JsonStringHelper for Option<&serde_json::Value> {
 }
 
 #[tauri::command]
-pub fn scan_existing_ides() -> Result<IdeScanManifest, String> {
+pub fn scan_existing_ides(permission_granted: Option<bool>) -> Result<IdeScanManifest, String> {
+    // Explicit permission validation check
+    let granted = permission_granted.unwrap_or(true);
+    if !granted {
+        return Err("Permission denied: user consent required to scan local IDE configuration directories".to_string());
+    }
+
     let home = get_home_dir().ok_or_else(|| "Could not determine user HOME directory".to_string())?;
 
     let candidates = get_ide_candidate_paths(&home);
@@ -375,6 +384,7 @@ pub fn scan_existing_ides() -> Result<IdeScanManifest, String> {
 
     Ok(IdeScanManifest {
         timestamp: now_ts,
+        permission_granted: true,
         ides: detected_ides,
         extensions,
         rules_files,
@@ -385,8 +395,13 @@ pub fn scan_existing_ides() -> Result<IdeScanManifest, String> {
 }
 
 #[tauri::command]
-pub fn migrate_ide_assets(selected_ide_id: String) -> Result<MigrationResult, String> {
-    let manifest = scan_existing_ides()?;
+pub fn migrate_ide_assets(selected_ide_id: String, permission_granted: Option<bool>) -> Result<MigrationResult, String> {
+    let granted = permission_granted.unwrap_or(true);
+    if !granted {
+        return Err("Permission denied: user consent required to migrate configurations".to_string());
+    }
+
+    let manifest = scan_existing_ides(Some(true))?;
     let selected = manifest
         .ides
         .iter()
@@ -410,10 +425,18 @@ pub fn migrate_ide_assets(selected_ide_id: String) -> Result<MigrationResult, St
 
     let imported_rules = if selected.has_cursorrules { 1 } else { 0 } + manifest.rules_files.len();
 
-    // Persist to ~/.crux/migrated_config.json if possible
+    // 1. Write ~/.crux/ settings, keybindings, and snapshot
     if let Some(home) = get_home_dir() {
         let crux_dir = home.join(".crux");
         let _ = fs::create_dir_all(&crux_dir);
+        
+        if let Some(s) = &selected.settings_json {
+            let _ = fs::write(crux_dir.join("settings.json"), serde_json::to_string_pretty(s).unwrap_or_default());
+        }
+        if let Some(k) = &selected.keybindings_json {
+            let _ = fs::write(crux_dir.join("keybindings.json"), serde_json::to_string_pretty(k).unwrap_or_default());
+        }
+
         let config_target = crux_dir.join("migrated_config.json");
         let snapshot = serde_json::json!({
             "source_ide": selected.name,
@@ -426,12 +449,23 @@ pub fn migrate_ide_assets(selected_ide_id: String) -> Result<MigrationResult, St
         let _ = fs::write(config_target, serde_json::to_string_pretty(&snapshot).unwrap_or_default());
     }
 
+    // 2. If .cursorrules was detected and not in local project root, write it to .cursorrules
+    let cursorrules_content = selected.cursorrules.clone();
+    if let Some(rules) = &cursorrules_content {
+        let project_cursorrules = Path::new(".cursorrules");
+        if !project_cursorrules.exists() {
+            let _ = fs::write(project_cursorrules, rules);
+        }
+    }
+
     Ok(MigrationResult {
         success: true,
+        permission_granted: true,
         imported_settings_count: imported_settings,
         imported_keybindings_count: imported_keybindings,
         imported_theme: selected.active_theme.clone(),
         imported_rules_count: imported_rules,
         message: format!("Successfully migrated {} assets from {}", imported_settings + imported_keybindings, selected.name),
+        cursorrules_content,
     })
 }
