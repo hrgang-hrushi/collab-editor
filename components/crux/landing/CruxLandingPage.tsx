@@ -126,7 +126,7 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
             )}
 
             <a
-              href="/downloads/crux.dmg"
+              href="/crux.dmg"
               download="crux.dmg"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.98] transition-all shadow-sm cursor-pointer no-underline"
             >
@@ -167,7 +167,7 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
           {/* Primary Call to Action */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
             <a
-              href="/downloads/crux.dmg"
+              href="/crux.dmg"
               download="crux.dmg"
               className="w-full sm:w-auto inline-flex flex-col items-center justify-center px-8 py-3.5 rounded-2xl bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.99] transition-all shadow-lg shadow-white/5 cursor-pointer group no-underline"
             >
@@ -456,7 +456,7 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
 
               <div className="mt-8">
                 <a
-                  href="/downloads/crux.dmg"
+                  href="/crux.dmg"
                   download="crux.dmg"
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-100 hover:bg-white text-neutral-950 font-medium text-xs transition-all cursor-pointer no-underline"
                 >
@@ -534,7 +534,7 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
 
             <div className="flex flex-wrap items-center justify-center gap-3">
               <a
-                href="/downloads/crux.dmg"
+                href="/crux.dmg"
                 download="crux.dmg"
                 className="px-6 py-3 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 no-underline"
               >
@@ -582,7 +582,7 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
               Architecture
             </a>
             <a
-              href="/downloads/crux.dmg"
+              href="/crux.dmg"
               download="crux.dmg"
               className="hover:text-neutral-300 transition-colors"
             >
