@@ -20,9 +20,7 @@ export async function scanExistingIdes(permissionGranted: boolean = true): Promi
   // 1. Try Native Tauri IPC
   if (isTauriEnvironment()) {
     try {
-      const manifest = await invoke<IdeScanManifest>("scan_existing_ides", {
-        permissionGranted,
-      });
+      const manifest = await invoke<IdeScanManifest>("scan_existing_ides");
       if (manifest && manifest.ides) {
         return manifest;
       }
