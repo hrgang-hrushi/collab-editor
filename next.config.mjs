@@ -16,6 +16,18 @@ const nextConfig = {
     };
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: "/downloads/:path*",
+        destination: "/api/download",
+      },
+      {
+        source: "/download",
+        destination: "/api/download",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

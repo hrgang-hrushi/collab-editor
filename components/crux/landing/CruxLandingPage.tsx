@@ -125,13 +125,14 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
               </button>
             )}
 
-            <button
-              onClick={handleDownload}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.98] transition-all shadow-sm cursor-pointer"
+            <a
+              href="/downloads/crux.dmg"
+              download="crux.dmg"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.98] transition-all shadow-sm cursor-pointer no-underline"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download DMG</span>
-            </button>
+            </a>
           </div>
         </div>
       </header>
@@ -165,9 +166,10 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
 
           {/* Primary Call to Action */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-5">
-            <button
-              onClick={handleDownload}
-              className="w-full sm:w-auto inline-flex flex-col items-center justify-center px-8 py-3.5 rounded-2xl bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.99] transition-all shadow-lg shadow-white/5 cursor-pointer group"
+            <a
+              href="/downloads/crux.dmg"
+              download="crux.dmg"
+              className="w-full sm:w-auto inline-flex flex-col items-center justify-center px-8 py-3.5 rounded-2xl bg-white text-neutral-950 hover:bg-neutral-100 active:scale-[0.99] transition-all shadow-lg shadow-white/5 cursor-pointer group no-underline"
             >
               <div className="flex items-center gap-2.5">
                 {/* Apple Logo SVG */}
@@ -179,16 +181,14 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
                   <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.67-7.81-11.96-14.34-6.85-10.42-12.18-21.93-15.99-34.52-3.8-12.6-5.71-24.36-5.71-35.3 0-14.56 3.65-26.79 10.96-36.68 7.31-9.9 16.59-14.99 27.84-15.28 4.9 0 10.36 1.34 16.38 4.02 6.02 2.68 9.94 4.08 11.77 4.2 1.45-.12 5.62-1.63 12.51-4.52 6.89-2.9 12.38-4.24 16.48-4.02 11.53.58 20.73 4.88 27.6 12.91-10.03 6.09-14.94 14.73-14.73 25.92.22 8.7 3.51 16.03 9.87 22.01 6.36 5.98 13.9 9.39 22.61 10.23-2.17 6.52-4.85 13.19-8.04 20-3.19 6.81-6.19 12.86-9.01 18.15zM119.22 31.84c0-7.39 2.65-14.18 7.96-20.37 5.3-6.19 11.83-10.01 19.57-11.47.65 1.52.98 3.19.98 5 0 7.39-2.72 14.13-8.15 20.22-5.43 6.09-12 9.89-19.72 11.41-.22-1.52-.64-3.12-.64-4.79z" />
                 </svg>
                 <span className="text-sm font-semibold tracking-tight">
-                  {downloadProgress === "downloading"
-                    ? "Starting Download..."
-                    : "Download for macOS (Universal DMG)"}
+                  Download for macOS (Universal DMG)
                 </span>
                 <ArrowRight className="w-4 h-4 text-neutral-600 group-hover:translate-x-0.5 transition-transform" />
               </div>
               <span className="text-[11px] font-normal text-neutral-500 mt-0.5">
                 Requires macOS 12.0+ · Apple Silicon & Intel
               </span>
-            </button>
+            </a>
 
             {onLaunchWebEditor && (
               <button
@@ -455,13 +455,14 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
               </div>
 
               <div className="mt-8">
-                <button
-                  onClick={handleDownload}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-100 hover:bg-white text-neutral-950 font-medium text-xs transition-all cursor-pointer"
+                <a
+                  href="/downloads/crux.dmg"
+                  download="crux.dmg"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-100 hover:bg-white text-neutral-950 font-medium text-xs transition-all cursor-pointer no-underline"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download macOS Installer (.dmg)</span>
-                </button>
+                </a>
               </div>
             </div>
 
@@ -532,13 +533,14 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <button
-                onClick={handleDownload}
-                className="px-6 py-3 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 text-xs font-semibold transition-all cursor-pointer flex items-center gap-2"
+              <a
+                href="/downloads/crux.dmg"
+                download="crux.dmg"
+                className="px-6 py-3 rounded-xl bg-white text-neutral-950 hover:bg-neutral-100 text-xs font-semibold transition-all cursor-pointer flex items-center gap-2 no-underline"
               >
                 <Download className="w-4 h-4" />
                 <span>Get Crux for macOS</span>
-              </button>
+              </a>
               {onLaunchWebEditor && (
                 <button
                   onClick={onLaunchWebEditor}
@@ -580,7 +582,8 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
               Architecture
             </a>
             <a
-              href="/api/download"
+              href="/downloads/crux.dmg"
+              download="crux.dmg"
               className="hover:text-neutral-300 transition-colors"
             >
               Direct DMG

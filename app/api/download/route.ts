@@ -8,10 +8,12 @@ export async function GET(request: NextRequest) {
   // Release artifact candidate paths
   const candidatePaths = [
     path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/crux_0.1.0_universal.dmg"),
+    path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/crux.dmg"),
     path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/crux_0.1.0_aarch64.dmg"),
     path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/crux_0.1.0_x64.dmg"),
     path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/Crex_0.1.0_universal.dmg"),
     path.join(process.cwd(), "src-tauri/target/release/bundle/dmg/Crex_0.1.0_aarch64.dmg"),
+    path.join(process.cwd(), "public/downloads/crux.dmg"),
     path.join(process.cwd(), "public/downloads/crux_0.1.0_universal.dmg"),
   ];
 
