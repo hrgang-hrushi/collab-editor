@@ -58,10 +58,16 @@ export function getSignalingUrls(): string[] {
 
 export const DEFAULT_SIGNALING = ["wss://y-webrtc-eu.fly.dev", "wss://y-webrtc.fly.dev"];
 
-// Active sessions cache indexed by fileId/room
-const sessionCache = new Map<string, CrexCRDTSession>();
-// Track rooms that have been initialized with initial template content to avoid re-inserting into empty buffers
-const initializedRooms = new Set<string>();
+// Active sessions cache indexed by fileId/room (persisted across Next.js Fast Refresh)
+const globalScope = typeof window !== "undefined" ? (window as any) : (globalThis as any);
+if (!globalScope.__CREX_CRDT_SESSIONS__) {
+  globalScope.__CREX_CRDT_SESSIONS__ = new Map<string, CrexCRDTSession>();
+}
+if (!globalScope.__CREX_INITIALIZED_ROOMS__) {
+  globalScope.__CREX_INITIALIZED_ROOMS__ = new Set<string>();
+}
+const sessionCache: Map<string, CrexCRDTSession> = globalScope.__CREX_CRDT_SESSIONS__;
+const initializedRooms: Set<string> = globalScope.__CREX_INITIALIZED_ROOMS__;
 
 /**
  * Generates or extracts a deterministic room hash from URL or file ID.
@@ -170,13 +176,41 @@ export function initCrexCRDTSession(
     }
   }
 
-  const provider = new WebrtcProvider(roomName, ydoc, {
-    signaling: getSignalingUrls(),
-    awareness: new Awareness(ydoc),
-    maxConns: 30,
-    filterBcConns: false,
-    peerOpts: {},
-  });
+  let provider: WebrtcProvider;
+  try {
+    provider = new WebrtcProvider(roomName, ydoc, {
+      signaling: getSignalingUrls(),
+      awareness: new Awareness(ydoc),
+      maxConns: 30,
+      filterBcConns: false,
+      peerOpts: {},
+    });
+  } catch (err: any) {
+    if (err?.message?.includes("already exists")) {
+      const cached = sessionCache.get(roomName);
+      if (cached) {
+        cached.awareness.setLocalStateField("user", {
+          name: user.name,
+          color: user.color,
+          uid: user.uid,
+          isTyping: false,
+          lastActive: Date.now(),
+          activeFileId: fileId,
+        });
+        return cached;
+      }
+      const uniqueRoomName = `${roomName}-${Math.random().toString(36).slice(2, 7)}`;
+      provider = new WebrtcProvider(uniqueRoomName, ydoc, {
+        signaling: getSignalingUrls(),
+        awareness: new Awareness(ydoc),
+        maxConns: 30,
+        filterBcConns: false,
+        peerOpts: {},
+      });
+    } else {
+      throw err;
+    }
+  }
 
   const awareness = provider.awareness;
 
@@ -291,13 +325,40 @@ export function initCrexCanvasSession(user: CrexPeerUser): CrexCRDTSession {
   const ydoc = new Y.Doc();
   const ytext = ydoc.getText("canvas-meta");
 
-  const provider = new WebrtcProvider(roomName, ydoc, {
-    signaling: getSignalingUrls(),
-    awareness: new Awareness(ydoc),
-    maxConns: 30,
-    filterBcConns: false,
-    peerOpts: {},
-  });
+  let provider: WebrtcProvider;
+  try {
+    provider = new WebrtcProvider(roomName, ydoc, {
+      signaling: getSignalingUrls(),
+      awareness: new Awareness(ydoc),
+      maxConns: 30,
+      filterBcConns: false,
+      peerOpts: {},
+    });
+  } catch (err: any) {
+    if (err?.message?.includes("already exists")) {
+      const cached = sessionCache.get(roomName);
+      if (cached) {
+        cached.awareness.setLocalStateField("user", {
+          name: user.name,
+          color: user.color,
+          uid: user.uid,
+          isTyping: false,
+          lastActive: Date.now(),
+        });
+        return cached;
+      }
+      const uniqueRoomName = `${roomName}-${Math.random().toString(36).slice(2, 7)}`;
+      provider = new WebrtcProvider(uniqueRoomName, ydoc, {
+        signaling: getSignalingUrls(),
+        awareness: new Awareness(ydoc),
+        maxConns: 30,
+        filterBcConns: false,
+        peerOpts: {},
+      });
+    } else {
+      throw err;
+    }
+  }
 
   const awareness = provider.awareness;
 

@@ -31,6 +31,7 @@ export default function ZenithEditorPane() {
   const openTabIds = useWorkspaceStore((state) => state.openTabIds);
   const closeTab = useWorkspaceStore((state) => state.closeTab);
   const runActiveFile = useWorkspaceStore((state) => state.runActiveFile);
+  const runActiveFileInTerminal = useWorkspaceStore((state) => state.runActiveFileInTerminal);
   const saveActiveFile = useWorkspaceStore((state) => state.saveActiveFile);
   const isExecuting = useWorkspaceStore((state) => state.isExecuting);
   const updateFileContent = useWorkspaceStore((state) => state.updateFileContent);
@@ -102,10 +103,10 @@ export default function ZenithEditorPane() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "Enter" || e.key.toLowerCase() === "r")) {
         e.preventDefault();
         if (!isReadOnly) {
-          runActiveFile();
+          runActiveFileInTerminal();
         }
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
@@ -122,7 +123,7 @@ export default function ZenithEditorPane() {
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [runActiveFile, saveActiveFile, isReadOnly]);
+  }, [runActiveFile, runActiveFileInTerminal, saveActiveFile, isReadOnly]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -283,7 +284,7 @@ syncer.acquireLock().then((ticket) => {
           )}
 
           <button
-            onClick={() => runActiveFile()}
+            onClick={() => runActiveFileInTerminal()}
             disabled={isExecuting || !activeFile || isReadOnly}
             title={isReadOnly ? "Execution disabled (Viewer Lock active)" : "Run Code (⌘+Enter)"}
             className="px-2 py-0.5 border border-grid bg-void text-muted hover:text-signal disabled:opacity-30 transition-colors flex items-center gap-1 font-mono text-[10px] uppercase font-bold"

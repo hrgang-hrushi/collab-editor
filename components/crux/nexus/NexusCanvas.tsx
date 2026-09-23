@@ -539,7 +539,11 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       {/* Transformed Spatial World Plane */}
       <div
         id="nexus-canvas-plane"
-        className="absolute top-0 left-0 w-full h-full origin-top-left transition-transform duration-75 ease-out"
+        className={`absolute top-0 left-0 w-full h-full origin-top-left ${
+          isPanning
+            ? "transition-none"
+            : "transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        }`}
         style={{
           transform: `translate3d(${panX}px, ${panY}px, 0) scale(${zoom})`,
           willChange: "transform",

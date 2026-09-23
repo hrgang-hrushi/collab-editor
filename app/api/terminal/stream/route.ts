@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { spawn } from "child_process";
+import fs from "fs";
 import { registerProcess, unregisterProcess } from "@/lib/terminalRegistry";
 
 export async function POST(req: NextRequest) {
@@ -14,7 +15,15 @@ export async function POST(req: NextRequest) {
     }
 
     const trimmed = command.trim();
-    const workingDir = cwd || process.cwd();
+    let workingDir = process.cwd();
+    if (cwd && typeof cwd === "string") {
+      try {
+        fs.accessSync(cwd, fs.constants.R_OK | fs.constants.X_OK);
+        workingDir = cwd;
+      } catch {
+        workingDir = process.cwd();
+      }
+    }
 
     // Set up SSE stream
     const encoder = new TextEncoder();
@@ -107,7 +116,7 @@ export async function POST(req: NextRequest) {
             FORCE_COLOR: "1",
             TERM: "xterm-256color",
             COLORTERM: "truecolor",
-            PATH: process.env.PATH || "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+            PATH: `/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:${process.env.PATH || "/usr/bin:/bin:/usr/sbin:/sbin"}`,
           },
         });
 

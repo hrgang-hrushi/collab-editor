@@ -15,6 +15,11 @@ export interface TreeItem {
  */
 export function detectLanguage(filename: string): FileNode["language"] {
   const lower = filename.toLowerCase();
+  if (lower.endsWith(".java")) return "java";
+  if (lower.endsWith(".rs")) return "rust";
+  if (lower.endsWith(".cpp") || lower.endsWith(".cc") || lower.endsWith(".cxx") || lower.endsWith(".hpp")) return "cpp";
+  if (lower.endsWith(".c") || lower.endsWith(".h")) return "c";
+  if (lower.endsWith(".swift")) return "swift";
   if (lower.endsWith(".ts") || lower.endsWith(".tsx") || lower.endsWith(".d.ts")) return "typescript";
   if (lower.endsWith(".js") || lower.endsWith(".jsx") || lower.endsWith(".mjs") || lower.endsWith(".cjs")) return "javascript";
   if (lower.endsWith(".py")) return "python";
@@ -219,7 +224,27 @@ export async function readFileList(
  * Save file directly back to disk (via Tauri native IPC or FileSystemFileHandle)
  */
 export async function saveFileToDisk(file: FileNode): Promise<boolean> {
-  // 1. Try native Tauri IPC if running in desktop environment
+  let saved = false;
+
+  // 1. Server-side filesystem write via API (ensures terminal shell process has the file in process.cwd())
+  try {
+    const res = await fetch("/api/fs/write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileName: file.name,
+        filePath: file.path,
+        content: file.content,
+      }),
+    });
+    if (res.ok) {
+      saved = true;
+    }
+  } catch (err) {
+    // ignore
+  }
+
+  // 2. Native Tauri IPC if running in desktop environment
   if (
     typeof window !== "undefined" &&
     Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__)
@@ -228,33 +253,29 @@ export async function saveFileToDisk(file: FileNode): Promise<boolean> {
       const { invoke } = await import("@tauri-apps/api/core");
       const targetPath = file.path;
       if (targetPath) {
-        const res = await invoke<{ success: boolean }>("write_file_to_disk", {
+        await invoke<{ success: boolean }>("write_file_to_disk", {
           filePath: targetPath,
           content: file.content,
         });
-        if (res?.success) {
-          return true;
-        }
       }
     } catch (tauriErr) {
-      console.warn("[Crux FS] Tauri native file write failed, falling back to Web File API:", tauriErr);
+      console.warn("[Crux FS] Tauri native file write fallback:", tauriErr);
     }
   }
 
-  // 2. Web File System Access API handle
+  // 3. Web File System Access API handle
   if (file.handle) {
     try {
       const writable = await file.handle.createWritable();
       await writable.write(file.content);
       await writable.close();
-      return true;
+      saved = true;
     } catch (err) {
       console.error(`Failed to save file ${file.name} to disk:`, err);
-      return false;
     }
   }
 
-  return false;
+  return saved;
 }
 
 /**

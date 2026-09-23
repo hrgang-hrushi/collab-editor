@@ -62,7 +62,7 @@ export interface FileNode {
   id: string;
   name: string;
   path: string;
-  language: "typescript" | "javascript" | "html" | "css" | "json" | "python" | "markdown" | "plaintext";
+  language: "typescript" | "javascript" | "html" | "css" | "json" | "python" | "markdown" | "plaintext" | "java" | "rust" | "cpp" | "c" | "swift";
   content: string;
   x: number;
   y: number;

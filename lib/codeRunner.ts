@@ -18,8 +18,31 @@ export async function executeCode(
   _files: FileNode[] = []
 ): Promise<ExecutionResult> {
   const startTime = Date.now();
-  const currentLang = language.toLowerCase();
+  let currentLang = (language || "").toLowerCase();
   const editorContent = code;
+
+  // Smart language inference: if filename or code structure indicates another language
+  if (
+    filename.endsWith(".java") ||
+    editorContent.includes("import java.") ||
+    editorContent.includes("public class ") ||
+    editorContent.includes("System.out.") ||
+    editorContent.includes("Scanner ")
+  ) {
+    currentLang = "java";
+  } else if (filename.endsWith(".py") || (currentLang === "plaintext" && editorContent.includes("def ") && editorContent.includes("print("))) {
+    currentLang = "python";
+  } else if (filename.endsWith(".rs") || (currentLang === "plaintext" && editorContent.includes("fn main()"))) {
+    currentLang = "rust";
+  } else if (filename.endsWith(".cpp") || filename.endsWith(".cc") || editorContent.includes("#include <iostream>")) {
+    currentLang = "cpp";
+  } else if (filename.endsWith(".c") || editorContent.includes("#include <stdio.h>")) {
+    currentLang = "c";
+  } else if (filename.endsWith(".swift") || editorContent.includes("import Foundation")) {
+    currentLang = "swift";
+  } else if (!currentLang || currentLang === "plaintext") {
+    currentLang = "typescript";
+  }
 
   // 1. Primary execution route: Native Tauri Rust IPC subprocess
   try {

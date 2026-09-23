@@ -38,9 +38,9 @@ interface PeerInterpolationState {
 const SmoothPeerCursor: React.FC<{ peer: PeerInterpolationState }> = ({ peer }) => {
   const x = useMotionValue(peer.x);
   const y = useMotionValue(peer.y);
-  // Motion values with high-speed, critically damped springs (sub-10ms feel)
-  const springX = useSpring(x, { stiffness: 500, damping: 32 });
-  const springY = useSpring(y, { stiffness: 500, damping: 32 });
+  // Smooth critically damped spring (glides smoothly from position to position in ~200ms)
+  const springX = useSpring(x, { stiffness: 280, damping: 30 });
+  const springY = useSpring(y, { stiffness: 280, damping: 30 });
 
   useEffect(() => {
     x.set(peer.x);

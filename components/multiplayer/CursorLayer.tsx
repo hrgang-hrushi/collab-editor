@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { SpatialCursor, FileNode } from "@/lib/types";
 import CruxPointerCursor from "../crux/CruxPointerCursor";
@@ -12,76 +12,23 @@ interface CursorDisplayProps {
 }
 
 function AnimatedCursor({ cursor, scale, activeFile }: CursorDisplayProps) {
-  // Local offset within the active block (or absolute coords if unanchored)
-  const initialX = cursor.offsetX ?? cursor.x;
-  const initialY = cursor.offsetY ?? cursor.y;
-
-  const [localPos, setLocalPos] = useState({ x: initialX, y: initialY });
-  const animRef = useRef<number>();
-  const currentPosRef = useRef({ x: initialX, y: initialY });
-  const velRef = useRef({ x: 0, y: 0 });
-
-  // Damped harmonic oscillator / spring interpolation for 120Hz liquid movement
-  useEffect(() => {
-    let lastTime = performance.now();
-
-    const targetLocalX = cursor.offsetX ?? cursor.targetX;
-    const targetLocalY = cursor.offsetY ?? cursor.targetY;
-
-    const animate = (time: number) => {
-      const dt = Math.min((time - lastTime) / 1000, 0.05); // cap at 50ms
-      lastTime = time;
-
-      const stiffness = 320;
-      const damping = 28;
-
-      const dx = targetLocalX - currentPosRef.current.x;
-      const dy = targetLocalY - currentPosRef.current.y;
-
-      const ax = dx * stiffness - velRef.current.x * damping;
-      const ay = dy * stiffness - velRef.current.y * damping;
-
-      velRef.current.x += ax * dt;
-      velRef.current.y += ay * dt;
-
-      currentPosRef.current.x += velRef.current.x * dt;
-      currentPosRef.current.y += velRef.current.y * dt;
-
-      setLocalPos({
-        x: Math.round(currentPosRef.current.x * 10) / 10,
-        y: Math.round(currentPosRef.current.y * 10) / 10,
-      });
-
-      animRef.current = requestAnimationFrame(animate);
-    };
-
-    animRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [cursor.offsetX, cursor.offsetY, cursor.targetX, cursor.targetY]);
-
   let worldX: number;
   let worldY: number;
 
-  if (activeFile) {
+  if (cursor.offsetX !== undefined && cursor.offsetY !== undefined && activeFile) {
     const fileOriginX = Number.isFinite(activeFile.x) ? activeFile.x : 0;
     const fileOriginY = Number.isFinite(activeFile.y) ? activeFile.y : 0;
-    const maxX = Number.isFinite(activeFile.width) ? activeFile.width - 40 : 2000;
-    const maxY = Number.isFinite(activeFile.height) ? activeFile.height - 30 : 2000;
-    const clampedX = Math.max(30, Math.min(Number.isFinite(localPos.x) ? localPos.x : 100, maxX));
-    const clampedY = Math.max(42, Math.min(Number.isFinite(localPos.y) ? localPos.y : 100, maxY));
-    worldX = Math.round(fileOriginX + clampedX);
-    worldY = Math.round(fileOriginY + clampedY);
+    worldX = Math.round(fileOriginX + cursor.offsetX);
+    worldY = Math.round(fileOriginY + cursor.offsetY);
   } else {
-    worldX = Math.round(Number.isFinite(localPos.x) ? localPos.x : cursor.x);
-    worldY = Math.round(Number.isFinite(localPos.y) ? localPos.y : cursor.y);
+    worldX = Math.round(cursor.targetX ?? cursor.x ?? 0);
+    worldY = Math.round(cursor.targetY ?? cursor.y ?? 0);
   }
 
   return (
     <CruxPointerCursor
       name={cursor.userName}
-      uid={cursor.userUid || (cursor.userId === "user-1" ? "CRX-9941-SL" : cursor.userId === "user-2" ? "CRX-0001-AI" : "CRX-5520-MV")}
+      uid={cursor.userUid || (cursor.userId.includes("1") ? "CRX-9941-SL" : cursor.userId.includes("2") ? "CRX-0001-AI" : "CRX-5520-MV")}
       color={cursor.userColor}
       status={cursor.status || (cursor.isTyping ? "typing" : undefined)}
       x={worldX}

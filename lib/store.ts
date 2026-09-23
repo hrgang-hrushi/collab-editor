@@ -27,6 +27,7 @@ import {
   CURRENT_USER,
   MOCK_USERS,
   INITIAL_INVITES,
+  INITIAL_REMOTE_CURSORS,
   INITIAL_LIBRARIES,
   WORKSPACE_TEMPLATES,
   INITIAL_REVISIONS,
@@ -154,6 +155,7 @@ interface WorkspaceState {
 
   // Code Execution & Terminal Actions
   runActiveFile: () => Promise<ExecutionResult | null>;
+  runActiveFileInTerminal: () => Promise<void>;
   runFileById: (fileId: string) => Promise<ExecutionResult | null>;
   setTerminalCwd: (cwd: string) => void;
   addTerminalEntry: (entry: { cmd: string; output?: string[]; type?: "info" | "ok" | "err" | "warn" }) => void;
@@ -280,7 +282,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
     id: "session-sh-1",
     name: "crux-sh",
     type: "sh",
-    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    cwd: "/Users/hrushikeshgangala/Projects/collab-editor-main",
     lines: [
       {
         id: "init-1",
@@ -310,7 +312,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
     id: "session-server-1",
     name: "dev-server",
     type: "server",
-    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    cwd: "/Users/hrushikeshgangala/Projects/collab-editor-main",
     lines: [
       {
         id: "srv-1",
@@ -335,7 +337,7 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
     id: "session-ai-1",
     name: "@CruxAI Logs",
     type: "ai",
-    cwd: "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+    cwd: "/Users/hrushikeshgangala/Projects/collab-editor-main",
     lines: [
       {
         id: "ai-1",
@@ -376,7 +378,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   allowedFiles: ["stream_syncer.ts", "database.ts", "auth.ts"],
   allowedLineRange: undefined,
   inboxInvites: INITIAL_INVITES,
-  remoteCursors: {},
+  remoteCursors: INITIAL_REMOTE_CURSORS,
   fileRevisions: INITIAL_REVISIONS,
   isHistoryDrawerOpen: false,
 
@@ -614,23 +616,58 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     const activeFile = state.files.find((f) => f.id === state.activeFileId);
     if (!activeFile) return false;
 
-    if (activeFile.handle) {
-      const saved = await saveFileToDisk(activeFile);
-      if (saved) {
-        set((s) => ({
-          files: s.files.map((f) =>
-            f.id === activeFile.id ? { ...f, status: "clean", isDirty: false } : f
-          ),
-        }));
-        return true;
-      }
-    }
+    const saved = await saveFileToDisk(activeFile);
     set((s) => ({
       files: s.files.map((f) =>
         f.id === activeFile.id ? { ...f, status: "clean", isDirty: false } : f
       ),
     }));
-    return true;
+    return saved;
+  },
+
+  runActiveFileInTerminal: async () => {
+    const state = get();
+    const activeFile = state.files.find((f) => f.id === state.activeFileId);
+    if (!activeFile) return;
+
+    // Save active file to disk first
+    await state.saveActiveFile();
+
+    const clsMatch =
+      activeFile.content.match(/public\s+class\s+([A-Za-z0-9_]+)/) ||
+      activeFile.content.match(/class\s+([A-Za-z0-9_]+)/);
+    const cls = clsMatch ? clsMatch[1] : (activeFile.name.replace(/\.java$/, "") || "Main");
+
+    let cmd = `node ${activeFile.name}`;
+    if (
+      activeFile.name.endsWith(".java") ||
+      activeFile.content.includes("import java.") ||
+      activeFile.content.includes("public class ")
+    ) {
+      cmd = `javac ${activeFile.name} && java ${cls}`;
+    } else if (activeFile.name.endsWith(".py") || activeFile.content.includes("def ")) {
+      cmd = `python3 ${activeFile.name}`;
+    } else if (activeFile.name.endsWith(".rs") || activeFile.content.includes("fn main()")) {
+      cmd = `rustc ${activeFile.name} && ./${activeFile.name.replace(/\.rs$/, "")}`;
+    } else if (activeFile.name.endsWith(".cpp") || activeFile.content.includes("#include <iostream>")) {
+      cmd = `clang++ ${activeFile.name} -o app && ./app`;
+    } else if (activeFile.name.endsWith(".c") || activeFile.content.includes("#include <stdio.h>")) {
+      cmd = `clang ${activeFile.name} -o app && ./app`;
+    } else if (activeFile.name.endsWith(".swift")) {
+      cmd = `swiftc ${activeFile.name} -o app && ./app`;
+    } else if (activeFile.name.endsWith(".ts") || activeFile.name.endsWith(".tsx")) {
+      cmd = `bun run ${activeFile.name}`;
+    }
+
+    set({ isTerminalOpen: true, activeTerminalTab: "terminal" });
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("crux:run-terminal", {
+          detail: { command: cmd },
+        })
+      );
+    }
   },
 
   runActiveFile: async () => {
@@ -659,14 +696,18 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     }
     logLines.push(`✓ Done in ${result.durationMs}ms (exit: ${result.success ? 0 : 1})`);
 
-    const formatRunCmd = (fileName: string) => {
-      if (fileName.endsWith(".java")) {
-        const cls = fileName.replace(/\.java$/, "");
-        return `javac ${fileName} && java ${cls}`;
+    const formatRunCmd = (fileName: string, content: string) => {
+      if (fileName.endsWith(".java") || content.includes("import java.") || content.includes("public class ")) {
+        const clsMatch = content.match(/public\s+class\s+([A-Za-z0-9_]+)/) || content.match(/class\s+([A-Za-z0-9_]+)/);
+        const cls = clsMatch ? clsMatch[1] : (fileName.replace(/\.java$/, "") || "Main");
+        return `javac ${cls}.java && java ${cls}`;
       }
-      if (fileName.endsWith(".py")) {
-        return `python3 ${fileName}`;
-      }
+      if (fileName.endsWith(".py") || content.includes("def ")) return `python3 ${fileName}`;
+      if (fileName.endsWith(".rs") || content.includes("fn main()")) return `rustc ${fileName} && ./${fileName.replace(/\.rs$/, "")}`;
+      if (fileName.endsWith(".cpp") || content.includes("#include <iostream>")) return `clang++ ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".c") || content.includes("#include <stdio.h>")) return `clang ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".swift")) return `swiftc ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) return `bun run ${fileName}`;
       return `node ${fileName}`;
     };
 
@@ -676,7 +717,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       terminalHistory: [
         ...s.terminalHistory,
         {
-          cmd: formatRunCmd(activeFile.name),
+          cmd: formatRunCmd(activeFile.name, activeFile.content),
           output: logLines,
           type: result.success ? "ok" : "err",
         },
@@ -706,14 +747,18 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (result.returnValue !== undefined) logLines.push(`=> ${result.returnValue}`);
     logLines.push(`✓ Done in ${result.durationMs}ms`);
 
-    const formatRunCmd = (fileName: string) => {
-      if (fileName.endsWith(".java")) {
-        const cls = fileName.replace(/\.java$/, "");
-        return `javac ${fileName} && java ${cls}`;
+    const formatRunCmd = (fileName: string, content: string) => {
+      if (fileName.endsWith(".java") || content.includes("import java.") || content.includes("public class ")) {
+        const clsMatch = content.match(/public\s+class\s+([A-Za-z0-9_]+)/) || content.match(/class\s+([A-Za-z0-9_]+)/);
+        const cls = clsMatch ? clsMatch[1] : (fileName.replace(/\.java$/, "") || "Main");
+        return `javac ${cls}.java && java ${cls}`;
       }
-      if (fileName.endsWith(".py")) {
-        return `python3 ${fileName}`;
-      }
+      if (fileName.endsWith(".py") || content.includes("def ")) return `python3 ${fileName}`;
+      if (fileName.endsWith(".rs") || content.includes("fn main()")) return `rustc ${fileName} && ./${fileName.replace(/\.rs$/, "")}`;
+      if (fileName.endsWith(".cpp") || content.includes("#include <iostream>")) return `clang++ ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".c") || content.includes("#include <stdio.h>")) return `clang ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".swift")) return `swiftc ${fileName} -o app && ./app`;
+      if (fileName.endsWith(".ts") || fileName.endsWith(".tsx")) return `bun run ${fileName}`;
       return `node ${fileName}`;
     };
 
@@ -723,7 +768,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       terminalHistory: [
         ...s.terminalHistory,
         {
-          cmd: formatRunCmd(targetFile.name),
+          cmd: formatRunCmd(targetFile.name, targetFile.content),
           output: logLines,
           type: result.success ? "ok" : "err",
         },
@@ -1358,7 +1403,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       id,
       name: sessionName,
       type,
-      cwd: get().terminalCwd || "/Users/hrushikeshgangala/Downloads/collab-editor-main",
+      cwd: get().terminalCwd || "/Users/hrushikeshgangala/Projects/collab-editor-main",
       lines: [
         {
           id: `line-${Date.now()}`,
@@ -1595,7 +1640,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set((state) => {
       const next: Record<string, SpatialCursor> = {};
       for (const [id, cursor] of Object.entries(state.remoteCursors)) {
-        if (activeUserIds.has(id)) {
+        if (id.startsWith("mock-") || activeUserIds.has(id)) {
           next[id] = cursor;
         }
       }
@@ -1777,12 +1822,25 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           detectedSdk: data.detectedSdk,
           isDiscoveryScanning: false,
         });
-      } else {
-        set({ isDiscoveryScanning: false });
+        return;
       }
     } catch {
-      set({ isDiscoveryScanning: false });
+      // ignore
     }
+    // Standalone fallback: Provide active runtimes and run profiles
+    set({
+      discoveredRuntimes: [
+        { id: "java", name: "Java JDK", version: "21.0.2", path: "/usr/bin/java", available: true },
+        { id: "node", name: "Node.js", version: "20.18.0", path: "/usr/local/bin/node", available: true },
+        { id: "python", name: "Python 3", version: "3.12.0", path: "/usr/bin/python3", available: true },
+        { id: "rust", name: "Rust / Cargo", version: "1.77.2", path: "/opt/homebrew/bin/cargo", available: true },
+      ],
+      runProfiles: [
+        { id: "run-java", name: "Run Java (TrainingArena)", command: "javac Practice.java && java TrainingArena", isDefault: true },
+        { id: "run-node", name: "Run Active Node Script", command: "node stream_syncer.ts", isDefault: false },
+      ],
+      isDiscoveryScanning: false,
+    });
   },
 
   executeRunProfile: (profileId: string) => {

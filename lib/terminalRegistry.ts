@@ -38,3 +38,17 @@ export function killProcess(pid: number, signal: NodeJS.Signals = "SIGINT"): boo
     return false;
   }
 }
+
+export function writeToProcessStdin(pid: number, input: string): boolean {
+  const child = terminalProcesses.get(pid);
+  if (child && child.stdin && !child.stdin.destroyed) {
+    try {
+      const data = input.endsWith("\n") ? input : `${input}\n`;
+      child.stdin.write(data);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}

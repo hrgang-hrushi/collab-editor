@@ -106,26 +106,58 @@ export default function ZenithTerminal() {
   };
 
   useEffect(() => {
+    let rafId: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDraggingHeight) return;
-      const delta = dragStartYRef.current - e.clientY;
-      const newHeight = Math.max(140, Math.min(window.innerHeight * 0.85, dragStartHeightRef.current + delta));
-      setTerminalHeight(newHeight);
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const delta = dragStartYRef.current - e.clientY;
+        const newHeight = Math.max(140, Math.min(window.innerHeight * 0.85, dragStartHeightRef.current + delta));
+        setTerminalHeight(newHeight);
+      });
     };
 
     const handleMouseUp = () => {
+      if (rafId) cancelAnimationFrame(rafId);
       setIsDraggingHeight(false);
     };
 
     if (isDraggingHeight) {
+      document.body.style.cursor = "ns-resize";
+      document.body.style.userSelect = "none";
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
     }
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
   }, [isDraggingHeight, setTerminalHeight]);
+
+  // Listen for external run commands (e.g. from RUN button or Cmd+Enter)
+  useEffect(() => {
+    const handleRunInTerminal = (e: any) => {
+      const { command, sessionId } = e.detail || {};
+      if (!command) return;
+      const targetSession =
+        (sessionId ? terminalSessions.find((s) => s.id === sessionId) : null) ||
+        activeSession;
+      if (targetSession) {
+        setActiveTerminalSessionId(targetSession.id);
+        setActiveTabType("session");
+        executeCommandInSession(targetSession, command);
+      }
+    };
+
+    window.addEventListener("crux:run-terminal" as any, handleRunInTerminal);
+    return () => window.removeEventListener("crux:run-terminal" as any, handleRunInTerminal);
+  }, [activeSession, terminalSessions]);
 
   // Jump to file and line when clicking a hyperlink (e.g. auth.ts:14)
   const handleOpenFileLink = (filePath: string, line?: number, col?: number) => {
@@ -253,14 +285,45 @@ export default function ZenithTerminal() {
   ) => {
     if (isReadOnly) return;
 
-    const rawCmd = cmdToRun !== undefined ? cmdToRun : session.inputVal;
-    const trimmed = rawCmd.trim();
-    if (!trimmed) return;
+    const state = useWorkspaceStore.getState();
+    const currentSession =
+      state.terminalSessions.find((s) => s.id === session.id) || session;
+
+    const rawCmd = cmdToRun !== undefined ? cmdToRun : currentSession.inputVal;
 
     // Reset input
-    setSessionInputVal(session.id, "");
+    setSessionInputVal(currentSession.id, "");
     setAiProposal(null);
     setGhostFixMessage(null);
+
+    // If process is already streaming, route ANY input (including empty Enter keypress) directly to process stdin!
+    // If process is already streaming, route ANY input (including empty Enter keypress) directly to process stdin!
+    if (currentSession.isStreaming && cmdToRun === undefined) {
+      appendTerminalChunk(currentSession.id, `${rawCmd}\n`);
+      const isTauri = typeof window !== "undefined" && Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__);
+      if (isTauri && currentSession.activePid) {
+        try {
+          const { invoke } = await import("@tauri-apps/api/core");
+          await invoke("terminal_input", { pid: currentSession.activePid, input: rawCmd });
+        } catch (err) {
+          console.error("Failed to send native stdin:", err);
+        }
+        return;
+      }
+      try {
+        await fetch("/api/terminal/input", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pid: currentSession.activePid, input: rawCmd }),
+        });
+      } catch (err) {
+        console.error("Failed to send stdin to process:", err);
+      }
+      return;
+    }
+
+    const trimmed = rawCmd.trim();
+    if (!trimmed) return;
 
     // If time-travel is active, snap back to present before running
     if (terminalTimeTravelIndex !== null) {
@@ -309,11 +372,70 @@ export default function ZenithTerminal() {
 
     // Tag executor for remote multiplayer CRDT (e.g. [Sarah L.] npm run build)
     const executorTag = executorName ? `\x1b[36m[${executorName}]\x1b[0m ` : `\x1b[36mcrux-sh:~$\x1b[0m `;
+    // Flush all workspace files to disk before executing terminal commands
+    try {
+      const { saveFileToDisk } = await import("@/lib/fileUtils");
+      const currentFiles = useWorkspaceStore.getState().files;
+      await Promise.all(currentFiles.map((f) => saveFileToDisk(f)));
+    } catch {
+      // ignore
+    }
+
     addSessionHistory(session.id, trimmed);
     appendTerminalChunk(session.id, `${executorTag}${trimmed}\n`);
     setSessionStreaming(session.id, true, null);
     setSessionExitCode(session.id, null);
 
+    const isTauri = typeof window !== "undefined" && Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__);
+
+    // 1. NATIVE TAURI DESKTOP EXECUTION (Standalone mode)
+    if (isTauri) {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        const { listen } = await import("@tauri-apps/api/event");
+
+        const pid = await invoke<number>("terminal_spawn", {
+          command: trimmed,
+          cwd: session.cwd || null,
+        });
+
+        setSessionStreaming(session.id, true, pid);
+
+        let unlistenFn: (() => void) | null = null;
+        unlistenFn = await listen<any>(`terminal-event-${pid}`, (event) => {
+          const payload = event.payload;
+          if (!payload) return;
+
+          if (payload.type === "stdout" && payload.data) {
+            appendTerminalChunk(session.id, payload.data, false);
+          } else if (payload.type === "stderr" && payload.data) {
+            appendTerminalChunk(session.id, payload.data, true);
+          } else if (payload.type === "exit") {
+            setSessionStreaming(session.id, false, null);
+            const exitCode = payload.code ?? 0;
+            setSessionExitCode(session.id, exitCode);
+
+            if (exitCode !== 0 && exitCode !== 130) {
+              triggerAutoHealing(session, exitCode);
+            }
+
+            if (unlistenFn) {
+              unlistenFn();
+              unlistenFn = null;
+            }
+          }
+        });
+        return;
+      } catch (nativeErr: any) {
+        appendTerminalChunk(session.id, `\x1b[31mNative execution failed: ${nativeErr?.message || nativeErr}\x1b[0m\n`, true);
+        setSessionStreaming(session.id, false, null);
+        setSessionExitCode(session.id, 1);
+        triggerAutoHealing(session, 1);
+        return;
+      }
+    }
+
+    // 2. HTTP SERVER-SENT EVENTS FALLBACK (Browser mode)
     try {
       const response = await fetch("/api/terminal/stream", {
         method: "POST",
@@ -382,6 +504,21 @@ export default function ZenithTerminal() {
       return;
     }
 
+    const isTauri = typeof window !== "undefined" && Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__);
+    if (isTauri) {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        await invoke("terminal_kill", { pid: session.activePid });
+        appendTerminalChunk(session.id, `\x1b[33m^C [Process ${session.activePid} terminated]\x1b[0m\n`);
+      } catch {
+        // ignore
+      } finally {
+        setSessionStreaming(session.id, false, null);
+        setSessionExitCode(session.id, 130);
+      }
+      return;
+    }
+
     try {
       await fetch("/api/terminal/kill", {
         method: "POST",
@@ -414,7 +551,9 @@ export default function ZenithTerminal() {
   return (
     <footer
       style={{ height: isTerminalMaximized ? "85vh" : `${terminalHeight}px` }}
-      className="border-t border-grid bg-surface flex flex-col shrink-0 font-sans select-none relative transition-all duration-75 overflow-hidden"
+      className={`border-t border-grid bg-surface flex flex-col shrink-0 font-sans select-none relative overflow-hidden ${
+        isDraggingHeight ? "transition-none select-none" : "transition-[height] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+      }`}
     >
       {/* DRAG RESIZE HANDLE */}
       <div
@@ -864,14 +1003,33 @@ function TerminalPaneView({
   onCancelAiProposal,
   onTriggerAutoHeal,
 }: TerminalPaneViewProps) {
-  const logsEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isScrolledToBottomRef = useRef(true);
 
+  // Track user scroll position: if user scrolled up to read history, don't force scroll down
+  const handleScroll = useCallback(() => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    isScrolledToBottomRef.current = scrollHeight - scrollTop - clientHeight < 60;
+  }, []);
+
+  // Butter-smooth hardware-accelerated auto-scroll via requestAnimationFrame
   useEffect(() => {
-    if (!isTimeTraveling) {
-      logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!isTimeTraveling && isScrolledToBottomRef.current && scrollContainerRef.current) {
+      requestAnimationFrame(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+        }
+      });
     }
   }, [lines, isTimeTraveling]);
+
+  useEffect(() => {
+    if (session.isStreaming) {
+      inputRef.current?.focus();
+    }
+  }, [session.isStreaming, lines.length]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // Ctrl+C to abort running process
@@ -936,9 +1094,16 @@ function TerminalPaneView({
     : lines;
 
   return (
-    <div className="flex-1 p-3 font-mono text-[12px] flex flex-col min-h-0 select-text">
+    <div
+      onClick={() => inputRef.current?.focus()}
+      className="flex-1 p-3 font-mono text-[12px] flex flex-col min-h-0 select-text cursor-text"
+    >
       {/* Scrollable Output Stream — min-h-0 + overflow-y-auto lets flex child scroll */}
-      <div className="flex-1 overflow-y-auto space-y-0.5 min-h-0">
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 overflow-y-auto space-y-0.5 min-h-0 select-text scrollbar-thin scrollbar-thumb-grid/50"
+      >
         {filteredLines.map((line) => {
           const isAgent = line.executorName?.toLowerCase().includes("ai");
           return (
@@ -1052,8 +1217,6 @@ function TerminalPaneView({
             )}
           </div>
         )}
-
-        <div ref={logsEndRef} />
       </div>
 
       {/* SECTION 11.1 CONTEXT-AWARE AI COMMAND PROPOSAL (FLAT, #007AFF CRUX BLUE LEFT BORDER, STARK WHITE [RUN]) */}
@@ -1107,9 +1270,16 @@ function TerminalPaneView({
             e.preventDefault();
             onSubmitCommand();
           }}
-          className="flex items-center gap-2 pt-1.5 border-t border-grid/60 shrink-0 relative"
+          className="flex items-center gap-2 pt-2 border-t border-grid/60 shrink-0 relative bg-void/30"
         >
-          <span className="text-signal shrink-0 font-bold">crux-sh:~$</span>
+          {session.isStreaming ? (
+            <div className="flex items-center gap-1.5 shrink-0 text-[#00FF00]">
+              <span className="w-2 h-2 rounded-full bg-[#00FF00] animate-pulse shadow-[0_0_8px_#00FF00]" />
+              <span className="font-mono text-[11px] font-bold tracking-wider">&gt; stdin:</span>
+            </div>
+          ) : (
+            <span className="text-signal shrink-0 font-bold font-mono text-[12px]">crux-sh:~$</span>
+          )}
           <div className="flex-1 relative flex items-center">
             <input
               data-testid="terminal-prompt-input"
@@ -1118,8 +1288,12 @@ function TerminalPaneView({
               value={session.inputVal}
               onChange={(e) => onInputChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="type command (e.g. ls, crux status, ?? <query>)..."
-              className="w-full bg-transparent border-none outline-none font-mono text-[12px] text-signal p-0 focus:ring-0 placeholder:text-muted/50"
+              placeholder={
+                session.isStreaming
+                  ? "Type input and press Enter to send to process (stdin)..."
+                  : "type command (e.g. ls, crux status, ?? <query>)..."
+              }
+              className="w-full bg-transparent border-none outline-none font-mono text-[12px] text-signal p-0 focus:ring-0 placeholder:text-muted/40 transition-colors"
             />
 
             {/* SECTION 12.1 MULTIPLAYER PEER CURSORS IN PROMPT */}

@@ -104,16 +104,12 @@ export const CrexWebGpuCanvas: React.FC<CrexWebGpuCanvasProps> = ({
       engineRef.current = engine;
     });
 
-    // FPS ticker
+    // Telemetry ticker (500ms to reduce unneeded state updates)
     const interval = setInterval(() => {
       if (engineRef.current) {
         setFps(engineRef.current.fps);
-        setCursorPos({
-          line: engineRef.current.cursorLine + 1,
-          col: engineRef.current.cursorCol + 1,
-        });
       }
-    }, 150);
+    }, 500);
 
     return () => {
       window.removeEventListener("resize", resizeCanvas);
@@ -159,21 +155,21 @@ export const CrexWebGpuCanvas: React.FC<CrexWebGpuCanvasProps> = ({
     });
   };
 
-  // Execute Code via Tauri IPC Daemon
+  // Execute Code via Crux Interactive Hyperterminal
   const handleExecute = async () => {
-    if (!engineRef.current || isExecuting) return;
+    if (isExecuting) return;
     setIsExecuting(true);
-    const code = engineRef.current.getContent();
+    const code = engineRef.current ? engineRef.current.getContent() : initialCode;
     try {
-      const result = await executeLocalCode(language, code);
-      setExecutionOutput(result);
+      const { useWorkspaceStore } = await import("@/lib/store");
+      const state = useWorkspaceStore.getState();
+      const activeFile = state.files.find((f) => f.id === state.activeFileId);
+      if (activeFile && code) {
+        state.updateFileContent(activeFile.id, code);
+      }
+      await state.runActiveFileInTerminal();
     } catch (err: any) {
-      setExecutionOutput({
-        stdout: "",
-        stderr: err?.message || String(err),
-        exit_code: 1,
-        execution_time_ms: 0,
-      });
+      console.error("[Crex] Failed to run code in terminal:", err);
     } finally {
       setIsExecuting(false);
     }
@@ -230,9 +226,20 @@ export const CrexWebGpuCanvas: React.FC<CrexWebGpuCanvasProps> = ({
           <button
             onClick={handleExecute}
             disabled={isExecuting}
-            className="h-6 px-3 bg-white text-black text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 hover:bg-[#CCCCCC] active:bg-[#AAAAAA] disabled:opacity-50 transition-none"
+            className={`h-6 px-3 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-150 ${
+              isExecuting
+                ? "bg-[#00FF00] text-black shadow-[0_0_12px_rgba(0,255,0,0.4)]"
+                : "bg-white text-black hover:bg-neutral-200 active:scale-[0.98]"
+            }`}
           >
-            {isExecuting ? "[COMPILING...]" : "[EXECUTE_KERNEL]"}
+            {isExecuting ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                <span>[RUNNING...]</span>
+              </>
+            ) : (
+              <span>[RUN CODE ↵]</span>
+            )}
           </button>
         </div>
       </div>

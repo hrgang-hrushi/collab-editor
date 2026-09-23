@@ -32,18 +32,11 @@ export default function ZenithFileTree() {
   });
 
   useEffect(() => {
-    fetch("/api/git", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "branch" }),
-    })
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.branch) {
-          setGitInfo({ branch: data.branch, isDirty: !!data.isDirty });
-        }
-      })
-      .catch(() => {/* keep defaults */});
+    import("@/lib/gitUtils").then(({ getGitBranchInfo }) => {
+      getGitBranchInfo().then((info) => {
+        setGitInfo(info);
+      });
+    });
 
     fetchDiscoveryReport();
   }, [fetchDiscoveryReport]);

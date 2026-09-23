@@ -72,6 +72,9 @@ export class CrexWebGpuEngine {
   public lineHeight: number = 21;
   public gutterWidth: number = 46;
   public fps: number = 120;
+  public smoothCursorX: number = 0;
+  public smoothCursorY: number = 0;
+  private isCursorInitialized: boolean = false;
 
   private lastFrameTime: number = performance.now();
   private cursorBlinkState: boolean = true;
@@ -215,6 +218,8 @@ export class CrexWebGpuEngine {
 
       const delta = this.crdt.createInsertDelta(e.key, "char");
       this.onDeltaEmit?.(delta);
+      this.cursorBlinkState = true;
+      this.lastBlinkToggle = performance.now();
       return true;
     }
 
@@ -233,26 +238,28 @@ export class CrexWebGpuEngine {
   }
 
   private startRenderLoop() {
+    let lastTime = performance.now();
     const loop = (timestamp: number) => {
-      const dt = timestamp - this.lastFrameTime;
-      this.lastFrameTime = timestamp;
+      const now = performance.now();
+      const dt = Math.min(Math.max((now - lastTime) / 1000, 0.001), 0.05);
+      lastTime = now;
       if (dt > 0) {
-        this.fps = Math.round(1000 / dt);
+        this.fps = Math.round(1 / dt);
       }
 
       // Hard mechanical cursor blink at 500ms
-      if (timestamp - this.lastBlinkToggle > 500) {
+      if (now - this.lastBlinkToggle > 500) {
         this.cursorBlinkState = !this.cursorBlinkState;
-        this.lastBlinkToggle = timestamp;
+        this.lastBlinkToggle = now;
       }
 
-      this.render();
+      this.render(dt);
       this.animFrameId = requestAnimationFrame(loop);
     };
     this.animFrameId = requestAnimationFrame(loop);
   }
 
-  public render() {
+  public render(dt: number = 0.016) {
     const canvas = this.canvas;
     const ctx = this.ctx2d;
     if (!ctx) return;
@@ -297,13 +304,27 @@ export class CrexWebGpuEngine {
       ctx.fillText(text, this.gutterWidth + 8 - this.scrollX, y + 3);
     }
 
-    // Render Cursor (1px solid white, no easing)
-    if (this.cursorBlinkState) {
-      const cursorX = this.gutterWidth + 8 + this.cursorCol * this.charWidth - this.scrollX;
-      const cursorY = this.cursorLine * this.lineHeight - this.scrollY;
+    // Render Smooth Caret (glides from one position to another in a fraction of a second)
+    const targetCursorX = this.gutterWidth + 8 + this.cursorCol * this.charWidth - this.scrollX;
+    const targetCursorY = this.cursorLine * this.lineHeight - this.scrollY;
 
+    if (!this.isCursorInitialized || !Number.isFinite(this.smoothCursorX) || !Number.isFinite(this.smoothCursorY)) {
+      this.smoothCursorX = Number.isFinite(targetCursorX) ? targetCursorX : this.gutterWidth + 8;
+      this.smoothCursorY = Number.isFinite(targetCursorY) ? targetCursorY : 0;
+      this.isCursorInitialized = true;
+    } else {
+      // Frame-rate independent exponential ease: glides smoothly in ~180-220ms (sub-second)
+      const lerpFactor = 1 - Math.exp(-22 * dt);
+      this.smoothCursorX += (targetCursorX - this.smoothCursorX) * lerpFactor;
+      this.smoothCursorY += (targetCursorY - this.smoothCursorY) * lerpFactor;
+
+      if (Math.abs(targetCursorX - this.smoothCursorX) < 0.2) this.smoothCursorX = targetCursorX;
+      if (Math.abs(targetCursorY - this.smoothCursorY) < 0.2) this.smoothCursorY = targetCursorY;
+    }
+
+    if (this.cursorBlinkState) {
       ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(cursorX, cursorY + 2, 1.5, this.lineHeight - 3);
+      ctx.fillRect(Math.round(this.smoothCursorX), Math.round(this.smoothCursorY + 2), 2, this.lineHeight - 3);
     }
   }
 

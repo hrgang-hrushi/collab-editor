@@ -7,6 +7,10 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  output: "export",
+  images: {
+    unoptimized: true,
+  },
   webpack: (config) => {
     // Enable WebAssembly if needed
     config.experiments = {
@@ -15,18 +19,6 @@ const nextConfig = {
       layers: true,
     };
     return config;
-  },
-  async rewrites() {
-    return [
-      {
-        source: "/downloads/:path*",
-        destination: "/api/download",
-      },
-      {
-        source: "/download",
-        destination: "/api/download",
-      },
-    ];
   },
 };
 

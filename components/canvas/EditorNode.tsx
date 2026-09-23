@@ -114,18 +114,24 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
       fileY,
     };
 
+    let rafId: number | null = null;
     const handleMouseMove = (moveEvent: MouseEvent) => {
       if (!dragStartRef.current) return;
-      const dx = (moveEvent.clientX - dragStartRef.current.mouseX) / zoom;
-      const dy = (moveEvent.clientY - dragStartRef.current.mouseY) / zoom;
-      updateFilePosition(
-        file.id,
-        Math.round(dragStartRef.current.fileX + dx),
-        Math.round(dragStartRef.current.fileY + dy)
-      );
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        if (!dragStartRef.current) return;
+        const dx = (moveEvent.clientX - dragStartRef.current.mouseX) / zoom;
+        const dy = (moveEvent.clientY - dragStartRef.current.mouseY) / zoom;
+        updateFilePosition(
+          file.id,
+          Math.round(dragStartRef.current.fileX + dx),
+          Math.round(dragStartRef.current.fileY + dy)
+        );
+      });
     };
 
     const handleMouseUp = () => {
+      if (rafId) cancelAnimationFrame(rafId);
       setIsDragging(false);
       dragStartRef.current = null;
       window.removeEventListener("mousemove", handleMouseMove);
@@ -188,11 +194,15 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
       onDoubleClick={handleDoubleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className={`absolute select-none flex flex-col rounded-none overflow-hidden transition-none ${
+      className={`absolute select-none flex flex-col rounded-none overflow-hidden ${
         isDragging ? "cursor-grabbing" : ""
       }`}
       style={{
         transform: `translate3d(${fileX}px, ${fileY}px, 0)`,
+        transition: isDragging
+          ? "none"
+          : "transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s ease",
+        willChange: "transform",
         width: `${fileW}px`,
         height: `${fileH}px`,
         zIndex: file.zIndex || 1,

@@ -1,4 +1,4 @@
-import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, ShareInvite, LibraryPackage, WorkspaceTemplate, FileRevision } from "./types";
+import { FileNode, ArchitecturalEdge, InlineSuggestion, ContextualThread, User, SpatialCursor, ShareInvite, LibraryPackage, WorkspaceTemplate, FileRevision } from "./types";
 
 export const CURRENT_USER: User = {
   id: "user-self",
@@ -45,6 +45,36 @@ export const MOCK_USERS: User[] = [
     allowedFiles: ["database.ts"],
   },
 ];
+
+export const INITIAL_REMOTE_CURSORS: Record<string, SpatialCursor> = {
+  "mock-user-1": {
+    userId: "mock-user-1",
+    userName: "Sarah Lin",
+    userColor: "#38b6ff",
+    userUid: "CRX-9941-SL",
+    activeFileId: "file-auth",
+    x: 1540,
+    y: 190,
+    targetX: 1540,
+    targetY: 190,
+    status: "online",
+    lastUpdated: Date.now(),
+  },
+  "mock-user-3": {
+    userId: "mock-user-3",
+    userName: "Marcus Vance",
+    userColor: "#ff914d",
+    userUid: "CRX-5520-MV",
+    activeFileId: "file-spatial",
+    x: 880,
+    y: 720,
+    targetX: 880,
+    targetY: 720,
+    status: "typing",
+    isTyping: true,
+    lastUpdated: Date.now(),
+  },
+};
 
 export const INITIAL_INVITES: ShareInvite[] = [
   {

@@ -52,9 +52,10 @@ export default function CruxPointerCursor({
 
   return (
     <div
-      className="absolute pointer-events-none z-50 select-none flex items-start"
+      className="absolute top-0 left-0 pointer-events-none z-50 select-none flex items-start"
       style={{
         transform: x !== undefined && y !== undefined ? `translate3d(${x}px, ${y}px, 0)` : undefined,
+        transition: "transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)",
         willChange: "transform",
       }}
     >

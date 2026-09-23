@@ -795,6 +795,8 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
               activeFileId: state.mouse.fileId || file.id,
               x: state.mouse.x,
               y: state.mouse.y,
+              targetX: state.mouse.x,
+              targetY: state.mouse.y,
             });
           }
         });
@@ -982,8 +984,11 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
           .map(([userId, cursor]) => (
             <div
               key={userId}
-              className="absolute pointer-events-none z-20 transition-all duration-75"
-              style={{ top: `${cursor.y}px`, left: `${cursor.x}px` }}
+              className="absolute top-0 left-0 pointer-events-none z-20 transition-transform duration-200 ease-[cubic-bezier(0.16,1,0.3,1)]"
+              style={{
+                transform: `translate3d(${cursor.x}px, ${cursor.y}px, 0)`,
+                willChange: "transform",
+              }}
             >
               <CruxPointerCursor
                 name={cursor.userName}
