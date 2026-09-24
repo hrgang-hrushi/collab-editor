@@ -7,7 +7,7 @@
   --cc-color: currentColor;
   --cc-surface: #27272a;
   --cc-progress: currentColor;
-  --cc-progress-pct: 18%;
+  --cc-progress-pct: 26%;
   --cc-done: #22c55e;
   --cc-error: #ef4444;
   --cc-wash-pct: 12%;
@@ -51,27 +51,30 @@
   transform-origin: left center;
   clip-path: inset(0 0 0 0);
   pointer-events: none;
+  will-change: transform;
 }
 
 .call-chip[data-status='running'] .call-chip__fill {
-  transition: transform var(--cc-expected) linear;
+  transition: none;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.5);
 }
 
 .call-chip[data-status='done'] .call-chip__fill {
+  border-right: none;
   background: color-mix(in srgb, var(--cc-done) var(--cc-wash-pct), transparent);
   clip-path: inset(100% 0 0 0);
   transition:
-    transform 200ms var(--cc-ease-out),
-    background-color 120ms ease,
-    clip-path 400ms var(--cc-ease-out) 200ms;
+    transform 220ms var(--cc-ease-out),
+    background-color 140ms ease,
+    clip-path 450ms var(--cc-ease-out) 220ms;
 }
 
 .call-chip[data-status='error'] .call-chip__fill {
+  border-right: none;
   background: color-mix(in srgb, var(--cc-error) var(--cc-wash-pct), transparent);
   transition: background-color 200ms ease;
 }
 
-.call-chip:not([data-mounted]) .call-chip__fill,
 .call-chip:not([data-mounted]) .call-chip__glyph {
   transition: none !important;
 }

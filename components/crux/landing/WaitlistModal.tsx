@@ -193,7 +193,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                   color="currentColor"
                   surfaceColor="#27272a"
                   progressColor="currentColor"
-                  progressOpacity={0.18}
+                  progressOpacity={0.26}
                   doneColor="#22c55e"
                   errorColor="#ef4444"
                   washOpacity={0.12}
@@ -242,7 +242,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 color="currentColor"
                 surfaceColor="#27272a"
                 progressColor="currentColor"
-                progressOpacity={0.18}
+                progressOpacity={0.26}
                 doneColor="#22c55e"
                 errorColor="#ef4444"
                 washOpacity={0.12}

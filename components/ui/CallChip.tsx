@@ -70,7 +70,7 @@ export default function CallChip({
   color = "currentColor",
   surfaceColor = "#27272a",
   progressColor = "currentColor",
-  progressOpacity = 0.18,
+  progressOpacity = 0.26,
   doneColor = "#22c55e",
   errorColor = "#ef4444",
   washOpacity = 0.12,
@@ -126,10 +126,13 @@ export default function CallChip({
   const apply = (s: CallChipStatus, animate: boolean) => {
     if (s === "running") {
       shakeAnim.current?.cancel();
-      setFraction(0, true);
-      if (animate) setFraction(HOLD_AT, false);
     } else if (s === "done") {
-      setFraction(1, !animate);
+      const fill = fillRef.current;
+      if (fill) {
+        fill.style.transition = "";
+        fill.style.transform = "scaleX(1)";
+      }
+      fraction.current = 1;
     } else if (s === "error") {
       const fill = fillRef.current;
       const live = fill && typeof window !== "undefined" ? new DOMMatrix(getComputedStyle(fill).transform).a : fraction.current;
@@ -177,16 +180,19 @@ export default function CallChip({
     }
     const startedAt = performance.now();
     write(0);
-    if (reduceMotion()) {
-      const id = setInterval(() => write(performance.now() - startedAt), 100);
-      return () => {
-        clearInterval(id);
-        write(performance.now() - startedAt);
-      };
+    if (fillRef.current) {
+      fillRef.current.style.transition = "none";
+      fillRef.current.style.transform = "scaleX(0)";
     }
     let raf = 0;
     const tick = () => {
-      write(performance.now() - startedAt);
+      const elapsed = performance.now() - startedAt;
+      write(elapsed);
+      if (fillRef.current) {
+        const currentP = Math.min(HOLD_AT, (elapsed / expectedMs) * HOLD_AT);
+        fraction.current = currentP;
+        fillRef.current.style.transform = `scaleX(${currentP})`;
+      }
       raf = requestAnimationFrame(tick);
     };
     tick();
@@ -194,7 +200,7 @@ export default function CallChip({
       cancelAnimationFrame(raf);
       write(performance.now() - startedAt);
     };
-  }, [status]);
+  }, [status, expectedMs]);
 
   useEffect(() => {
     const ms = showTimer && clock.current.ms ? Math.round(clock.current.ms) : 0;
