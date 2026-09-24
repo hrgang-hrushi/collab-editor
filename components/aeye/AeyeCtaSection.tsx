@@ -64,7 +64,7 @@ export default function AeyeCtaSection() {
   );
 
   return (
-    <section className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
+    <section id="dispatch" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
       {/* Background Dot Texture */}
       <div className="absolute inset-0 aeye-dot-bg invert opacity-15 pointer-events-none" />
 

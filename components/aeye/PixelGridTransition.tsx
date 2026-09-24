@@ -59,7 +59,7 @@ export default function PixelGridTransition({
     return () => clearTimeout(hideTimer);
   }, [squareDuration, maxDelay]);
 
-  if (!isVisible) return null;
+  if (!mounted || !isVisible) return null;
 
   return (
     <div

@@ -498,6 +498,8 @@ export default function AeyeFeatureSection() {
                               <motion.circle
                                 r="2.5"
                                 fill="#0055FF"
+                                cx={0}
+                                initial={{ cx: 0 }}
                                 animate={{ cx: [0, 80] }}
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
                                 cy="40"
@@ -527,6 +529,8 @@ export default function AeyeFeatureSection() {
                               <motion.circle
                                 r="2.5"
                                 fill="#0055FF"
+                                cx={80}
+                                initial={{ cx: 80 }}
                                 animate={{ cx: [80, 0] }}
                                 transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: 0.75 }}
                                 cy="40"
