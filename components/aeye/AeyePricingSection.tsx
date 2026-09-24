@@ -247,7 +247,7 @@ export default function AeyePricingSection() {
                           progressOpacity={0.26}
                           doneColor="#22c55e"
                           errorColor="#ef4444"
-                          washOpacity={0.12}
+                          washOpacity={0.18}
                           shake={9}
                           showTimer
                         />
@@ -305,7 +305,7 @@ export default function AeyePricingSection() {
                           progressOpacity={0.26}
                           doneColor="#22c55e"
                           errorColor="#ef4444"
-                          washOpacity={0.12}
+                          washOpacity={0.18}
                           shake={9}
                           showTimer={false}
                         />

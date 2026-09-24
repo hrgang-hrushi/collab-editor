@@ -10,7 +10,7 @@
   --cc-progress-pct: 26%;
   --cc-done: #22c55e;
   --cc-error: #ef4444;
-  --cc-wash-pct: 12%;
+  --cc-wash-pct: 18%;
   --cc-expected: 2000ms;
   --cc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
@@ -59,20 +59,25 @@
   border-right: 1.5px solid rgba(255, 255, 255, 0.5);
 }
 
+.call-chip[data-status='done'] {
+  border-color: color-mix(in srgb, var(--cc-done) 35%, rgba(255, 255, 255, 0.14));
+  transition: border-color 600ms var(--cc-ease-out);
+}
+
 .call-chip[data-status='done'] .call-chip__fill {
   border-right: none;
   background: color-mix(in srgb, var(--cc-done) var(--cc-wash-pct), transparent);
   clip-path: inset(100% 0 0 0);
   transition:
-    transform 220ms var(--cc-ease-out),
-    background-color 140ms ease,
-    clip-path 450ms var(--cc-ease-out) 220ms;
+    transform 550ms var(--cc-ease-out),
+    background-color 450ms cubic-bezier(0.16, 1, 0.3, 1),
+    clip-path 1200ms cubic-bezier(0.16, 1, 0.3, 1) 900ms;
 }
 
 .call-chip[data-status='error'] .call-chip__fill {
   border-right: none;
   background: color-mix(in srgb, var(--cc-error) var(--cc-wash-pct), transparent);
-  transition: background-color 200ms ease;
+  transition: background-color 300ms ease;
 }
 
 .call-chip:not([data-mounted]) .call-chip__glyph {
@@ -102,17 +107,17 @@
   transform: none;
   filter: blur(0);
   transition:
-    opacity 240ms var(--cc-ease-out),
-    transform 240ms var(--cc-ease-out),
-    filter 240ms var(--cc-ease-out);
+    opacity 450ms var(--cc-ease-out),
+    transform 450ms var(--cc-ease-out),
+    filter 450ms var(--cc-ease-out);
 }
 
 .call-chip__glyph[data-state='out'] {
   transform: translateY(-70%);
   transition:
-    opacity 160ms var(--cc-ease-out),
-    transform 160ms var(--cc-ease-out),
-    filter 160ms var(--cc-ease-out);
+    opacity 240ms var(--cc-ease-out),
+    transform 240ms var(--cc-ease-out),
+    filter 240ms var(--cc-ease-out);
 }
 
 .call-chip[data-status='done'] .call-chip__glyph[data-state='in'] {
