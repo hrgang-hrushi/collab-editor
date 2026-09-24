@@ -7,10 +7,7 @@ const CruxLandingPage = dynamic(() => import("@/components/crux/landing/CruxLand
   loading: () => <div className="w-full min-h-screen bg-[#000000]" />,
 });
 
-const AeyeLandingPage = dynamic(() => import("@/components/aeye/AeyeLandingPage"), {
-  ssr: false,
-  loading: () => <div className="w-full min-h-screen bg-[#000000]" />,
-});
+import AeyeLandingPage from "@/components/aeye/AeyeLandingPage";
 
 const CruxEditorView = dynamic(() => import("@/components/crux/CruxEditorView"), {
   ssr: false,
