@@ -10,6 +10,8 @@ import {
   User,
   Crosshair,
   GitFork,
+  GitBranch,
+  GitMerge,
   Smile,
   BarChart3,
   Bell,
@@ -17,6 +19,14 @@ import {
   CheckCircle2,
   Lightbulb,
   Flag,
+  Code2,
+  Terminal,
+  Cpu,
+  Zap,
+  Network,
+  Activity,
+  ShieldCheck,
+  Bot,
 } from "lucide-react";
 
 // 8-Point Asterisk Core Icon matching Frame 001, 008, 026
@@ -180,7 +190,7 @@ export default function AeyeFeatureSection() {
       badges: ["DATA", "SIGNALS"],
       title: "Context Awareness",
       systemTitle: "Bare-Metal Silicon Runtime",
-      desc: "Understand inputs, context, and user intent — turning raw data into meaningful signals.",
+      desc: "Ingests raw filesystem buffers, keystrokes, and AST tokens — streaming deterministic signals directly into the native host kernel.",
       systemDesc: "Rust native kernel executing directly on host hardware with WebGPU acceleration and zero Chromium/V8 overhead.",
     },
     {
@@ -188,7 +198,7 @@ export default function AeyeFeatureSection() {
       badges: ["ACTIONABLE", "LOGIC"],
       title: "Intelligent Processing",
       systemTitle: "Decentralized AST-CRDT Sync",
-      desc: "Apply AI to analyze, reason, and adapt dynamically across different workflows and use cases.",
+      desc: "Synthesizes real-time code transformations, concurrent edits, and agentic refactors into conflict-free structural AST operations.",
       systemDesc: "Conflict-free real-time syntax tree replication over encrypted P2P WebRTC channels with sub-10ms peer convergence.",
     },
     {
@@ -196,7 +206,7 @@ export default function AeyeFeatureSection() {
       badges: ["RESULTS", "STRUCTURE"],
       title: "Actionable Output",
       systemTitle: "Autonomous @CruxAI Kernel",
-      desc: "Generate structured, reliable outputs that can be used, refined, and integrated into real workflows.",
+      desc: "Compiles verified native machine binaries, generates atomic git diffs, and streams hardware-accelerated buffers ready for deployment.",
       systemDesc: "Terminal agent executing multi-file refactors, background compiler passes, and atomic git diffs inside an isolated OS namespace.",
     },
   ];
@@ -378,7 +388,7 @@ export default function AeyeFeatureSection() {
                 <div className="relative z-10 w-full max-w-[540px]">
                   <AnimatePresence mode="wait">
                     {activeTab === 0 && (
-                      /* TAB 1: Context Awareness (RAW INPUTS -> BRACKETS -> CORE -> DOUBLE CABLE -> SIGNALS) */
+                      /* TAB 1: Context Awareness (WORKSPACE INPUTS -> BRACKETS -> CRUX KERNEL -> DOUBLE CABLE -> TELEMETRY) */
                       <motion.div
                         key="tab-0"
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -387,29 +397,29 @@ export default function AeyeFeatureSection() {
                         transition={{ duration: 0.25 }}
                         className="w-full flex flex-col items-center gap-6 relative"
                       >
-                        {/* Upper Row: RAW INPUTS, BRACKET TRACES, CENTER ASTERISK CORE, CONTEXTS */}
+                        {/* Upper Row: WORKSPACE INPUTS, BRACKET TRACES, CENTER CRUX CORE, EXECUTION CONTEXT */}
                         <div className="w-full flex items-center justify-between gap-2 sm:gap-4 relative">
-                          {/* Left: RAW INPUTS Box */}
+                          {/* Left: WORKSPACE INPUTS Box */}
                           <div className="w-36 sm:w-44 p-3 bg-[#0d0d0f] border border-[#222222] rounded-none z-10 shadow-md">
-                            <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2">
-                              RAW INPUTS
+                            <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2 flex items-center justify-between">
+                              <span>WORKSPACE INPUTS</span>
                             </div>
                             <ul className="space-y-2 text-xs font-sans text-[#d4d4d8] list-none p-0 m-0">
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <FileText className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Text</span>
+                                <Code2 className="w-3.5 h-3.5 text-[#0055FF] shrink-0" />
+                                <span className="text-white text-[11px] truncate">Source Trees (.rs, .ts)</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <AlignLeft className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Logs</span>
+                                <Activity className="w-3.5 h-3.5 text-[#888888] shrink-0" />
+                                <span className="text-white text-[11px] truncate">Keystroke Stream (&lt;15ms)</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <Command className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">User Actions</span>
+                                <GitBranch className="w-3.5 h-3.5 text-[#888888] shrink-0" />
+                                <span className="text-white text-[11px] truncate">Git HEAD &amp; Local Diffs</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
                                 <Database className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Metadata</span>
+                                <span className="text-white text-[11px] truncate">AST Inodes &amp; Buffers</span>
                               </li>
                               <li className="pt-0.5 text-[#555555] font-mono text-[10px] tracking-widest pl-1">
                                 ...
@@ -417,7 +427,7 @@ export default function AeyeFeatureSection() {
                             </ul>
                           </div>
 
-                          {/* Left Circuit Bracket Trace (RAW INPUTS to Center) */}
+                          {/* Left Circuit Bracket Trace (WORKSPACE INPUTS to Center) */}
                           <div className="flex-1 h-24 relative flex items-center justify-center">
                             <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 80 80">
                               <line x1="0" y1="40" x2="35" y2="40" stroke="#333333" strokeWidth="1" />
@@ -433,7 +443,7 @@ export default function AeyeFeatureSection() {
                             <AsteriskCoreIcon className="w-6 h-6 text-white" />
                           </div>
 
-                          {/* Right Circuit Bracket Trace (Center to CONTEXTS) */}
+                          {/* Right Circuit Bracket Trace (Center to EXECUTION CONTEXT) */}
                           <div className="flex-1 h-24 relative flex items-center justify-center">
                             <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 80 80">
                               <line x1="0" y1="40" x2="45" y2="40" stroke="#333333" strokeWidth="1" />
@@ -444,27 +454,27 @@ export default function AeyeFeatureSection() {
                             </svg>
                           </div>
 
-                          {/* Right: CONTEXTS Box */}
+                          {/* Right: EXECUTION CONTEXT Box */}
                           <div className="w-36 sm:w-44 p-3 bg-[#0d0d0f] border border-[#222222] rounded-none z-10 shadow-md">
-                            <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2">
-                              CONTEXTS
+                            <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2 flex items-center justify-between">
+                              <span>EXECUTION CONTEXT</span>
                             </div>
                             <ul className="space-y-2 text-xs font-sans text-[#d4d4d8] list-none p-0 m-0">
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <User className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Entities</span>
+                                <Cpu className="w-3.5 h-3.5 text-[#0055FF] shrink-0" />
+                                <span className="text-white text-[11px] truncate">Rust Native Kernel</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <Crosshair className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Intent</span>
+                                <Zap className="w-3.5 h-3.5 text-[#888888] shrink-0" />
+                                <span className="text-white text-[11px] truncate">WebGPU (120 FPS)</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
                                 <GitFork className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Relationships</span>
+                                <span className="text-white text-[11px] truncate">AST-CRDT Engine</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
-                                <Smile className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px]">Sentiment</span>
+                                <Terminal className="w-3.5 h-3.5 text-[#888888] shrink-0" />
+                                <span className="text-white text-[11px] truncate">@CruxAI Sandbox</span>
                               </li>
                               <li className="pt-0.5 text-[#555555] font-mono text-[10px] tracking-widest pl-1">
                                 ...
@@ -473,7 +483,7 @@ export default function AeyeFeatureSection() {
                           </div>
                         </div>
 
-                        {/* Double Blue Vertical Cable from Center down to SIGNALS */}
+                        {/* Double Blue Vertical Cable from Center down to TELEMETRY */}
                         <div className="w-3 h-12 relative flex justify-between">
                           <div className="w-[1px] h-full bg-[#0055FF]" />
                           <div className="w-[1px] h-full bg-[#0055FF]" />
@@ -485,23 +495,26 @@ export default function AeyeFeatureSection() {
                           />
                         </div>
 
-                        {/* Bottom: SIGNALS Box matching Frame 005 identically */}
-                        <div className="border border-[#0055FF] bg-[#0c0c0e] p-4 w-full max-w-sm rounded-none text-center relative shadow-[0_0_15px_rgba(0,85,255,0.15)]">
+                        {/* Bottom: KERNEL TELEMETRY Box matching Screenshot 1 identically */}
+                        <div className="border border-[#0055FF] bg-[#0c0c0e] p-3.5 sm:p-4 w-full max-w-sm rounded-none text-center relative shadow-[0_0_15px_rgba(0,85,255,0.15)]">
                           <div className="text-[10px] font-mono uppercase text-[#71717a] tracking-[0.2em] font-semibold mb-3">
-                            SIGNALS
+                            KERNEL TELEMETRY
                           </div>
-                          <div className="flex items-center justify-center gap-3 sm:gap-4">
+                          <div className="flex items-center justify-center gap-2.5 sm:gap-3.5">
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
-                            <div className="w-11 h-11 bg-[#111111] border border-[#222222] flex items-center justify-center text-[#0055FF]">
-                              <BarChart3 className="w-5 h-5 stroke-[2.2]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
+                              <Activity className="w-4 h-4 stroke-[2.2]" />
+                              <span className="text-[8px] font-mono text-[#888888]">0.4ms I/O</span>
                             </div>
-                            <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0" />
-                            <div className="w-11 h-11 bg-[#111111] border border-[#222222] flex items-center justify-center text-[#0055FF]">
-                              <DiamondAlert className="w-5 h-5" />
+                            <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#0055FF]/60 flex flex-col items-center justify-center gap-0.5 text-[#0055FF] shadow-[0_0_10px_rgba(0,85,255,0.2)]">
+                              <Zap className="w-4 h-4 stroke-[2.2]" />
+                              <span className="text-[8px] font-mono text-[#0055FF] font-bold">120 FPS</span>
                             </div>
-                            <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0" />
-                            <div className="w-11 h-11 bg-[#111111] border border-[#222222] flex items-center justify-center text-[#0055FF]">
-                              <Bell className="w-5 h-5 stroke-[2.2]" />
+                            <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
+                              <Network className="w-4 h-4 stroke-[2.2]" />
+                              <span className="text-[8px] font-mono text-[#888888]">P2P DTLS</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
                           </div>
@@ -510,7 +523,7 @@ export default function AeyeFeatureSection() {
                     )}
 
                     {activeTab === 1 && (
-                      /* TAB 2: Intelligent Processing (Workflow Analyzer & Active Task Dispatch) */
+                      /* TAB 2: Intelligent Processing (Autonomous Compiler Sandbox & Real-Time CRDT Mesh) */
                       <motion.div
                         key="tab-1"
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -519,63 +532,87 @@ export default function AeyeFeatureSection() {
                         transition={{ duration: 0.25 }}
                         className="w-full relative flex items-center justify-center py-4"
                       >
-                        {/* Main Background Workflow Card matching Frame 008 */}
-                        <div className="w-full max-w-[340px] bg-[#0e0e10] border border-[#222222] p-6 rounded-none space-y-4 shadow-xl">
-                          {/* 3 Skeleton horizontal bars */}
-                          <div className="space-y-2">
-                            <div className="w-3/5 h-3.5 bg-[#262626] rounded-none" />
-                            <div className="w-2/5 h-3.5 bg-[#1f1f1f] rounded-none" />
-                            <div className="w-4/5 h-3.5 bg-[#262626] rounded-none" />
+                        {/* Main Background Sandbox Card matching Screenshot 2 */}
+                        <div className="w-full max-w-[340px] bg-[#0e0e10] border border-[#222222] p-5 sm:p-6 rounded-none space-y-3.5 shadow-xl">
+                          {/* Terminal command & status lines */}
+                          <div className="space-y-1.5 pb-2 border-b border-[#222222]/80">
+                            <div className="text-[10px] font-mono text-[#0055FF] font-semibold flex items-center gap-1.5">
+                              <span>[@CruxAI]</span>
+                              <span className="text-[#666666]">cargo check --target=arm64</span>
+                            </div>
+                            <div className="text-[11px] font-mono text-[#cccccc] truncate">
+                              Compiling crux-kernel v0.4.2 [AST-CRDT]
+                            </div>
                           </div>
 
-                          {/* Sunflower Spinner: Analyzing your workflow... */}
-                          <div className="pt-6 flex items-center gap-3 text-xs font-sans text-[#888888]">
-                            <SunflowerLoader className="w-4 h-4 text-white" />
-                            <span>Analyzing your workflow...</span>
+                          {/* Skeleton AST token bars */}
+                          <div className="space-y-2 pt-1">
+                            <div className="w-3/5 h-2.5 bg-[#262626] rounded-none" />
+                            <div className="w-2/5 h-2.5 bg-[#1f1f1f] rounded-none" />
+                            <div className="w-4/5 h-2.5 bg-[#262626] rounded-none" />
                           </div>
 
-                          {/* Bottom row: Chevron + #project01 */}
-                          <div className="pt-6 flex items-center gap-1.5 text-xs font-mono text-[#71717a]">
-                            <ChevronDown className="w-3.5 h-3.5 text-[#71717a]" />
-                            <span>#project01</span>
+                          {/* Sunflower Spinner: Resolving distributed AST state... */}
+                          <div className="pt-4 flex items-center gap-2.5 text-xs font-mono text-white">
+                            <SunflowerLoader className="w-4 h-4 text-[#0055FF]" />
+                            <span className="text-[11px] text-[#e4e4e7]">Resolving distributed AST state...</span>
+                          </div>
+
+                          {/* Bottom row: Git Head & Symbols count */}
+                          <div className="pt-4 flex items-center justify-between text-[10px] font-mono text-[#71717a] border-t border-[#222222]/60">
+                            <div className="flex items-center gap-1.5">
+                              <GitBranch className="w-3 h-3 text-[#71717a]" />
+                              <span>main · 14,280 symbols</span>
+                            </div>
+                            <span className="text-[#0055FF] font-bold">0 CONFLICTS</span>
                           </div>
                         </div>
 
-                        {/* Floating Foreground Task Card matching Frame 010 */}
+                        {/* Floating Foreground Multiplayer Task Card matching Screenshot 2 */}
                         <motion.div
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
                           transition={{ delay: 0.15 }}
-                          className="absolute -bottom-4 right-2 sm:right-6 w-72 sm:w-80 bg-[#0a0a0a] border border-[#222222] p-4.5 rounded-none shadow-2xl z-20"
+                          className="absolute -bottom-4 right-2 sm:right-6 w-72 sm:w-80 bg-[#0a0a0a] border border-[#222222] p-4 rounded-none shadow-2xl z-20"
                         >
-                          {/* Header: Check icon + To-do, and [ 5 ] count badge */}
-                          <div className="flex items-center justify-between text-xs pb-3 border-b border-[#222222]">
+                          {/* Header: Check icon + P2P Mesh Converged, and [ 3 PEERS ] badge */}
+                          <div className="flex items-center justify-between text-xs pb-2.5 border-b border-[#222222]">
                             <div className="flex items-center gap-2 text-white font-medium font-sans">
-                              <CheckCircle2 className="w-4 h-4 text-white" />
-                              <span>To-do</span>
+                              <CheckCircle2 className="w-4 h-4 text-[#0055FF]" />
+                              <span className="font-semibold">P2P Mesh Converged</span>
                             </div>
-                            <div className="px-2 py-0.5 bg-[#18181b] border border-[#27272a] text-[11px] font-mono text-white">
-                              5
+                            <div className="px-2 py-0.5 bg-[#18181b] border border-[#27272a] text-[10px] font-mono text-[#0055FF] font-bold">
+                              3 PEERS
                             </div>
                           </div>
 
-                          {/* Assignees chips: Anna and John */}
-                          <div className="mt-3.5 flex items-center gap-2.5">
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#141416] border border-[#27272a] text-xs text-[#d4d4d8] font-sans">
-                              <User className="w-3.5 h-3.5 text-[#888888]" />
-                              <span>Anna</span>
+                          {/* Peer chips: Alex, Sarah, and @CruxAI */}
+                          <div className="mt-3 flex items-center gap-2 overflow-x-auto">
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#d4d4d8] font-mono shrink-0">
+                              <User className="w-3 h-3 text-[#888888]" />
+                              <span>Alex (Host)</span>
                             </div>
-                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#141416] border border-[#27272a] text-xs text-[#a1a1aa] font-sans">
-                              <User className="w-3.5 h-3.5 text-[#888888]" />
-                              <span>John</span>
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#a1a1aa] font-mono shrink-0">
+                              <User className="w-3 h-3 text-[#888888]" />
+                              <span>Sarah</span>
                             </div>
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40 text-[11px] text-[#0055FF] font-mono shrink-0 font-bold">
+                              <Bot className="w-3 h-3 text-[#0055FF]" />
+                              <span>@CruxAI</span>
+                            </div>
+                          </div>
+
+                          {/* Sub-10ms CRDT delta sync metric */}
+                          <div className="mt-2.5 flex items-center justify-between text-[10px] font-mono text-[#71717a]">
+                            <span>CRDT delta broadcast</span>
+                            <span className="text-[#0055FF] font-semibold">4.2ms RTT</span>
                           </div>
 
                           {/* Electric Blue Progress Bar */}
-                          <div className="mt-4 w-full h-1 bg-[#222222] overflow-hidden rounded-none">
+                          <div className="mt-2 w-full h-1 bg-[#222222] overflow-hidden rounded-none">
                             <motion.div
-                              animate={{ width: ["20%", "65%", "100%", "20%"] }}
-                              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                              animate={{ width: ["25%", "70%", "100%", "25%"] }}
+                              transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
                               className="h-full bg-[#0055FF]"
                             />
                           </div>
@@ -584,7 +621,7 @@ export default function AeyeFeatureSection() {
                     )}
 
                     {activeTab === 2 && (
-                      /* TAB 3: Actionable Output (Multi-Format Pipeline Stack matching Frame 026) */
+                      /* TAB 3: Actionable Output (Engineered Artifacts & Native Binaries matching Screenshot 3) */
                       <motion.div
                         key="tab-2"
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -601,61 +638,61 @@ export default function AeyeFeatureSection() {
                           <AsteriskCoreIcon className="w-6 h-6 text-white" />
                         </div>
 
-                        {/* Card 1: Summary [PDF] */}
+                        {/* Card 1: Native Host Binary [ARM64 / x86_64] */}
                         <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#a1a1aa]">
-                              <AlignLeft className="w-3.5 h-3.5" />
+                              <Cpu className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-xs font-medium text-[#e4e4e7] font-sans">Summary</span>
+                            <span className="text-xs font-medium text-[#e4e4e7] font-sans">Native Host Binary</span>
                           </div>
                           <div className="text-[10px] font-mono text-[#71717a] font-bold px-1.5 py-0.5 bg-[#141416] border border-[#222222]">
-                            PDF
+                            ARM64
                           </div>
                         </div>
 
-                        {/* Card 2: Key Findings [DOCS] (ACTIVE & HIGHLIGHTED in #0055FF with lateral docking dots) */}
+                        {/* Card 2: Atomic AST Git Diff [CRDT PATCH] (ACTIVE & HIGHLIGHTED in #0055FF with lateral docking dots) */}
                         <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#0055FF] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10 shadow-[0_0_15px_rgba(0,85,255,0.15)]">
                           {/* Left Exterior Blue Docking Node */}
-                          <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
+                          <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
                           
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 bg-[#0055FF]/10 border border-[#0055FF]/40 flex items-center justify-center text-[#0055FF]">
-                              <Lightbulb className="w-3.5 h-3.5 stroke-[2.2]" />
+                              <GitMerge className="w-3.5 h-3.5 stroke-[2.2]" />
                             </div>
-                            <span className="text-xs font-semibold text-[#0055FF] font-sans">Key Findings</span>
+                            <span className="text-xs font-semibold text-[#0055FF] font-sans">Atomic AST Git Diff</span>
                           </div>
                           <div className="text-[10px] font-mono text-[#0055FF] font-bold px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40">
-                            DOCS
+                            CRDT PATCH
                           </div>
 
                           {/* Right Exterior Blue Docking Node */}
-                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
+                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
                         </div>
 
-                        {/* Card 3: Metrics [CSV] */}
+                        {/* Card 3: WebGPU Render Pipeline [120 FPS] */}
                         <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#71717a]">
-                              <BarChart3 className="w-3.5 h-3.5" />
+                              <Zap className="w-3.5 h-3.5 text-[#0055FF]" />
                             </div>
-                            <span className="text-xs font-medium text-[#71717a] font-sans">Metrics</span>
+                            <span className="text-xs font-medium text-[#a1a1aa] font-sans">WebGPU Render Pipeline</span>
                           </div>
                           <div className="text-[10px] font-mono text-[#52525b] font-bold px-1.5 py-0.5 bg-[#141416] border border-[#222222]">
-                            CSV
+                            120 FPS
                           </div>
                         </div>
 
-                        {/* Card 4: Recommendations [JSON] (Faded) */}
+                        {/* Card 4: Encrypted P2P Session Token [SECP256K1] (Faded) */}
                         <div className="w-64 sm:w-72 bg-[#0a0a0c] border border-[#1f1f23] px-3.5 py-2 rounded-none flex items-center justify-between opacity-50 relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-6 h-6 bg-[#111113] border border-[#1f1f23] flex items-center justify-center text-[#444444]">
-                              <Flag className="w-3 h-3" />
+                              <ShieldCheck className="w-3 h-3" />
                             </div>
-                            <span className="text-[11px] font-medium text-[#52525b] font-sans">Recommendations</span>
+                            <span className="text-[11px] font-medium text-[#52525b] font-sans">Encrypted P2P Session</span>
                           </div>
                           <div className="text-[9px] font-mono text-[#3f3f46] font-bold px-1 py-0.5 bg-[#111113] border border-[#1f1f23]">
-                            JSON
+                            SECP256K1
                           </div>
                         </div>
                       </motion.div>
@@ -688,10 +725,10 @@ export default function AeyeFeatureSection() {
           </p>
         </div>
 
-        {/* 2-row Logoipsum Marquee */}
+        {/* 2-row Toolchain Marquee */}
         <div className="mt-8 space-y-2 overflow-hidden relative">
           <div className="flex gap-2 animate-[marquee_20s_linear_infinite]">
-            {[1, 2, 3, 4, 1, 2].map((i, idx) => (
+            {["RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC", "RUST", "GIT"].map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
@@ -699,14 +736,14 @@ export default function AeyeFeatureSection() {
                 <div className="w-3.5 h-3.5 bg-white/20 flex items-center justify-center">
                   <div className="w-2 h-2 bg-white transform rotate-45" />
                 </div>
-                <span className="text-[11px] font-bold tracking-wider uppercase font-sans">
-                  Logoipsum
+                <span className="text-[11px] font-bold tracking-wider uppercase font-mono">
+                  {item}
                 </span>
               </div>
             ))}
           </div>
           <div className="flex gap-2 animate-[marquee_25s_linear_infinite_reverse]">
-            {[3, 4, 1, 2, 3, 4].map((i, idx) => (
+            {["CARGO", "DOCKER", "NEOVIM", "ZSH", "TYPESCRIPT", "PYTHON", "CARGO", "DOCKER"].map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
@@ -714,8 +751,8 @@ export default function AeyeFeatureSection() {
                 <div className="w-3.5 h-3.5 border border-white/40 flex items-center justify-center">
                   <div className="w-1.5 h-1.5 bg-[#0055FF]" />
                 </div>
-                <span className="text-[11px] font-bold tracking-wider uppercase font-sans">
-                  LOGOIPSUM
+                <span className="text-[11px] font-bold tracking-wider uppercase font-mono">
+                  {item}
                 </span>
               </div>
             ))}
