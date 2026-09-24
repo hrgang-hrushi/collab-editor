@@ -910,10 +910,21 @@ export default function AeyeFeatureSection() {
           </p>
         </div>
 
-        {/* 2-row Toolchain Marquee */}
-        <div className="mt-8 space-y-2 overflow-hidden relative">
-          <div className="flex gap-2 animate-[marquee_20s_linear_infinite]">
-            {["RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC", "RUST", "GIT"].map((item, idx) => (
+        {/* 2-row Toolchain Infinite Scrolling Marquee */}
+        <div
+          className="mt-8 space-y-2.5 overflow-hidden relative select-none"
+          style={{
+            maskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+            WebkitMaskImage: "linear-gradient(to right, transparent, black 12%, black 88%, transparent)",
+          }}
+        >
+          {/* Row 1: Leftward continuous scroll */}
+          <motion.div
+            animate={{ x: ["0%", "-50%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 16 }}
+            className="flex gap-2 w-max"
+          >
+            {["RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC", "RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC"].map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
@@ -926,14 +937,20 @@ export default function AeyeFeatureSection() {
                 </span>
               </div>
             ))}
-          </div>
-          <div className="flex gap-2 animate-[marquee_25s_linear_infinite_reverse]">
-            {["CARGO", "DOCKER", "NEOVIM", "ZSH", "TYPESCRIPT", "PYTHON", "CARGO", "DOCKER"].map((item, idx) => (
+          </motion.div>
+
+          {/* Row 2: Rightward continuous scroll */}
+          <motion.div
+            animate={{ x: ["-50%", "0%"] }}
+            transition={{ repeat: Infinity, ease: "linear", duration: 20 }}
+            className="flex gap-2 w-max"
+          >
+            {["CARGO", "DOCKER", "NEOVIM", "RUST", "GIT", "ZSH", "CARGO", "DOCKER", "NEOVIM", "RUST", "GIT", "ZSH"].map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
               >
-                <div className="w-3.5 h-3.5 border border-white/40 flex items-center justify-center">
+                <div className="w-3.5 h-3.5 border border-[#0055FF]/40 bg-[#0055FF]/10 flex items-center justify-center">
                   <div className="w-1.5 h-1.5 bg-[#0055FF]" />
                 </div>
                 <span className="text-[11px] font-bold tracking-wider uppercase font-mono">
@@ -941,7 +958,7 @@ export default function AeyeFeatureSection() {
                 </span>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </motion.div>
 
