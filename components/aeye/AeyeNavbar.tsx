@@ -18,19 +18,20 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
     { label: "ARCHITECTURE", href: "#benefit", sectionId: "benefit" },
     { label: "TELEMETRY", href: "#performance", sectionId: "performance" },
     { label: "FEATURES", href: "#features", sectionId: "features" },
-    { label: "INSTALL", href: "#installation", sectionId: "installation" },
+    { label: "WHY CRUX", href: "#why-crux", sectionId: "why-crux" },
     { label: "WAITLIST", href: "#waitlist", sectionId: "waitlist" },
   ];
 
   // ScrollSpy with IntersectionObserver
   React.useEffect(() => {
-    const sectionIds = ["hero", "benefit", "performance", "features", "installation", "waitlist", "pricing"];
+    const sectionIds = ["hero", "benefit", "performance", "features", "why-crux", "installation", "waitlist", "pricing"];
     const labelMap: Record<string, string> = {
       hero: "CRUX",
       benefit: "ARCHITECTURE",
       performance: "TELEMETRY",
       features: "FEATURES",
-      installation: "INSTALL",
+      "why-crux": "WHY CRUX",
+      installation: "WHY CRUX",
       waitlist: "WAITLIST",
       pricing: "WAITLIST",
     };

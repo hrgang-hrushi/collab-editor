@@ -2,12 +2,12 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
-import { Copy, Check, Terminal } from "lucide-react";
+import { Copy, Check, Terminal, Zap, GitMerge, Bot, Activity, Cpu } from "lucide-react";
 import Link from "next/link";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<"js" | "cli" | "python">("js");
+  const [activeTab, setActiveTab] = useState<"silicon" | "crdt" | "agent">("silicon");
   const [copied, setCopied] = useState(false);
   const isManualClickRef = useRef(false);
   const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -36,68 +36,38 @@ export default function AeyeInstallationSection() {
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (isManualClickRef.current) return;
     if (latest < 0.35) {
-      setActiveTab((prev) => (prev !== "js" ? "js" : prev));
+      setActiveTab((prev) => (prev !== "silicon" ? "silicon" : prev));
     } else if (latest < 0.70) {
-      setActiveTab((prev) => (prev !== "cli" ? "cli" : prev));
+      setActiveTab((prev) => (prev !== "crdt" ? "crdt" : prev));
     } else {
-      setActiveTab((prev) => (prev !== "python" ? "python" : prev));
+      setActiveTab((prev) => (prev !== "agent" ? "agent" : prev));
     }
   });
 
   const tabs = [
     {
-      id: "js" as const,
+      id: "silicon" as const,
       serial: "// 001",
-      label: "JavaScript",
-      subtitle: "TYPESCRIPT / NODE RUNTIME",
-      desc: "Lightweight client for direct programmatic integration into application runtimes.",
-      rawCopy: `import { CruxClient } from "@crux/product";
-
-const client = new CruxClient({
-  apiKey: process.env.CRUX_API_KEY,
-});
-
-// Initialize AST pipeline
-const pipeline = await client.pipeline.create({
-  model: "crux-agent-v1",
-  strategy: "ast-crdt",
-});
-
-// Stream workspace intelligence
-const result = await pipeline.execute({
-  workspacePath: "./src",
-});
-console.log(result.telemetry);`,
+      label: "Native Silicon Runtime",
+      subtitle: "SUB-15ms INPUT-TO-PHOTON",
+      desc: "Direct Metal and WebGPU rasterization bypassing 200MB Chromium bloat. Keystrokes hit phosphor in 4.2ms vs 48.6ms in Electron.",
+      copyText: "Crux vs Electron Benchmarks:\n- Input-to-Photon: 4.2ms vs 48.6ms (11.5x faster)\n- Idle Memory: 38 MB vs 680 MB (17.8x leaner)\n- Scroll Rate: 120 FPS vs 18 FPS (6.6x smoother)",
     },
     {
-      id: "cli" as const,
+      id: "crdt" as const,
       serial: "// 002",
-      label: "CLI",
-      subtitle: "NATIVE BASH / ZSH TERMINAL",
-      desc: "Execute commands directly from your local terminal with instant hardware execution.",
-      rawCopy: `curl -fsSL https://codecrux.us/install.sh | bash
-crux init --model="crux-agent-v1" --strategy="ast-crdt"
-crux pipeline execute --path="./src" --telemetry=live`,
+      label: "Decentralized AST-CRDT",
+      subtitle: "STRUCTURAL SYNTAX CONVERGENCE",
+      desc: "Deterministic sub-10ms peer synchronization over encrypted P2P WebRTC channels with zero line collisions or syntax breakage.",
+      copyText: "AST-CRDT Replication Protocol:\n- Topology: P2P Encrypted WebRTC Mesh\n- Convergence: Sub-10ms Deterministic State\n- Conflict Resolution: Abstract Syntax Tree token transforms",
     },
     {
-      id: "python" as const,
+      id: "agent" as const,
       serial: "// 003",
-      label: "Python",
-      subtitle: "PYTHON 3.10+ SDK",
-      desc: "Native SDK for high-performance data processing pipelines and agent execution.",
-      rawCopy: `import crux
-
-client = crux.Client(api_key=os.environ["CRUX_API_KEY"])
-
-# Initialize AST pipeline
-pipeline = client.pipeline.create(
-    model="crux-agent-v1",
-    strategy="ast-crdt"
-)
-
-# Stream workspace intelligence
-result = pipeline.execute(workspace_path="./src")
-print(result.telemetry)`,
+      label: "Autonomous @CruxAI Agents",
+      subtitle: "ISOLATED POSIX OS NAMESPACE",
+      desc: "Background compiler passes, multi-file refactors, and atomic git diffs execute directly on host silicon with zero cloud latency.",
+      copyText: "@CruxAI Execution Specs:\n- Sandbox: Local POSIX OS Namespace\n- Cloud Latency: 0ms (Local Inference / Direct Hardware)\n- Verification: Real-time Cargo & Clang compiler checks",
     },
   ];
 
@@ -134,13 +104,16 @@ print(result.telemetry)`,
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(currentTab.rawCopy);
+    navigator.clipboard.writeText(currentTab.copyText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <section id="installation" className="relative w-full border-b border-[#222222] bg-[#000000]">
+    <section id="why-crux" className="relative w-full border-b border-[#222222] bg-[#000000]">
+      {/* Anchor for backwards compatibility */}
+      <div id="installation" className="absolute -top-20" />
+
       {/* Scroll-driven Sticky Container matching Feature & How-It-Works sections */}
       <div ref={containerRef} className="relative lg:h-[220vh]">
         <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-12 lg:py-0">
@@ -150,11 +123,11 @@ print(result.telemetry)`,
               <div className="flex items-center gap-2">
                 <span className="text-[#0055FF] font-bold">[N.05/11]</span>
                 <span className="text-[#888888]">— &gt;</span>
-                <span className="text-[#888888] uppercase">INSTALLATION</span>
+                <span className="text-[#888888] uppercase">WHY CRUX?</span>
               </div>
               <div className="flex items-center gap-3 pt-2 sm:pt-0">
                 <span className="text-[10px] text-[#71717a] uppercase tracking-wider hidden sm:inline font-mono">
-                  SDK &amp; DEVELOPER TOOLCHAIN
+                  THE BARE-METAL ADVANTAGE
                 </span>
                 <div className="flex items-center gap-1.5">
                   {tabs.map((tab, idx) => (
@@ -177,7 +150,7 @@ print(result.telemetry)`,
 
             {/* 2-Column Section Layout */}
             <div className="pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
-              {/* Left Column: Fixed-Height Code/Terminal Interface (Zero Height Jumping) */}
+              {/* Left Column: Fixed-Height Interactive Engineering Display (Zero Height Jumping) */}
               <div className="lg:col-span-7">
                 <div className="relative p-5 sm:p-6 border border-[#222222] bg-[#050507]">
                   {/* Corner Double-Dot Accents */}
@@ -207,7 +180,7 @@ print(result.telemetry)`,
                       <button
                         onClick={handleCopy}
                         className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
-                        aria-label="Copy code"
+                        aria-label="Copy data"
                       >
                         <span>{copied ? "Copied" : "Copy"}</span>
                         {copied ? (
@@ -221,131 +194,192 @@ print(result.telemetry)`,
                     {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
                     <div className="flex-1 p-5 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative">
                       <AnimatePresence mode="wait">
-                        {activeTab === "js" && (
+                        {/* TAB 1: Native Silicon Benchmarks */}
+                        {activeTab === "silicon" && (
                           <motion.div
-                            key="tab-js"
+                            key="tab-silicon"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                             className="h-full flex flex-col justify-between"
                           >
-                            <div className="space-y-1 text-left font-mono">
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">1</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">import</span> <span className="text-white">{"{ CruxClient }"}</span> <span className="text-[#0055FF] font-medium">from</span> <span className="text-white font-medium">"@crux/product"</span>;</span>
+                            <div className="space-y-4 text-left font-mono">
+                              {/* Metric 1 */}
+                              <div>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="text-white font-medium">Input-to-Photon Latency</span>
+                                  <span className="text-[#0055FF] font-bold">11.5x FASTER</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#0055FF] w-[14%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-white font-bold">4.2ms</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#333333] w-[95%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-[#71717a]">48.6ms</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">2</span>
-                                <span className="table-cell select-none">&nbsp;</span>
+
+                              {/* Metric 2 */}
+                              <div>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="text-white font-medium">Idle Memory Footprint</span>
+                                  <span className="text-[#0055FF] font-bold">17.8x LEANER</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#0055FF] w-[10%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-white font-bold">38 MB</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#333333] w-[90%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-[#71717a]">680 MB</span>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">3</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">const</span> <span className="text-white">client</span> = <span className="text-[#0055FF] font-medium">new</span> <span className="text-white">CruxClient</span>({"{"}</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">4</span>
-                                <span className="table-cell pl-4"><span className="text-[#888888]">apiKey:</span> <span className="text-white">process.env.CRUX_API_KEY</span>,</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">5</span>
-                                <span className="table-cell">{"}"});</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">6</span>
-                                <span className="table-cell select-none">&nbsp;</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">7</span>
-                                <span className="table-cell text-[#555555]">// Initialize AST pipeline</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">8</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">const</span> <span className="text-white">pipeline</span> = <span className="text-[#0055FF] font-medium">await</span> <span className="text-white">client.pipeline.create</span>({"{"}</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">9</span>
-                                <span className="table-cell pl-4"><span className="text-[#888888]">model:</span> <span className="text-white font-medium">"crux-agent-v1"</span>,</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">10</span>
-                                <span className="table-cell pl-4"><span className="text-[#888888]">strategy:</span> <span className="text-white font-medium">"ast-crdt"</span>,</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">11</span>
-                                <span className="table-cell">{"}"});</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">12</span>
-                                <span className="table-cell text-[#555555]">// Stream workspace intelligence</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">13</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">const</span> <span className="text-white">result</span> = <span className="text-[#0055FF] font-medium">await</span> <span className="text-white">pipeline.execute</span>({"{"} <span className="text-[#888888]">workspacePath:</span> <span className="text-white font-medium">"./src"</span> {"}"});</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">14</span>
-                                <span className="table-cell"><span className="text-white">console.log(result.telemetry);</span></span>
+
+                              {/* Metric 3 */}
+                              <div>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="text-white font-medium">250,000-Line Monorepo Scroll</span>
+                                  <span className="text-[#0055FF] font-bold">6.6x SMOOTHER</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#0055FF] w-[100%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-white font-bold">120 FPS</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#333333] w-[22%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-[#71717a]">18 FPS</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </motion.div>
                         )}
 
-                        {activeTab === "cli" && (
+                        {/* TAB 2: Decentralized AST-CRDT Sync */}
+                        {activeTab === "crdt" && (
                           <motion.div
-                            key="tab-cli"
+                            key="tab-crdt"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
                             className="h-full flex flex-col justify-between select-none"
                           >
-                            <div className="space-y-3 font-mono text-xs sm:text-[13px]">
-                              {/* Step 1 Command */}
-                              <div>
+                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
+                              <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between">
+                                <span className="text-white font-bold">P2P WEBRTC MESH</span>
+                                <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30">LIVE CHANNEL</span>
+                              </div>
+
+                              <div className="space-y-1.5 pt-1 text-[11px]">
                                 <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#0055FF] font-bold">host@darwin</span>
-                                  <span className="text-[#444444]">:</span>
-                                  <span className="text-white">~/workspace</span>
-                                  <span className="text-[#0055FF] font-bold">%</span>
-                                  <span className="text-white font-medium">curl -fsSL https://codecrux.us/install.sh | bash</span>
+                                  <span className="text-[#555555]">[09:54:12.018]</span>
+                                  <span className="text-white font-semibold">peer://tokyo-node</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">inserts ASTNode::FnDecl("handle_stream")</span>
                                 </div>
-                                <div className="mt-1 pl-4 text-[#888888] text-[11px]">
-                                  <span className="text-[#0055FF]">✓</span> Crux native kernel v0.4.2 installed [arm64-apple-darwin]
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.022]</span>
+                                  <span className="text-white font-semibold">peer://sf-node</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">edits ASTNode::Ident("stream_handler")</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.025]</span>
+                                  <span className="text-[#0055FF] font-bold">engine</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-white">Applied structural AST delta · 0 syntax collisions</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.028]</span>
+                                  <span className="text-[#0055FF] font-bold">crypto</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">SECP256K1 P2P channel handshake verified</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.030]</span>
+                                  <span className="text-white font-bold">status</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-white">Vector clock [142, 89, 204] · Converged in 0.8ms</span>
                                 </div>
                               </div>
 
-                              {/* Step 2 Command */}
+                              <div className="pt-2 p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
+                                <span className="text-[#888888]">LINE-COLLISION RISK: <strong className="text-white">0.00%</strong></span>
+                                <span className="text-[#888888]">SYNTAX TREE HEALTH: <strong className="text-[#0055FF]">100% VALID</strong></span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+
+                        {/* TAB 3: Autonomous @CruxAI Agents */}
+                        {activeTab === "agent" && (
+                          <motion.div
+                            key="tab-agent"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="h-full flex flex-col justify-between select-none"
+                          >
+                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
+                              {/* Command line */}
                               <div>
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#0055FF] font-bold">host@darwin</span>
                                   <span className="text-[#444444]">:</span>
                                   <span className="text-white">~/workspace</span>
                                   <span className="text-[#0055FF] font-bold">%</span>
-                                  <span className="text-white font-medium">crux init --model="crux-agent-v1" --strategy="ast-crdt"</span>
-                                </div>
-                                <div className="mt-1 pl-4 text-[#888888] text-[11px]">
-                                  <span className="text-[#0055FF]">✓</span> Initialized AST structural pipeline at <code className="text-white">./src</code> [14 files]
+                                  <span className="text-white font-medium">@CruxAI refactor ./src/parser.rs --optimize</span>
                                 </div>
                               </div>
 
-                              {/* Step 3 Command */}
-                              <div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#0055FF] font-bold">host@darwin</span>
-                                  <span className="text-[#444444]">:</span>
-                                  <span className="text-white">~/workspace</span>
-                                  <span className="text-[#0055FF] font-bold">%</span>
-                                  <span className="text-white font-medium">crux pipeline execute --path="./src" --telemetry=live</span>
+                              {/* Output steps */}
+                              <div className="space-y-1.5 text-[11px] pl-2 border-l border-[#222222]">
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Ingested 14 source files in 1.4ms (zero cloud proxy)
                                 </div>
-                                <div className="mt-1 pl-4 text-[#888888] text-[11px] flex items-center gap-2">
-                                  <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                                  <span>Streaming AST telemetry · Convergence latency: 0.18ms · 0 warnings</span>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Applied SIMD token streaming pass (<span className="text-[#22c55e]">+48</span>, <span className="text-[#ef4444]">-12</span> lines)
+                                </div>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Running background compiler check:
+                                </div>
+                                <div className="pl-3 text-white">
+                                  <span className="text-[#22c55e]">✓</span> cargo check --target=aarch64-apple-darwin: 0 warnings
+                                </div>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Generated atomic AST git commit: <code className="text-white">a9b42e1</code>
                                 </div>
                               </div>
 
                               {/* Active Prompt with Blinking Hardware Cursor */}
-                              <div className="pt-2 flex items-center gap-2 text-[#71717a]">
+                              <div className="pt-1 flex items-center gap-2 text-[#71717a]">
                                 <span className="text-[#0055FF] font-bold">host@darwin</span>
                                 <span className="text-[#444444]">:</span>
                                 <span className="text-white">~/workspace</span>
@@ -359,72 +393,6 @@ print(result.telemetry)`,
                             </div>
                           </motion.div>
                         )}
-
-                        {activeTab === "python" && (
-                          <motion.div
-                            key="tab-python"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between"
-                          >
-                            <div className="space-y-1 text-left font-mono">
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">1</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">import</span> <span className="text-white">crux</span></span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">2</span>
-                                <span className="table-cell select-none">&nbsp;</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">3</span>
-                                <span className="table-cell"><span className="text-white">client</span> = <span className="text-white">crux.Client</span>(<span className="text-[#888888]">api_key</span>=<span className="text-white">os.environ[</span><span className="text-white font-medium">"CRUX_API_KEY"</span><span className="text-white">]</span>)</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">4</span>
-                                <span className="table-cell select-none">&nbsp;</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">5</span>
-                                <span className="table-cell text-[#555555]"># Initialize AST pipeline</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">6</span>
-                                <span className="table-cell"><span className="text-white">pipeline</span> = <span className="text-white">client.pipeline.create</span>(</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">7</span>
-                                <span className="table-cell pl-4"><span className="text-[#888888]">model</span>=<span className="text-white font-medium">"crux-agent-v1"</span>,</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">8</span>
-                                <span className="table-cell pl-4"><span className="text-[#888888]">strategy</span>=<span className="text-white font-medium">"ast-crdt"</span></span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">9</span>
-                                <span className="table-cell">)</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">10</span>
-                                <span className="table-cell select-none">&nbsp;</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">11</span>
-                                <span className="table-cell text-[#555555]"># Stream workspace intelligence</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">12</span>
-                                <span className="table-cell"><span className="text-white">result</span> = <span className="text-white">pipeline.execute</span>(<span className="text-[#888888]">workspace_path</span>=<span className="text-white font-medium">"./src"</span>)</span>
-                              </div>
-                              <div className="table-row">
-                                <span className="table-cell select-none pr-4 text-[#444444] text-right font-mono text-[11px] w-6">13</span>
-                                <span className="table-cell"><span className="text-[#0055FF] font-medium">print</span>(<span className="text-white">result.telemetry</span>)</span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
                       </AnimatePresence>
                     </div>
 
@@ -432,7 +400,7 @@ print(result.telemetry)`,
                     <div className="h-10 px-4 border-t border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
                       <div className="flex items-center gap-2 text-[#71717a]">
                         <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
-                        <span>RUNTIME: BARE-METAL POSIX / LLVM</span>
+                        <span>RUNTIME: BARE-METAL POSIX / SILICON</span>
                       </div>
                       <span className="text-[#0055FF] font-bold">
                         LATENCY: &lt; 0.2ms
@@ -446,8 +414,8 @@ print(result.telemetry)`,
               <div className="lg:col-span-5 flex flex-col justify-between py-2">
                 <div>
                   <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
-                    Simple to integrate.
-                    <span className="block text-[#888888]">Unlock new workflow.</span>
+                    Why Crux?
+                    <span className="block text-[#888888]">Engineered for radical velocity.</span>
                   </h2>
 
                   <div className="mt-6 flex items-center gap-4">
