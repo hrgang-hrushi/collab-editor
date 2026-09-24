@@ -155,7 +155,7 @@ export default function AeyeCtaSection() {
               <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white shrink-0 group-hover:scale-95 transition-transform" />
               {/* Monospace Uppercase Text */}
               <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-white">
-                LAUNCH CRUX
+                GET ON WAITLIST NOW
               </span>
             </a>
           </div>
