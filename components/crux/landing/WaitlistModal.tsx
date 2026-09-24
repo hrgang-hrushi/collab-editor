@@ -184,7 +184,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                       ? "Almost there..."
                       : chipStage === "gone"
                       ? "Going through..."
-                      : "Done! See ya at Crux!"
+                      : "Done! lets Crux it soon!"
                   }
                   status={chipStage === "done" ? "done" : "running"}
                   expectedMs={2000}
@@ -234,7 +234,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               <CallChip
                 icon="terminal"
                 name="Waitlist"
-                argument="Done! See ya at Crux!"
+                argument="Done! lets Crux it soon!"
                 status="done"
                 expectedMs={2000}
                 size={35}

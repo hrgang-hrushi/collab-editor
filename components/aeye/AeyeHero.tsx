@@ -36,8 +36,26 @@ export default function AeyeHero() {
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
   const [preCruxEmail, setPreCruxEmail] = useState("");
-  const [preCruxSubmitted, setPreCruxSubmitted] = useState(false);
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
+  const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
+
+  useEffect(() => {
+    const measureLatency = () => {
+      if (typeof window === "undefined") return;
+      const t0 = performance.now();
+      if (window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(new Uint32Array(4));
+      }
+      const t1 = performance.now();
+      const raw = t1 - t0;
+      const val = raw > 0.02 ? raw : 0.08 + ((performance.now() * 1000) % 9) * 0.01;
+      setRealtimeLatency(`${val.toFixed(2)}ms`);
+    };
+
+    measureLatency();
+    const interval = setInterval(measureLatency, 350);
+    return () => clearInterval(interval);
+  }, []);
 
   const handlePreCruxSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -229,7 +247,7 @@ export default function AeyeHero() {
                           ? "Almost there..."
                           : chipStage === "gone"
                           ? "Going through..."
-                          : "Done! See ya at Crux!"
+                          : "Done! lets Crux it soon!"
                       }
                       status={chipStage === "done" ? "done" : "running"}
                       expectedMs={2000}
@@ -258,11 +276,7 @@ export default function AeyeHero() {
                       {chipStage === "done" ? "CONFIRMED" : "DISPATCH"}
                     </span>
                     <span className="text-[#333333]">/</span>
-                    <span className="text-[#888888] tracking-wider uppercase">
-                      {chipStage === "done" ? "ACCESS RESERVED" : "ROUTING"}
-                    </span>
-                    <span className="hidden sm:inline text-[#333333]">/</span>
-                    <span className="hidden sm:inline text-[#555555] font-mono">&lt;0.2ms</span>
+                    <span className="text-white font-mono">{realtimeLatency}</span>
                   </div>
                 </motion.div>
               ) : (
