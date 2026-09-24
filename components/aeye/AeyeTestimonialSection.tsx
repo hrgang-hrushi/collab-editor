@@ -1,181 +1,190 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { ChevronLeft, ChevronRight, Play, ArrowUpRight } from "lucide-react";
 
 export default function AeyeTestimonialSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const testimonials = [
     {
+      type: "tweet" as const,
       name: "Jaron Smith",
       handle: "@jaronsmith8802",
-      role: "Staff Infrastructure Engineer",
-      avatar: "https://framerusercontent.com/images/uPisnCzbMF4Eo0nQfMhIBrPUxQ.png?width=192&height=192",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=128&h=128&fit=crop&crop=face",
       quote:
-        "Crux makes VS Code feel like an antiquated web browser. Keystroke latency is sub-15ms, and the AST-CRDT pair programming has completely replaced screen-share lag.",
-      timestamp: "12:08 AM - Dec 12, 2025",
+        "We reduced hours of manual work into a few automated steps. The workflow feels seamless — and the results are consistently reliable.",
+      timestamp: "12:08 AM · DEC 12, 2025",
     },
     {
+      type: "video" as const,
+      tag: "@DAVID_COREW",
+      duration: "1:30 min",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=750&fit=crop&crop=face",
+    },
+    {
+      type: "tweet" as const,
       name: "Taylor Reed",
       handle: "@taylor_reed4214",
-      role: "DevOps Lead",
-      avatar: "https://framerusercontent.com/images/1kXU3rjhScV9xir02qUMAV1mWE.png?width=96&height=96",
+      avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=128&h=128&fit=crop&crop=face",
       quote:
-        "The @CruxAI agent in the HyperTerminal refactored our entire Rust async pipeline across 42 files while we watched live in the buffer. Zero merge conflicts.",
-      timestamp: "9:03 PM - Jul 08, 2026",
+        "We replaced three internal scripts with one automated workflow. Setup took minutes. Maintenance takes none!!!",
+      timestamp: "9:03 PM · JUL 08, 2026",
     },
     {
+      type: "video" as const,
+      tag: "@ELENA_SYS",
+      duration: "2:15 min",
+      image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=750&fit=crop&crop=face",
+    },
+    {
+      type: "tweet" as const,
       name: "Emily Carter",
       handle: "@emilycarter_ui",
-      role: "Systems Architect",
-      avatar: "https://framerusercontent.com/images/wVqHxfFshrHoLSPLLa99DTZLetc.png?width=128&height=128",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&h=128&fit=crop&crop=face",
       quote:
-        "We replaced our sluggish Electron setups with native Crux. My MacBook battery now lasts a full 12-hour coding marathon. Crux is pure mechanical perfection.",
-      timestamp: "3:45 PM - Apr 19, 2026",
-    },
-    {
-      name: "Ryan Mercer",
-      handle: "@ryan_mercer",
-      role: "Full-Stack Developer",
-      avatar: "https://framerusercontent.com/images/vkyTOqT6hnr3j3e4DIPRMm6c.png?width=237&height=237",
-      quote:
-        "The conflict-free AST multiplayer sync is wizardry. Three of us were hacking on the exact same parser module simultaneously with zero locks.",
-      timestamp: "10:14 AM - May 02, 2026",
-    },
-    {
-      name: "Marcus Webb",
-      handle: "@marcuswebb_dev",
-      role: "VP Engineering",
-      avatar: "https://framerusercontent.com/images/5zsAOZHi3SGre4j8VBkCqJfKk.png?width=237&height=237",
-      quote:
-        "Replaced our fragmented team editor setup with Crux. Sub-10ms peer synchronization, zero split-brain AST states, and native WebGPU rendering.",
-      timestamp: "4:17 PM - MAR 14, 2025",
-    },
-    {
-      name: "Priya Nair",
-      handle: "@priya_builds",
-      role: "Founding Engineer",
-      avatar: "https://framerusercontent.com/images/hvmRpjdg9l4E8TWrx1Sne7iiE.png?width=800&height=1066",
-      quote:
-        "Crux boots in 0.08s and uses 85MB of RAM. The mechanical tactile feedback and instant keyboard responsiveness make it impossible to go back to Electron.",
-      timestamp: "11:42 AM - Feb 08, 2025",
+        "Crux makes multi-agent workflows feel instantaneous. The typing latency and AST-CRDT pair sync are unmatched.",
+      timestamp: "3:45 PM · APR 19, 2026",
     },
   ];
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -360, behavior: "smooth" });
+    }
   };
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 360, behavior: "smooth" });
+    }
   };
 
   return (
-    <section id="testimonials" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
+    <section id="testimonials" className="relative w-full border-b border-[#222222] bg-[#000000]">
       <div className="max-w-[1280px] mx-auto px-6 py-20">
         {/* Section Header Meta */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono"
-        >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="text-[#0055FF] font-bold">[n. 07 / 11 ]</span>
-            <span className="text-[#0055FF]">&gt;</span>
-            <span className="text-[#888888]">Testimonial</span>
+            <span className="text-[#0055FF] font-bold">[N.07/11]</span>
+            <span className="text-[#888888]">— &gt;</span>
+            <span className="text-[#888888] uppercase">TESTIMONIAL</span>
           </div>
-          <div className="flex items-center gap-3 pt-2 sm:pt-0">
-            {/* Brutalist Chevron Controls */}
+          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
+            ENGINEERING &amp; PRODUCTION FEEDBACK
+          </div>
+        </div>
+
+        {/* Section Title & Subtitle + Carousel Arrows matching Frame 062 */}
+        <div className="pt-10 pb-12 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+          <div>
+            <h2 className="text-3xl sm:text-5xl lg:text-[52px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
+              Less talk, more shipping.
+              <span className="block text-[#888888]">See what they are saying.</span>
+            </h2>
+          </div>
+
+          {/* Carousel Arrows matching video */}
+          <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={handlePrev}
-              className="w-8 h-8 rounded-none border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white transition-none flex items-center justify-center cursor-pointer"
-              aria-label="Previous testimonial"
+              onClick={scrollLeft}
+              className="w-10 h-10 border border-[#333333] bg-[#000000] text-white flex items-center justify-center hover:bg-white hover:text-black transition-none cursor-pointer"
+              aria-label="Previous"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-xs font-mono text-[#888888]">
-              0{currentIndex + 1} / 0{testimonials.length}
-            </span>
             <button
-              onClick={handleNext}
-              className="w-8 h-8 rounded-none border border-[#222222] bg-[#000000] text-white hover:bg-white hover:text-black hover:border-white transition-none flex items-center justify-center cursor-pointer"
-              aria-label="Next testimonial"
+              onClick={scrollRight}
+              className="w-10 h-10 border border-[#333333] bg-[#000000] text-white flex items-center justify-center hover:bg-white hover:text-black transition-none cursor-pointer"
+              aria-label="Next"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-        </motion.div>
+        </div>
 
-        {/* Section Title & Subtitle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="pt-8 pb-14"
+        {/* Horizontal Scroll Testimonial Strip */}
+        <div
+          ref={scrollRef}
+          className="flex gap-6 overflow-x-auto pb-6 scrollbar-none snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          <h2 className="text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
-            Less talk, more shipping.{" "}
-            <span className="text-[#444444] block sm:inline">
-              See what they are saying.
-            </span>
-          </h2>
-        </motion.div>
-
-        {/* Testimonials Deck */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {testimonials.map((item, idx) => {
-            const isFeatured = idx === currentIndex;
+            if (item.type === "video") {
+              return (
+                <div
+                  key={idx}
+                  className="w-[300px] sm:w-[340px] h-[400px] shrink-0 border border-[#222222] relative group overflow-hidden bg-[#0c0c0e] snap-start"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.tag}
+                    className="w-full h-full object-cover grayscale contrast-125 group-hover:scale-105 transition-all duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                  {/* Handle Tag */}
+                  <div className="absolute top-4 right-4 bg-black/80 border border-[#333333] px-2.5 py-1 text-[10px] font-mono text-white">
+                    {item.tag}
+                  </div>
+
+                  {/* Play Button Overlay */}
+                  <div className="absolute bottom-4 left-4 bg-black/80 border border-[#333333] px-3 py-1.5 flex items-center gap-2 text-white font-mono text-xs">
+                    <Play className="w-3.5 h-3.5 fill-white" />
+                    <span>{item.duration}</span>
+                  </div>
+                </div>
+              );
+            }
+
             return (
-              <motion.div
+              <div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-20px" }}
-                transition={{ duration: 0.4, delay: (idx % 3) * 0.1 }}
-                onClick={() => setCurrentIndex(idx)}
-                className={`p-8 border transition-none cursor-pointer flex flex-col justify-between min-h-[320px] rounded-none ${
-                  isFeatured
-                    ? "border-[#0055FF] bg-[#0055FF]/5"
-                    : "border-[#222222] bg-[#000000] hover:bg-[#111111]"
-                }`}
+                className="w-[300px] sm:w-[340px] h-[400px] shrink-0 border border-[#222222] bg-[#0a0a0c] p-6 flex flex-col justify-between hover:bg-[#111114] transition-none snap-start"
               >
                 <div>
-                  {/* User Header */}
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={item.avatar}
-                      alt={item.name}
-                      className="w-10 h-10 border border-[#222222] object-cover rounded-none grayscale contrast-125"
-                    />
-                    <div>
-                      <div className="text-sm font-semibold text-white font-sans">
-                        {item.name}
-                      </div>
-                      <div className="text-[11px] text-[#888888] font-mono">
-                        {item.handle} · {item.role}
+                  {/* Author Header */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img
+                        src={item.avatar}
+                        alt={item.name}
+                        className="w-10 h-10 border border-[#222222] object-cover grayscale"
+                      />
+                      <div>
+                        <div className="text-sm font-medium text-white font-sans">
+                          {item.name}
+                        </div>
+                        <div className="text-xs text-[#71717a] font-mono">
+                          {item.handle}
+                        </div>
                       </div>
                     </div>
+                    {/* X Logo */}
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white opacity-60">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 24.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                    </svg>
                   </div>
 
                   {/* Quote */}
-                  <p className="mt-6 text-sm text-[#d4d4d8] font-sans leading-relaxed">
-                    "{item.quote}"
+                  <p className="mt-8 text-sm text-[#cccccc] font-sans leading-relaxed">
+                    {item.quote}
                   </p>
                 </div>
 
-                {/* Timestamp */}
-                <div className="mt-6 pt-4 border-t border-[#222222] flex items-center justify-between text-[11px] font-mono text-[#888888]">
-                  <span>{item.timestamp}</span>
-                  <span className={isFeatured ? "text-[#0055FF] font-bold" : "text-[#444444]"}>
-                    ● VERIFIED DEPLOY
-                  </span>
+                {/* Footer Timestamp + Read More */}
+                <div className="pt-6 border-t border-[#1a1a1e]">
+                  <div className="text-[11px] font-mono text-[#666666]">
+                    {item.timestamp}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-xs font-mono text-white group cursor-pointer">
+                    <ArrowUpRight className="w-3.5 h-3.5 text-[#0055FF]" />
+                    <span className="text-[#888888] hover:text-white tracking-wider">
+                      READ MORE
+                    </span>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
         </div>

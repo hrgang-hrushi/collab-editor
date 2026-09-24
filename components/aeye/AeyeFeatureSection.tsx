@@ -204,15 +204,15 @@ export default function AeyeFeatureSection() {
   const bottomFeatures = [
     {
       title: "Works with your workflow",
-      desc: "Connect seamlessly with your existing tools, systems, and data sources. One-click VS Code settings and keybindings importer.",
+      desc: "Connect seamlessly with your existing tools, systems, and data sources.",
     },
     {
       title: "Minimal by default",
-      desc: "Focus only on what matters, no unnecessary complexity. Hardware brutalist design with 0px radius and zero drop shadows.",
+      desc: "Focus only on what matters, no unnecessary complexity.",
     },
     {
       title: "Built to scale",
-      desc: "Handle growing workflows, data, and outputs over time. Encrypted P2P multiplayer mesh engineered for massive 100K-line monorepos.",
+      desc: "Handle growing workflows, data, and outputs over time.",
     },
   ];
 
@@ -671,25 +671,106 @@ export default function AeyeFeatureSection() {
   {/* 3 Secondary Capability Cards matching Video Recording */}
   <div className="max-w-[1280px] mx-auto px-6 py-12 lg:py-16 border-t border-[#222222]">
     <div className="grid grid-cols-1 md:grid-cols-3 border border-[#222222] divide-y md:divide-y-0 md:divide-x divide-[#222222] bg-[#000000]">
-      {bottomFeatures.map((feat, idx) => (
-        <motion.div
-          key={idx}
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-20px" }}
-          transition={{ duration: 0.4, delay: idx * 0.08 }}
-          className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default"
-        >
-          <div>
-            <h4 className="text-xl font-medium text-white font-sans">
-              {feat.title}
-            </h4>
-            <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
-              {feat.desc}
-            </p>
+      {/* Card 1: Works with your workflow */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-20px" }}
+        transition={{ duration: 0.4 }}
+        className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group overflow-hidden min-h-[280px]"
+      >
+        <div>
+          <h4 className="text-xl font-medium text-white font-sans">
+            Works with your workflow
+          </h4>
+          <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+            Connect seamlessly with your existing tools, systems, and data sources.
+          </p>
+        </div>
+
+        {/* 2-row Logoipsum Marquee */}
+        <div className="mt-8 space-y-2 overflow-hidden relative">
+          <div className="flex gap-2 animate-[marquee_20s_linear_infinite]">
+            {[1, 2, 3, 4, 1, 2].map((i, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
+              >
+                <div className="w-3.5 h-3.5 bg-white/20 flex items-center justify-center">
+                  <div className="w-2 h-2 bg-white transform rotate-45" />
+                </div>
+                <span className="text-[11px] font-bold tracking-wider uppercase font-sans">
+                  Logoipsum
+                </span>
+              </div>
+            ))}
           </div>
-        </motion.div>
-      ))}
+          <div className="flex gap-2 animate-[marquee_25s_linear_infinite_reverse]">
+            {[3, 4, 1, 2, 3, 4].map((i, idx) => (
+              <div
+                key={idx}
+                className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
+              >
+                <div className="w-3.5 h-3.5 border border-white/40 flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 bg-[#0055FF]" />
+                </div>
+                <span className="text-[11px] font-bold tracking-wider uppercase font-sans">
+                  LOGOIPSUM
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Card 2: Minimal by default */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-20px" }}
+        transition={{ duration: 0.4, delay: 0.08 }}
+        className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
+      >
+        <div>
+          <h4 className="text-xl font-medium text-white font-sans">
+            Minimal by default
+          </h4>
+          <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+            Focus only on what matters, no unnecessary complexity.
+          </p>
+        </div>
+
+        {/* Minimal geometric square outline matching video */}
+        <div className="flex justify-end pt-8">
+          <div className="w-12 h-12 border-4 border-[#666666] group-hover:border-white transition-none" />
+        </div>
+      </motion.div>
+
+      {/* Card 3: Built to scale */}
+      <motion.div
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-20px" }}
+        transition={{ duration: 0.4, delay: 0.16 }}
+        className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
+      >
+        <div>
+          <h4 className="text-xl font-medium text-white font-sans">
+            Built to scale
+          </h4>
+          <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+            Handle growing workflows, data, and outputs over time.
+          </p>
+        </div>
+
+        {/* Overlapping stacked squares matching video */}
+        <div className="flex justify-end pt-8">
+          <div className="relative w-14 h-14">
+            <div className="absolute top-0 left-0 w-10 h-10 border-4 border-[#555555] group-hover:border-[#888888] transition-none" />
+            <div className="absolute bottom-0 right-0 w-10 h-10 border-4 border-[#888888] group-hover:border-white bg-[#000000] transition-none" />
+          </div>
+        </div>
+      </motion.div>
     </div>
   </div>
 </section>

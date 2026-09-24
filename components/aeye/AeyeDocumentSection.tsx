@@ -1,119 +1,166 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 export default function AeyeDocumentSection() {
-  const docCards = [
+  const [activeCard, setActiveCard] = useState<number>(1); // Card 2 is active by default as in screenshot
+
+  const docs = [
     {
       serial: "// 001",
-      title: "Kernel Architecture & WebGPU",
-      description:
-        "Step-by-step internals of Crux's native Rust execution canvas, zero-copy buffer shaders, and sub-15ms frame dispatch.",
-      tags: ["Rust", "WebGPU", "Memory"],
-      imgSrc:
-        "https://framerusercontent.com/images/qCjWRSRbmNNk7YaLt75Pyig0U.png?width=780&height=780",
+      title: "Getting Started",
+      tags: ["SETUP", "QUICK START", "BASICS"],
+      preview: {
+        heading: "Inputs & Context",
+        subheading: "What is an input?",
+        desc: "An input is any data passed into an AI workflow at runtime: text, structured JSON, file content, API responses, or user-submitted forms. Inputs are the raw materials your workflow acts on.",
+        bullets: [
+          "1. Text & Prompt — Natural language strings passed directly to the AI step.",
+          "2. Structured Data — JSON objects, CSV rows, or key-value pairs.",
+          "3. File & Media — PDFs, images, and documents uploaded directly.",
+        ],
+      },
     },
     {
       serial: "// 002",
-      title: "Decentralized AST-CRDT & @CruxAI",
-      description:
-        "Conflict-free real-time syntax tree replication over encrypted P2P mesh networks and autonomous terminal agent orchestration.",
-      tags: ["AST-CRDT", "P2P WebRTC", "Agentic"],
-      imgSrc:
-        "https://framerusercontent.com/images/FwtNfhGoQ8kzb1yOwMX76zzLgQ.png?width=780&height=780",
+      title: "Core Concepts",
+      tags: ["USAGE", "WORKFLOW", "ADVANCED"],
+      preview: {
+        heading: "Custom Workflows",
+        subheading: "Anatomy of a workflow",
+        desc: "A custom workflow is a directed sequence of steps. Each step takes an input, does something — call an AI model, transform data, hit an API — and passes its output to the next step via context.",
+        bullets: [
+          "1. Trigger — Defines when the workflow runs: an API call, webhook event, or schedule.",
+          "2. Steps — The logic of your workflow: chain AI steps, conditions (if / else), and loops.",
+          "3. Output — What the workflow returns: a structured response or side effect.",
+        ],
+      },
     },
   ];
 
   return (
-    <section id="document" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
+    <section id="document" className="relative w-full border-b border-[#222222] bg-[#000000]">
       <div className="max-w-[1280px] mx-auto px-6 py-20">
         {/* Section Header Meta */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono"
-        >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono">
           <div className="flex items-center gap-2">
-            <span className="text-[#0055FF] font-bold">[n. 06 / 11 ]</span>
-            <span className="text-[#0055FF] font-bold">&gt;</span>
-            <span className="text-[#888888]">Documentation</span>
+            <span className="text-[#0055FF] font-bold">[N.06/11]</span>
+            <span className="text-[#888888]">— &gt;</span>
+            <span className="text-[#888888] uppercase">DOCUMENT</span>
           </div>
-          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0">
-            CRUX KERNEL &amp; AGENT ARCHITECTURE SPECS
+          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
+            TECHNICAL DOCUMENTATION &amp; GUIDES
           </div>
-        </motion.div>
+        </div>
 
-        {/* Section Title & Subtitle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-          className="pt-8 pb-4"
-        >
-          <h2 className="text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
-            Complete system architecture.{" "}
-            <span className="text-[#444444] block sm:inline">
-              Documented for builders.
-            </span>
-          </h2>
-          <p className="mt-4 text-xs sm:text-sm text-[#888888] font-sans max-w-xl">
-            Deep dive into WebGPU rendering primitives, decentralized AST-CRDT algorithms, and @CruxAI terminal agents.
-          </p>
-        </motion.div>
+        {/* 2-Column Section Layout matching Frame 042 */}
+        <div className="pt-12 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-start">
+          {/* Left Column: Title, Learn More Button, and Subtitle */}
+          <div className="lg:col-span-5 flex flex-col justify-between h-full">
+            <div>
+              <h2 className="text-3xl sm:text-5xl lg:text-[52px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
+                Everything documented.
+                <span className="block text-[#888888]">Clear and practical.</span>
+              </h2>
 
-        {/* 2 Doc Cards Grid */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 border border-[#222222] divide-y md:divide-y-0 md:divide-x divide-[#222222] bg-[#000000]">
-          {docCards.map((doc, idx) => (
-            <div
-              key={idx}
-              className="p-8 sm:p-10 flex flex-col justify-between group bg-[#000000] hover:bg-[#111111] transition-none cursor-pointer rounded-none"
-            >
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="font-mono text-xs font-semibold text-[#0055FF]">
-                    {doc.serial}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    {doc.tags.map((t, tidx) => (
-                      <span
-                        key={tidx}
-                        className="px-2.5 py-0.5 bg-[#111111] border border-[#222222] text-[10px] font-mono text-[#888888] rounded-none"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <h3 className="mt-8 text-2xl font-medium tracking-tight text-white font-sans">
-                  {doc.title}
-                </h3>
-                <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
-                  {doc.description}
-                </p>
-
-                {/* Blueprint illustration image */}
-                <div className="mt-8 border border-[#222222] bg-[#111111] overflow-hidden aspect-video relative rounded-none">
-                  <img
-                    src={doc.imgSrc}
-                    alt={doc.title}
-                    className="w-full h-full object-cover rounded-none grayscale contrast-125 opacity-80 group-hover:opacity-100 transition-none"
-                  />
-                </div>
-              </div>
-
-              {/* Bottom Action Link */}
-              <div className="mt-8 pt-4 border-t border-[#222222] flex items-center justify-between text-xs font-mono text-white group-hover:text-white">
-                <span className="font-semibold uppercase tracking-wider">View Documentation</span>
-                <ArrowRight className="w-3.5 h-3.5 text-white transition-none group-hover:translate-x-1" />
+              <div className="mt-8">
+                <Link
+                  href="#pricing"
+                  className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-[#000000] border border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none"
+                >
+                  <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block" />
+                  LEARN MORE
+                </Link>
               </div>
             </div>
-          ))}
+
+            <div className="mt-16 pt-8 border-t border-[#1a1a1e]">
+              <h4 className="text-white font-sans font-medium text-sm">
+                Everything you need to get started.
+              </h4>
+              <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+                Explore features, and integrate smoothly, without unnecessary complexity.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: 2 Side-by-Side Doc Cards matching Frame 042 */}
+          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            {docs.map((doc, idx) => {
+              const isActive = activeCard === idx;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => setActiveCard(idx)}
+                  className={`border flex flex-col justify-between transition-none cursor-pointer relative bg-[#000000] ${
+                    isActive ? "border-[#0055FF]" : "border-[#222222] hover:border-[#444444]"
+                  }`}
+                >
+                  {/* Card Content Top */}
+                  <div className="p-6">
+                    <h3
+                      className={`text-2xl font-medium font-sans transition-none ${
+                        isActive ? "text-[#0055FF]" : "text-white"
+                      }`}
+                    >
+                      {doc.title}
+                    </h3>
+
+                    {/* Tags */}
+                    <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-mono tracking-wider text-[#888888]">
+                      {doc.tags.map((tag, tIdx) => (
+                        <span key={tIdx} className="uppercase">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="mt-6 font-mono text-xs text-[#666666]">
+                      {doc.serial}
+                    </div>
+
+                    {/* Doc Blueprint Document Sheet Preview matching screenshot */}
+                    <div className="mt-4 border border-[#222222] bg-[#0c0c0e] p-4 text-[10px] font-mono text-[#a1a1aa] leading-relaxed select-none overflow-hidden h-[220px]">
+                      <div className="text-[11px] font-bold text-white mb-1">
+                        {doc.preview.heading}
+                      </div>
+                      <div className="text-[10px] text-[#0055FF] mb-2">
+                        {doc.preview.subheading}
+                      </div>
+                      <p className="text-[#888888] line-clamp-3 mb-3 text-[9px]">
+                        {doc.preview.desc}
+                      </p>
+                      <div className="space-y-1 text-[8.5px] text-[#71717a] border-t border-[#1a1a1e] pt-2">
+                        {doc.preview.bullets.map((b, bIdx) => (
+                          <div key={bIdx} className="truncate">
+                            {b}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Bottom: View Link */}
+                  <div className="px-6 py-4 border-t border-[#222222] flex items-center justify-between text-xs font-mono text-white">
+                    <ArrowUpRight
+                      className={`w-4 h-4 ${isActive ? "text-[#0055FF]" : "text-white"}`}
+                    />
+                    <span className={`tracking-wider ${isActive ? "text-[#0055FF] font-bold" : ""}`}>
+                      VIEW
+                    </span>
+                  </div>
+
+                  {/* Active Bottom Indicator Line matching screenshot */}
+                  {isActive && (
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-[#0055FF]" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
