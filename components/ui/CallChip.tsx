@@ -92,6 +92,20 @@ export default function CallChip({
   const [mounted, setMounted] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [announce, setAnnounce] = useState("");
+  const [displayArg, setDisplayArg] = useState(argument);
+  const [argFading, setArgFading] = useState(false);
+
+  useEffect(() => {
+    if (argument !== displayArg) {
+      setArgFading(true);
+      const t = setTimeout(() => {
+        setDisplayArg(argument);
+        setArgFading(false);
+      }, 90);
+      return () => clearTimeout(t);
+    }
+  }, [argument, displayArg]);
+
   const roll = useRef<{ cur: string; prev: string | null }>({ cur: glyphOf(status), prev: null });
   if (glyphOf(status) !== roll.current.cur) {
     roll.current = { cur: glyphOf(status), prev: roll.current.cur };
@@ -208,8 +222,8 @@ export default function CallChip({
         {
           "--cc-size": `${size}px`,
           "--cc-font": `${font}px`,
-          "--cc-pad": `${Math.round(size * 0.35)}px`,
-          "--cc-gap": `${Math.round(font * 0.55)}px`,
+          "--cc-pad": `${Math.round(size * 0.46)}px`,
+          "--cc-gap": `${Math.round(font * 0.65)}px`,
           "--cc-radius": `${radius}px`,
           "--cc-color": color,
           "--cc-surface": surfaceColor,
@@ -238,8 +252,17 @@ export default function CallChip({
       <span className="call-chip__name" aria-hidden="true">
         {name}
       </span>
-      <span className="call-chip__arg" aria-hidden="true">
-        {argument}
+      <span
+        className="call-chip__arg"
+        aria-hidden="true"
+        style={{
+          opacity: argFading ? 0 : 0.9,
+          transform: argFading ? "translateY(2px)" : "translateY(0)",
+          transition: "opacity 120ms cubic-bezier(0.16, 1, 0.3, 1), transform 120ms cubic-bezier(0.16, 1, 0.3, 1)",
+          display: "inline-block",
+        }}
+      >
+        {displayArg}
       </span>
       {showTimer ? (
         <span ref={timerRef} className="call-chip__timer" aria-hidden="true">

@@ -214,32 +214,57 @@ export default function AeyeHero() {
 
               {/* Email Input & Lets Crux it Action Form / CallChip */}
               {chipStage !== "idle" ? (
-                <div className="mt-8 flex items-center">
-                  <CallChip
-                    icon="terminal"
-                    name="Waitlist"
-                    argument={
-                      chipStage === "almost"
-                        ? "Almost there..."
-                        : chipStage === "gone"
-                        ? "Going through..."
-                        : "Done! See ya at Crux!"
-                    }
-                    status={chipStage === "done" ? "done" : "running"}
-                    expectedMs={2000}
-                    size={35}
-                    radius={10}
-                    color="currentColor"
-                    surfaceColor="#27272a"
-                    progressColor="currentColor"
-                    progressOpacity={0.18}
-                    doneColor="#22c55e"
-                    errorColor="#ef4444"
-                    washOpacity={0.12}
-                    shake={9}
-                    showTimer
-                  />
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-2 pl-3 pr-4 border border-[#222222] bg-[#0c0c0e]/90 max-w-[540px] rounded-none"
+                >
+                  <div className="flex items-center">
+                    <CallChip
+                      icon="terminal"
+                      name="Waitlist"
+                      argument={
+                        chipStage === "almost"
+                          ? "Almost there..."
+                          : chipStage === "gone"
+                          ? "Going through..."
+                          : "Done! See ya at Crux!"
+                      }
+                      status={chipStage === "done" ? "done" : "running"}
+                      expectedMs={2000}
+                      size={35}
+                      radius={10}
+                      color="currentColor"
+                      surfaceColor="#27272a"
+                      progressColor="currentColor"
+                      progressOpacity={0.18}
+                      doneColor="#22c55e"
+                      errorColor="#ef4444"
+                      washOpacity={0.12}
+                      shake={9}
+                      showTimer
+                    />
+                  </div>
+
+                  {/* Telemetry metadata utilizing all space on the side */}
+                  <div className="flex items-center gap-3 font-mono text-[11px] text-[#71717a] shrink-0 pl-1 sm:pl-0 select-none">
+                    <span className="flex items-center gap-1.5 text-white font-medium">
+                      <span
+                        className={`w-1.5 h-1.5 ${
+                          chipStage === "done" ? "bg-[#22c55e]" : "bg-[#0055FF] animate-pulse"
+                        }`}
+                      />
+                      {chipStage === "done" ? "CONFIRMED" : "DISPATCH"}
+                    </span>
+                    <span className="text-[#333333]">/</span>
+                    <span className="text-[#888888] tracking-wider uppercase">
+                      {chipStage === "done" ? "BATCH #14" : "ROUTING"}
+                    </span>
+                    <span className="hidden sm:inline text-[#333333]">/</span>
+                    <span className="hidden sm:inline text-[#555555] font-mono">&lt;0.2ms</span>
+                  </div>
+                </motion.div>
               ) : (
                 <form
                   onSubmit={handlePreCruxSubmit}

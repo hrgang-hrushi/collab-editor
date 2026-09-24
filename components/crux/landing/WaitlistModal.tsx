@@ -170,7 +170,12 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
             {/* Submit CTA or CallChip */}
             {chipStage !== "idle" && !submitted ? (
-              <div className="w-full py-2 flex items-center justify-center bg-[#111111] border border-[#222222]">
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full h-14 bg-[#111111] border border-[#222222] flex items-center justify-between px-3 sm:px-4"
+              >
                 <CallChip
                   icon="terminal"
                   name="Waitlist"
@@ -195,7 +200,15 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                   shake={9}
                   showTimer
                 />
-              </div>
+                <div className="flex items-center gap-2 font-mono text-xs text-[#888888] shrink-0 select-none">
+                  <span
+                    className={`w-1.5 h-1.5 ${
+                      chipStage === "done" ? "bg-[#22c55e]" : "bg-[#0055FF] animate-pulse"
+                    }`}
+                  />
+                  <span>{chipStage === "done" ? "QUEUED // BATCH 03" : "SECURE DISPATCH"}</span>
+                </div>
+              </motion.div>
             ) : (
               <button
                 type="submit"

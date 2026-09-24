@@ -1,8 +1,8 @@
 .call-chip {
   --cc-size: 35px;
   --cc-font: 13px;
-  --cc-pad: 12px;
-  --cc-gap: 7px;
+  --cc-pad: 16px;
+  --cc-gap: 9px;
   --cc-radius: 10px;
   --cc-color: currentColor;
   --cc-surface: #27272a;
@@ -12,7 +12,7 @@
   --cc-error: #ef4444;
   --cc-wash-pct: 12%;
   --cc-expected: 2000ms;
-  --cc-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --cc-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   position: relative;
   display: inline-flex;
@@ -32,7 +32,7 @@
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   transition: transform 160ms var(--cc-ease-out);
-  border: 1px solid #222222;
+  border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
 .call-chip[data-status='error'] {

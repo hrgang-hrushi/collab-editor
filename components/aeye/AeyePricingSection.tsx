@@ -221,7 +221,12 @@ export default function AeyePricingSection() {
                   {/* Submit Button or Running CallChip */}
                   <div className="pt-4">
                     {chipStage !== "idle" && !isSubmitted ? (
-                      <div className="w-full h-14 bg-[#0c0c0e] border border-[#222222] flex items-center justify-center">
+                      <motion.div
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        className="w-full h-14 bg-[#0c0c0e] border border-[#222222] flex items-center justify-between px-3.5 sm:px-5"
+                      >
                         <CallChip
                           icon="terminal"
                           name="Waitlist"
@@ -246,7 +251,21 @@ export default function AeyePricingSection() {
                           shake={9}
                           showTimer
                         />
-                      </div>
+                        <div className="flex items-center gap-3 font-mono text-xs text-[#71717a] shrink-0 select-none">
+                          <span className="flex items-center gap-1.5 text-white font-medium">
+                            <span
+                              className={`w-1.5 h-1.5 ${
+                                chipStage === "done" ? "bg-[#22c55e]" : "bg-[#0055FF] animate-pulse"
+                              }`}
+                            />
+                            {chipStage === "done" ? "TOKEN ISSUED" : "ALLOCATING"}
+                          </span>
+                          <span className="text-[#333333]">/</span>
+                          <span className="text-[#888888] tracking-wider uppercase">BATCH #14</span>
+                          <span className="hidden sm:inline text-[#333333]">/</span>
+                          <span className="hidden sm:inline text-[#555555]">ENCRYPTED</span>
+                        </div>
+                      </motion.div>
                     ) : (
                       <button
                         type="submit"
