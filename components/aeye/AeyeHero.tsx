@@ -411,11 +411,15 @@ export default function AeyeHero() {
               <div className="pt-4 flex items-center justify-between text-[11px] font-mono text-[#71717a]">
                 <span>Resolution: 3024x1654 60FPS · Crux Native Core</span>
                 <a
-                  href="/?app=true"
-                  onClick={() => setIsWatchDemoOpen(false)}
+                  href="#waitlist"
+                  onClick={() => {
+                    setIsWatchDemoOpen(false);
+                    const el = document.getElementById("waitlist");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }}
                   className="text-white hover:underline font-semibold flex items-center gap-1.5"
                 >
-                  <span>Launch Crux IDE</span>
+                  <span>Join Priority Waitlist</span>
                   <ArrowRight className="w-3.5 h-3.5 inline" />
                 </a>
               </div>

@@ -6,6 +6,8 @@ node_modules/
 
 # Next.js Build Outputs
 .next/
+.next-prod/
+.api_export_tmp/
 out/
 build/
 dist/

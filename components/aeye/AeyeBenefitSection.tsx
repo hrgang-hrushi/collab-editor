@@ -80,7 +80,12 @@ export default function AeyeBenefitSection() {
             className="flex-shrink-0"
           >
             <a
-              href="/?app=true"
+              href="#waitlist"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById("waitlist");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
               className="px-6 py-3.5 bg-[#0055FF] hover:bg-[#0044CC] text-white border border-[#0055FF] text-xs font-mono uppercase tracking-wider flex items-center gap-3 transition-none cursor-pointer rounded-none font-bold group"
             >
               <span className="w-2.5 h-2.5 bg-white inline-block transition-none" />

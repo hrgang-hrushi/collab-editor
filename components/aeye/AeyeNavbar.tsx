@@ -128,14 +128,21 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
           </nav>
         </div>
 
-        {/* Right Action: Launch Crux Button */}
+        {/* Right Action: Waitlist Button */}
         <div className="hidden lg:flex items-center pointer-events-auto">
           <a
-            href="/?app=true"
-            className="h-[40px] px-4 bg-[#0055FF] hover:bg-[#0044CC] border border-[#0055FF] text-white transition-none flex items-center gap-2 text-[13px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
+            href="#waitlist"
+            onClick={(e) => {
+              e.preventDefault();
+              if (onNavigate) onNavigate("waitlist");
+              else {
+                const el = document.getElementById("waitlist");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
+            className="h-[40px] px-5 bg-[#0055FF] hover:bg-[#0044CC] border border-[#0055FF] text-white transition-none flex items-center gap-2 text-[12px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
           >
-            <Play className="w-3 h-3 fill-current" />
-            <span>LAUNCH CRUX</span>
+            <span>JOIN WAITLIST</span>
           </a>
         </div>
 
@@ -193,11 +200,19 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
               );
             })}
             <a
-              href="/?app=true"
-              onClick={() => setMobileMenuOpen(false)}
+              href="#waitlist"
+              onClick={(e) => {
+                e.preventDefault();
+                setMobileMenuOpen(false);
+                if (onNavigate) onNavigate("waitlist");
+                else {
+                  const el = document.getElementById("waitlist");
+                  if (el) el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               className="mt-2 py-2.5 px-3 bg-[#0055FF] text-white font-bold text-xs font-mono text-center uppercase flex items-center justify-center gap-1.5 no-underline rounded-none hover:bg-[#0044CC]"
             >
-              <span>Launch Crux</span>
+              <span>JOIN WAITLIST</span>
               <ArrowRight className="w-3.5 h-3.5 inline" />
             </a>
           </motion.div>

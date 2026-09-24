@@ -348,11 +348,16 @@ export default function AeyePricingSection() {
 
                   <div className="flex gap-4 pt-2">
                     <a
-                      href="/?app=true"
+                      href="#dispatch"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const el = document.getElementById("dispatch");
+                        if (el) el.scrollIntoView({ behavior: "smooth" });
+                      }}
                       className="px-6 py-3 bg-white text-black hover:bg-[#0055FF] hover:text-white transition-none font-sans text-xs tracking-wider uppercase font-medium flex items-center gap-2"
                     >
                       <span className="w-1.5 h-1.5 bg-current" />
-                      TEST WEB DEMO NOW
+                      VIEW DISPATCH NOTES
                     </a>
                     <button
                       onClick={() => setIsSubmitted(false)}

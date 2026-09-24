@@ -61,7 +61,6 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
       {/* Hardware Brutalist Nav Header */}
       <CruxNavbar
         onOpenWaitlist={() => setIsWaitlistOpen(true)}
-        onLaunchWebEditor={onLaunchWebEditor}
       />
 
       {/* Waitlist Modal */}

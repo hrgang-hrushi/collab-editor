@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import CruxBrandLogo from "../CruxBrandLogo";
 
 interface CruxNavbarProps {
   onOpenWaitlist: () => void;
-  onLaunchWebEditor?: () => void;
 }
 
-export default function CruxNavbar({ onOpenWaitlist, onLaunchWebEditor }: CruxNavbarProps) {
+export default function CruxNavbar({ onOpenWaitlist }: CruxNavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -77,15 +76,6 @@ export default function CruxNavbar({ onOpenWaitlist, onLaunchWebEditor }: CruxNa
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2.5">
-          {onLaunchWebEditor && (
-            <button
-              onClick={onLaunchWebEditor}
-              className="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-none text-xs font-mono text-white bg-[#000000] hover:bg-white hover:text-black border border-[#222222] transition-none cursor-pointer"
-            >
-              <span>Launch Studio</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          )}
 
           {/* Primary Action Button */}
           <button

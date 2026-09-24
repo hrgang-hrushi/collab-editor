@@ -12,7 +12,10 @@ try {
     moved = true;
   }
   console.log("Running next build for static export...");
-  execSync("npx next build", { stdio: "inherit" });
+  execSync("npx next build", {
+    stdio: "inherit",
+    env: { ...process.env, NEXT_DIST_DIR: ".next-prod" },
+  });
 } finally {
   if (moved && fs.existsSync(backupDir)) {
     fs.renameSync(backupDir, apiDir);

@@ -138,7 +138,7 @@ export default function AeyeCtaSection() {
             </h2>
           </div>
 
-          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, LAUNCH CRUX uppercase text) */}
+          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, GET ON WAITLIST NOW uppercase text) */}
           <div className="mt-8 sm:mt-12 flex justify-center">
             <a
               href="#waitlist"
