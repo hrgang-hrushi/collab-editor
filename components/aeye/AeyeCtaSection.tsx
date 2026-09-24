@@ -64,19 +64,23 @@ export default function AeyeCtaSection() {
   );
 
   return (
-    <section id="dispatch" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
+    <section id="dispatch" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden scroll-mt-24">
       {/* Background Dot Texture */}
       <div className="absolute inset-0 aeye-dot-bg invert opacity-15 pointer-events-none" />
 
-      {/* Retro Headline Ticker */}
-      <div className="border-b border-[#222222] bg-[#000000] overflow-hidden whitespace-nowrap">
-        <div className="flex w-max animate-aeye-marquee hover:[animation-play-state:paused]">
-          {tickerText}
-          {tickerText}
-        </div>
-      </div>
-
       <div className="max-w-[1280px] mx-auto px-6 py-20 relative z-10">
+        {/* Section Header Meta */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono mb-12">
+          <div className="flex items-center gap-2">
+            <span className="text-[#0055FF] font-bold">[N.12/12]</span>
+            <span className="text-[#888888]">— &gt;</span>
+            <span className="text-[#888888] uppercase">CRUX INSIDER DISPATCH</span>
+          </div>
+          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
+            DIRECT KERNEL NOTES · BI-WEEKLY
+          </div>
+        </div>
+
         <div className="border border-[#222222] bg-[#000000] p-8 sm:p-14 max-w-4xl mx-auto rounded-none">
           <div className="space-y-4 max-w-2xl">
             <div className="flex items-center gap-2">

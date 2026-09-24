@@ -28,6 +28,7 @@ import AgenticTerminalSandbox from "./AgenticTerminalSandbox";
 import SpatialRewindSection from "./SpatialRewindSection";
 import EngineeringWall from "./EngineeringWall";
 import PricingAndTrustSection from "./PricingAndTrustSection";
+import AeyeCtaSection from "@/components/aeye/AeyeCtaSection";
 import CruxBrandLogo from "../CruxBrandLogo";
 
 interface CruxLandingPageProps {
@@ -310,6 +311,9 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
           </div>
         </section>
       </main>
+
+      {/* Crux Insider Dispatch Section */}
+      <AeyeCtaSection />
 
       {/* Sleek Minimalist Footer */}
       <footer className="border-t border-[#222222] py-14 px-6 max-w-6xl mx-auto text-xs text-[#888888] relative z-10 font-mono">
