@@ -89,7 +89,7 @@ export default function AeyePerformanceSection() {
         </div>
 
         {/* Top Area: Headline + Button on left, 2x2 Metric Grid on right */}
-        <div className="pt-10 pb-14 grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+        <div className="pt-6 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
           {/* Left Column: Heading + Action */}
           <div className="lg:col-span-7">
             <h2 className="text-4xl sm:text-5xl lg:text-[56px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.08]">
@@ -97,7 +97,7 @@ export default function AeyePerformanceSection() {
               Zero unnecessary work.
             </h2>
 
-            <div className="mt-8">
+            <div className="mt-5">
               <a
                 href="#waitlist"
                 className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium no-underline group"
@@ -111,7 +111,7 @@ export default function AeyePerformanceSection() {
           {/* Right Column: 2x2 Metric Grid matching screenshot */}
           <div className="lg:col-span-5 border border-[#222222] bg-[#000000] grid grid-cols-2 divide-x divide-y divide-[#222222] rounded-none">
             {stats.map((item, idx) => (
-              <div key={idx} className="p-6 sm:p-8 flex flex-col justify-between min-h-[120px]">
+              <div key={idx} className="p-5 sm:p-6 flex flex-col justify-between min-h-[100px]">
                 <div className="text-3xl sm:text-4xl font-normal text-white font-sans tracking-tight">
                   {item.value}
                 </div>
@@ -144,7 +144,7 @@ export default function AeyePerformanceSection() {
             </div>
 
             {/* Base Layer: WITHOUT CRUX (short, muted gray/dark bars) */}
-            <div className="absolute inset-0 z-10 pointer-events-none px-4 pt-10 pb-4 flex items-end">
+            <div className="absolute inset-0 z-10 pointer-events-none px-4 pt-5 pb-3 flex items-end">
               <svg
                 viewBox="0 0 1000 300"
                 preserveAspectRatio="none"
@@ -172,7 +172,7 @@ export default function AeyePerformanceSection() {
                 clipPath: `inset(0px 0px 0px ${sliderPos}%)`,
                 WebkitClipPath: `inset(0px 0px 0px ${sliderPos}%)`,
               }}
-              className="absolute inset-0 z-20 pointer-events-none px-4 pt-10 pb-4 flex items-end transition-none"
+              className="absolute inset-0 z-20 pointer-events-none px-4 pt-5 pb-3 flex items-end transition-none"
             >
               <svg
                 viewBox="0 0 1000 300"
