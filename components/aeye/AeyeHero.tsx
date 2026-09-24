@@ -259,7 +259,7 @@ export default function AeyeHero() {
                     </span>
                     <span className="text-[#333333]">/</span>
                     <span className="text-[#888888] tracking-wider uppercase">
-                      {chipStage === "done" ? "BATCH #14" : "ROUTING"}
+                      {chipStage === "done" ? "ACCESS RESERVED" : "ROUTING"}
                     </span>
                     <span className="hidden sm:inline text-[#333333]">/</span>
                     <span className="hidden sm:inline text-[#555555] font-mono">&lt;0.2ms</span>

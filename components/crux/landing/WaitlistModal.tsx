@@ -206,7 +206,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                       chipStage === "done" ? "bg-[#22c55e]" : "bg-[#0055FF] animate-pulse"
                     }`}
                   />
-                  <span>{chipStage === "done" ? "QUEUED // BATCH 03" : "SECURE DISPATCH"}</span>
+                  <span>{chipStage === "done" ? "TOKEN RESERVED" : "SECURE DISPATCH"}</span>
                 </div>
               </motion.div>
             ) : (
@@ -225,7 +225,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 <ShieldCheck className="w-3.5 h-3.5 text-white" />
                 <span>Zero telemetry lock-in</span>
               </span>
-              <span>Batches released weekly</span>
+              <span>Rolling access weekly</span>
             </div>
           </form>
         ) : (
@@ -257,7 +257,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               </p>
             </div>
             <div className="p-3.5 rounded-none bg-[#111111] border border-[#222222] text-xs font-mono text-white inline-block">
-              Priority Ticket: #CRUX-{Math.floor(1000 + Math.random() * 9000)} · Batch 03
+              Priority Ticket: #CRUX-{Math.floor(1000 + Math.random() * 9000)} · Priority Roster
             </div>
             <div>
               <button

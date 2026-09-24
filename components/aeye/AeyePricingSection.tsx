@@ -109,7 +109,7 @@ export default function AeyePricingSection() {
             <span className="text-[#888888] uppercase">EARLY ACCESS // WAITLIST</span>
           </div>
           <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
-            BATCH ONBOARDING · Q3/Q4 2026
+            EARLY ACCESS · Q3/Q4 2026
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export default function AeyePricingSection() {
             </span>
           </h2>
           <p className="mt-4 text-xs sm:text-sm text-[#888888] font-sans max-w-2xl leading-relaxed">
-            We are onboarding developer teams in weekly batches. Register your work email and direct contact number to receive your cryptographic access token and macOS/Linux installer.
+            We are onboarding developer teams on a rolling basis. Register your work email and direct contact number to receive your cryptographic access token and macOS/Linux installer.
           </p>
         </div>
 
@@ -261,7 +261,7 @@ export default function AeyePricingSection() {
                             {chipStage === "done" ? "TOKEN ISSUED" : "ALLOCATING"}
                           </span>
                           <span className="text-[#333333]">/</span>
-                          <span className="text-[#888888] tracking-wider uppercase">BATCH #14</span>
+                          <span className="text-[#888888] tracking-wider uppercase">PRIORITY QUEUE</span>
                           <span className="hidden sm:inline text-[#333333]">/</span>
                           <span className="hidden sm:inline text-[#555555]">ENCRYPTED</span>
                         </div>
@@ -333,7 +333,7 @@ export default function AeyePricingSection() {
                       </div>
                       <div className="flex justify-between py-1 border-b border-[#222222]">
                         <span className="text-[#666666]">INVITATION QUEUE:</span>
-                        <span className="text-[#0055FF] font-bold">BATCH #14 (NEXT IN LINE)</span>
+                        <span className="text-[#0055FF] font-bold">PRIORITY ACCESS (NEXT IN LINE)</span>
                       </div>
                       <div className="flex justify-between py-1">
                         <span className="text-[#666666]">ESTIMATED DISPATCH:</span>
