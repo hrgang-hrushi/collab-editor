@@ -27,6 +27,7 @@ import PerformanceVisualizer from "./PerformanceVisualizer";
 import AgenticTerminalSandbox from "./AgenticTerminalSandbox";
 import SpatialRewindSection from "./SpatialRewindSection";
 import EngineeringWall from "./EngineeringWall";
+import AeyeCtaSection from "@/components/aeye/AeyeCtaSection";
 import AeyeFooter from "@/components/aeye/AeyeFooter";
 import CruxBrandLogo from "../CruxBrandLogo";
 
@@ -277,6 +278,9 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
         <PricingAndTrustSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
 
       </main>
+
+      {/* Pre-Footer Brutalist Hardware CTA Card */}
+      <AeyeCtaSection />
 
       {/* Master Hardware Brutalism Footer & Dispatch */}
       <AeyeFooter />

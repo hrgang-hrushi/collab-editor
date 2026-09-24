@@ -15,6 +15,7 @@ import AeyePricingSection from "./AeyePricingSection";
 import AeyeChangelogSection from "./AeyeChangelogSection";
 import AeyeBlogSection from "./AeyeBlogSection";
 import AeyeFaqSection from "./AeyeFaqSection";
+import AeyeCtaSection from "./AeyeCtaSection";
 import AeyeFooter from "./AeyeFooter";
 
 export default function AeyeLandingPage() {
@@ -69,7 +70,10 @@ export default function AeyeLandingPage() {
       {/* 13. Section 11: [n. 11 / 11 ] > FAQs */}
       <AeyeFaqSection />
 
-      {/* 14. Master Footer & Dispatch */}
+      {/* 14. Section 12: CTA Workflow Box */}
+      <AeyeCtaSection />
+
+      {/* 15. Master Footer & Dispatch */}
       <AeyeFooter />
     </div>
   );
