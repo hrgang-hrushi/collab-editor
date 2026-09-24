@@ -24,9 +24,8 @@ export default function AeyeInstallationSection() {
     mass: 0.2,
   });
 
-  // Dedicated segment fill heights connecting Dot 0 -> Dot 1, and Dot 1 -> Dot 2 (Zero overshoot)
-  const segment0 = useTransform(smoothProgress, [0.08, 0.45], ["0%", "100%"]);
-  const segment1 = useTransform(smoothProgress, [0.45, 0.90], ["0%", "100%"]);
+  // Continuous vertical rail fill height (0% to 100%)
+  const verticalRailHeight = useTransform(smoothProgress, [0.08, 0.92], ["0%", "100%"]);
 
   // Individual progress fills for header indicator pills
   const p0 = useTransform(smoothProgress, [0.02, 0.33], ["0%", "100%"]);
@@ -443,7 +442,7 @@ print(result.telemetry)`,
                 </div>
               </div>
 
-              {/* Right Column: Title, Action Button, and Cleanly Spaced Timeline */}
+              {/* Right Column: Title, Action Button, and Clean Continuous Vertical Rail */}
               <div className="lg:col-span-5 flex flex-col justify-between py-2">
                 <div>
                   <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
@@ -466,41 +465,38 @@ print(result.telemetry)`,
                   </div>
                 </div>
 
-                {/* Vertical Progress Rail: Clean Segments Connecting Dots Without Overshoot */}
-                <div className="mt-10 sm:mt-12 space-y-6 sm:space-y-7 relative select-none">
-                  {tabs.map((tab, idx) => {
-                    const isActive = activeTab === tab.id;
+                {/* Continuous Vertical Timeline Rail exactly as before with clean bounds */}
+                <div className="mt-10 sm:mt-12 relative pl-8 select-none">
+                  {/* Background Track Rail */}
+                  <div className="absolute left-[8px] top-3 bottom-5 w-[2px] bg-[#1a1a1e]" />
 
-                    return (
-                      <div
-                        key={tab.id}
-                        onClick={() => handleStepClick(idx)}
-                        className="relative flex items-start gap-4 cursor-pointer group transition-none"
-                      >
-                        {/* Left Rail Column: Dot & Discrete Connecting Segment */}
-                        <div className="relative flex flex-col items-center shrink-0 w-3 pt-1">
-                          {/* Active / Inactive Dot */}
+                  {/* Continuous Smooth Electric Blue Fill */}
+                  <div className="absolute left-[8px] top-3 bottom-5 w-[2px] overflow-hidden">
+                    <motion.div
+                      className="w-full bg-[#0055FF]"
+                      style={{ height: verticalRailHeight }}
+                    />
+                  </div>
+
+                  <div className="space-y-7 sm:space-y-8">
+                    {tabs.map((tab, idx) => {
+                      const isActive = activeTab === tab.id;
+
+                      return (
+                        <div
+                          key={tab.id}
+                          onClick={() => handleStepClick(idx)}
+                          className="relative cursor-pointer group transition-none"
+                        >
+                          {/* Active Indicator Square Node sitting directly on the vertical line */}
                           <div
-                            className={`w-2.5 h-2.5 transition-none z-10 ${
+                            className={`absolute -left-[28px] top-1.5 w-2.5 h-2.5 transition-none z-10 ${
                               isActive
                                 ? "bg-[#0055FF] border border-white shadow-[0_0_8px_#0055FF]"
                                 : "bg-[#222222] border border-[#333333] group-hover:bg-[#444444]"
                             }`}
                           />
 
-                          {/* Segment Line connecting to the NEXT dot (only for idx = 0 and idx = 1) */}
-                          {idx < tabs.length - 1 && (
-                            <div className="w-[2px] absolute top-3.5 bottom-[-24px] sm:bottom-[-28px] bg-[#1a1a1e] overflow-hidden">
-                              <motion.div
-                                className="w-full bg-[#0055FF]"
-                                style={{ height: idx === 0 ? segment0 : segment1 }}
-                              />
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right Content: Serial + Label + Desc */}
-                        <div className="flex-1 pb-1">
                           <div className="flex items-center gap-2">
                             <span
                               className={`text-[10px] font-mono font-semibold transition-none ${
@@ -526,9 +522,9 @@ print(result.telemetry)`,
                             {tab.desc}
                           </p>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
