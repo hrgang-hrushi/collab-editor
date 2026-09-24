@@ -217,7 +217,7 @@ export default function AeyeHero() {
                 <div className="mt-8 flex items-center">
                   <CallChip
                     icon="terminal"
-                    name="waitlist"
+                    name="Waitlist"
                     argument={
                       chipStage === "almost"
                         ? "Almost there..."

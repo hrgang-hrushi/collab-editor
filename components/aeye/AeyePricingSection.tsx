@@ -224,7 +224,7 @@ export default function AeyePricingSection() {
                       <div className="w-full h-14 bg-[#0c0c0e] border border-[#222222] flex items-center justify-center">
                         <CallChip
                           icon="terminal"
-                          name="waitlist"
+                          name="Waitlist"
                           argument={
                             chipStage === "almost"
                               ? "Almost there..."
@@ -274,7 +274,7 @@ export default function AeyePricingSection() {
                       <div className="flex items-center gap-3">
                         <CallChip
                           icon="terminal"
-                          name="waitlist"
+                          name="Waitlist"
                           argument="Done! See ya at Crux!"
                           status="done"
                           expectedMs={2000}

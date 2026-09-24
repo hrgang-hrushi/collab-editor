@@ -173,7 +173,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               <div className="w-full py-2 flex items-center justify-center bg-[#111111] border border-[#222222]">
                 <CallChip
                   icon="terminal"
-                  name="waitlist"
+                  name="Waitlist"
                   argument={
                     chipStage === "almost"
                       ? "Almost there..."
@@ -220,7 +220,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <div className="flex justify-center pb-1">
               <CallChip
                 icon="terminal"
-                name="waitlist"
+                name="Waitlist"
                 argument="Done! See ya at Crux!"
                 status="done"
                 expectedMs={2000}
