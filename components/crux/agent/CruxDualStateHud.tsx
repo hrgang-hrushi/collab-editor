@@ -288,7 +288,7 @@ export default function CruxDualStateHud({
           boxShadow: "4px 4px 0px #111111",
           display: "flex",
           flexDirection: "column",
-          fontFamily: "Arial, sans-serif",
+          fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
           userSelect: "none",
         }}
         className="text-white overflow-hidden transition-none"
@@ -424,7 +424,7 @@ export default function CruxDualStateHud({
           display: "flex",
           flexDirection: "column",
           userSelect: "none",
-          fontFamily: "Arial, sans-serif",
+          fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
         }}
         className="shrink-0 z-30 relative transition-none"
       >

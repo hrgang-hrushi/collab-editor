@@ -6,7 +6,7 @@ import { BorderBeam } from "border-beam";
 import { Liquid } from "liquid-gooey";
 import { MetalFx, MetalText, MetalBadge, useMetalBend } from "metal-fx";
 import { Rise, Morph } from "cube-motion/react";
-import { X, Play, Pause, Sparkles, Layers, Sliders, ArrowUp, RefreshCw, Zap } from "lucide-react";
+import { X, Plus, Play, Pause, Sparkles, Layers, Sliders, ArrowUp, RefreshCw, Zap } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick } from "@/lib/sound";
 
@@ -73,7 +73,7 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#000000]/80 backdrop-blur-none flex items-center justify-center p-4 font-sans select-none">
+    <div className="fixed inset-0 z-50 bg-[#000000]/80 flex items-center justify-center p-4 font-sans select-none">
       <div className="w-full max-w-4xl max-h-[90vh] bg-[#0A0A0A] border border-[#222222] flex flex-col rounded-none shadow-none overflow-hidden">
         {/* Header Strip */}
         <div className="h-10 px-4 bg-[#111111] border-b border-[#222222] flex items-center justify-between font-mono text-xs text-white">
@@ -274,7 +274,7 @@ export default function CruxLibrariesFx({ isOpen, onClose }: CruxLibrariesFxProp
                         }}
                         className="w-10 h-10 bg-white text-black font-mono font-bold text-xs flex items-center justify-center cursor-pointer shadow-none rounded-none"
                       >
-                        {gooeyOpen ? "✕" : "✚"}
+                        {gooeyOpen ? <X className="w-3.5 h-3.5 text-black" /> : <Plus className="w-3.5 h-3.5 text-black" />}
                       </button>
                     </Liquid.Item>
 

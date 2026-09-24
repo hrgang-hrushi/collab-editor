@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { FileNode } from "@/lib/types";
-import { Trash2 } from "lucide-react";
+import { Trash2, ArrowRight } from "lucide-react";
 
 export default function ConnectorLayer() {
   const files = useWorkspaceStore((state) => state.files);
@@ -263,8 +263,8 @@ export default function ConnectorLayer() {
                       {edge.codeSymbol || edge.label}
                     </span>
                   </div>
-                  <span className="text-[#666666] text-[8.5px] shrink-0 font-medium">
-                    ➔ {(targetFile?.name || "file").replace(".ts", "")}
+                  <span className="text-[#666666] text-[8.5px] shrink-0 font-medium flex items-center gap-1">
+                    <ArrowRight className="w-2.5 h-2.5 text-[#666666]" /> {(targetFile?.name || "file").replace(".ts", "")}
                   </span>
                   <button
                     onClick={(e) => {

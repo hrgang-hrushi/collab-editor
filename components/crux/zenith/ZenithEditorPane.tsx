@@ -95,7 +95,8 @@ export default function ZenithEditorPane() {
 
   const isFileRestricted = accessLevel === "limited" && !allowedFiles.includes(activeFile?.name || "");
   const isViewerOnly = accessLevel === "viewer";
-  const isReadOnly = viewerLock || isViewerOnly || isFileRestricted;
+  const isBinaryFile = activeFile?.binaryBase64 !== undefined;
+  const isReadOnly = viewerLock || isViewerOnly || isFileRestricted || isBinaryFile;
 
   const openFiles = files.filter(
     (f) => openTabIds.includes(f.id) || f.id === activeFile?.id
@@ -286,7 +287,7 @@ syncer.acquireLock().then((ticket) => {
           <button
             onClick={() => runActiveFileInTerminal()}
             disabled={isExecuting || !activeFile || isReadOnly}
-            title={isReadOnly ? "Execution disabled (Viewer Lock active)" : "Run Code (⌘+Enter)"}
+            title={isBinaryFile ? "Binary files cannot run" : isReadOnly ? "Execution disabled (Viewer Lock active)" : "Run Code (⌘+Enter)"}
             className="px-2 py-0.5 border border-grid bg-void text-muted hover:text-signal disabled:opacity-30 transition-colors flex items-center gap-1 font-mono text-[10px] uppercase font-bold"
           >
             {isExecuting ? (
@@ -300,7 +301,7 @@ syncer.acquireLock().then((ticket) => {
           <button
             onClick={handleSave}
             disabled={isReadOnly}
-            title={isReadOnly ? "Saving disabled (Viewer Lock active)" : "Save (⌘S)"}
+            title={isBinaryFile ? "Binary files are read-only; export preserves the original bytes" : isReadOnly ? "Saving disabled (Viewer Lock active)" : "Save (⌘S)"}
             className="p-1 border border-grid bg-void text-muted hover:text-signal disabled:opacity-30 transition-colors"
           >
             {savedFeedback ? <Check className="w-3.5 h-3.5 text-[#00FF00]" /> : <Save className="w-3.5 h-3.5" />}
@@ -382,11 +383,13 @@ syncer.acquireLock().then((ticket) => {
 
       {/* VIEWER LOCK / RESTRICTED ACCESS NOTIFICATION BANNER */}
       {isReadOnly && (
-        <div className="bg-[#0A0A0A] border-b border-[#FF453A]/40 px-4 py-1.5 flex items-center justify-between text-[11px] font-mono shrink-0 select-none z-20">
-          <div className="flex items-center gap-2 text-accent2">
-            <Lock className="w-3.5 h-3.5 text-accent2 shrink-0" />
+        <div className={`bg-[#0A0A0A] border-b px-4 py-1.5 flex items-center justify-between text-[11px] font-mono shrink-0 select-none z-20 ${isBinaryFile ? "border-[#222222]" : "border-[#FF453A]/40"}`}>
+          <div className={`flex items-center gap-2 ${isBinaryFile ? "text-white" : "text-accent2"}`}>
+            <Lock className={`w-3.5 h-3.5 shrink-0 ${isBinaryFile ? "text-white" : "text-accent2"}`} />
             <span className="font-semibold tracking-wider uppercase">
-              {viewerLock
+              {isBinaryFile
+                ? "BINARY FILE — READ-ONLY PREVIEW; ORIGINAL BYTES PRESERVED FOR EXPORT"
+                : viewerLock
                 ? "VIEWER LOCK ACTIVE — ALL WORKSPACE WRITES ARE SUSPENDED BY HOST"
                 : isViewerOnly
                 ? "VIEWER ROLE ACTIVE — READ-ONLY ACCESS TO ALL WORKSPACE BUFFERS"

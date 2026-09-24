@@ -33,9 +33,35 @@ export function detectLanguage(filename: string): FileNode["language"] {
 /**
  * Transforms flat array of FileNodes with relative paths into a nested tree structure
  */
-export function buildFileTree(files: FileNode[]): TreeItem[] {
+export function buildFileTree(files: FileNode[], folderPaths: string[] = []): TreeItem[] {
   const rootItems: TreeItem[] = [];
   const folderMap = new Map<string, TreeItem>();
+
+  const ensureFolder = (path: string): TreeItem | null => {
+    const parts = path.split("/").filter(Boolean);
+    let currentPath = "";
+    let parentFolder: TreeItem | null = null;
+    for (const folderName of parts) {
+      currentPath = currentPath ? `${currentPath}/${folderName}` : folderName;
+      let folder = folderMap.get(currentPath);
+      if (!folder) {
+        folder = {
+          id: `folder-${currentPath}`,
+          name: folderName,
+          path: currentPath,
+          isFolder: true,
+          children: [],
+        };
+        folderMap.set(currentPath, folder);
+        if (parentFolder) parentFolder.children!.push(folder);
+        else rootItems.push(folder);
+      }
+      parentFolder = folder;
+    }
+    return parentFolder;
+  };
+
+  for (const folderPath of folderPaths) ensureFolder(folderPath);
 
   // Sort files alphabetically by path
   const sortedFiles = [...files].sort((a, b) => a.path.localeCompare(b.path));
@@ -55,33 +81,7 @@ export function buildFileTree(files: FileNode[]): TreeItem[] {
       continue;
     }
 
-    // Handle nested directories
-    let currentPath = "";
-    let parentFolder: TreeItem | null = null;
-
-    for (let i = 0; i < parts.length - 1; i++) {
-      const folderName = parts[i];
-      currentPath = currentPath ? `${currentPath}/${folderName}` : folderName;
-
-      if (!folderMap.has(currentPath)) {
-        const newFolder: TreeItem = {
-          id: `folder-${currentPath}`,
-          name: folderName,
-          path: currentPath,
-          isFolder: true,
-          children: [],
-        };
-        folderMap.set(currentPath, newFolder);
-
-        if (parentFolder) {
-          parentFolder.children!.push(newFolder);
-        } else {
-          rootItems.push(newFolder);
-        }
-      }
-
-      parentFolder = folderMap.get(currentPath)!;
-    }
+    const parentFolder = ensureFolder(parts.slice(0, -1).join("/"));
 
     // Add the file into the deepest parent folder
     if (parentFolder) {
@@ -132,11 +132,35 @@ const IGNORED_DIRS = new Set([
 ]);
 
 /**
- * Binary file extensions to skip text reading
+ * Binary file extensions to preserve as assets instead of decoding as text
  */
 const BINARY_EXTENSIONS = new Set([
   "png", "jpg", "jpeg", "gif", "ico", "webp", "pdf", "zip", "tar", "gz", "exe", "dmg", "iso", "mp4", "mp3", "woff", "woff2", "ttf", "eot"
 ]);
+
+const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
+
+async function readBrowserFile(file: File, path: string): Promise<ImportedWorkspace["files"][number] | null> {
+  if (file.size > MAX_IMPORT_BYTES) return null;
+  try {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    if (!BINARY_EXTENSIONS.has(ext)) {
+      try {
+        return { name: file.name, path, content: new TextDecoder("utf-8", { fatal: true }).decode(bytes) };
+      } catch {
+        // Preserve unknown binary formats too.
+      }
+    }
+    let binary = "";
+    for (let i = 0; i < bytes.length; i += 32768) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 32768));
+    }
+    return { name: file.name, path, content: "Binary file — preview unavailable", binaryBase64: btoa(binary) };
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Recursively read directory using File System Access API
@@ -184,8 +208,8 @@ export async function readDirectoryHandle(
  */
 export async function readFileList(
   fileList: FileList
-): Promise<Array<{ name: string; path: string; content: string }>> {
-  const results: Array<{ name: string; path: string; content: string }> = [];
+): Promise<ImportedWorkspace["files"]> {
+  const results: ImportedWorkspace["files"] = [];
 
   for (let i = 0; i < fileList.length; i++) {
     const file = fileList[i];
@@ -193,37 +217,91 @@ export async function readFileList(
     const fullPath = file.webkitRelativePath || file.name;
     const pathParts = fullPath.split("/");
 
-    // Skip root folder name if present
-    const relativePath = pathParts.length > 1 ? pathParts.slice(1).join("/") : fullPath;
-
     // Check if any directory in path is ignored
-    const isIgnored = pathParts.some((p) => IGNORED_DIRS.has(p));
+    const isIgnored = pathParts.slice(1, -1).some((p) => IGNORED_DIRS.has(p));
     if (isIgnored) continue;
 
-    const ext = file.name.split(".").pop()?.toLowerCase() || "";
-    if (BINARY_EXTENSIONS.has(ext)) continue;
-
-    if (file.size > 1024 * 1024) continue;
-
-    try {
-      const content = await file.text();
-      results.push({
-        name: file.name,
-        path: relativePath,
-        content,
-      });
-    } catch (err) {
-      console.warn(`Could not read file ${file.name}:`, err);
-    }
+    const imported = await readBrowserFile(file, fullPath);
+    if (imported) results.push(imported);
   }
 
   return results;
 }
 
 /**
+ * Open a native folder picker in the desktop app and import its text files.
+ */
+export interface ImportedWorkspace {
+  files: Array<{ name: string; path: string; content: string; binaryBase64?: string }>;
+  folders: string[];
+  skipped: number;
+}
+
+export async function readNativeDirectory(): Promise<ImportedWorkspace | null> {
+  const { open } = await import("@tauri-apps/plugin-dialog");
+  const selectedPath = await open({ directory: true, multiple: false });
+  if (!selectedPath) return null;
+  return readNativePaths([selectedPath]);
+}
+
+export async function readNativePaths(paths: string[]): Promise<ImportedWorkspace> {
+  const { invoke } = await import("@tauri-apps/api/core");
+  return invoke<ImportedWorkspace>("import_paths_from_disk", { paths });
+}
+
+export function isTauriDesktop(): boolean {
+  return typeof window !== "undefined" && Boolean(
+    (window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__
+  );
+}
+
+/** Read files and folders dropped from the host file manager in a browser. */
+export async function readDroppedItems(items: DataTransferItemList): Promise<ImportedWorkspace> {
+  const result: ImportedWorkspace = { files: [], folders: [], skipped: 0 };
+  // Capture entries before awaiting; the browser clears DataTransfer after the drop event.
+  const entries = Array.from(items)
+    .filter((item) => item.kind === "file")
+    .map((item) => ({ entry: (item as any).webkitGetAsEntry?.(), file: item.getAsFile() }));
+
+  const readFile = async (file: File, path: string) => {
+    const imported = await readBrowserFile(file, path);
+    if (imported) result.files.push(imported);
+    else result.skipped++;
+  };
+
+  const visit = async (entry: any, prefix = ""): Promise<void> => {
+    const path = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory) {
+      if (IGNORED_DIRS.has(entry.name)) return;
+      result.folders.push(path);
+      const reader = entry.createReader();
+      while (true) {
+        const batch: any[] = await new Promise((resolve, reject) => reader.readEntries(resolve, reject));
+        if (batch.length === 0) break;
+        for (const child of batch) await visit(child, path);
+      }
+    } else if (entry.isFile) {
+      const file: File = await new Promise((resolve, reject) => entry.file(resolve, reject));
+      await readFile(file, path);
+    }
+  };
+
+  for (const { entry, file } of entries) {
+    try {
+      if (entry) await visit(entry);
+      else if (file) await readFile(file, file.name);
+    } catch {
+      result.skipped++;
+    }
+  }
+  return result;
+}
+
+/**
  * Save file directly back to disk (via Tauri native IPC or FileSystemFileHandle)
  */
 export async function saveFileToDisk(file: FileNode): Promise<boolean> {
+  if (file.binaryBase64 !== undefined) return false;
   let saved = false;
 
   // 1. Server-side filesystem write via API (ensures terminal shell process has the file in process.cwd())
@@ -283,12 +361,15 @@ export async function saveFileToDisk(file: FileNode): Promise<boolean> {
  */
 export async function exportWorkspaceAsZip(
   files: FileNode[],
-  projectName = "crux-project"
+  projectName = "crux-project",
+  folders: string[] = []
 ): Promise<void> {
   const zip = new JSZip();
 
+  for (const folder of folders) zip.folder(folder);
+
   for (const file of files) {
-    zip.file(file.path, file.content);
+    zip.file(file.path, file.binaryBase64 !== undefined ? file.binaryBase64 : file.content, file.binaryBase64 !== undefined ? { base64: true } : undefined);
   }
 
   const blob = await zip.generateAsync({ type: "blob" });

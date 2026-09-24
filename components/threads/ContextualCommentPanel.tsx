@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { ContextualThread } from "@/lib/types";
-import { MessageSquare, Check, Send, X } from "lucide-react";
+import { MessageSquare, Check, Send, X, Zap } from "lucide-react";
 
 interface ContextualCommentPanelProps {
   thread: ContextualThread;
@@ -31,7 +31,7 @@ export default function ContextualCommentPanel({
       <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-[#222222]">
         <div className="flex items-center gap-2">
           <span className="p-1 rounded-none bg-black border border-[#222222] text-white">
-            <MessageSquare className="w-3.5 h-3.5 text-[#007AFF]" />
+            <MessageSquare className="w-3.5 h-3.5 text-white" />
           </span>
           <span className="font-semibold text-white text-xs font-mono">
             Line {thread.lineNumber}
@@ -100,9 +100,13 @@ export default function ContextualCommentPanel({
                 {Object.entries(msg.reactions).map(([emoji, users]) => (
                   <span
                     key={emoji}
-                    className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-none bg-[#0A0A0A] border border-[#222222] text-[10px] text-[#888888] font-mono"
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-none bg-[#0A0A0A] border border-[#222222] text-[10px] text-[#888888] font-mono"
                   >
-                    <span>{emoji}</span>
+                    {emoji === "zap" || emoji === "lightning" ? (
+                      <Zap className="w-2.5 h-2.5 text-white" />
+                    ) : (
+                      <span>{emoji}</span>
+                    )}
                     <span>{users.length}</span>
                   </span>
                 ))}
@@ -119,12 +123,12 @@ export default function ContextualCommentPanel({
           value={replyText}
           onChange={(e) => setReplyText(e.target.value)}
           placeholder="Reply to thread..."
-          className="w-full pl-2.5 pr-8 py-1.5 rounded-none bg-black border border-[#222222] focus:border-[#007AFF] text-white placeholder-[#888888] focus:outline-none text-xs transition-colors font-mono"
+          className="w-full pl-2.5 pr-8 py-1.5 rounded-none bg-black border border-[#222222] focus:border-white text-white placeholder-[#888888] focus:outline-none text-xs transition-colors font-mono"
         />
         <button
           type="submit"
           disabled={!replyText.trim()}
-          className="absolute right-1 p-1 rounded-none text-[#007AFF] hover:text-white disabled:opacity-30 transition-colors"
+          className="absolute right-1 p-1 rounded-none text-white hover:text-[#CCCCCC] disabled:opacity-30 transition-colors"
         >
           <Send className="w-3.5 h-3.5" />
         </button>

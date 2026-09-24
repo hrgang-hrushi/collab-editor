@@ -131,13 +131,13 @@ export class CrexRemoteCaretWidget extends WidgetType {
     badge.style.backgroundColor = this.color;
     badge.style.color = textColor;
     badge.style.border = `1.2px solid ${this.color}`;
-    badge.style.borderRadius = "4px";
-    badge.style.fontFamily = 'Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    badge.style.borderRadius = "0px";
+    badge.style.fontFamily = '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif';
     badge.style.fontSize = "10px";
     badge.style.fontWeight = "700";
     badge.style.lineHeight = "1";
     badge.style.whiteSpace = "nowrap";
-    badge.style.boxShadow = "0 2px 6px rgba(0,0,0,0.5)";
+    badge.style.boxShadow = "none";
     badge.style.display = "flex";
     badge.style.alignItems = "center";
     badge.style.gap = "4px";

@@ -46,6 +46,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { isTauriDesktop, readNativePaths } from "@/lib/fileUtils";
 
 interface CruxEditorViewProps {
   onBackToEffects?: () => void;
@@ -54,6 +55,7 @@ interface CruxEditorViewProps {
 export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps = {}) {
   const [isAgentOpen, setIsAgentOpen] = useState(false);
   const [isAuthGateOpen, setIsAuthGateOpen] = useState(false);
+  const [isNativeDragOver, setIsNativeDragOver] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [gitInfo, setGitInfo] = useState<{ branch: string; isDirty: boolean }>({
     branch: "main",
@@ -100,6 +102,47 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   const [livePeers, setLivePeers] = useState<Array<{ name: string; color: string; uid?: string }>>([]);
 
   const isNexus = mode === "canvas";
+
+  useEffect(() => {
+    if (!isTauriDesktop()) return;
+    let unlisten: (() => void) | undefined;
+    let disposed = false;
+    import("@tauri-apps/api/webview").then(({ getCurrentWebview }) =>
+      getCurrentWebview().onDragDropEvent(async (event) => {
+        if (event.payload.type === "enter" || event.payload.type === "over") {
+          setIsNativeDragOver(true);
+        } else if (event.payload.type === "leave") {
+          setIsNativeDragOver(false);
+        } else if (event.payload.type === "drop") {
+          setIsNativeDragOver(false);
+          try {
+            const result = await readNativePaths(event.payload.paths);
+            const state = useWorkspaceStore.getState();
+            if (!state.isOnboarded || state.isZeroStateOpen) {
+              const root = result.folders.find((folder) => !folder.includes("/")) || result.files[0]?.path.split("/")[0] || "Imported workspace";
+              state.importProject(root, result.files);
+              if (result.folders.length) state.importFolders(result.folders);
+              state.setOnboarded(true);
+              state.setZeroStateOpen(false);
+            } else {
+              if (result.folders.length) state.importFolders(result.folders);
+              if (result.files.length) state.importFiles(result.files);
+            }
+            state.setLastImportStatus(`Imported ${result.files.length} files and ${result.folders.length} folders${result.skipped ? ` · ${result.skipped} skipped (large, unreadable, or ignored)` : ""}`);
+          } catch (error) {
+            useWorkspaceStore.getState().setLastImportStatus(`Could not import dropped items: ${String(error)}`);
+          }
+        }
+      })
+    ).then((stop) => {
+      if (disposed) stop();
+      else unlisten = stop;
+    }).catch((error) => console.error("Could not listen for native file drops", error));
+    return () => {
+      disposed = true;
+      unlisten?.();
+    };
+  }, []);
 
   const activeFile =
     files && files.length > 0
@@ -351,7 +394,10 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   }
 
   if (!isOnboarded) {
-    return <CruxOnboardingStartPage />;
+    return <>
+      <CruxOnboardingStartPage />
+      {isNativeDragOver && <div className="fixed inset-0 z-[60] pointer-events-none border-2 border-white bg-black/80 flex items-center justify-center text-sm font-bold uppercase tracking-widest text-white">Drop files or folders to import</div>}
+    </>;
   }
 
   if (isZeroStateOpen) {
@@ -360,6 +406,11 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-black text-white flex flex-col font-sans select-none selection:bg-[#222222]">
+      {isNativeDragOver && (
+        <div className="fixed inset-0 z-[60] pointer-events-none border-2 border-white bg-black/80 flex items-center justify-center text-sm font-bold uppercase tracking-widest">
+          Drop files or folders to import
+        </div>
+      )}
       {/* VS Code / Command Palette (Cmd+K / Cmd+P) */}
       <CommandPalette />
 
@@ -624,7 +675,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <CruxLibraryModal />
       <CruxTimelineHistoryDrawer />
       {isAuthGateOpen && (
-        <div className="fixed inset-0 z-50 bg-[#000000]/90 backdrop-blur-none flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-[#000000]/90 flex items-center justify-center p-4">
           <CruxAuthGate
             onSuccess={() => setIsAuthGateOpen(false)}
             onCancel={() => setIsAuthGateOpen(false)}

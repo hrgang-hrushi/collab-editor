@@ -241,7 +241,7 @@ export default function PipelineTracker() {
                 borderLeftColor: edgeColor,
               }}
             >
-              {/* Card Header: Source ➔ Target & Contributor Tag */}
+              {/* Card Header: Source -> Target & Contributor Tag */}
               <div className="flex items-center justify-between text-xs mb-1">
                 <div className="flex items-center gap-1.5 font-medium">
                   <span className="text-white font-mono">{source?.name || edge.sourceNodeId}</span>
@@ -274,8 +274,10 @@ export default function PipelineTracker() {
                     {edge.changeCode?.startsWith("+ ") ? edge.changeCode.slice(2) : edge.changeCode || edge.codeSymbol}
                   </code>
                 </div>
-                <span className="text-[10px] text-[#888888] shrink-0 font-mono">
-                  {edge.sourceLine ? `L${edge.sourceLine}` : ""} ➔ {edge.targetLine ? `L${edge.targetLine}` : ""}
+                <span className="text-[10px] text-[#888888] shrink-0 font-mono flex items-center gap-1">
+                  {edge.sourceLine ? `L${edge.sourceLine}` : ""}
+                  <ArrowRight className="w-2.5 h-2.5 text-[#666666]" />
+                  {edge.targetLine ? `L${edge.targetLine}` : ""}
                 </span>
               </div>
 

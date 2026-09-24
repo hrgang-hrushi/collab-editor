@@ -171,6 +171,7 @@ pub use terminal::{terminal_spawn, terminal_input, terminal_kill, git_command};
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::default().build())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::execute_code,
             migration::scan_existing_ides,
@@ -178,6 +179,8 @@ pub fn run() {
             fs_ops::list_directory_tree,
             fs_ops::read_file_from_disk,
             fs_ops::write_file_to_disk,
+            fs_ops::import_directory_from_disk,
+            fs_ops::import_paths_from_disk,
             terminal::terminal_spawn,
             terminal::terminal_input,
             terminal::terminal_kill,

@@ -135,4 +135,3 @@ System.out.println("Rank: " + rank);
 input.close();
 }
 }
-

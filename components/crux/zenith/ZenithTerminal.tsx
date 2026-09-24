@@ -23,6 +23,7 @@ import {
   Play,
   StopCircle,
   CheckCircle,
+  Check,
   History,
   Lock,
   Users,
@@ -583,11 +584,11 @@ export default function ZenithTerminal() {
               >
                 <div className="flex items-center gap-1.5">
                   {session.isStreaming ? (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF00] animate-ping" />
+                    <span className="w-1.5 h-1.5 rounded-none bg-white animate-ping" />
                   ) : session.lastExitCode !== null && session.lastExitCode !== 0 ? (
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent2" />
+                    <span className="w-1.5 h-1.5 rounded-none bg-[#888888]" />
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#555]" />
+                    <span className="w-1.5 h-1.5 rounded-none bg-[#444444]" />
                   )}
 
                   {session.type === "server" ? (
@@ -832,11 +833,19 @@ export default function ZenithTerminal() {
                     <span
                       className={`text-[11px] font-bold px-1.5 py-0.5 border ${
                         lastExecutionResult.success
-                          ? "border-[#00FF00]/40 text-[#00FF00] bg-[#00FF00]/10"
-                          : "border-accent2/40 text-accent2 bg-accent2/10"
+                          ? "border-white/40 text-white bg-white/10"
+                          : "border-[#888888] text-[#888888] bg-[#111111]"
                       }`}
                     >
-                      {lastExecutionResult.success ? "✓ EXIT 0" : "✕ EXIT 1"}
+                      {lastExecutionResult.success ? (
+                        <span className="inline-flex items-center gap-1">
+                          <Check className="w-3 h-3 inline" /> EXIT 0
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1">
+                          <X className="w-3 h-3 inline" /> EXIT 1
+                        </span>
+                      )}
                     </span>
                     <span className="text-signal font-medium">
                       {lastExecutionResult.fileName || "buffer"}
@@ -1209,8 +1218,9 @@ function TerminalPaneView({
                   </div>
                 )}
                 {session.lastDiagnosis.suggestedDiff && (
-                  <div className="text-[10px] text-[#00E5FF] pt-0.5 font-mono">
-                    ✓ Ghost Fix proposed directly into Suggesting Mode diff in editor.
+                  <div className="text-[10px] text-white pt-0.5 font-mono flex items-center gap-1">
+                    <Check className="w-3 h-3 text-white inline" />
+                    <span>Ghost Fix proposed directly into Suggesting Mode diff in editor.</span>
                   </div>
                 )}
               </div>
@@ -1273,8 +1283,8 @@ function TerminalPaneView({
           className="flex items-center gap-2 pt-2 border-t border-grid/60 shrink-0 relative bg-void/30"
         >
           {session.isStreaming ? (
-            <div className="flex items-center gap-1.5 shrink-0 text-[#00FF00]">
-              <span className="w-2 h-2 rounded-full bg-[#00FF00] animate-pulse shadow-[0_0_8px_#00FF00]" />
+            <div className="flex items-center gap-1.5 shrink-0 text-white">
+              <span className="w-1.5 h-1.5 rounded-none bg-white animate-pulse" />
               <span className="font-mono text-[11px] font-bold tracking-wider">&gt; stdin:</span>
             </div>
           ) : (

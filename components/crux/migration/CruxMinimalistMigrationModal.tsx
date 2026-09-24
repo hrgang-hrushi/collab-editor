@@ -184,8 +184,14 @@ export default function CruxMinimalistMigrationModal({
       : Math.min(((currentStep - 1) / STEPS.length) * 100 + 20, 95);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-lg bg-neutral-950 border border-neutral-800/80 rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 text-neutral-100 font-sans relative">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in duration-100"
+      style={{ fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif' }}
+    >
+      <div
+        className="w-full max-w-lg bg-[#000000] border border-[#222222] p-6 sm:p-8 space-y-6 text-[#FFFFFF] relative"
+        style={{ fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif' }}
+      >
         {/* Hidden manual file upload input */}
         <input
           ref={fileInputRef}
@@ -198,7 +204,7 @@ export default function CruxMinimalistMigrationModal({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-neutral-400 hover:text-neutral-200 p-1.5 rounded-lg hover:bg-neutral-800/50 transition-colors"
+          className="absolute top-5 right-5 text-[#888888] hover:text-[#FFFFFF] hover:bg-[#111111] p-1.5 border border-transparent hover:border-[#222222] transition-none"
           title="Close"
         >
           <X className="w-4 h-4" />
@@ -208,43 +214,43 @@ export default function CruxMinimalistMigrationModal({
         {/* PHASE 1: PERMISSION REQUEST CONSENT (MINIMALIST DESIGN)   */}
         {/* ========================================================= */}
         {phase === "consent" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6 animate-in fade-in duration-100">
             {/* Header */}
             <div className="space-y-2 pr-6">
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-300">
-                  <Shield className="w-3.5 h-3.5" />
+                <div className="w-5 h-5 bg-[#111111] border border-[#222222] flex items-center justify-center text-[#FFFFFF]">
+                  <Shield className="w-3 h-3" />
                 </div>
-                <span className="text-xs uppercase font-medium tracking-wider text-neutral-400">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#888888]">
                   System Permission Request
                 </span>
               </div>
-              <h3 className="text-xl font-semibold tracking-tight text-neutral-100">
+              <h3 className="text-lg font-bold uppercase tracking-normal text-[#FFFFFF]">
                 Authorize IDE Migration
               </h3>
-              <p className="text-sm text-neutral-400 font-normal leading-relaxed">
+              <p className="text-xs text-[#888888] leading-relaxed">
                 Crux requests permission to inspect your local configuration files to
                 seamlessly transfer your keyboard shortcuts, editor preferences, themes,
                 and AI directives.
               </p>
             </div>
 
-            {/* Scope Details with Soft Badges */}
-            <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800/70 space-y-3">
-              <div className="text-xs font-medium text-neutral-300 uppercase tracking-wider">
+            {/* Scope Details with Hardware Grid Badges */}
+            <div className="p-4 bg-[#111111] border border-[#222222] space-y-3">
+              <div className="text-[10px] font-bold text-[#FFFFFF] uppercase tracking-wider">
                 Requested Scopes
               </div>
-              <div className="space-y-2 text-xs text-neutral-400">
+              <div className="space-y-2 text-xs text-[#888888]">
                 <div className="flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-1.5 h-1.5 bg-[#FFFFFF] shrink-0" />
                   <span>Visual Studio Code settings & keybindings (`~/Library/.../Code/User`)</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-1.5 h-1.5 bg-[#FFFFFF] shrink-0" />
                   <span>Cursor configuration, themes & `.cursorrules` AI directives</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span className="w-1.5 h-1.5 bg-[#FFFFFF] shrink-0" />
                   <span>Installed extensions catalog & TextMate syntax grammars</span>
                 </div>
               </div>
@@ -252,30 +258,30 @@ export default function CruxMinimalistMigrationModal({
 
             {/* Granular Asset Preferences */}
             <div className="space-y-2.5">
-              <label className="flex items-center gap-3 text-xs text-neutral-300 cursor-pointer select-none">
+              <label className="flex items-center gap-3 text-xs text-[#CCCCCC] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={importKeybindings}
                   onChange={(e) => setImportKeybindings(e.target.checked)}
-                  className="rounded border-neutral-700 bg-neutral-900 text-neutral-200 focus:ring-0 focus:ring-offset-0"
+                  className="w-3.5 h-3.5 border-[#222222] bg-[#111111] text-white focus:ring-0 focus:ring-offset-0 rounded-none"
                 />
                 <span>Map custom keyboard shortcuts to preserve muscle memory</span>
               </label>
-              <label className="flex items-center gap-3 text-xs text-neutral-300 cursor-pointer select-none">
+              <label className="flex items-center gap-3 text-xs text-[#CCCCCC] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={importThemes}
                   onChange={(e) => setImportThemes(e.target.checked)}
-                  className="rounded border-neutral-700 bg-neutral-900 text-neutral-200 focus:ring-0 focus:ring-offset-0"
+                  className="w-3.5 h-3.5 border-[#222222] bg-[#111111] text-white focus:ring-0 focus:ring-offset-0 rounded-none"
                 />
                 <span>Adapt active color theme and syntax token highlighting</span>
               </label>
-              <label className="flex items-center gap-3 text-xs text-neutral-300 cursor-pointer select-none">
+              <label className="flex items-center gap-3 text-xs text-[#CCCCCC] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={importAiRules}
                   onChange={(e) => setImportAiRules(e.target.checked)}
-                  className="rounded border-neutral-700 bg-neutral-900 text-neutral-200 focus:ring-0 focus:ring-offset-0"
+                  className="w-3.5 h-3.5 border-[#222222] bg-[#111111] text-white focus:ring-0 focus:ring-offset-0 rounded-none"
                 />
                 <span>Attach `.cursorrules` directly into Crux Copilot context</span>
               </label>
@@ -285,17 +291,17 @@ export default function CruxMinimalistMigrationModal({
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={handleGrantPermissionAndStart}
-                className="w-full sm:flex-1 h-11 px-5 bg-neutral-100 hover:bg-white text-neutral-950 font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                className="w-full sm:flex-1 h-9 px-4 bg-[#FFFFFF] hover:bg-[#000000] text-[#000000] hover:text-[#FFFFFF] border border-[#FFFFFF] font-bold text-xs uppercase transition-none flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>Authorize & Start Migration</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full sm:w-auto h-11 px-4 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-neutral-200 text-xs font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto h-9 px-4 border border-[#222222] hover:border-[#FFFFFF] bg-transparent text-[#888888] hover:text-[#FFFFFF] text-xs font-bold uppercase transition-none flex items-center justify-center gap-2 cursor-pointer"
                 title="Select config or .cursorrules file manually"
               >
-                <FolderOpen className="w-4 h-4" />
+                <FolderOpen className="w-3.5 h-3.5" />
                 <span>Upload Config File</span>
               </button>
             </div>
@@ -306,33 +312,33 @@ export default function CruxMinimalistMigrationModal({
         {/* PHASE 2: PROGRESS TRACKING MODAL                          */}
         {/* ========================================================= */}
         {phase === "migrating" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6 animate-in fade-in duration-100">
             {/* Modal Header */}
             <div className="space-y-1.5 pr-8">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-neutral-300 animate-pulse" />
-                <span className="text-xs uppercase font-medium tracking-wider text-neutral-400">
+                <span className="w-2 h-2 bg-[#FFFFFF] animate-pulse" />
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#888888]">
                   Migration In Progress
                 </span>
               </div>
-              <h3 className="text-xl font-semibold tracking-tight text-neutral-100">
+              <h3 className="text-lg font-bold uppercase tracking-normal text-[#FFFFFF]">
                 Importing Workspace
               </h3>
-              <p className="text-sm text-neutral-400 font-normal leading-relaxed">
+              <p className="text-xs text-[#888888] leading-relaxed">
                 Ingesting user settings, keyboard shortcuts, themes, and agent guidelines.
               </p>
             </div>
 
-            {/* Thin, Subtle Progress Bar */}
-            <div className="w-full h-1 bg-neutral-900 rounded-full overflow-hidden">
+            {/* Thin, Precise Progress Bar */}
+            <div className="w-full h-1 bg-[#111111] overflow-hidden border border-[#222222]">
               <div
-                className="h-full bg-neutral-300 rounded-full transition-all duration-500 ease-out"
+                className="h-full bg-[#FFFFFF] transition-all duration-300 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
 
-            {/* 4 Tracking Steps with Animated Checkmarks */}
-            <div className="space-y-3.5 py-1">
+            {/* 4 Tracking Steps with Checkmarks */}
+            <div className="space-y-2 py-1">
               {STEPS.map((step) => {
                 const isDone = currentStep > step.id;
                 const isCurrent = currentStep === step.id;
@@ -340,40 +346,40 @@ export default function CruxMinimalistMigrationModal({
                 return (
                   <div
                     key={step.id}
-                    className={`flex items-start gap-3.5 p-3 rounded-xl transition-colors ${
+                    className={`flex items-start gap-3 p-3 border ${
                       isCurrent
-                        ? "bg-neutral-900/70 border border-neutral-800/60"
-                        : "opacity-60"
+                        ? "bg-[#111111] border-[#FFFFFF]"
+                        : "bg-[#000000] border-[#222222] opacity-60"
                     }`}
                   >
                     <div className="mt-0.5 shrink-0">
                       {isDone ? (
-                        <div className="w-5 h-5 rounded-full bg-neutral-800 text-neutral-200 flex items-center justify-center">
-                          <Check className="w-3 h-3 stroke-[2.5]" />
+                        <div className="w-4 h-4 bg-[#FFFFFF] text-[#000000] flex items-center justify-center">
+                          <Check className="w-3 h-3 stroke-[3]" />
                         </div>
                       ) : isCurrent ? (
-                        <div className="w-5 h-5 flex items-center justify-center">
-                          <Loader2 className="w-4 h-4 text-neutral-200 animate-spin" />
+                        <div className="w-4 h-4 flex items-center justify-center">
+                          <Loader2 className="w-3.5 h-3.5 text-[#FFFFFF] animate-spin" />
                         </div>
                       ) : (
-                        <div className="w-5 h-5 rounded-full border border-neutral-800 flex items-center justify-center text-[10px] text-neutral-500">
+                        <div className="w-4 h-4 border border-[#444444] flex items-center justify-center text-[9px] text-[#444444] font-bold">
                           {step.id}
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div
-                        className={`text-sm ${
+                        className={`text-xs ${
                           isCurrent
-                            ? "text-neutral-100 font-medium"
+                            ? "text-[#FFFFFF] font-bold"
                             : isDone
-                            ? "text-neutral-300 font-normal"
-                            : "text-neutral-400 font-normal"
+                            ? "text-[#CCCCCC] font-normal"
+                            : "text-[#888888] font-normal"
                         }`}
                       >
                         {step.title}
                       </div>
-                      <div className="text-xs text-neutral-400 mt-0.5">
+                      <div className="text-[10px] text-[#888888] mt-0.5">
                         {step.detail}
                       </div>
                     </div>
@@ -388,21 +394,21 @@ export default function CruxMinimalistMigrationModal({
         {/* PHASE 3: QUIET, MINIMALIST COMPLETION STATE               */}
         {/* ========================================================= */}
         {phase === "completed" && (
-          <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="space-y-6 animate-in fade-in duration-100">
             {/* Header */}
             <div className="space-y-1.5 pr-8">
               <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                <span className="text-xs uppercase font-medium tracking-wider text-neutral-400">
+                <span className="w-2 h-2 bg-[#FFFFFF]" />
+                <span className="text-[10px] uppercase font-bold tracking-wider text-[#888888]">
                   Synchronization Complete
                 </span>
               </div>
-              <h3 className="text-xl font-semibold tracking-tight text-neutral-100">
+              <h3 className="text-lg font-bold uppercase tracking-normal text-[#FFFFFF]">
                 Your workspace is ready.
               </h3>
-              <p className="text-sm text-neutral-400 font-normal leading-relaxed">
+              <p className="text-xs text-[#888888] leading-relaxed">
                 Synchronized preferences and developer configurations from{" "}
-                <span className="text-neutral-200 font-medium">
+                <span className="text-[#FFFFFF] font-bold">
                   {summary?.ideName || "Cursor / VS Code"}
                 </span>
                 .
@@ -411,41 +417,41 @@ export default function CruxMinimalistMigrationModal({
 
             {/* Summary Cards */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800/60 space-y-1">
-                <div className="flex items-center gap-2 text-neutral-400 text-xs">
-                  <Command className="w-3.5 h-3.5 text-neutral-300" />
+              <div className="p-3 bg-[#111111] border border-[#222222] space-y-1">
+                <div className="flex items-center gap-2 text-[#888888] text-[10px] uppercase font-bold">
+                  <Command className="w-3.5 h-3.5 text-[#FFFFFF]" />
                   <span>Shortcuts & Settings</span>
                 </div>
-                <div className="text-sm font-medium text-neutral-100">
+                <div className="text-xs font-bold text-[#FFFFFF]">
                   {summary?.keybindingsCount || 4} Keybindings Active
                 </div>
-                <div className="text-xs text-neutral-400">
+                <div className="text-[10px] text-[#888888]">
                   {summary?.settingsCount || 8} editor preferences saved
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800/60 space-y-1">
-                <div className="flex items-center gap-2 text-neutral-400 text-xs">
-                  <Palette className="w-3.5 h-3.5 text-neutral-300" />
+              <div className="p-3 bg-[#111111] border border-[#222222] space-y-1">
+                <div className="flex items-center gap-2 text-[#888888] text-[10px] uppercase font-bold">
+                  <Palette className="w-3.5 h-3.5 text-[#FFFFFF]" />
                   <span>Theme & Aesthetics</span>
                 </div>
-                <div className="text-sm font-medium text-neutral-100 truncate">
-                  {summary?.themeName || "Cursor Dark Midnight"}
+                <div className="text-xs font-bold text-[#FFFFFF] truncate">
+                  {summary?.themeName || "Crux Monochrome Dark"}
                 </div>
-                <div className="text-xs text-neutral-400">
-                  Soft neutral palette applied
+                <div className="text-[10px] text-[#888888]">
+                  Monochrome palette applied
                 </div>
               </div>
 
-              <div className="col-span-2 p-3.5 rounded-xl bg-neutral-900/60 border border-neutral-800/60 space-y-1">
-                <div className="flex items-center gap-2 text-neutral-400 text-xs">
-                  <Bot className="w-3.5 h-3.5 text-neutral-300" />
+              <div className="col-span-2 p-3 bg-[#111111] border border-[#222222] space-y-1">
+                <div className="flex items-center gap-2 text-[#888888] text-[10px] uppercase font-bold">
+                  <Bot className="w-3.5 h-3.5 text-[#FFFFFF]" />
                   <span>AI Directives & Rules</span>
                 </div>
-                <div className="text-sm font-medium text-neutral-100">
+                <div className="text-xs font-bold text-[#FFFFFF]">
                   .cursorrules Attached to Workspace Files
                 </div>
-                <div className="text-xs text-neutral-400">
+                <div className="text-[10px] text-[#888888]">
                   Active in file tree and loaded into Crux Copilot context
                 </div>
               </div>
@@ -454,16 +460,16 @@ export default function CruxMinimalistMigrationModal({
             {/* Launch Workspace Primary Action Button */}
             <button
               onClick={handleLaunchEditor}
-              className="w-full h-11 px-5 bg-neutral-100 hover:bg-white text-neutral-950 font-medium text-sm rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow"
+              className="w-full h-9 px-4 bg-[#FFFFFF] hover:bg-[#000000] text-[#000000] hover:text-[#FFFFFF] border border-[#FFFFFF] font-bold text-xs uppercase transition-none flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Launch Synchronized Workspace</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         )}
 
         {/* Footer Meta */}
-        <div className="pt-2 border-t border-neutral-800/60 flex items-center justify-between text-xs text-neutral-400">
+        <div className="pt-2 border-t border-[#222222] flex items-center justify-between text-[10px] uppercase tracking-wider text-[#888888]">
           <span>Target: Crux Engine v1.0.0</span>
           <span>Zero telemetry leakage</span>
         </div>

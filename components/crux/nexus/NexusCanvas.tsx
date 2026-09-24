@@ -7,6 +7,7 @@ import ConnectorLayer from "@/components/canvas/ConnectorLayer";
 import CursorLayer from "@/components/multiplayer/CursorLayer";
 import PipelineTracker from "@/components/canvas/PipelineTracker";
 import { initCrexCanvasSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { isTauriDesktop, readDroppedItems, readFileList, readNativeDirectory } from "@/lib/fileUtils";
 import {
   Layers,
   ZoomIn,
@@ -41,6 +42,8 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
   const cancelConnection = useWorkspaceStore((state) => state.cancelConnection);
   const createFile = useWorkspaceStore((state) => state.createFile);
   const importFiles = useWorkspaceStore((state) => state.importFiles);
+  const importFolders = useWorkspaceStore((state) => state.importFolders);
+  const setLastImportStatus = useWorkspaceStore((state) => state.setLastImportStatus);
   const flowSpeedFactor = useWorkspaceStore((state) => state.flowSpeedFactor);
   const setFlowSpeedFactor = useWorkspaceStore((state) => state.setFlowSpeedFactor);
   const isFlowPaused = useWorkspaceStore((state) => state.isFlowPaused);
@@ -118,37 +121,12 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
     };
   }, [currentUser]);
 
-  const readFileAsText = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(file);
-    });
-  };
-
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = e.target.files;
     if (!uploadedFiles || uploadedFiles.length === 0) return;
-
-    const imported: Array<{ name: string; path: string; content: string }> = [];
-    for (let i = 0; i < uploadedFiles.length; i++) {
-      const f = uploadedFiles[i];
-      try {
-        const content = await readFileAsText(f);
-        imported.push({
-          name: f.name,
-          path: (f as any).webkitRelativePath || f.name,
-          content,
-        });
-      } catch (err) {
-        console.error("Failed to read file", f.name, err);
-      }
-    }
-
-    if (imported.length > 0) {
-      importFiles(imported);
-    }
+    const imported = await readFileList(uploadedFiles);
+    if (imported.length) importFiles(imported);
+    setLastImportStatus(`Imported ${imported.length} files${uploadedFiles.length > imported.length ? ` · ${uploadedFiles.length - imported.length} skipped (large, unreadable, or ignored)` : ""}`);
     e.target.value = "";
   };
 
@@ -156,74 +134,30 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
     const uploadedFiles = e.target.files;
     if (!uploadedFiles || uploadedFiles.length === 0) return;
 
-    const imported: Array<{ name: string; path: string; content: string }> = [];
-    for (let i = 0; i < uploadedFiles.length; i++) {
-      const f = uploadedFiles[i];
-      if (
-        f.name.startsWith(".") ||
-        (f as any).webkitRelativePath?.includes("node_modules/") ||
-        (f as any).webkitRelativePath?.includes(".git/")
-      ) {
-        continue;
-      }
-      try {
-        const content = await readFileAsText(f);
-        imported.push({
-          name: f.name,
-          path: (f as any).webkitRelativePath || f.name,
-          content,
-        });
-      } catch (err) {
-        console.error("Failed to read file", f.name, err);
-      }
-    }
-
-    if (imported.length > 0) {
-      importFiles(imported);
-    }
+    const imported = await readFileList(uploadedFiles);
+    const rootFolder = uploadedFiles[0]?.webkitRelativePath?.split("/")[0];
+    if (rootFolder) importFolders([rootFolder]);
+    if (imported.length) importFiles(imported);
+    setLastImportStatus(`Imported ${imported.length} files and ${rootFolder ? 1 : 0} folders${uploadedFiles.length > imported.length ? ` · ${uploadedFiles.length - imported.length} skipped (large, unreadable, or ignored)` : ""}`);
     e.target.value = "";
   };
 
-  const readEntryRecursively = async (
-    entry: any,
-    pathPrefix = ""
-  ): Promise<Array<{ name: string; path: string; content: string }>> => {
-    if (entry.isFile) {
-      return new Promise((resolve) => {
-        entry.file(async (file: File) => {
-          if (file.name.startsWith(".") || file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
-            resolve([]);
-            return;
-          }
-          try {
-            const content = await readFileAsText(file);
-            resolve([
-              {
-                name: file.name,
-                path: pathPrefix ? `${pathPrefix}/${file.name}` : file.name,
-                content,
-              },
-            ]);
-          } catch {
-            resolve([]);
-          }
-        });
-      });
-    } else if (entry.isDirectory) {
-      const dirReader = entry.createReader();
-      const entries = await new Promise<any[]>((resolve) => {
-        dirReader.readEntries((ents: any[]) => resolve(ents));
-      });
-      const currentPrefix = pathPrefix ? `${pathPrefix}/${entry.name}` : entry.name;
-      const results: Array<{ name: string; path: string; content: string }> = [];
-      for (const ent of entries) {
-        if (ent.name === "node_modules" || ent.name === ".git") continue;
-        const subFiles = await readEntryRecursively(ent, currentPrefix);
-        results.push(...subFiles);
-      }
-      return results;
+  const openFolderPicker = async () => {
+    if (!isTauriDesktop()) {
+      folderInputRef.current?.click();
+      return;
     }
-    return [];
+    try {
+      const imported = await readNativeDirectory();
+      if (imported) {
+        if (imported.folders.length) importFolders(imported.folders);
+        if (imported.files.length) importFiles(imported.files);
+        setLastImportStatus(`Imported ${imported.files.length} files and ${imported.folders.length} folders${imported.skipped ? ` · ${imported.skipped} skipped (large, unreadable, or ignored)` : ""}`);
+      }
+    } catch (error) {
+      console.error("Failed to import folder", error);
+      window.alert(`Could not import folder: ${String(error)}`);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -243,34 +177,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
     e.stopPropagation();
     setIsDragOver(false);
 
-    const items = e.dataTransfer.items;
-    if (!items || items.length === 0) return;
-
-    const imported: Array<{ name: string; path: string; content: string }> = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.kind === "file") {
-        const entry = (item as any).webkitGetAsEntry?.();
-        if (entry) {
-          const filesInEntry = await readEntryRecursively(entry);
-          imported.push(...filesInEntry);
-        } else {
-          const file = item.getAsFile();
-          if (file) {
-            const content = await readFileAsText(file);
-            imported.push({
-              name: file.name,
-              path: file.name,
-              content,
-            });
-          }
-        }
-      }
-    }
-
-    if (imported.length > 0) {
-      importFiles(imported);
-    }
+    const imported = await readDroppedItems(e.dataTransfer.items);
+    if (imported.folders.length) importFolders(imported.folders);
+    if (imported.files.length) importFiles(imported.files);
+    setLastImportStatus(`Imported ${imported.files.length} files and ${imported.folders.length} folders${imported.skipped ? ` · ${imported.skipped} skipped (large, unreadable, or ignored)` : ""}`);
   };
 
   // Spacebar pan listener
@@ -435,7 +345,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       )}
 
       {/* Top Canvas HUD Toolbar */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-[#888888] font-sans select-none">
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1 bg-[#0A0A0A] border border-[#222222] rounded-none text-xs text-[#888888] font-sans select-none">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded-none bg-black border border-[#222222] flex items-center justify-center">
             <Layers className="w-3 h-3 text-white" />
@@ -552,7 +462,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
         <ConnectorLayer />
 
         {files.length === 0 ? (
-          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 border border-[#222222] bg-[#0A0A0A] text-white flex flex-col items-center max-w-sm text-center space-y-3 shadow-[4px_4px_0px_#222222]">
+          <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 p-6 border border-[#222222] bg-[#0A0A0A] text-white flex flex-col items-center max-w-sm text-center space-y-3">
             <div className="w-8 h-8 bg-black border border-[#222222] flex items-center justify-center">
               <Layers className="w-4 h-4 text-white" />
             </div>
@@ -585,9 +495,9 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
 
       {/* Connecting Mode Helper Banner */}
       {isConnecting && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-[#007AFF] rounded-none shadow-[4px_4px_0px_#222222] text-xs text-white font-sans">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 flex items-center gap-3 px-3 py-1.5 bg-[#0A0A0A] border border-white rounded-none text-xs text-white font-sans">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-none bg-[#007AFF]" />
+            <span className="w-2 h-2 rounded-none bg-white" />
             <span className="font-semibold text-white">Connection Mode:</span>
             <span className="text-[#888888]">Click another file to connect</span>
           </div>
@@ -602,10 +512,10 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       )}
 
       {/* Bottom Controls: Import + File + Zoom Dock */}
-      <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] rounded-none shadow-[4px_4px_0px_#222222] text-xs font-sans text-[#888888] select-none">
+      <div className="absolute bottom-4 right-4 z-40 flex items-center gap-1.5 p-1 bg-[#0A0A0A] border border-[#222222] rounded-none text-xs font-sans text-[#888888] select-none">
         {/* Import Folder Button */}
         <button
-          onClick={() => folderInputRef.current?.click()}
+          onClick={openFolderPicker}
           className="flex items-center gap-1 h-6 px-2 rounded-none bg-black hover:bg-[#222222] text-[#888888] hover:text-white border border-[#222222] text-xs transition-colors"
           title="Import Folder to Canvas"
         >
@@ -670,7 +580,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       {/* New File Modal */}
       {isNewNodeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
-          <div className="w-full max-w-sm p-5 bg-[#0A0A0A] border border-[#222222] rounded-none text-white space-y-4 font-sans shadow-[4px_4px_0px_#222222]">
+          <div className="w-full max-w-sm p-5 bg-[#0A0A0A] border border-[#222222] rounded-none text-white space-y-4 font-sans">
             <div className="flex items-center justify-between pb-3 border-b border-[#222222]">
               <h3 className="font-semibold text-xs text-white uppercase tracking-widest">Add New File</h3>
               <button

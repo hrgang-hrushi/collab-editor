@@ -80,7 +80,7 @@ export default function CruxPointerCursor({
 
         {/* Seamless Collaborator Pill Tag with Matching Pointer Color Outline & Corner Curve Radius */}
         <div
-          className="absolute left-[11px] top-[11px] z-0 px-2 py-[2.5px] text-[10px] font-sans font-semibold leading-tight select-none whitespace-nowrap border-[1.2px] rounded-[4px] rounded-tl-none flex items-center gap-1.5 shadow-md"
+          className="absolute left-[11px] top-[11px] z-0 px-2 py-[2.5px] text-[10px] font-sans font-semibold leading-tight select-none whitespace-nowrap border rounded-none flex items-center gap-1.5"
           style={{
             backgroundColor: color,
             color: textColor,
@@ -92,9 +92,9 @@ export default function CruxPointerCursor({
             <span className="inline-flex items-center gap-0.5 text-[9px] font-normal lowercase opacity-95">
               <span>typing</span>
               <span className="inline-flex gap-0.5 ml-0.5">
-                <span className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1 h-1 rounded-full bg-current animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1 h-1 rounded-full bg-current animate-bounce" />
+                <span className="w-1 h-1 rounded-none bg-current animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1 h-1 rounded-none bg-current animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1 h-1 rounded-none bg-current animate-bounce" />
               </span>
             </span>
           ) : (

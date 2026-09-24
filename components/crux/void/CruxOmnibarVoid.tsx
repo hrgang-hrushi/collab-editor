@@ -9,6 +9,7 @@ import VoidSuggestionMatrix, { VoidSuggestion } from "./VoidSuggestionMatrix";
 import VoidTerminalStage from "./VoidTerminalStage";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick, playMechanicalEnter } from "@/lib/sound";
+import { ChevronRight } from "lucide-react";
 
 interface TerminalLine {
   id: string;
@@ -327,7 +328,7 @@ export default function CruxOmnibarVoid() {
         previewDetails: {
           type: "LOCAL_WORKSPACE",
           target: "~/projects/crux-core",
-          payload: `ACTIVE_FILES:\n  • stream_syncer.ts\n  • database.ts\n  • auth.ts`,
+          payload: `ACTIVE_FILES:\n  - stream_syncer.ts\n  - database.ts\n  - auth.ts`,
           meta: "GIT: main* | 3 PEERS IN-SYNC",
         },
         action: () => launchIDE(),
@@ -342,7 +343,7 @@ export default function CruxOmnibarVoid() {
         previewDetails: {
           type: "AUTONOMOUS_SCAFFOLD",
           target: "Next.js Bare-Metal Dashboard",
-          payload: `GENERATING:\n  • app/dashboard/page.tsx\n  • components/telemetry/CpuDie.tsx\n  • tailwind.config.ts`,
+          payload: `GENERATING:\n  - app/dashboard/page.tsx\n  - components/telemetry/CpuDie.tsx\n  - tailwind.config.ts`,
           meta: "ZERO_DEPENDENCY_DRIFT",
         },
         action: () => executeScaffold("Next.js dashboard with hardware brutalist tokens"),
@@ -555,9 +556,7 @@ export default function CruxOmnibarVoid() {
 
               {/* Central Mechanical Input Row */}
               <div className="px-4 py-2.5 flex items-center gap-3 bg-[#000000] border-b border-[#222222]">
-                <span className="font-mono text-xs text-[#666666] select-none shrink-0 font-bold">
-                  ❯
-                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-[#666666] select-none shrink-0" />
                 <input
                   ref={inputRef}
                   type="text"

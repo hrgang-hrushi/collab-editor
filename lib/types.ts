@@ -64,6 +64,7 @@ export interface FileNode {
   path: string;
   language: "typescript" | "javascript" | "html" | "css" | "json" | "python" | "markdown" | "plaintext" | "java" | "rust" | "cpp" | "c" | "swift";
   content: string;
+  binaryBase64?: string;
   x: number;
   y: number;
   width: number;
@@ -218,5 +219,4 @@ export interface FileRevision {
     removed: number;
   };
 }
-
 

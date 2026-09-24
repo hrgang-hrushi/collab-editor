@@ -43,6 +43,8 @@ interface WorkspaceState {
   // Files & Tabs
   projectName: string;
   files: FileNode[];
+  folderPaths: string[];
+  lastImportStatus: string;
   activeFileId: string;
   openTabIds: string[];
   edges: ArchitecturalEdge[];
@@ -117,12 +119,14 @@ interface WorkspaceState {
   createFileInPath: (path: string, content?: string) => void;
   deletePath: (path: string) => void;
   renamePath: (oldPath: string, newPath: string) => void;
+  importFolders: (paths: string[]) => void;
+  setLastImportStatus: (status: string) => void;
   importFiles: (
-    files: Array<{ name: string; path: string; content: string; language?: string; handle?: any }>
+    files: Array<{ name: string; path: string; content: string; binaryBase64?: string; language?: string; handle?: any }>
   ) => void;
   importProject: (
     name: string,
-    files: Array<{ name: string; path: string; content: string; handle?: any }>,
+    files: Array<{ name: string; path: string; content: string; binaryBase64?: string; handle?: any }>,
     dirHandle?: any
   ) => void;
   clearWorkspace: () => void;
@@ -316,13 +320,13 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
     lines: [
       {
         id: "srv-1",
-        rawText: "▲ Next.js 14.2.21 - Local: http://localhost:3000",
-        spans: [{ text: "▲ Next.js 14.2.21 - Local: http://localhost:3000", color: "#00FF00", bold: true }],
+        rawText: "Next.js 14.2.21 - Local: http://localhost:3000",
+        spans: [{ text: "Next.js 14.2.21 - Local: http://localhost:3000", color: "#FFFFFF", bold: true }],
       },
       {
         id: "srv-2",
-        rawText: "✓ Ready in 1184ms | Webpack AST Hot Reload active",
-        spans: [{ text: "✓ Ready in 1184ms | Webpack AST Hot Reload active", color: "#666666" }],
+        rawText: "[OK] Ready in 1184ms | Webpack AST Hot Reload active",
+        spans: [{ text: "[OK] Ready in 1184ms | Webpack AST Hot Reload active", color: "#888888" }],
       },
     ],
     history: [],
@@ -384,6 +388,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   projectName: "crux-core",
   files: INITIAL_FILES,
+  folderPaths: [],
+  lastImportStatus: "",
   activeFileId: "file-stream-syncer",
   openTabIds: ["file-stream-syncer", "file-auth", "file-database"],
   edges: INITIAL_EDGES,
@@ -502,6 +508,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
       return {
         files: remainingFiles,
+        folderPaths: state.folderPaths.filter((path) => path !== norm && !path.startsWith(`${norm}/`)),
         openTabIds: remainingTabIds.length > 0 ? remainingTabIds : [remainingFiles[0]?.id || ""],
         activeFileId: nextActiveId,
         edges: state.edges.filter(
@@ -538,13 +545,19 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         return f;
       });
 
-      return { files: updatedFiles };
+      const folderPaths = state.folderPaths.map((path) =>
+        path === normOld ? normNew : path.startsWith(`${normOld}/`) ? `${normNew}${path.slice(normOld.length)}` : path
+      );
+      return { files: updatedFiles, folderPaths };
     }),
+
+  importFolders: (paths) => set((state) => ({
+    folderPaths: Array.from(new Set([...state.folderPaths, ...paths.map((path) => path.replace(/^\/+|\/+$/g, ""))])).filter(Boolean),
+  })),
+  setLastImportStatus: (lastImportStatus) => set({ lastImportStatus }),
 
   importProject: (name, importedFiles) =>
     set((state) => {
-      if (importedFiles.length === 0) return state;
-
       const colors = ["#5e6ad2", "#06b6d4", "#8b5cf6", "#f59e0b", "#10b981", "#ec4899", "#3b82f6"];
       const newNodes: FileNode[] = importedFiles.map((item, idx) => {
         const lang = detectLanguage(item.name);
@@ -557,6 +570,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           path: item.path || item.name,
           language: lang,
           content: item.content,
+          binaryBase64: item.binaryBase64,
           handle: item.handle,
           x: 60 + colIndex * 600,
           y: 60 + rowIndex * 500,
@@ -604,6 +618,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       return {
         projectName: name || "imported-project",
         files: newNodes,
+        folderPaths: [],
+        lastImportStatus: "",
         edges: newEdges,
         activeFileId: entryFile?.id || newNodes[0]?.id || "",
         openTabIds: newNodes.slice(0, 4).map((n) => n.id),
@@ -694,7 +710,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (result.returnValue !== undefined) {
       logLines.push(`=> ${result.returnValue}`);
     }
-    logLines.push(`✓ Done in ${result.durationMs}ms (exit: ${result.success ? 0 : 1})`);
+    logLines.push(`[OK] Done in ${result.durationMs}ms (exit: ${result.success ? 0 : 1})`);
 
     const formatRunCmd = (fileName: string, content: string) => {
       if (fileName.endsWith(".java") || content.includes("import java.") || content.includes("public class ")) {
@@ -745,7 +761,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (result.stdout.length > 0) logLines.push(...result.stdout);
     if (result.stderr.length > 0) logLines.push(...result.stderr.map((e) => `[Error] ${e}`));
     if (result.returnValue !== undefined) logLines.push(`=> ${result.returnValue}`);
-    logLines.push(`✓ Done in ${result.durationMs}ms`);
+    logLines.push(`[OK] Done in ${result.durationMs}ms`);
 
     const formatRunCmd = (fileName: string, content: string) => {
       if (fileName.endsWith(".java") || content.includes("import java.") || content.includes("public class ")) {
@@ -914,6 +930,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
           path: item.path || `src/${item.name}`,
           language: lang,
           content: item.content,
+          binaryBase64: item.binaryBase64,
           x,
           y,
           width: 540,
@@ -974,6 +991,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   clearWorkspace: () =>
     set({
       files: [],
+      folderPaths: [],
+      lastImportStatus: "",
       edges: [],
       openTabIds: [],
       activeFileId: "",
@@ -983,6 +1002,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     set({
       projectName: "crux-core",
       files: INITIAL_FILES,
+      folderPaths: [],
+      lastImportStatus: "",
       edges: INITIAL_EDGES,
       activeFileId: "file-stream-syncer",
       openTabIds: ["file-stream-syncer", "file-auth", "file-database"],
@@ -1685,6 +1706,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (!template) return;
     set({
       files: template.files,
+      folderPaths: [],
+      lastImportStatus: "",
       activeFileId: template.activeFileId,
       openTabIds: template.files.map((f) => f.id),
       projectName: `crux-${templateKey}`,
@@ -1830,14 +1853,12 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     // Standalone fallback: Provide active runtimes and run profiles
     set({
       discoveredRuntimes: [
-        { id: "java", name: "Java JDK", version: "21.0.2", path: "/usr/bin/java", available: true },
-        { id: "node", name: "Node.js", version: "20.18.0", path: "/usr/local/bin/node", available: true },
-        { id: "python", name: "Python 3", version: "3.12.0", path: "/usr/bin/python3", available: true },
-        { id: "rust", name: "Rust / Cargo", version: "1.77.2", path: "/opt/homebrew/bin/cargo", available: true },
+        { id: "ollama-local", name: "Ollama Local (Mistral-7B)", provider: "ollama", type: "local", latencyMs: 14, available: true, status: "READY", tags: ["local", "gpu"] },
+        { id: "openclaw-agent", name: "OpenClaw Kernel Engine", provider: "openclaw", type: "local", latencyMs: 2, available: true, status: "CONNECTED", tags: ["crdt", "fast"] },
       ],
       runProfiles: [
-        { id: "run-java", name: "Run Java (TrainingArena)", command: "javac Practice.java && java TrainingArena", isDefault: true },
-        { id: "run-node", name: "Run Active Node Script", command: "node stream_syncer.ts", isDefault: false },
+        { id: "run-java", source: "native", name: "Run Java (TrainingArena)", command: "javac Practice.java && java TrainingArena", args: [], isDefault: true },
+        { id: "run-node", source: "native", name: "Run Active Node Script", command: "node stream_syncer.ts", args: [], isDefault: false },
       ],
       isDiscoveryScanning: false,
     });

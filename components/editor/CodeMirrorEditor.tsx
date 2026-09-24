@@ -100,7 +100,7 @@ const cruxEditorTheme = EditorView.theme({
     color: "#FFFFFF",
   },
   ".cm-content": {
-    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', Menlo, Monaco, monospace",
+    fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
     padding: "12px 0",
     caretColor: "#FFFFFF",
     lineHeight: "1.6",
@@ -165,11 +165,11 @@ const cruxEditorTheme = EditorView.theme({
     borderRadius: "0px !important",
     boxShadow: "0 12px 32px rgba(0,0,0,0.95) !important",
     padding: "4px !important",
-    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace !important",
+    fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif !important',
     minWidth: "260px !important",
   },
   ".cm-completionList": {
-    fontFamily: "var(--font-geist-mono), 'JetBrains Mono', monospace !important",
+    fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif !important',
     fontSize: "12px !important",
   },
   ".cm-completionList ul": {
@@ -197,7 +197,7 @@ const cruxEditorTheme = EditorView.theme({
     fontSize: "10px !important",
     color: "#777777 !important",
     marginLeft: "auto !important",
-    fontFamily: "var(--font-geist-mono), monospace !important",
+    fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif !important',
   },
   ".cm-completionMatchedText": {
     color: "#007AFF !important",
@@ -210,7 +210,7 @@ const cruxEditorTheme = EditorView.theme({
     border: "1px solid #222222 !important",
     borderLeft: "2px solid #FF453A !important",
     color: "#FFFFFF !important",
-    fontFamily: "var(--font-geist-mono), monospace !important",
+    fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif !important',
     fontSize: "11px !important",
     borderRadius: "0px !important",
     boxShadow: "0 8px 24px rgba(0,0,0,0.9) !important",

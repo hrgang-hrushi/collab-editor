@@ -3,7 +3,7 @@ import { runFullRuntimeScan } from "@/daemon/scanner";
 import { importAllWorkspaceConfigurations } from "@/daemon/importer";
 import { DiscoveryReport } from "@/daemon/types";
 
-export const dynamic = "force-dynamic";
+export const dynamic = "auto";
 
 /**
  * GET /api/discovery

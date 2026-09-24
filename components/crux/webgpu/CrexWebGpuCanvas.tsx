@@ -226,15 +226,15 @@ export const CrexWebGpuCanvas: React.FC<CrexWebGpuCanvasProps> = ({
           <button
             onClick={handleExecute}
             disabled={isExecuting}
-            className={`h-6 px-3 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all duration-150 ${
+            className={`h-6 px-3 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 transition-none rounded-none ${
               isExecuting
-                ? "bg-[#00FF00] text-black shadow-[0_0_12px_rgba(0,255,0,0.4)]"
-                : "bg-white text-black hover:bg-neutral-200 active:scale-[0.98]"
+                ? "bg-white text-black"
+                : "bg-white text-black hover:bg-neutral-200"
             }`}
           >
             {isExecuting ? (
               <>
-                <span className="w-1.5 h-1.5 rounded-full bg-black animate-ping" />
+                <span className="w-1.5 h-1.5 rounded-none bg-black animate-ping" />
                 <span>[RUNNING...]</span>
               </>
             ) : (

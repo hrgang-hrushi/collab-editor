@@ -64,13 +64,13 @@ export default function AeyeCtaSection() {
   );
 
   return (
-    <section id="dispatch" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden scroll-mt-24">
+    <section id="dispatch" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden scroll-mt-20">
       {/* Background Dot Texture */}
       <div className="absolute inset-0 aeye-dot-bg invert opacity-15 pointer-events-none" />
 
-      <div className="max-w-[1280px] mx-auto px-6 py-20 relative z-10">
+      <div className="max-w-[1280px] mx-auto px-6 py-12 sm:py-16 relative z-10">
         {/* Section Header Meta */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222222] text-xs font-mono mb-8">
           <div className="flex items-center gap-2">
             <span className="text-[#0055FF] font-bold">[N.12/12]</span>
             <span className="text-[#888888]">— &gt;</span>

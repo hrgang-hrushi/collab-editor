@@ -38,11 +38,11 @@ export async function POST(req: NextRequest) {
     if (trimmed === "crux build") {
       return NextResponse.json({
         stdout: [
-          "⚡ Crux Incremental Pipeline Compiler v1.0.0",
-          "→ Parsing AST dependency graph for 5 modules...",
-          "→ Checking TypeScript strict contracts across stream_syncer.ts ↔ auth.ts...",
-          "→ Synchronizing vector clocks across 3 peer nodes...",
-          "✓ Build successful in 42ms. Zero type errors.",
+          "[CRUX] Crux Incremental Pipeline Compiler v1.0.0",
+          "-> Parsing AST dependency graph for 5 modules...",
+          "-> Checking TypeScript strict contracts across stream_syncer.ts <-> auth.ts...",
+          "-> Synchronizing vector clocks across 3 peer nodes...",
+          "[OK] Build successful in 42ms. Zero type errors.",
         ].join("\n"),
         stderr: "",
         exitCode: 0,

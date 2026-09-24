@@ -360,6 +360,7 @@ export default function EditorNode({ file, onOpenInIde }: EditorNodeProps) {
             <div className="flex-1 p-3 bg-black overflow-hidden flex flex-col">
               <textarea
                 value={file.content}
+                readOnly={file.binaryBase64 !== undefined}
                 onChange={(e) => updateFileContent(file.id, e.target.value)}
                 autoFocus
                 className="w-full h-full bg-black text-white font-mono text-[11px] leading-[1.6] resize-none focus:outline-none border border-[#222222] rounded-none p-2"

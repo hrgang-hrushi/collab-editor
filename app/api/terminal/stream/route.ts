@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
           sendEvent({ type: "start", pid: 7448, cwd: workingDir });
           sendEvent({
             type: "stdout",
-            data: "\x1b[1;36m⚡ Crux Incremental Pipeline Compiler v1.2.0\x1b[0m\n",
+            data: "[CRUX] Crux Incremental Pipeline Compiler v1.2.0\n",
           });
           const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
           // Drive all stages as chained promises so the stream stays alive
@@ -68,21 +68,21 @@ export async function POST(req: NextRequest) {
             .then(() => {
               sendEvent({
                 type: "stdout",
-                data: "→ Parsing AST dependency graph for 5 active modules...\n",
+                data: "-> Parsing AST dependency graph for 5 active modules...\n",
               });
               return sleep(40);
             })
             .then(() => {
               sendEvent({
                 type: "stdout",
-                data: "→ Checking strict type invariants across stream_syncer.ts ↔ auth.ts...\n",
+                data: "-> Checking strict type invariants across stream_syncer.ts <-> auth.ts...\n",
               });
               return sleep(60);
             })
             .then(() => {
               sendEvent({
                 type: "stdout",
-                data: "\x1b[32m✓ Build successful in 88ms. Zero type errors. Vector clocks synchronized.\x1b[0m\n",
+                data: "[OK] Build successful in 88ms. Zero type errors. Vector clocks synchronized.\n",
               });
               sendEvent({ type: "exit", code: 0 });
               controller.close();

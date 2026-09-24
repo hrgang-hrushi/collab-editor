@@ -469,7 +469,7 @@ export const INITIAL_COMMENTS: ContextualThread[] = [
         author: MOCK_USERS[2],
         text: "SubtleCrypto runs off-main-thread in Chromium & Safari. Verified benchmarks show < 0.18ms per signature verification.",
         createdAt: Date.now() - 1000 * 60 * 45,
-        reactions: { "⚡": ["user-1"] },
+        reactions: { "zap": ["user-1"] },
       },
     ],
   },

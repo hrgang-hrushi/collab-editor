@@ -71,7 +71,7 @@ export default function VoidTerminalStage({
           [CRUX BARE-METAL KERNEL v1.2.0 // TTY_ATTACHED // ZERO_COLOR]
         </div>
         <div className="text-white">
-          <span className="text-white font-bold">crux ❯</span> {command}
+          <span className="text-white font-bold">crux &gt;</span> {command}
         </div>
 
         {lines.map((l) => (
