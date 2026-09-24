@@ -7,6 +7,7 @@ interface CruxBrandLogoProps {
   size?: number;
   withText?: boolean;
   className?: string;
+  showBadge?: boolean;
 }
 
 /**
@@ -21,6 +22,7 @@ export default function CruxBrandLogo({
   size = 20,
   withText = false,
   className = "",
+  showBadge = false,
 }: CruxBrandLogoProps) {
   if (withText) {
     return (
@@ -48,17 +50,19 @@ export default function CruxBrandLogo({
           Crux
         </span>
 
-        <div className="metal-badge-transparent inline-flex items-center ml-1 select-none">
-          <MetalBadge
-            theme="dark"
-            textColor="#FFFFFF"
-            core={{ r: 0, blur: 0, a: 0, size: 0 }}
-            gradient={0}
-            glow={0}
-          >
-            PRO
-          </MetalBadge>
-        </div>
+        {showBadge && (
+          <div className="metal-badge-transparent inline-flex items-center ml-1 select-none">
+            <MetalBadge
+              theme="dark"
+              textColor="#FFFFFF"
+              core={{ r: 0, blur: 0, a: 0, size: 0 }}
+              gradient={0}
+              glow={0}
+            >
+              PRO
+            </MetalBadge>
+          </div>
+        )}
       </div>
     );
   }

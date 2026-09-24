@@ -78,6 +78,18 @@
   src: url('/fonts/etna-free-font.otf') format('opentype');
 }
 
+@font-face {
+  font-family: 'Arial MT Pro';
+  src: local('Arial MT'), local('ArialMT'), local('Arial');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Arial MT';
+  src: local('ArialMT'), local('Arial');
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -95,7 +107,7 @@
     --ide-line-num: #444444;
   }
 
-  * {
+  .crux-brutalist * {
     border-radius: 0px !important;
     box-shadow: none !important;
   }
@@ -105,17 +117,17 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     color-scheme: dark;
-    font-family: "Arial MT Pro", "Arial MT", Arial, Helvetica, sans-serif;
+    font-family: "Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif;
   }
 
   body {
-    background-color: #000000;
+    background-color: #050505;
     color: #FFFFFF;
-    font-family: "Arial MT Pro", "Arial MT", Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    font-family: "Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif;
+    font-size: 13px;
     letter-spacing: -0.01em;
-    overflow: hidden;
-    user-select: none;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 }
 
@@ -140,7 +152,7 @@
     justify-content: center;
     height: 24px;
     padding: 0 8px;
-    font-family: "Arial MT Pro", Arial, Helvetica, sans-serif;
+    font-family: "Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif;
     font-size: 11px;
     text-transform: uppercase;
     background-color: transparent;
@@ -231,7 +243,7 @@ kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif;
   font-size: 10px;
   padding: 1px 4px;
   border-radius: 0px;
@@ -342,6 +354,174 @@ kbd {
 .crex-dot-3 {
   animation: crexBounce 1.2s infinite ease-in-out;
 }
+
+/* ==========================================================================
+   Crux Next-Gen Hyper-Minimalist Landing Page Utilities
+   ========================================================================== */
+
+/* Circular Dot-Matrix Micro-Element Pattern */
+.crux-dot-grid {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.crux-dot-grid-dense {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* Deep Gunmetal Glass Surfaces with Strict 20px+ Backdrop Blur */
+.crux-glass-pill {
+  background: rgba(12, 13, 16, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+.crux-glass-card {
+  background: rgba(13, 14, 18, 0.65);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crux-glass-gunmetal {
+  background: linear-gradient(180deg, rgba(20, 21, 26, 0.75) 0%, rgba(10, 11, 14, 0.85) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* High-Impact Accent Glow: Hyper-Violet to Electric Silver */
+.crux-accent-glow {
+  background: radial-gradient(
+    600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(139, 92, 246, 0.15),
+    rgba(226, 232, 240, 0.04) 40%,
+    transparent 80%
+  );
+}
+
+.crux-hero-glow {
+  background: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    rgba(147, 51, 234, 0.18),
+    rgba(192, 132, 252, 0.06) 40%,
+    rgba(255, 255, 255, 0.02) 65%,
+    transparent 100%
+  );
+}
+
+.crux-gradient-border {
+  position: relative;
+}
+.crux-gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Micro-interaction interactive scanlines */
+@keyframes cruxPulseSlow {
+  0%, 100% { opacity: 0.25; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.02); }
+}
+
+.animate-pulse-slow {
+  animation: cruxPulseSlow 6s ease-in-out infinite;
+}
+
+/* =========================================================================
+   AEYE DESIGN SYSTEM (1-to-1 Framer Clone Tokens & Fonts)
+   ========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500;600;700&family=Fragment+Mono:ital@0;1&display=swap');
+
+@font-face {
+  font-family: 'Geist Pixel Square';
+  src: url('https://framerusercontent.com/assets/IQXyklzDeInO8OYtOs50tckOE.woff2') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 400;
+}
+
+:root {
+  --token-6765c5ec-c702-49f4-b5cd-46ca52eac634: #0055ff;
+  --token-d2776630-e03e-4d36-b881-a1a6038f91e7: #ffffff;
+  --token-5565559c-6919-44b3-95b7-019c4cc808cc: #f5f5f5;
+  --token-3747c700-750a-4a11-9141-0a79df5fd1d8: #f5f5f5;
+  --token-27b0ebb6-33f8-4341-8e47-3d51732fb540: #e0e0e0;
+  --token-60736782-9009-48cc-8645-06c192d5b983: #cccccc;
+  --token-450e3b6d-8fd0-4295-9d06-7de3a02a4f1c: #adadad;
+  --token-1d678c6a-376c-4686-a6b8-3d5956fc4e29: #7a7a7a;
+  --token-6556c924-92e1-4418-b4c0-3a10797cc65c: #474747;
+  --token-5bb53053-941d-4707-a0bb-db9db7728237: #1a1a1a;
+  --token-a281d3d3-8074-4276-b377-59dd81ca3f41: #381ac9;
+  --token-2ccbd3b4-6283-4510-8ca1-768518dd3bdd: #121214;
+}
+
+.font-pixel {
+  font-family: 'Geist Pixel Square', monospace, sans-serif;
+}
+.font-fragment {
+  font-family: 'Fragment Mono', monospace;
+}
+.font-geist-mono {
+  font-family: 'Geist Mono', monospace;
+}
+.font-geist {
+  font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.aeye-dot-bg {
+  background-image: url('https://framerusercontent.com/images/bHO3WASWC08UBjzqhqvquzu1k.svg?width=270&height=270');
+  background-repeat: repeat;
+  background-position: left top;
+  background-size: 135px auto;
+}
+
+.aeye-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.aeye-no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes aeyeTicker {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-33.333%);
+  }
+}
+
+.animate-aeye-ticker {
+  animation: aeyeTicker 22s linear infinite;
+}
+
+@keyframes aeyeMarqueeSlow {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-aeye-marquee {
+  animation: aeyeMarqueeSlow 28s linear infinite;
+}
+
+
 
 
 
