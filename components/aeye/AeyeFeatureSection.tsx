@@ -189,6 +189,7 @@ export default function AeyeFeatureSection() {
   const [typedChars, setTypedChars] = useState(0);
   const [tokRate, setTokRate] = useState(184);
   const [hashSuffix, setHashSuffix] = useState("a12c");
+  const [spotlightIndex, setSpotlightIndex] = useState(0);
 
   const rustCodeSnippet = `pub fn converge_delta(patch: &CRDTPatch) -> Result<ASTNode> {
   let mut tree = global_ast.write()?;
@@ -227,13 +228,14 @@ export default function AeyeFeatureSection() {
     return () => clearInterval(interval);
   }, [activeTab]);
 
-  // Tab 2 Generative Checksum
+  // Tab 2 Generative Spotlight Scanning (cycles through cards 0, 1, 2, 3 sequentially)
   useEffect(() => {
     if (activeTab !== 2) return;
     const interval = setInterval(() => {
+      setSpotlightIndex((prev) => (prev + 1) % 4);
       const hex = Math.floor(Math.random() * 0xffff).toString(16).padStart(4, "0");
       setHashSuffix(hex);
-    }, 1400);
+    }, 1300);
     return () => clearInterval(interval);
   }, [activeTab]);
 
@@ -448,7 +450,7 @@ export default function AeyeFeatureSection() {
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.96 }}
                         transition={{ duration: 0.25 }}
-                        className="w-full flex flex-col items-center gap-6 relative"
+                        className="w-full flex flex-col items-center gap-2 sm:gap-2.5 relative"
                       >
                         {/* Upper Row: WORKSPACE INPUTS, BRACKET TRACES, CENTER CRUX CORE, EXECUTION CONTEXT */}
                         <div className="w-full flex items-center justify-between gap-2 sm:gap-4 relative">
@@ -562,38 +564,38 @@ export default function AeyeFeatureSection() {
                           </div>
                         </div>
 
-                        {/* Double Blue Vertical Cable from Center down to TELEMETRY */}
-                        <div className="w-3 h-12 relative flex justify-between">
+                        {/* Tightened Double Blue Vertical Cable from Center down to TELEMETRY */}
+                        <div className="w-3 h-5 relative flex justify-between">
                           <div className="w-[1px] h-full bg-[#0055FF]" />
                           <div className="w-[1px] h-full bg-[#0055FF]" />
                           {/* Animated Blue Pulse Particle flowing down */}
                           <motion.div
                             animate={{ y: ["0%", "100%"] }}
-                            transition={{ repeat: Infinity, duration: 1.1, ease: "linear" }}
-                            className="absolute left-0 right-0 h-4 bg-[#0055FF]/40 border-y border-[#0055FF]"
+                            transition={{ repeat: Infinity, duration: 1.0, ease: "linear" }}
+                            className="absolute left-0 right-0 h-3 bg-[#0055FF]/40 border-y border-[#0055FF]"
                           />
                         </div>
 
-                        {/* Bottom: KERNEL TELEMETRY Box with Live Generative Ticking Telemetry */}
-                        <div className="border border-[#0055FF] bg-[#0c0c0e] p-3.5 sm:p-4 w-full max-w-sm rounded-none text-center relative shadow-[0_0_15px_rgba(0,85,255,0.15)]">
-                          <div className="text-[10px] font-mono uppercase text-[#71717a] tracking-[0.2em] font-semibold mb-3 flex items-center justify-center gap-2">
+                        {/* Bottom: KERNEL TELEMETRY Box brought tight to center with white icons */}
+                        <div className="border border-[#0055FF] bg-[#0c0c0e] p-3 w-full max-w-sm rounded-none text-center relative shadow-[0_0_15px_rgba(0,85,255,0.15)]">
+                          <div className="text-[10px] font-mono uppercase text-[#71717a] tracking-[0.2em] font-semibold mb-2 flex items-center justify-center gap-2">
                             <span>KERNEL TELEMETRY</span>
                             <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-none animate-pulse" />
                           </div>
                           <div className="flex items-center justify-center gap-2.5 sm:gap-3.5">
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
-                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
-                              <Activity className="w-4 h-4 stroke-[2.2]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5">
+                              <Activity className="w-4 h-4 stroke-[2.2] text-white" />
                               <span className="text-[8px] font-mono text-[#888888]">{telemetry.io}ms I/O</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
-                            <div className="w-12 h-12 bg-[#111111] border border-[#0055FF]/60 flex flex-col items-center justify-center gap-0.5 text-[#0055FF] shadow-[0_0_10px_rgba(0,85,255,0.2)]">
-                              <Zap className="w-4 h-4 stroke-[2.2]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#0055FF]/60 flex flex-col items-center justify-center gap-0.5 shadow-[0_0_10px_rgba(0,85,255,0.2)]">
+                              <Zap className="w-4 h-4 stroke-[2.2] text-white" />
                               <span className="text-[8px] font-mono text-[#0055FF] font-bold">{telemetry.fps} FPS</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
-                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
-                              <Network className="w-4 h-4 stroke-[2.2]" />
+                            <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5">
+                              <Network className="w-4 h-4 stroke-[2.2] text-white" />
                               <span className="text-[8px] font-mono text-[#888888]">{telemetry.rtt}ms RTT</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
@@ -612,23 +614,15 @@ export default function AeyeFeatureSection() {
                         transition={{ duration: 0.25 }}
                         className="w-full relative flex items-center justify-center py-4"
                       >
-                        {/* Main Background Sandbox Card matching Screenshot 2 with Generative Code Streaming */}
+                        {/* Main Background Sandbox Card with Clean, Minimal Header */}
                         <div className="w-full max-w-[340px] bg-[#0e0e10] border border-[#222222] p-5 sm:p-6 rounded-none space-y-3.5 shadow-xl">
-                          {/* Terminal command & status lines */}
-                          <div className="space-y-1.5 pb-2 border-b border-[#222222]/80">
-                            <div className="text-[10px] font-mono text-[#0055FF] font-semibold flex items-center justify-between">
-                              <div className="flex items-center gap-1.5">
-                                <span>[@CruxAI]</span>
-                                <span className="text-[#666666]">cargo check --target=arm64</span>
-                              </div>
-                              <span className="text-[9px] text-[#22c55e] font-mono flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-                                LIVE
-                              </span>
-                            </div>
-                            <div className="text-[11px] font-mono text-[#cccccc] truncate">
-                              Compiling crux-kernel v0.4.2 [AST-CRDT]
-                            </div>
+                          {/* Clean minimal synthesis header (removed clumsy cargo check / compiling kernel) */}
+                          <div className="flex items-center justify-between text-[10px] font-mono text-[#888888] pb-1.5 border-b border-[#222222]">
+                            <span className="uppercase tracking-wider">AST-CRDT SYNTHESIS</span>
+                            <span className="text-[#0055FF] font-bold flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+                              LIVE
+                            </span>
                           </div>
 
                           {/* Generative Code Typewriter Snippet */}
@@ -711,7 +705,7 @@ export default function AeyeFeatureSection() {
                     )}
 
                     {activeTab === 2 && (
-                      /* TAB 3: Actionable Output (Engineered Artifacts & Native Binaries with Generative Motion) */
+                      /* TAB 3: Actionable Output (Sequential Spotlight Scanning across cards 0, 1, 2, 3) */
                       <motion.div
                         key="tab-2"
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -733,41 +727,71 @@ export default function AeyeFeatureSection() {
                           <AsteriskCoreIcon className="w-6 h-6 text-white" />
                         </div>
 
-                        {/* Card 1: Native Host Binary [ARM64 / x86_64] with Generative Checksum */}
-                        <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
+                        {/* Card 0: Native Host Binary [ARM64 / x86_64] */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.05 }}
+                          className={`w-72 sm:w-80 px-4 py-2.5 rounded-none flex items-center justify-between relative transition-all duration-300 ${
+                            spotlightIndex === 0
+                              ? "bg-[#0d0d14] border border-[#0055FF] shadow-[0_0_20px_rgba(0,85,255,0.22)] scale-[1.02] z-20"
+                              : "bg-[#0a0a0c] border border-[#222222] opacity-60 scale-100 z-10"
+                          }`}
+                        >
+                          {spotlightIndex === 0 && (
+                            <>
+                              <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2 }} />
+                              </div>
+                              <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.6 }} />
+                              </div>
+                            </>
+                          )}
                           <div className="flex items-center gap-3">
-                            <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#a1a1aa]">
+                            <div className={`w-7 h-7 flex items-center justify-center border transition-none ${spotlightIndex === 0 ? "bg-[#0055FF]/10 border-[#0055FF]/40 text-[#0055FF]" : "bg-[#141416] border-[#222222] text-[#888888]"}`}>
                               <Cpu className="w-3.5 h-3.5" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-medium text-[#e4e4e7] font-sans">Native Host Binary</span>
+                              <span className={`text-xs font-medium font-sans ${spotlightIndex === 0 ? "text-white font-semibold" : "text-[#aaaaaa]"}`}>Native Host Binary</span>
                               <span className="text-[9px] font-mono text-[#666666]">sha256: {hashSuffix}...</span>
                             </div>
                           </div>
-                          <div className="text-[10px] font-mono text-[#71717a] font-bold px-1.5 py-0.5 bg-[#141416] border border-[#222222]">
+                          <div className={`text-[10px] font-mono font-bold px-1.5 py-0.5 border ${spotlightIndex === 0 ? "text-[#0055FF] bg-[#0055FF]/10 border-[#0055FF]/40" : "text-[#71717a] bg-[#141416] border-[#222222]"}`}>
                             ARM64
                           </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Card 2: Atomic AST Git Diff [CRDT PATCH] (ACTIVE & HIGHLIGHTED in #0055FF with generative diff stream) */}
-                        <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#0055FF] p-3 rounded-none relative z-10 shadow-[0_0_15px_rgba(0,85,255,0.15)]">
-                          {/* Left Exterior Blue Docking Node with Radar Ring */}
-                          <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
-                            <motion.div
-                              className="absolute -inset-1 border border-[#0055FF]"
-                              animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                              transition={{ repeat: Infinity, duration: 1.4 }}
-                            />
-                          </div>
+                        {/* Card 1: Atomic AST Git Diff [CRDT PATCH] */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.12 }}
+                          className={`w-72 sm:w-80 p-3 rounded-none relative transition-all duration-300 ${
+                            spotlightIndex === 1
+                              ? "bg-[#0d0d14] border border-[#0055FF] shadow-[0_0_20px_rgba(0,85,255,0.22)] scale-[1.02] z-20"
+                              : "bg-[#0a0a0c] border border-[#222222] opacity-60 scale-100 z-10"
+                          }`}
+                        >
+                          {spotlightIndex === 1 && (
+                            <>
+                              <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2 }} />
+                              </div>
+                              <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.6 }} />
+                              </div>
+                            </>
+                          )}
 
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-6 h-6 bg-[#0055FF]/10 border border-[#0055FF]/40 flex items-center justify-center text-[#0055FF]">
+                              <div className={`w-6 h-6 flex items-center justify-center border transition-none ${spotlightIndex === 1 ? "bg-[#0055FF]/10 border-[#0055FF]/40 text-[#0055FF]" : "bg-[#141416] border-[#222222] text-[#888888]"}`}>
                                 <GitMerge className="w-3.5 h-3.5 stroke-[2.2]" />
                               </div>
-                              <span className="text-xs font-semibold text-[#0055FF] font-sans">Atomic AST Git Diff</span>
+                              <span className={`text-xs font-medium font-sans ${spotlightIndex === 1 ? "text-white font-semibold" : "text-[#aaaaaa]"}`}>Atomic AST Git Diff</span>
                             </div>
-                            <div className="text-[10px] font-mono text-[#0055FF] font-bold px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40">
+                            <div className={`text-[10px] font-mono font-bold px-1.5 py-0.5 border ${spotlightIndex === 1 ? "text-[#0055FF] bg-[#0055FF]/10 border-[#0055FF]/40" : "text-[#71717a] bg-[#141416] border-[#222222]"}`}>
                               CRDT PATCH
                             </div>
                           </div>
@@ -780,25 +804,35 @@ export default function AeyeFeatureSection() {
                               <span className="w-1 h-2.5 bg-[#0055FF] animate-pulse inline-block" />
                             </div>
                           </div>
+                        </motion.div>
 
-                          {/* Right Exterior Blue Docking Node with Radar Ring */}
-                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
-                            <motion.div
-                              className="absolute -inset-1 border border-[#0055FF]"
-                              animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
-                              transition={{ repeat: Infinity, duration: 1.4, delay: 0.7 }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Card 3: WebGPU Render Pipeline [120 FPS] with Animated Waveform */}
-                        <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
+                        {/* Card 2: WebGPU Render Pipeline [120 FPS] */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.2 }}
+                          className={`w-72 sm:w-80 px-4 py-2.5 rounded-none flex items-center justify-between relative transition-all duration-300 ${
+                            spotlightIndex === 2
+                              ? "bg-[#0d0d14] border border-[#0055FF] shadow-[0_0_20px_rgba(0,85,255,0.22)] scale-[1.02] z-20"
+                              : "bg-[#0a0a0c] border border-[#222222] opacity-60 scale-100 z-10"
+                          }`}
+                        >
+                          {spotlightIndex === 2 && (
+                            <>
+                              <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2 }} />
+                              </div>
+                              <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.6 }} />
+                              </div>
+                            </>
+                          )}
                           <div className="flex items-center gap-3">
-                            <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#71717a]">
-                              <Zap className="w-3.5 h-3.5 text-[#0055FF]" />
+                            <div className={`w-7 h-7 flex items-center justify-center border transition-none ${spotlightIndex === 2 ? "bg-[#0055FF]/10 border-[#0055FF]/40 text-[#0055FF]" : "bg-[#141416] border-[#222222] text-[#71717a]"}`}>
+                              <Zap className="w-3.5 h-3.5" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs font-medium text-[#a1a1aa] font-sans">WebGPU Render Pipeline</span>
+                              <span className={`text-xs font-medium font-sans ${spotlightIndex === 2 ? "text-white font-semibold" : "text-[#aaaaaa]"}`}>WebGPU Render Pipeline</span>
                               <span className="text-[9px] font-mono text-[#555555]">8.33ms · vsync locked</span>
                             </div>
                           </div>
@@ -809,24 +843,43 @@ export default function AeyeFeatureSection() {
                                 key={i}
                                 animate={{ height: [`${h * 100}%`, `${Math.max(20, (1 - h * 0.5) * 100)}%`, `${h * 100}%`] }}
                                 transition={{ repeat: Infinity, duration: 0.7 + i * 0.15, ease: "easeInOut" }}
-                                className="w-1 bg-[#0055FF]"
+                                className={`w-1 ${spotlightIndex === 2 ? "bg-[#0055FF]" : "bg-[#555555]"}`}
                               />
                             ))}
                           </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Card 4: Encrypted P2P Session Token [SECP256K1] (Faded) */}
-                        <div className="w-64 sm:w-72 bg-[#0a0a0c] border border-[#1f1f23] px-3.5 py-2 rounded-none flex items-center justify-between opacity-50 relative z-10">
+                        {/* Card 3: Encrypted P2P Session Token [SECP256K1] */}
+                        <motion.div
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: 0.28 }}
+                          className={`w-72 sm:w-80 px-4 py-2.5 rounded-none flex items-center justify-between relative transition-all duration-300 ${
+                            spotlightIndex === 3
+                              ? "bg-[#0d0d14] border border-[#0055FF] shadow-[0_0_20px_rgba(0,85,255,0.22)] scale-[1.02] z-20"
+                              : "bg-[#0a0a0c] border border-[#222222] opacity-60 scale-100 z-10"
+                          }`}
+                        >
+                          {spotlightIndex === 3 && (
+                            <>
+                              <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2 }} />
+                              </div>
+                              <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                                <motion.div className="absolute -inset-1 border border-[#0055FF]" animate={{ scale: [1, 2.2], opacity: [0.9, 0] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.6 }} />
+                              </div>
+                            </>
+                          )}
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 bg-[#111113] border border-[#1f1f23] flex items-center justify-center text-[#444444]">
-                              <ShieldCheck className="w-3 h-3" />
+                            <div className={`w-7 h-7 flex items-center justify-center border transition-none ${spotlightIndex === 3 ? "bg-[#0055FF]/10 border-[#0055FF]/40 text-[#0055FF]" : "bg-[#141416] border-[#222222] text-[#444444]"}`}>
+                              <ShieldCheck className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-[11px] font-medium text-[#52525b] font-sans">Encrypted P2P Session</span>
+                            <span className={`text-xs font-medium font-sans ${spotlightIndex === 3 ? "text-white font-semibold" : "text-[#aaaaaa]"}`}>Encrypted P2P Session</span>
                           </div>
-                          <div className="text-[9px] font-mono text-[#3f3f46] font-bold px-1 py-0.5 bg-[#111113] border border-[#1f1f23]">
+                          <div className={`text-[9px] font-mono font-bold px-1.5 py-0.5 border ${spotlightIndex === 3 ? "text-[#0055FF] bg-[#0055FF]/10 border-[#0055FF]/40" : "text-[#555555] bg-[#111113] border-[#222222]"}`}>
                             SECP256K1
                           </div>
-                        </div>
+                        </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
