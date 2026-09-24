@@ -11,7 +11,10 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  webpack: (config) => {
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.devtool = 'cheap-module-source-map';
+    }
     // Enable WebAssembly if needed
     config.experiments = {
       ...config.experiments,
