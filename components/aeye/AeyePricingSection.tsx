@@ -53,18 +53,20 @@ export default function AeyePricingSection() {
 
     setTimeout(() => {
       setChipStage("gone");
-    }, 850);
+    }, 900);
 
     setTimeout(() => {
       setChipStage("done");
-      setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(true);
+      }, 700);
       try {
         localStorage.setItem(
           "crux_waitlist_ticket",
           JSON.stringify({ ticketId: generatedId, email, contact, teamSize, date: new Date().toISOString() })
         );
       } catch (_) {}
-    }, 1900);
+    }, 2000);
   };
 
   const perks = [
@@ -225,21 +227,23 @@ export default function AeyePricingSection() {
                           name="waitlist"
                           argument={
                             chipStage === "almost"
-                              ? "almost there..."
+                              ? "Almost there..."
                               : chipStage === "gone"
-                              ? "gone through..."
-                              : "done! See ya at Crux!"
+                              ? "Going through..."
+                              : "Done! See ya at Crux!"
                           }
                           status={chipStage === "done" ? "done" : "running"}
-                          expectedMs={1900}
-                          size={36}
-                          radius={0}
-                          color="#ffffff"
-                          surfaceColor="#000000"
-                          progressColor="#ffffff"
-                          progressOpacity={0.16}
+                          expectedMs={2000}
+                          size={35}
+                          radius={10}
+                          color="currentColor"
+                          surfaceColor="#27272a"
+                          progressColor="currentColor"
+                          progressOpacity={0.18}
                           doneColor="#22c55e"
-                          washOpacity={0.18}
+                          errorColor="#ef4444"
+                          washOpacity={0.12}
+                          shake={9}
                           showTimer
                         />
                       </div>
@@ -271,14 +275,19 @@ export default function AeyePricingSection() {
                         <CallChip
                           icon="terminal"
                           name="waitlist"
-                          argument="done! See ya at Crux!"
+                          argument="Done! See ya at Crux!"
                           status="done"
-                          size={34}
-                          radius={0}
-                          color="#ffffff"
-                          surfaceColor="#000000"
+                          expectedMs={2000}
+                          size={35}
+                          radius={10}
+                          color="currentColor"
+                          surfaceColor="#27272a"
+                          progressColor="currentColor"
+                          progressOpacity={0.18}
                           doneColor="#22c55e"
-                          washOpacity={0.2}
+                          errorColor="#ef4444"
+                          washOpacity={0.12}
+                          shake={9}
                           showTimer={false}
                         />
                         <span className="font-mono text-xs font-bold text-white tracking-wider hidden md:inline">

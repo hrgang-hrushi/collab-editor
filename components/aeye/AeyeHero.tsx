@@ -50,18 +50,12 @@ export default function AeyeHero() {
 
       setTimeout(() => {
         setChipStage("gone");
-      }, 850);
+      }, 900);
 
       setTimeout(() => {
         setChipStage("done");
         setPreCruxSubmitted(true);
-        const el = document.getElementById("waitlist");
-        if (el) {
-          setTimeout(() => {
-            el.scrollIntoView({ behavior: "smooth" });
-          }, 1000);
-        }
-      }, 1800);
+      }, 2000);
     }
   };
 
@@ -220,35 +214,31 @@ export default function AeyeHero() {
 
               {/* Email Input & Lets Crux it Action Form / CallChip */}
               {chipStage !== "idle" ? (
-                <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="mt-8 flex items-center">
                   <CallChip
                     icon="terminal"
                     name="waitlist"
                     argument={
                       chipStage === "almost"
-                        ? "almost there..."
+                        ? "Almost there..."
                         : chipStage === "gone"
-                        ? "gone through..."
-                        : "done! See ya at Crux!"
+                        ? "Going through..."
+                        : "Done! See ya at Crux!"
                     }
                     status={chipStage === "done" ? "done" : "running"}
-                    expectedMs={1800}
-                    size={38}
-                    radius={0}
-                    color="#ffffff"
-                    surfaceColor="#0e0e11"
-                    progressColor="#ffffff"
-                    progressOpacity={0.16}
+                    expectedMs={2000}
+                    size={35}
+                    radius={10}
+                    color="currentColor"
+                    surfaceColor="#27272a"
+                    progressColor="currentColor"
+                    progressOpacity={0.18}
                     doneColor="#22c55e"
-                    washOpacity={0.18}
+                    errorColor="#ef4444"
+                    washOpacity={0.12}
+                    shake={9}
                     showTimer
                   />
-                  {chipStage === "done" && (
-                    <span className="text-xs font-mono text-[#888888] flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-[#22c55e] inline-block" />
-                      REGISTERED · REDIRECTING TO TICKET CONSOLE...
-                    </span>
-                  )}
                 </div>
               ) : (
                 <form

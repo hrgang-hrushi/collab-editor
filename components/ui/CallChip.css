@@ -1,17 +1,17 @@
 .call-chip {
-  --cc-size: 34px;
+  --cc-size: 35px;
   --cc-font: 13px;
   --cc-pad: 12px;
   --cc-gap: 7px;
-  --cc-radius: 0px;
+  --cc-radius: 10px;
   --cc-color: currentColor;
-  --cc-surface: #111111;
+  --cc-surface: #27272a;
   --cc-progress: currentColor;
-  --cc-progress-pct: 12%;
+  --cc-progress-pct: 18%;
   --cc-done: #22c55e;
   --cc-error: #ef4444;
-  --cc-wash-pct: 16%;
-  --cc-expected: 2500ms;
+  --cc-wash-pct: 12%;
+  --cc-expected: 2000ms;
   --cc-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 
   position: relative;

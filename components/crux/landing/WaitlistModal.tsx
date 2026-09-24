@@ -37,12 +37,14 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
 
     setTimeout(() => {
       setChipStage("gone");
-    }, 850);
+    }, 900);
 
     setTimeout(() => {
       setLoading(false);
       setChipStage("done");
-      setSubmitted(true);
+      setTimeout(() => {
+        setSubmitted(true);
+      }, 700);
 
       // Trigger celebratory monochrome confetti burst
       try {
@@ -63,7 +65,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
       } catch {
         // LocalStorage fallback
       }
-    }, 1900);
+    }, 2000);
   };
 
   return (
@@ -174,21 +176,23 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                   name="waitlist"
                   argument={
                     chipStage === "almost"
-                      ? "almost there..."
+                      ? "Almost there..."
                       : chipStage === "gone"
-                      ? "gone through..."
-                      : "done! See ya at Crux!"
+                      ? "Going through..."
+                      : "Done! See ya at Crux!"
                   }
                   status={chipStage === "done" ? "done" : "running"}
-                  expectedMs={1900}
-                  size={36}
-                  radius={0}
-                  color="#ffffff"
-                  surfaceColor="#000000"
-                  progressColor="#ffffff"
-                  progressOpacity={0.16}
+                  expectedMs={2000}
+                  size={35}
+                  radius={10}
+                  color="currentColor"
+                  surfaceColor="#27272a"
+                  progressColor="currentColor"
+                  progressOpacity={0.18}
                   doneColor="#22c55e"
-                  washOpacity={0.18}
+                  errorColor="#ef4444"
+                  washOpacity={0.12}
+                  shake={9}
                   showTimer
                 />
               </div>
@@ -217,14 +221,19 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               <CallChip
                 icon="terminal"
                 name="waitlist"
-                argument="done! See ya at Crux!"
+                argument="Done! See ya at Crux!"
                 status="done"
-                size={34}
-                radius={0}
-                color="#ffffff"
-                surfaceColor="#111111"
+                expectedMs={2000}
+                size={35}
+                radius={10}
+                color="currentColor"
+                surfaceColor="#27272a"
+                progressColor="currentColor"
+                progressOpacity={0.18}
                 doneColor="#22c55e"
-                washOpacity={0.2}
+                errorColor="#ef4444"
+                washOpacity={0.12}
+                shake={9}
                 showTimer={false}
               />
             </div>
