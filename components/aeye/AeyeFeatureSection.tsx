@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import {
   FileText,
   Terminal,
@@ -22,6 +22,51 @@ import { CruxLogo } from "./AeyeIcons";
 
 export default function AeyeFeatureSection() {
   const [activeTab, setActiveTab] = useState<number>(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isManualClickRef = useRef(false);
+  const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (isManualClickRef.current) return;
+    if (latest < 0.35) {
+      setActiveTab(0);
+    } else if (latest < 0.70) {
+      setActiveTab(1);
+    } else {
+      setActiveTab(2);
+    }
+  });
+
+  const handleTabClick = (idx: number) => {
+    setActiveTab(idx);
+    if (containerRef.current && typeof window !== "undefined") {
+      if (window.innerWidth >= 1024) {
+        isManualClickRef.current = true;
+        if (manualTimeoutRef.current) clearTimeout(manualTimeoutRef.current);
+        manualTimeoutRef.current = setTimeout(() => {
+          isManualClickRef.current = false;
+        }, 700);
+
+        const rect = containerRef.current.getBoundingClientRect();
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+        const containerTop = rect.top + scrollTop;
+        const scrollableDistance = containerRef.current.offsetHeight - window.innerHeight;
+
+        if (scrollableDistance > 0) {
+          const targetProgress = idx === 0 ? 0.05 : idx === 1 ? 0.50 : 0.92;
+          window.scrollTo({
+            top: containerTop + targetProgress * scrollableDistance,
+            behavior: "smooth",
+          });
+        }
+      }
+    }
+  };
 
   const tabs = [
     {
@@ -66,106 +111,131 @@ export default function AeyeFeatureSection() {
   ];
 
   return (
-    <section id="features" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
-      <div className="max-w-[1280px] mx-auto px-6 py-20">
-        {/* Section Header Meta */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex items-center gap-3 pb-6 text-xs font-mono"
-        >
-          <span className="text-[#0055FF] font-semibold tracking-wider">[N.03/11]</span>
-          <span className="w-8 h-[1px] bg-[#222222]" />
-          <span className="text-[#0055FF] font-bold">&gt;</span>
-          <span className="text-[#888888] uppercase tracking-wider font-semibold">CORE CAPABILITIES</span>
-          <div className="flex-1 h-[1px] bg-[#222222] ml-2" />
-        </motion.div>
+    <section id="features" className="relative w-full border-b border-[#222222] bg-[#000000]">
+      {/* Sticky Scroll Container for 3 Capability Layers */}
+      <div ref={containerRef} className="relative lg:h-[300vh]">
+        <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-16 lg:py-0">
+          <div className="max-w-[1280px] w-full mx-auto px-6">
+            {/* Section Header Meta */}
+            <div className="flex items-center justify-between pb-6 text-xs font-mono">
+              <div className="flex items-center gap-3">
+                <span className="text-[#0055FF] font-semibold tracking-wider">[N.03/11]</span>
+                <span className="w-8 h-[1px] bg-[#222222]" />
+                <span className="text-[#0055FF] font-bold">&gt;</span>
+                <span className="text-[#888888] uppercase tracking-wider font-semibold">CORE CAPABILITIES</span>
+              </div>
 
-        {/* Main Split Architecture matching Video Recording */}
-        <div className="pt-6 grid grid-cols-1 lg:grid-cols-12 border border-[#222222] bg-[#000000]">
-          {/* Left Column: 3 Interactive Capability Tabs + Bottom Headline */}
-          <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#222222] bg-[#000000]">
-            {/* Top Interactive Tabs List */}
-            <div className="space-y-8">
-              {tabs.map((tab, idx) => {
-                const isActive = activeTab === idx;
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => setActiveTab(idx)}
-                    className="cursor-pointer group select-none transition-none"
-                  >
-                    {/* Badge Row */}
-                    <div className="flex items-center gap-2 mb-2.5">
-                      {tab.badges.map((b, bidx) => (
-                        <span
-                          key={bidx}
-                          className={`px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-none transition-none ${
-                            isActive
-                              ? "bg-[#0055FF] text-white font-bold"
-                              : "bg-[#111111] text-[#71717a] border border-[#222222]"
-                          }`}
-                        >
-                          {b}
-                        </span>
-                      ))}
-                    </div>
+              {/* Live Layer Scroll Indicator */}
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-[#71717a] uppercase tracking-wider hidden sm:inline font-mono">
+                  LAYER PROGRESS
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {[0, 1, 2].map((step) => (
+                    <button
+                      key={step}
+                      type="button"
+                      onClick={() => handleTabClick(step)}
+                      className={`h-1.5 transition-all duration-300 rounded-none ${
+                        activeTab === step ? "w-8 bg-[#0055FF]" : "w-3 bg-[#222222] hover:bg-[#444444]"
+                      }`}
+                      aria-label={`Go to Layer 0${step + 1}`}
+                    />
+                  ))}
+                </div>
+                <span className="text-xs font-mono text-[#0055FF] font-bold ml-1">
+                  [ 0{activeTab + 1} / 03 ]
+                </span>
+              </div>
+            </div>
 
-                    {/* Title with Dotted Leader Line to Serial */}
-                    <div className="flex items-center justify-between gap-3 text-lg sm:text-xl font-medium font-sans">
-                      <div className="flex items-center gap-2.5">
-                        <span
-                          className={`w-2 h-2 rounded-none transition-none ${
-                            isActive ? "bg-[#0055FF]" : "bg-transparent border border-[#333333]"
-                          }`}
-                        />
-                        <span className={isActive ? "text-[#0055FF] font-semibold" : "text-[#71717a] group-hover:text-white"}>
-                          {tab.title}
-                        </span>
-                      </div>
-                      <div className="flex-1 border-b border-dotted border-[#222222] mx-2 hidden sm:block" />
-                      <span className="text-xs font-mono text-[#0055FF] font-bold flex-shrink-0">
-                        {tab.serial}
-                      </span>
-                    </div>
+            {/* Main Split Architecture */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 border border-[#222222] bg-[#000000]">
+              {/* Left Column: 3 Interactive Capability Tabs + Bottom Headline */}
+              <div className="lg:col-span-5 p-6 sm:p-8 lg:p-10 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#222222] bg-[#000000]">
+                {/* Top Interactive Tabs List */}
+                <div className="space-y-6 lg:space-y-7">
+                  {tabs.map((tab, idx) => {
+                    const isActive = activeTab === idx;
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => handleTabClick(idx)}
+                        className="cursor-pointer group select-none transition-none"
+                      >
+                        {/* Badge Row */}
+                        <div className="flex items-center gap-2 mb-2.5">
+                          {tab.badges.map((b, bidx) => (
+                            <span
+                              key={bidx}
+                              className={`px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-none transition-none ${
+                                isActive
+                                  ? "bg-[#0055FF] text-white font-bold"
+                                  : "bg-[#111111] text-[#71717a] border border-[#222222]"
+                              }`}
+                            >
+                              {b}
+                            </span>
+                          ))}
+                        </div>
 
-                    {/* Description revealed on active */}
-                    <AnimatePresence>
-                      {isActive && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed pl-4.5 border-l border-white">
-                            {tab.desc}
-                          </p>
-                          <div className="mt-2 text-[10px] font-mono text-white pl-4.5 uppercase">
-                            // CRUX SYSTEM: {tab.systemTitle}
+                        {/* Title with Dotted Leader Line to Serial */}
+                        <div className="flex items-center justify-between gap-3 text-lg sm:text-xl font-medium font-sans">
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className={`w-2 h-2 rounded-none transition-none ${
+                                isActive ? "bg-[#0055FF]" : "bg-transparent border border-[#333333]"
+                              }`}
+                            />
+                            <span className={isActive ? "text-[#0055FF] font-semibold" : "text-[#71717a] group-hover:text-white"}>
+                              {tab.title}
+                            </span>
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                          <div className="flex-1 border-b border-dotted border-[#222222] mx-2 hidden sm:block" />
+                          <span className="text-xs font-mono text-[#0055FF] font-bold flex-shrink-0">
+                            {tab.serial}
+                          </span>
+                        </div>
+
+                        {/* Description revealed on active */}
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed pl-4.5 border-l border-white">
+                                {tab.desc}
+                              </p>
+                              <div className="mt-2 text-[10px] font-mono text-white pl-4.5 uppercase">
+                                // CRUX SYSTEM: {tab.systemTitle}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Bottom Section Title */}
+                <div className="pt-8 mt-8 border-t border-[#222222]">
+                  <h2 className="text-2xl sm:text-3xl lg:text-[38px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.1]">
+                    Three core layers.<br />
+                    <span className="text-[#888888]">One seamless system.</span>
+                  </h2>
+                  <div className="mt-4 flex items-center gap-2 text-[10px] font-mono text-[#71717a] tracking-wider uppercase">
+                    <span className="w-2 h-2 rounded-none bg-[#0055FF] animate-pulse" />
+                    <span>SCROLL TO ADVANCE // LAYER 0{activeTab + 1} OF 03</span>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
 
-            {/* Bottom Section Title */}
-            <div className="pt-16 mt-12 border-t border-[#222222]">
-              <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.1]">
-                Three core layers.<br />
-                <span className="text-[#888888]">One seamless system.</span>
-              </h2>
-            </div>
-          </div>
-
-          {/* Right Column: Visual Diagram Canvas matching Video Recording */}
-          <div className="lg:col-span-7 relative min-h-[560px] p-6 sm:p-10 flex items-center justify-center bg-[#000000] overflow-hidden">
+              {/* Right Column: Visual Diagram Canvas matching Video Recording */}
+              <div className="lg:col-span-7 relative min-h-[460px] lg:min-h-[520px] p-6 sm:p-8 lg:p-10 flex items-center justify-center bg-[#000000] overflow-hidden">
             {/* Dot Matrix Canvas Texture */}
             <div className="absolute inset-0 aeye-dot-bg invert opacity-20 pointer-events-none" />
 
@@ -417,30 +487,34 @@ export default function AeyeFeatureSection() {
             </div>
           </div>
         </div>
-
-        {/* 3 Secondary Capability Cards matching Video Recording */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 border border-[#222222] divide-y md:divide-y-0 md:divide-x divide-[#222222] bg-[#000000]">
-          {bottomFeatures.map((feat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-20px" }}
-              transition={{ duration: 0.4, delay: idx * 0.08 }}
-              className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default"
-            >
-              <div>
-                <h4 className="text-xl font-medium text-white font-sans">
-                  {feat.title}
-                </h4>
-                <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
-                  {feat.desc}
-                </p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
       </div>
-    </section>
+    </div>
+  </div>
+
+  {/* 3 Secondary Capability Cards matching Video Recording */}
+  <div className="max-w-[1280px] mx-auto px-6 py-12 lg:py-16 border-t border-[#222222]">
+    <div className="grid grid-cols-1 md:grid-cols-3 border border-[#222222] divide-y md:divide-y-0 md:divide-x divide-[#222222] bg-[#000000]">
+      {bottomFeatures.map((feat, idx) => (
+        <motion.div
+          key={idx}
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-20px" }}
+          transition={{ duration: 0.4, delay: idx * 0.08 }}
+          className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default"
+        >
+          <div>
+            <h4 className="text-xl font-medium text-white font-sans">
+              {feat.title}
+            </h4>
+            <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+              {feat.desc}
+            </p>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+</section>
   );
 }
