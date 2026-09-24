@@ -1,34 +1,43 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+import React, { useState, useRef } from "react";
+import { motion, useScroll, useSpring, useTransform, useMotionValueEvent, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { Terminal, Cpu, Zap, Activity, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function AeyeHowItWorkSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeStep, setActiveStep] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const isManualClickRef = useRef(false);
   const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Smooth scroll interpolation using spring physics for butter-smooth response
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    setScrollProgress(latest);
-    if (isManualClickRef.current) return;
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 26,
+    mass: 0.2,
+  });
 
-    if (latest < 0.25) {
-      setActiveStep(0);
-    } else if (latest < 0.50) {
-      setActiveStep(1);
-    } else if (latest < 0.75) {
-      setActiveStep(2);
-    } else {
-      setActiveStep(3);
-    }
+  // Dedicated direct GPU-composited MotionValues for each cumulative progress bar
+  const fill0 = useTransform(smoothProgress, [0.02, 0.25], ["0%", "100%"]);
+  const fill1 = useTransform(smoothProgress, [0.25, 0.50], ["0%", "100%"]);
+  const fill2 = useTransform(smoothProgress, [0.50, 0.75], ["0%", "100%"]);
+  const fill3 = useTransform(smoothProgress, [0.75, 0.98], ["0%", "100%"]);
+  const fills = [fill0, fill1, fill2, fill3];
+
+  // Update activeStep ONLY when thresholding across steps (zero scroll micro-lag)
+  useMotionValueEvent(smoothProgress, "change", (latest) => {
+    if (isManualClickRef.current) return;
+    let next = 0;
+    if (latest >= 0.75) next = 3;
+    else if (latest >= 0.50) next = 2;
+    else if (latest >= 0.25) next = 1;
+    setActiveStep((prev) => (prev !== next ? next : prev));
   });
 
   const handleStepClick = (idx: number) => {
@@ -39,7 +48,7 @@ export default function AeyeHowItWorkSection() {
         if (manualTimeoutRef.current) clearTimeout(manualTimeoutRef.current);
         manualTimeoutRef.current = setTimeout(() => {
           isManualClickRef.current = false;
-        }, 700);
+        }, 750);
 
         const rect = containerRef.current.getBoundingClientRect();
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -47,28 +56,14 @@ export default function AeyeHowItWorkSection() {
         const scrollableDistance = containerRef.current.offsetHeight - window.innerHeight;
 
         if (scrollableDistance > 0) {
-          const targetProgress = idx === 0 ? 0.05 : idx === 1 ? 0.35 : idx === 2 ? 0.65 : 0.95;
+          const targets = [0.05, 0.35, 0.65, 0.95];
           window.scrollTo({
-            top: containerTop + targetProgress * scrollableDistance,
+            top: containerTop + targets[idx] * scrollableDistance,
             behavior: "smooth",
           });
         }
       }
     }
-  };
-
-  const getStepFill = (idx: number, progress: number) => {
-    // If not desktop or scroll hasn't started, fill up to activeStep
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      if (idx < activeStep) return 100;
-      if (idx === activeStep) return 100;
-      return 0;
-    }
-    const start = idx * 0.25;
-    const end = (idx + 1) * 0.25;
-    if (progress <= start) return 0;
-    if (progress >= end) return 100;
-    return ((progress - start) / (end - start)) * 100;
   };
 
   const steps = [
@@ -77,38 +72,43 @@ export default function AeyeHowItWorkSection() {
       badge: "INGESTION",
       title: "Input your data",
       desc: "Add prompts, data, or context from your workflow with minimal setup.",
+      telemetry: {
+        command: "crux://pipeline/ingest --source=workspace.ast --transport=posix-shm",
+        latency: "0.18ms",
+        status: "ONLINE [BUFFER READY]",
+        log: "Streaming raw tokens from 14 source files · Buffer capacity: 16.4 MB · Zero V8 serialization",
+      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
-          className="w-16 h-16 transition-none"
+          className="w-14 h-14 transition-none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Isometric Data Rack */}
           <path
-            d="M32 6L54 18V26L32 38L10 26V18L32 6Z"
+            d="M32 8L52 19V26L32 37L12 26V19L32 8Z"
             fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
-            d="M32 20L54 32V40L32 52L10 40V32L32 20Z"
-            fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            d="M32 21L52 32V39L32 50L12 39V32L32 21Z"
+            fill={isActive ? "#0044DD" : "#0d0d10"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
-            d="M32 34L54 46V54L32 66L10 54V46L32 34Z"
-            fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            d="M32 34L52 45V52L32 63L12 52V45L32 34Z"
+            fill={isActive ? "#0033AA" : "#08080a"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
-          {/* Pixel LED indicators */}
           {isActive && (
             <>
               <circle cx="20" cy="24" r="1.5" fill="#FFFFFF" />
-              <circle cx="20" cy="38" r="1.5" fill="#FFFFFF" />
-              <circle cx="20" cy="52" r="1.5" fill="#FFFFFF" />
+              <circle cx="20" cy="37" r="1.5" fill="#FFFFFF" />
+              <circle cx="20" cy="50" r="1.5" fill="#FFFFFF" />
             </>
           )}
         </svg>
@@ -119,10 +119,16 @@ export default function AeyeHowItWorkSection() {
       badge: "SYNTHESIS",
       title: "Process with AI",
       desc: "Transform inputs into structured, meaningful outputs in real time.",
+      telemetry: {
+        command: "crux://kernel/synthesize --engine=ast-crdt --peers=3",
+        latency: "1.42ms",
+        status: "PROCESSING [CONCURRENT SYNC]",
+        log: "Synthesizing structural AST nodes · 1,840 ops/sec · Merging parallel edits into unified state tree",
+      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
-          className="w-16 h-16 transition-none"
+          className="w-14 h-14 transition-none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -130,19 +136,19 @@ export default function AeyeHowItWorkSection() {
           <path
             d="M32 12L52 24V40L32 52L12 40V24L32 12Z"
             fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
             d="M32 20L44 27V37L32 44L20 37V27L32 20Z"
             fill={isActive ? "#0033AA" : "#000000"}
-            stroke={isActive ? "#FFFFFF" : "#333333"}
+            stroke={isActive ? "#FFFFFF" : "#222222"}
             strokeWidth="1"
           />
           {/* Pin Traces radiating */}
           <path
             d="M18 20L10 15M24 16L18 10M40 16L46 10M46 20L54 15M50 36L58 41M46 44L52 50M18 44L12 50M14 36L6 41"
-            stroke={isActive ? "#0055FF" : "#444444"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
             strokeDasharray={isActive ? "2 2" : "none"}
           />
@@ -154,21 +160,27 @@ export default function AeyeHowItWorkSection() {
       badge: "EXECUTION",
       title: "Generate results",
       desc: "Turn processed data into actionable outputs ready to use, refine, or share.",
+      telemetry: {
+        command: "crux://compiler/emit --target=aarch64-darwin --opt-level=3",
+        latency: "4.11ms",
+        status: "COMPILED [ZERO WARNINGS]",
+        log: "Emitted native binary [crux-core-arm64] · 64-bit SIMD vectorization · Atomic git diff generated",
+      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
-          className="w-16 h-16 transition-none"
+          className="w-14 h-14 transition-none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Hexagonal node cluster */}
           {[
-            { cx: 32, cy: 20 },
-            { cx: 20, cy: 30 },
-            { cx: 44, cy: 30 },
-            { cx: 20, cy: 46 },
-            { cx: 44, cy: 46 },
-            { cx: 32, cy: 56 },
+            { cx: 32, cy: 18 },
+            { cx: 20, cy: 28 },
+            { cx: 44, cy: 28 },
+            { cx: 20, cy: 44 },
+            { cx: 44, cy: 44 },
+            { cx: 32, cy: 54 },
           ].map((pt, i) => (
             <g key={i}>
               <ellipse
@@ -177,13 +189,13 @@ export default function AeyeHowItWorkSection() {
                 rx="6"
                 ry="3"
                 fill={isActive ? "#0055FF" : "#111111"}
-                stroke={isActive ? "#FFFFFF" : "#444444"}
+                stroke={isActive ? "#FFFFFF" : "#333333"}
                 strokeWidth="1.2"
               />
               <path
-                d={`M${pt.cx - 6} ${pt.cy}V${pt.cy + 5}C${pt.cx - 6} ${pt.cy + 7} ${pt.cx + 6} ${pt.cy + 7} ${pt.cx + 6} ${pt.cy + 5}V${pt.cy}`}
+                d={`M${pt.cx - 6} ${pt.cy}V${pt.cy + 4}C${pt.cx - 6} ${pt.cy + 6} ${pt.cx + 6} ${pt.cy + 6} ${pt.cx + 6} ${pt.cy + 4}V${pt.cy}`}
                 fill={isActive ? "#0044DD" : "#111111"}
-                stroke={isActive ? "#0055FF" : "#444444"}
+                stroke={isActive ? "#0055FF" : "#333333"}
                 strokeWidth="1.2"
               />
             </g>
@@ -196,10 +208,16 @@ export default function AeyeHowItWorkSection() {
       badge: "RECURSION",
       title: "Refine and repeat",
       desc: "Iterate continuously on your pipeline with autonomous feedback loops.",
+      telemetry: {
+        command: "crux://telemetry/feedback-loop --convergence=deterministic",
+        latency: "0.32ms",
+        status: "VERIFIED [STATE CONVERGED]",
+        log: "Feedback cycle 100% converged · Test assertions: 48/48 passed · Autonomous watchdog armed",
+      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
-          className="w-16 h-16 transition-none"
+          className="w-14 h-14 transition-none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -207,25 +225,25 @@ export default function AeyeHowItWorkSection() {
           <path
             d="M32 10L48 18V28L32 20V10Z"
             fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#FFFFFF" : "#444444"}
+            stroke={isActive ? "#FFFFFF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
             d="M48 28L54 44L44 48L40 34L48 28Z"
-            fill={isActive ? "#0044DD" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            fill={isActive ? "#0044DD" : "#0d0d10"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
             d="M32 54L16 46V36L32 44V54Z"
             fill={isActive ? "#0055FF" : "#111111"}
-            stroke={isActive ? "#FFFFFF" : "#444444"}
+            stroke={isActive ? "#FFFFFF" : "#333333"}
             strokeWidth="1.5"
           />
           <path
             d="M16 36L10 20L20 16L24 30L16 36Z"
-            fill={isActive ? "#0044DD" : "#111111"}
-            stroke={isActive ? "#0055FF" : "#444444"}
+            fill={isActive ? "#0044DD" : "#0d0d10"}
+            stroke={isActive ? "#0055FF" : "#333333"}
             strokeWidth="1.5"
           />
         </svg>
@@ -235,12 +253,12 @@ export default function AeyeHowItWorkSection() {
 
   return (
     <section id="how-it-works" className="relative w-full border-b border-[#222222] bg-[#000000]">
-      {/* Scroll-driven Sticky Container */}
-      <div ref={containerRef} className="relative lg:h-[300vh]">
-        <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-14 lg:py-0">
+      {/* Scroll-driven Sticky Container with calibrated 220vh distance for buttery smooth traversal */}
+      <div ref={containerRef} className="relative lg:h-[220vh]">
+        <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-12 lg:py-0">
           <div className="max-w-[1280px] w-full mx-auto px-6">
             {/* Section Header Meta with Live Step Tracking */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#222222] text-xs font-mono">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222222] text-xs font-mono">
               <div className="flex items-center gap-2">
                 <span className="text-[#0055FF] font-bold">[N.04/11]</span>
                 <span className="text-[#888888]">— &gt;</span>
@@ -256,7 +274,7 @@ export default function AeyeHowItWorkSection() {
                       key={stepIdx}
                       type="button"
                       onClick={() => handleStepClick(stepIdx)}
-                      className={`h-1.5 transition-all duration-300 rounded-none ${
+                      className={`h-1.5 transition-none rounded-none ${
                         activeStep === stepIdx ? "w-7 bg-[#0055FF]" : "w-2.5 bg-[#222222] hover:bg-[#444444]"
                       }`}
                       aria-label={`Jump to Step 0${stepIdx + 1}`}
@@ -270,9 +288,9 @@ export default function AeyeHowItWorkSection() {
             </div>
 
             {/* Section Title & Subtitle + Action Button */}
-            <div className="pt-8 pb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="pt-6 pb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
               <div>
-                <h2 className="text-3xl sm:text-4xl lg:text-[46px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
+                <h2 className="text-2xl sm:text-4xl lg:text-[42px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
                   Understand the flow.
                   <span className="block text-[#888888]">See how it all connects.</span>
                 </h2>
@@ -284,7 +302,7 @@ export default function AeyeHowItWorkSection() {
                 </div>
                 <Link
                   href="#pricing"
-                  className="inline-flex items-center gap-2.5 px-4 py-2 bg-[#000000] border border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none"
+                  className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#000000] border border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none"
                 >
                   <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block" />
                   GET STARTED
@@ -292,34 +310,26 @@ export default function AeyeHowItWorkSection() {
               </div>
             </div>
 
-            {/* 4 Connected Process Columns with Cumulative Blue Bars and Active Spotlight */}
-            <div className="border border-[#222222] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-[#000000] relative">
+            {/* 4 Connected Process Columns with Hardware Brutalist Dividers */}
+            <div className="border border-[#222222] divide-y lg:divide-y-0 lg:divide-x divide-[#222222] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 bg-[#000000] relative">
               {steps.map((step, idx) => {
                 const isActive = activeStep === idx;
-                const fillWidth = getStepFill(idx, scrollProgress);
+                const fillMotionValue = fills[idx];
 
                 return (
                   <div
                     key={idx}
                     onClick={() => handleStepClick(idx)}
-                    onMouseEnter={() => setActiveStep(idx)}
-                    className={`relative p-6 sm:p-7 flex flex-col justify-between min-h-[340px] sm:min-h-[360px] cursor-pointer transition-all duration-300 border-b sm:border-b-0 ${
-                      idx !== 3 ? "lg:border-r border-[#222222]" : ""
-                    } ${idx % 2 === 0 ? "sm:border-r border-[#222222]" : ""} ${
-                      isActive
-                        ? "bg-[#0a0a10] border-[#0055FF] shadow-[0_0_24px_rgba(0,85,255,0.16)] scale-[1.01] z-20"
-                        : "bg-[#000000] border-[#222222] opacity-75 hover:opacity-100 z-10"
+                    className={`relative p-5 sm:p-6 flex flex-col justify-between min-h-[300px] sm:min-h-[320px] cursor-pointer transition-none select-none ${
+                      isActive ? "bg-[#0b0c10]" : "bg-[#000000] hover:bg-[#070709]"
                     }`}
                   >
-                    {/* Active Top Spotlight Glowing Bar */}
+                    {/* Active Spotlight Top Indicator Accent */}
                     {isActive && (
-                      <motion.div
-                        layoutId="howItWorksActiveIndicator"
-                        className="absolute top-0 left-0 right-0 h-[2px] bg-[#0055FF] shadow-[0_0_10px_#0055FF]"
-                      />
+                      <div className="absolute top-0 left-0 right-0 h-[2px] bg-[#0055FF]" />
                     )}
 
-                    {/* Top Section: Serial + Badge + Description */}
+                    {/* Top Section: Serial + Badge */}
                     <div>
                       <div className="flex items-center justify-between">
                         <span
@@ -332,7 +342,7 @@ export default function AeyeHowItWorkSection() {
                         <span
                           className={`text-[9px] font-mono px-1.5 py-0.5 uppercase tracking-wider transition-none ${
                             isActive
-                              ? "bg-[#0055FF]/15 text-[#0055FF] border border-[#0055FF]/40 font-bold"
+                              ? "bg-[#0055FF] text-white font-bold"
                               : "bg-[#111111] text-[#555555] border border-[#222222]"
                           }`}
                         >
@@ -341,40 +351,35 @@ export default function AeyeHowItWorkSection() {
                       </div>
 
                       <p
-                        className={`mt-6 text-xs sm:text-sm font-sans leading-relaxed min-h-[48px] transition-none ${
-                          isActive ? "text-white" : "text-[#888888]"
+                        className={`mt-5 text-xs sm:text-sm font-sans leading-relaxed min-h-[44px] transition-none ${
+                          isActive ? "text-white" : "text-[#777777]"
                         }`}
                       >
                         {step.desc}
                       </p>
                     </div>
 
-                    {/* Middle Cumulative Blue Progress Rail */}
-                    <div className="my-6 relative">
-                      <div className="w-full h-1.5 bg-[#141418] relative overflow-hidden border border-[#222222]">
-                        <div
-                          className="h-full bg-[#0055FF] transition-all duration-150 ease-out relative"
-                          style={{ width: `${fillWidth}%` }}
-                        >
-                          {/* Trailing glow node at leading edge of fill */}
-                          {fillWidth > 0 && fillWidth < 100 && (
-                            <div className="absolute right-0 top-0 bottom-0 w-1 bg-white shadow-[0_0_6px_#FFFFFF]" />
-                          )}
-                        </div>
+                    {/* Middle Cumulative Blue Progress Rail (GPU-accelerated, zero stutter) */}
+                    <div className="my-5 relative">
+                      <div className="w-full h-1 bg-[#141418] relative overflow-hidden">
+                        <motion.div
+                          className="h-full bg-[#0055FF]"
+                          style={{ width: fillMotionValue }}
+                        />
                       </div>
                       {/* Dotted indicator pattern below bar */}
-                      <div className="w-full h-1 mt-1 opacity-25 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:4px_4px]" />
+                      <div className="w-full h-1 mt-1 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:4px_4px]" />
                     </div>
 
                     {/* Bottom Section: Title + Graphic */}
-                    <div className="flex items-end justify-between pt-2">
+                    <div className="flex items-end justify-between pt-1">
                       <div className="flex flex-col">
-                        <span className="text-[10px] font-mono text-[#555555] uppercase">
+                        <span className="text-[9px] font-mono text-[#555555] uppercase">
                           PHASE 0{idx + 1}
                         </span>
                         <h3
-                          className={`text-lg sm:text-xl font-medium font-sans transition-none ${
-                            isActive ? "text-[#0055FF] font-semibold" : "text-[#888888]"
+                          className={`text-lg font-medium font-sans transition-none ${
+                            isActive ? "text-white font-semibold" : "text-[#666666]"
                           }`}
                         >
                           {step.title}
@@ -387,6 +392,38 @@ export default function AeyeHowItWorkSection() {
                   </div>
                 );
               })}
+            </div>
+
+            {/* Synchronized Hardware Execution Console for the Active Step */}
+            <div className="mt-4 border border-[#222222] bg-[#000000] p-4 font-mono text-xs rounded-none">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-[#222222] gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2 h-2 bg-[#0055FF] inline-block" />
+                  <span className="text-white font-bold uppercase tracking-wider text-[11px]">
+                    STAGE 0{activeStep + 1} // {steps[activeStep].title}
+                  </span>
+                </div>
+                <div className="flex items-center gap-4 text-[11px]">
+                  <span className="text-[#0055FF] font-bold">
+                    ● {steps[activeStep].telemetry.status}
+                  </span>
+                  <span className="text-[#71717a]">
+                    LATENCY: <strong className="text-white">{steps[activeStep].telemetry.latency}</strong>
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2.5 space-y-1 text-[11px]">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#0055FF] font-bold">&gt;</span>
+                  <span className="text-white font-semibold">
+                    {steps[activeStep].telemetry.command}
+                  </span>
+                </div>
+                <div className="text-[#71717a] pl-4">
+                  {steps[activeStep].telemetry.log}
+                </div>
+              </div>
             </div>
           </div>
         </div>
