@@ -277,43 +277,9 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
         {/* ========================================================================= */}
         <PricingAndTrustSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
 
-        {/* Final CTA Banner */}
-        <section className="py-24 px-6 max-w-5xl mx-auto text-center">
-          <div className="rounded-none border border-[#222222] bg-[#000000] p-10 sm:p-16 relative overflow-hidden">
-            <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight font-sans">
-                Ready to experience sub-15ms engineering?
-              </h2>
-              <p className="text-sm sm:text-base text-[#888888] leading-relaxed font-sans">
-                Join our private preview. We are onboarding engineering leaders, systems developers,
-                and high-velocity startups every week.
-              </p>
-
-              <div className="pt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button
-                  onClick={() => setIsWaitlistOpen(true)}
-                  className="w-full sm:w-auto px-8 py-3.5 rounded-none bg-white hover:bg-[#111111] hover:text-white text-black font-bold text-xs uppercase tracking-wider transition-none flex items-center justify-center gap-2 cursor-pointer border border-white"
-                >
-                  <Terminal className="w-4 h-4" />
-                  <span>Join Priority Waitlist</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-
-                <a
-                  href="#architecture"
-                  className="w-full sm:w-auto px-6 py-3.5 rounded-none bg-[#000000] hover:bg-white hover:text-black border border-[#222222] hover:border-white text-white text-xs font-semibold uppercase tracking-wider transition-none flex items-center justify-center gap-2 no-underline"
-                >
-                  <Cpu className="w-3.5 h-3.5" />
-                  <span>Explore Kernel Architecture</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Crux Insider Dispatch Section */}
+        <AeyeCtaSection />
       </main>
-
-      {/* Crux Insider Dispatch Section */}
-      <AeyeCtaSection />
 
       {/* Sleek Minimalist Footer */}
       <footer className="border-t border-[#222222] py-14 px-6 max-w-6xl mx-auto text-xs text-[#888888] relative z-10 font-mono">
