@@ -156,12 +156,12 @@ export default function AeyeBenefitSection() {
                     +
                   </span>
 
-                  {/* Line illustration (default wireframe, stays subtly visible under pixel overlay) */}
+                  {/* Line illustration (default wireframe, fades completely out when hovered) */}
                   <img
                     src={card.iconLine}
                     alt={card.title}
-                    className={`w-48 h-48 object-contain filter invert transition-all duration-300 pointer-events-none ${
-                      isHovered ? "opacity-35 scale-100" : "opacity-90 scale-100"
+                    className={`w-48 h-48 object-contain filter invert transition-all duration-200 pointer-events-none ${
+                      isHovered ? "opacity-0 scale-95" : "opacity-90 scale-100"
                     }`}
                   />
 
@@ -169,7 +169,7 @@ export default function AeyeBenefitSection() {
                   <img
                     src={card.iconPixel}
                     alt={`${card.title} Pixel`}
-                    className={`w-48 h-48 object-contain absolute transition-all duration-300 pointer-events-none ${
+                    className={`w-48 h-48 object-contain absolute transition-all duration-200 pointer-events-none ${
                       isHovered
                         ? "opacity-100 scale-100"
                         : "opacity-0 scale-95"
@@ -182,7 +182,13 @@ export default function AeyeBenefitSection() {
                   <h3 className="text-2xl font-normal tracking-tight text-white font-sans">
                     {card.title}
                   </h3>
-                  <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed min-h-[40px]">
+                  <p
+                    className={`mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed min-h-[44px] transition-all duration-300 ${
+                      isHovered
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-1 pointer-events-none"
+                    }`}
+                  >
                     {card.description}
                   </p>
 
