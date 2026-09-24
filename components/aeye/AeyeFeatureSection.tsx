@@ -184,6 +184,59 @@ export default function AeyeFeatureSection() {
     }
   };
 
+  // Generative UI Product Motion States
+  const [telemetry, setTelemetry] = useState({ io: "0.41", fps: "120.2", rtt: "4.2" });
+  const [typedChars, setTypedChars] = useState(0);
+  const [tokRate, setTokRate] = useState(184);
+  const [hashSuffix, setHashSuffix] = useState("a12c");
+
+  const rustCodeSnippet = `pub fn converge_delta(patch: &CRDTPatch) -> Result<ASTNode> {
+  let mut tree = global_ast.write()?;
+  tree.apply_conflict_free(patch)
+}`;
+
+  // Tab 0 Generative Telemetry Jitter
+  useEffect(() => {
+    if (activeTab !== 0) return;
+    const interval = setInterval(() => {
+      const ioVal = (0.38 + Math.random() * 0.05).toFixed(2);
+      const fpsVal = (119.8 + Math.random() * 0.5).toFixed(1);
+      const rttVal = (4.0 + Math.random() * 0.4).toFixed(1);
+      setTelemetry({ io: ioVal, fps: fpsVal, rtt: rttVal });
+    }, 750);
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
+  // Tab 1 Generative Code Streaming (Typewriter effect)
+  useEffect(() => {
+    if (activeTab !== 1) return;
+    setTypedChars(0);
+    let current = 0;
+    const interval = setInterval(() => {
+      if (current < rustCodeSnippet.length) {
+        current += 2;
+        setTypedChars(Math.min(current, rustCodeSnippet.length));
+        setTokRate(170 + Math.floor(Math.random() * 25));
+      } else {
+        setTimeout(() => {
+          current = 0;
+          setTypedChars(0);
+        }, 2200);
+      }
+    }, 45);
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
+  // Tab 2 Generative Checksum
+  useEffect(() => {
+    if (activeTab !== 2) return;
+    const interval = setInterval(() => {
+      const hex = Math.floor(Math.random() * 0xffff).toString(16).padStart(4, "0");
+      setHashSuffix(hex);
+    }, 1400);
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
   const tabs = [
     {
       serial: "// 001",
@@ -403,6 +456,7 @@ export default function AeyeFeatureSection() {
                           <div className="w-36 sm:w-44 p-3 bg-[#0d0d0f] border border-[#222222] rounded-none z-10 shadow-md">
                             <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2 flex items-center justify-between">
                               <span>WORKSPACE INPUTS</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
                             </div>
                             <ul className="space-y-2 text-xs font-sans text-[#d4d4d8] list-none p-0 m-0">
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
@@ -411,15 +465,18 @@ export default function AeyeFeatureSection() {
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
                                 <Activity className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px] truncate">Keystroke Stream (&lt;15ms)</span>
+                                <div className="flex items-center gap-1 min-w-0">
+                                  <span className="text-white text-[11px] truncate">Keystrokes</span>
+                                  <span className="text-[9px] font-mono text-[#0055FF] font-semibold">&lt;15ms</span>
+                                </div>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
                                 <GitBranch className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px] truncate">Git HEAD &amp; Local Diffs</span>
+                                <span className="text-white text-[11px] truncate">Git HEAD (main)</span>
                               </li>
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
                                 <Database className="w-3.5 h-3.5 text-[#888888] shrink-0" />
-                                <span className="text-white text-[11px] truncate">AST Inodes &amp; Buffers</span>
+                                <span className="text-white text-[11px] truncate">AST Inodes [64k]</span>
                               </li>
                               <li className="pt-0.5 text-[#555555] font-mono text-[10px] tracking-widest pl-1">
                                 ...
@@ -427,7 +484,7 @@ export default function AeyeFeatureSection() {
                             </ul>
                           </div>
 
-                          {/* Left Circuit Bracket Trace (WORKSPACE INPUTS to Center) */}
+                          {/* Left Circuit Bracket Trace with Generative Data Packet */}
                           <div className="flex-1 h-24 relative flex items-center justify-center">
                             <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 80 80">
                               <line x1="0" y1="40" x2="35" y2="40" stroke="#333333" strokeWidth="1" />
@@ -435,15 +492,28 @@ export default function AeyeFeatureSection() {
                               <line x1="35" y1="15" x2="45" y2="15" stroke="#333333" strokeWidth="1" />
                               <line x1="35" y1="65" x2="45" y2="65" stroke="#333333" strokeWidth="1" />
                               <line x1="35" y1="40" x2="80" y2="40" stroke="#333333" strokeWidth="1" />
+                              {/* Generative streaming data packet */}
+                              <motion.circle
+                                r="2.5"
+                                fill="#0055FF"
+                                animate={{ cx: [0, 80] }}
+                                transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                                cy="40"
+                              />
                             </svg>
                           </div>
 
-                          {/* Center Core: Black Box with White 8-Point Asterisk */}
+                          {/* Center Core: Black Box with White 8-Point Asterisk & Generative Radar Pulse */}
                           <div className="w-14 h-14 bg-[#0a0a0a] border border-[#222222] flex items-center justify-center relative flex-shrink-0 z-10 shadow-lg">
+                            <motion.div
+                              className="absolute inset-0 border border-[#0055FF] pointer-events-none"
+                              animate={{ scale: [1, 1.25, 1], opacity: [0.8, 0, 0.8] }}
+                              transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                            />
                             <AsteriskCoreIcon className="w-6 h-6 text-white" />
                           </div>
 
-                          {/* Right Circuit Bracket Trace (Center to EXECUTION CONTEXT) */}
+                          {/* Right Circuit Bracket Trace with Generative Data Packet */}
                           <div className="flex-1 h-24 relative flex items-center justify-center">
                             <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 80 80">
                               <line x1="0" y1="40" x2="45" y2="40" stroke="#333333" strokeWidth="1" />
@@ -451,6 +521,14 @@ export default function AeyeFeatureSection() {
                               <line x1="35" y1="15" x2="45" y2="15" stroke="#333333" strokeWidth="1" />
                               <line x1="35" y1="65" x2="45" y2="65" stroke="#333333" strokeWidth="1" />
                               <line x1="45" y1="40" x2="80" y2="40" stroke="#333333" strokeWidth="1" />
+                              {/* Generative reverse packet stream */}
+                              <motion.circle
+                                r="2.5"
+                                fill="#0055FF"
+                                animate={{ cx: [80, 0] }}
+                                transition={{ repeat: Infinity, duration: 1.5, ease: "linear", delay: 0.75 }}
+                                cy="40"
+                              />
                             </svg>
                           </div>
 
@@ -458,6 +536,7 @@ export default function AeyeFeatureSection() {
                           <div className="w-36 sm:w-44 p-3 bg-[#0d0d0f] border border-[#222222] rounded-none z-10 shadow-md">
                             <div className="text-[10px] font-mono uppercase text-[#71717a] font-semibold pb-1.5 border-b border-[#222222] mb-2 flex items-center justify-between">
                               <span>EXECUTION CONTEXT</span>
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
                             </div>
                             <ul className="space-y-2 text-xs font-sans text-[#d4d4d8] list-none p-0 m-0">
                               <li className="flex items-center gap-2 pb-1.5 border-b border-[#222222]/60">
@@ -490,31 +569,32 @@ export default function AeyeFeatureSection() {
                           {/* Animated Blue Pulse Particle flowing down */}
                           <motion.div
                             animate={{ y: ["0%", "100%"] }}
-                            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                            transition={{ repeat: Infinity, duration: 1.1, ease: "linear" }}
                             className="absolute left-0 right-0 h-4 bg-[#0055FF]/40 border-y border-[#0055FF]"
                           />
                         </div>
 
-                        {/* Bottom: KERNEL TELEMETRY Box matching Screenshot 1 identically */}
+                        {/* Bottom: KERNEL TELEMETRY Box with Live Generative Ticking Telemetry */}
                         <div className="border border-[#0055FF] bg-[#0c0c0e] p-3.5 sm:p-4 w-full max-w-sm rounded-none text-center relative shadow-[0_0_15px_rgba(0,85,255,0.15)]">
-                          <div className="text-[10px] font-mono uppercase text-[#71717a] tracking-[0.2em] font-semibold mb-3">
-                            KERNEL TELEMETRY
+                          <div className="text-[10px] font-mono uppercase text-[#71717a] tracking-[0.2em] font-semibold mb-3 flex items-center justify-center gap-2">
+                            <span>KERNEL TELEMETRY</span>
+                            <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-none animate-pulse" />
                           </div>
                           <div className="flex items-center justify-center gap-2.5 sm:gap-3.5">
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
                             <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
                               <Activity className="w-4 h-4 stroke-[2.2]" />
-                              <span className="text-[8px] font-mono text-[#888888]">0.4ms I/O</span>
+                              <span className="text-[8px] font-mono text-[#888888]">{telemetry.io}ms I/O</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
                             <div className="w-12 h-12 bg-[#111111] border border-[#0055FF]/60 flex flex-col items-center justify-center gap-0.5 text-[#0055FF] shadow-[0_0_10px_rgba(0,85,255,0.2)]">
                               <Zap className="w-4 h-4 stroke-[2.2]" />
-                              <span className="text-[8px] font-mono text-[#0055FF] font-bold">120 FPS</span>
+                              <span className="text-[8px] font-mono text-[#0055FF] font-bold">{telemetry.fps} FPS</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#0055FF] rounded-full shrink-0 shadow-[0_0_6px_#0055FF]" />
                             <div className="w-12 h-12 bg-[#111111] border border-[#222222] flex flex-col items-center justify-center gap-0.5 text-[#0055FF]">
                               <Network className="w-4 h-4 stroke-[2.2]" />
-                              <span className="text-[8px] font-mono text-[#888888]">P2P DTLS</span>
+                              <span className="text-[8px] font-mono text-[#888888]">{telemetry.rtt}ms RTT</span>
                             </div>
                             <span className="w-1.5 h-1.5 bg-[#333333] rounded-none shrink-0" />
                           </div>
@@ -532,34 +612,44 @@ export default function AeyeFeatureSection() {
                         transition={{ duration: 0.25 }}
                         className="w-full relative flex items-center justify-center py-4"
                       >
-                        {/* Main Background Sandbox Card matching Screenshot 2 */}
+                        {/* Main Background Sandbox Card matching Screenshot 2 with Generative Code Streaming */}
                         <div className="w-full max-w-[340px] bg-[#0e0e10] border border-[#222222] p-5 sm:p-6 rounded-none space-y-3.5 shadow-xl">
                           {/* Terminal command & status lines */}
                           <div className="space-y-1.5 pb-2 border-b border-[#222222]/80">
-                            <div className="text-[10px] font-mono text-[#0055FF] font-semibold flex items-center gap-1.5">
-                              <span>[@CruxAI]</span>
-                              <span className="text-[#666666]">cargo check --target=arm64</span>
+                            <div className="text-[10px] font-mono text-[#0055FF] font-semibold flex items-center justify-between">
+                              <div className="flex items-center gap-1.5">
+                                <span>[@CruxAI]</span>
+                                <span className="text-[#666666]">cargo check --target=arm64</span>
+                              </div>
+                              <span className="text-[9px] text-[#22c55e] font-mono flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+                                LIVE
+                              </span>
                             </div>
                             <div className="text-[11px] font-mono text-[#cccccc] truncate">
                               Compiling crux-kernel v0.4.2 [AST-CRDT]
                             </div>
                           </div>
 
-                          {/* Skeleton AST token bars */}
-                          <div className="space-y-2 pt-1">
-                            <div className="w-3/5 h-2.5 bg-[#262626] rounded-none" />
-                            <div className="w-2/5 h-2.5 bg-[#1f1f1f] rounded-none" />
-                            <div className="w-4/5 h-2.5 bg-[#262626] rounded-none" />
+                          {/* Generative Code Typewriter Snippet */}
+                          <div className="p-2.5 bg-[#08080a] border border-[#222222] font-mono text-[10px] leading-relaxed text-[#d4d4d8] min-h-[66px] overflow-hidden whitespace-pre">
+                            <span className="text-[#0055FF]">{rustCodeSnippet.slice(0, typedChars)}</span>
+                            <span className="inline-block w-1.5 h-3 bg-white ml-0.5 animate-pulse align-middle" />
                           </div>
 
-                          {/* Sunflower Spinner: Resolving distributed AST state... */}
-                          <div className="pt-4 flex items-center gap-2.5 text-xs font-mono text-white">
-                            <SunflowerLoader className="w-4 h-4 text-[#0055FF]" />
-                            <span className="text-[11px] text-[#e4e4e7]">Resolving distributed AST state...</span>
+                          {/* Sunflower Spinner with Generative Token Rate */}
+                          <div className="pt-2 flex items-center justify-between text-xs font-mono text-white">
+                            <div className="flex items-center gap-2">
+                              <SunflowerLoader className="w-4 h-4 text-[#0055FF]" />
+                              <span className="text-[11px] text-[#e4e4e7]">Resolving distributed AST...</span>
+                            </div>
+                            <span className="text-[10px] font-mono text-[#0055FF] font-bold">
+                              ⚡ {tokRate} tok/s
+                            </span>
                           </div>
 
                           {/* Bottom row: Git Head & Symbols count */}
-                          <div className="pt-4 flex items-center justify-between text-[10px] font-mono text-[#71717a] border-t border-[#222222]/60">
+                          <div className="pt-3 flex items-center justify-between text-[10px] font-mono text-[#71717a] border-t border-[#222222]/60">
                             <div className="flex items-center gap-1.5">
                               <GitBranch className="w-3 h-3 text-[#71717a]" />
                               <span>main · 14,280 symbols</span>
@@ -568,7 +658,7 @@ export default function AeyeFeatureSection() {
                           </div>
                         </div>
 
-                        {/* Floating Foreground Multiplayer Task Card matching Screenshot 2 */}
+                        {/* Floating Foreground Multiplayer Task Card matching Screenshot 2 with Live Peer Presence */}
                         <motion.div
                           initial={{ y: 20, opacity: 0 }}
                           animate={{ y: 0, opacity: 1 }}
@@ -586,10 +676,10 @@ export default function AeyeFeatureSection() {
                             </div>
                           </div>
 
-                          {/* Peer chips: Alex, Sarah, and @CruxAI */}
+                          {/* Peer chips: Alex, Sarah, and @CruxAI with generative status */}
                           <div className="mt-3 flex items-center gap-2 overflow-x-auto">
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#d4d4d8] font-mono shrink-0">
-                              <User className="w-3 h-3 text-[#888888]" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
                               <span>Alex (Host)</span>
                             </div>
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#a1a1aa] font-mono shrink-0">
@@ -605,10 +695,10 @@ export default function AeyeFeatureSection() {
                           {/* Sub-10ms CRDT delta sync metric */}
                           <div className="mt-2.5 flex items-center justify-between text-[10px] font-mono text-[#71717a]">
                             <span>CRDT delta broadcast</span>
-                            <span className="text-[#0055FF] font-semibold">4.2ms RTT</span>
+                            <span className="text-[#0055FF] font-semibold">{telemetry.rtt}ms RTT</span>
                           </div>
 
-                          {/* Electric Blue Progress Bar */}
+                          {/* Electric Blue Progress Bar with Generative Sweep */}
                           <div className="mt-2 w-full h-1 bg-[#222222] overflow-hidden rounded-none">
                             <motion.div
                               animate={{ width: ["25%", "70%", "100%", "25%"] }}
@@ -621,7 +711,7 @@ export default function AeyeFeatureSection() {
                     )}
 
                     {activeTab === 2 && (
-                      /* TAB 3: Actionable Output (Engineered Artifacts & Native Binaries matching Screenshot 3) */
+                      /* TAB 3: Actionable Output (Engineered Artifacts & Native Binaries with Generative Motion) */
                       <motion.div
                         key="tab-2"
                         initial={{ opacity: 0, scale: 0.96 }}
@@ -633,53 +723,95 @@ export default function AeyeFeatureSection() {
                         {/* Central Vertical Electric Blue Laser Line behind the cards */}
                         <div className="absolute top-12 bottom-0 w-[1.5px] bg-[#0055FF] pointer-events-none z-0" />
 
-                        {/* Top Asterisk Core Box */}
+                        {/* Top Asterisk Core Box with live radar ring */}
                         <div className="w-14 h-14 bg-[#0a0a0a] border border-[#222222] flex items-center justify-center relative z-10 mb-2 shadow-lg">
+                          <motion.div
+                            className="absolute inset-0 border border-[#0055FF]"
+                            animate={{ scale: [1, 1.3, 1], opacity: [0.8, 0, 0.8] }}
+                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                          />
                           <AsteriskCoreIcon className="w-6 h-6 text-white" />
                         </div>
 
-                        {/* Card 1: Native Host Binary [ARM64 / x86_64] */}
+                        {/* Card 1: Native Host Binary [ARM64 / x86_64] with Generative Checksum */}
                         <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#a1a1aa]">
                               <Cpu className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-xs font-medium text-[#e4e4e7] font-sans">Native Host Binary</span>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-medium text-[#e4e4e7] font-sans">Native Host Binary</span>
+                              <span className="text-[9px] font-mono text-[#666666]">sha256: {hashSuffix}...</span>
+                            </div>
                           </div>
                           <div className="text-[10px] font-mono text-[#71717a] font-bold px-1.5 py-0.5 bg-[#141416] border border-[#222222]">
                             ARM64
                           </div>
                         </div>
 
-                        {/* Card 2: Atomic AST Git Diff [CRDT PATCH] (ACTIVE & HIGHLIGHTED in #0055FF with lateral docking dots) */}
-                        <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#0055FF] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10 shadow-[0_0_15px_rgba(0,85,255,0.15)]">
-                          {/* Left Exterior Blue Docking Node */}
-                          <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
-                          
-                          <div className="flex items-center gap-3">
-                            <div className="w-7 h-7 bg-[#0055FF]/10 border border-[#0055FF]/40 flex items-center justify-center text-[#0055FF]">
-                              <GitMerge className="w-3.5 h-3.5 stroke-[2.2]" />
-                            </div>
-                            <span className="text-xs font-semibold text-[#0055FF] font-sans">Atomic AST Git Diff</span>
-                          </div>
-                          <div className="text-[10px] font-mono text-[#0055FF] font-bold px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40">
-                            CRDT PATCH
+                        {/* Card 2: Atomic AST Git Diff [CRDT PATCH] (ACTIVE & HIGHLIGHTED in #0055FF with generative diff stream) */}
+                        <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#0055FF] p-3 rounded-none relative z-10 shadow-[0_0_15px_rgba(0,85,255,0.15)]">
+                          {/* Left Exterior Blue Docking Node with Radar Ring */}
+                          <div className="absolute -left-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                            <motion.div
+                              className="absolute -inset-1 border border-[#0055FF]"
+                              animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                              transition={{ repeat: Infinity, duration: 1.4 }}
+                            />
                           </div>
 
-                          {/* Right Exterior Blue Docking Node */}
-                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]" />
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 bg-[#0055FF]/10 border border-[#0055FF]/40 flex items-center justify-center text-[#0055FF]">
+                                <GitMerge className="w-3.5 h-3.5 stroke-[2.2]" />
+                              </div>
+                              <span className="text-xs font-semibold text-[#0055FF] font-sans">Atomic AST Git Diff</span>
+                            </div>
+                            <div className="text-[10px] font-mono text-[#0055FF] font-bold px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40">
+                              CRDT PATCH
+                            </div>
+                          </div>
+
+                          {/* Generative Diff Stream Preview */}
+                          <div className="mt-2 pt-2 border-t border-[#0055FF]/30 font-mono text-[9px] space-y-0.5">
+                            <div className="text-red-400/80 line-through truncate opacity-80">- fn render_canvas_v8(&amp;mut self)</div>
+                            <div className="text-[#0055FF] font-semibold flex items-center gap-1 truncate">
+                              <span>+ fn render_canvas_webgpu(&amp;mut self, ctx: &amp;Surface)</span>
+                              <span className="w-1 h-2.5 bg-[#0055FF] animate-pulse inline-block" />
+                            </div>
+                          </div>
+
+                          {/* Right Exterior Blue Docking Node with Radar Ring */}
+                          <div className="absolute -right-5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-none bg-[#0055FF] shadow-[0_0_8px_#0055FF]">
+                            <motion.div
+                              className="absolute -inset-1 border border-[#0055FF]"
+                              animate={{ scale: [1, 2.2], opacity: [0.9, 0] }}
+                              transition={{ repeat: Infinity, duration: 1.4, delay: 0.7 }}
+                            />
+                          </div>
                         </div>
 
-                        {/* Card 3: WebGPU Render Pipeline [120 FPS] */}
+                        {/* Card 3: WebGPU Render Pipeline [120 FPS] with Animated Waveform */}
                         <div className="w-72 sm:w-80 bg-[#0d0d0f] border border-[#222222] px-4 py-2.5 rounded-none flex items-center justify-between relative z-10">
                           <div className="flex items-center gap-3">
                             <div className="w-7 h-7 bg-[#141416] border border-[#222222] flex items-center justify-center text-[#71717a]">
                               <Zap className="w-3.5 h-3.5 text-[#0055FF]" />
                             </div>
-                            <span className="text-xs font-medium text-[#a1a1aa] font-sans">WebGPU Render Pipeline</span>
+                            <div className="flex flex-col">
+                              <span className="text-xs font-medium text-[#a1a1aa] font-sans">WebGPU Render Pipeline</span>
+                              <span className="text-[9px] font-mono text-[#555555]">8.33ms · vsync locked</span>
+                            </div>
                           </div>
-                          <div className="text-[10px] font-mono text-[#52525b] font-bold px-1.5 py-0.5 bg-[#141416] border border-[#222222]">
-                            120 FPS
+                          {/* Live 5-bar Waveform Equalizer */}
+                          <div className="flex items-end gap-1 h-3.5">
+                            {[0.4, 0.9, 0.5, 1.0, 0.7].map((h, i) => (
+                              <motion.div
+                                key={i}
+                                animate={{ height: [`${h * 100}%`, `${Math.max(20, (1 - h * 0.5) * 100)}%`, `${h * 100}%`] }}
+                                transition={{ repeat: Infinity, duration: 0.7 + i * 0.15, ease: "easeInOut" }}
+                                className="w-1 bg-[#0055FF]"
+                              />
+                            ))}
                           </div>
                         </div>
 
