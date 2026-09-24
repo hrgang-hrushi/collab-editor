@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 export default function AeyeCtaSection() {
-  const words = ["unified", "automated", "accelerated", "streamlined", "intelligent"];
+  const words = ["accelerated", "collaborative", "bare-metal", "decentralized", "uncompromised"];
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(words[0].length);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,35 +39,29 @@ export default function AeyeCtaSection() {
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, wordIndex, mounted, words]);
 
-  const currentDisplay = mounted ? words[wordIndex].substring(0, charIndex) : "unified";
+  const currentDisplay = mounted ? words[wordIndex].substring(0, charIndex) : "accelerated";
   const isCompleteWord = mounted ? (!isDeleting && charIndex === words[wordIndex].length) : true;
 
   const tickerItem = (
-    <div className="flex items-center gap-16 font-pixel text-xs sm:text-sm tracking-wide text-[#0055FF] uppercase whitespace-nowrap py-3.5">
+    <div className="flex items-center gap-10 font-pixel text-xs sm:text-sm tracking-wide text-[#0055FF] uppercase whitespace-nowrap py-3.5">
       <span className="flex items-center gap-3">
         <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#ARTIFICIAL]</span>
+        <span className="text-[#0055FF]">[#CRUX]</span>
         <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#INTELLIGENCE]</span>
+        <span className="text-[#0055FF]">[#KERNEL]</span>
       </span>
+      <span className="text-[#999999]">●</span>
+      <span className="text-[#111111] font-mono font-bold tracking-wider">BARE-METAL COLLABORATIVE IDE</span>
+      <span className="text-[#999999]">●</span>
       <span className="flex items-center gap-3">
         <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#ARTIFICIAL]</span>
+        <span className="text-[#0055FF]">[#AST-CRDT]</span>
         <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#INTELLIGENCE]</span>
+        <span className="text-[#0055FF]">[#WEBGPU]</span>
       </span>
-      <span className="flex items-center gap-3">
-        <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#ARTIFICIAL]</span>
-        <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#INTELLIGENCE]</span>
-      </span>
-      <span className="flex items-center gap-3">
-        <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#ARTIFICIAL]</span>
-        <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#INTELLIGENCE]</span>
-      </span>
+      <span className="text-[#999999]">●</span>
+      <span className="text-[#111111] font-mono font-bold tracking-wider">SUB-15MS MULTIPLAYER LATENCY</span>
+      <span className="text-[#999999]">●</span>
     </div>
   );
 
@@ -117,8 +111,8 @@ export default function AeyeCtaSection() {
 
           {/* TOP TAG / BADGE */}
           <div className="inline-block mb-7 sm:mb-9">
-            <span className="bg-[#EDEDED] text-[#444444] font-mono text-[11px] sm:text-xs tracking-wider uppercase px-3 py-1 inline-block">
-              GET START IN MINUTE
+            <span className="bg-[#EDEDED] text-[#444444] font-mono text-[11px] sm:text-xs tracking-wider uppercase px-3.5 py-1.5 inline-block">
+              GET STARTED IN SECONDS
             </span>
           </div>
 
@@ -126,7 +120,7 @@ export default function AeyeCtaSection() {
           <div className="flex flex-col items-center justify-center leading-[1.05] tracking-[-0.05em]">
             {/* LINE 1 */}
             <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#111111] m-0">
-              Workflow,
+              Engineering,
             </h2>
 
             {/* LINE 2: [word] in Geist Pixel Square with solid blue block cursor */}
@@ -140,16 +134,16 @@ export default function AeyeCtaSection() {
 
             {/* LINE 3 */}
             <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#111111] m-0">
-              Try it for free today!
+              Built for raw silicon.
             </h2>
           </div>
 
-          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, GET STARTED uppercase text, no arrow) */}
+          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, LAUNCH CRUX uppercase text) */}
           <div className="mt-8 sm:mt-12 flex justify-center">
             <a
-              href="#dispatch"
+              href="#waitlist"
               onClick={(e) => {
-                const el = document.getElementById("dispatch") || document.getElementById("waitlist");
+                const el = document.getElementById("waitlist") || document.getElementById("dispatch");
                 if (el) {
                   e.preventDefault();
                   el.scrollIntoView({ behavior: "smooth" });
@@ -161,7 +155,7 @@ export default function AeyeCtaSection() {
               <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white shrink-0 group-hover:scale-95 transition-transform" />
               {/* Monospace Uppercase Text */}
               <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-white">
-                GET STARTED
+                LAUNCH CRUX
               </span>
             </a>
           </div>
