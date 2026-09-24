@@ -16,6 +16,7 @@ import {
   PartnerLogo6,
 } from "./AeyeIcons";
 import InteractivePixelGrid from "./InteractivePixelGrid";
+import CallChip from "@/components/ui/CallChip";
 
 const TYPEWRITER_WORDS = ["[Collaborative IDE]", "[Bare-Metal Kernel]", "[WebGPU Engine]"];
 
@@ -36,6 +37,7 @@ export default function AeyeHero() {
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
   const [preCruxEmail, setPreCruxEmail] = useState("");
   const [preCruxSubmitted, setPreCruxSubmitted] = useState(false);
+  const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
 
   const handlePreCruxSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,11 +45,23 @@ export default function AeyeHero() {
       try {
         localStorage.setItem("pre_crux_email", preCruxEmail);
       } catch (_) {}
-      setPreCruxSubmitted(true);
-      const el = document.getElementById("waitlist");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
+
+      setChipStage("almost");
+
+      setTimeout(() => {
+        setChipStage("gone");
+      }, 850);
+
+      setTimeout(() => {
+        setChipStage("done");
+        setPreCruxSubmitted(true);
+        const el = document.getElementById("waitlist");
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: "smooth" });
+          }, 1000);
+        }
+      }, 1800);
     }
   };
 
@@ -204,32 +218,65 @@ export default function AeyeHero() {
                 Automate complex tasks, streamline your workflows, and deliver better results faster — with AI handling the heavy lifting behind the scenes.
               </p>
 
-              {/* Email Input & Lets Crux it Action Form */}
-              <form
-                onSubmit={handlePreCruxSubmit}
-                className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
-              >
-                {/* Left: Email input with the exact underline border style as Watch Demo */}
-                <div className="relative">
-                  <input
-                    type="email"
-                    required
-                    value={preCruxEmail}
-                    onChange={(e) => setPreCruxEmail(e.target.value)}
-                    placeholder="Get on Pre-Crux"
-                    className="w-full sm:w-[240px] md:w-[280px] bg-transparent text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border-0 border-b border-white focus:border-[#0055FF] focus:outline-none px-2 py-3 transition-none rounded-none"
+              {/* Email Input & Lets Crux it Action Form / CallChip */}
+              {chipStage !== "idle" ? (
+                <div className="mt-8 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  <CallChip
+                    icon="terminal"
+                    name="waitlist"
+                    argument={
+                      chipStage === "almost"
+                        ? "almost there..."
+                        : chipStage === "gone"
+                        ? "gone through..."
+                        : "done! See ya at Crux!"
+                    }
+                    status={chipStage === "done" ? "done" : "running"}
+                    expectedMs={1800}
+                    size={38}
+                    radius={0}
+                    color="#ffffff"
+                    surfaceColor="#0e0e11"
+                    progressColor="#ffffff"
+                    progressOpacity={0.16}
+                    doneColor="#22c55e"
+                    washOpacity={0.18}
+                    showTimer
                   />
+                  {chipStage === "done" && (
+                    <span className="text-xs font-mono text-[#888888] flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-[#22c55e] inline-block" />
+                      REGISTERED · REDIRECTING TO TICKET CONSOLE...
+                    </span>
+                  )}
                 </div>
-
-                {/* Right: Lets Crux it Action Button */}
-                <button
-                  type="submit"
-                  className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium shrink-0 group"
+              ) : (
+                <form
+                  onSubmit={handlePreCruxSubmit}
+                  className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
                 >
-                  <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block transition-none" />
-                  <span>{preCruxSubmitted ? "ACCESS QUEUED" : "Lets Crux it"}</span>
-                </button>
-              </form>
+                  {/* Left: Email input with the exact underline border style as Watch Demo */}
+                  <div className="relative">
+                    <input
+                      type="email"
+                      required
+                      value={preCruxEmail}
+                      onChange={(e) => setPreCruxEmail(e.target.value)}
+                      placeholder="Get on Pre-Crux"
+                      className="w-full sm:w-[240px] md:w-[280px] bg-transparent text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border-0 border-b border-white focus:border-[#0055FF] focus:outline-none px-2 py-3 transition-none rounded-none"
+                    />
+                  </div>
+
+                  {/* Right: Lets Crux it Action Button */}
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium shrink-0 group"
+                  >
+                    <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block transition-none" />
+                    <span>Lets Crux it</span>
+                  </button>
+                </form>
+              )}
             </motion.div>
           </div>
 

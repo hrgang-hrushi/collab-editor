@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, ShieldCheck, Terminal, Cpu, Zap, Mail, Phone, Building } from "lucide-react";
+import CallChip from "@/components/ui/CallChip";
 
 export default function AeyePricingSection() {
   const [email, setEmail] = useState("");
@@ -12,6 +13,7 @@ export default function AeyePricingSection() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState("");
   const [error, setError] = useState("");
+  const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
 
   React.useEffect(() => {
     try {
@@ -46,14 +48,23 @@ export default function AeyePricingSection() {
     const randomHex = Math.random().toString(16).substring(2, 8).toUpperCase();
     const generatedId = `CRUX-ALPHA-${randomHex}`;
     setTicketId(generatedId);
-    setIsSubmitted(true);
 
-    try {
-      localStorage.setItem(
-        "crux_waitlist_ticket",
-        JSON.stringify({ ticketId: generatedId, email, contact, teamSize, date: new Date().toISOString() })
-      );
-    } catch (_) {}
+    setChipStage("almost");
+
+    setTimeout(() => {
+      setChipStage("gone");
+    }, 850);
+
+    setTimeout(() => {
+      setChipStage("done");
+      setIsSubmitted(true);
+      try {
+        localStorage.setItem(
+          "crux_waitlist_ticket",
+          JSON.stringify({ ticketId: generatedId, email, contact, teamSize, date: new Date().toISOString() })
+        );
+      } catch (_) {}
+    }, 1900);
   };
 
   const perks = [
@@ -205,15 +216,42 @@ export default function AeyePricingSection() {
                     </div>
                   </div>
 
-                  {/* Submit Button */}
+                  {/* Submit Button or Running CallChip */}
                   <div className="pt-4">
-                    <button
-                      type="submit"
-                      className="w-full h-14 bg-white text-black hover:bg-[#0055FF] hover:text-white transition-none font-sans font-medium text-sm tracking-wider uppercase flex items-center justify-center gap-3 cursor-pointer rounded-none"
-                    >
-                      <span className="w-2 h-2 bg-current" />
-                      REQUEST ALPHA ACCESS TOKEN
-                    </button>
+                    {chipStage !== "idle" && !isSubmitted ? (
+                      <div className="w-full h-14 bg-[#0c0c0e] border border-[#222222] flex items-center justify-center">
+                        <CallChip
+                          icon="terminal"
+                          name="waitlist"
+                          argument={
+                            chipStage === "almost"
+                              ? "almost there..."
+                              : chipStage === "gone"
+                              ? "gone through..."
+                              : "done! See ya at Crux!"
+                          }
+                          status={chipStage === "done" ? "done" : "running"}
+                          expectedMs={1900}
+                          size={36}
+                          radius={0}
+                          color="#ffffff"
+                          surfaceColor="#000000"
+                          progressColor="#ffffff"
+                          progressOpacity={0.16}
+                          doneColor="#22c55e"
+                          washOpacity={0.18}
+                          showTimer
+                        />
+                      </div>
+                    ) : (
+                      <button
+                        type="submit"
+                        className="w-full h-14 bg-white text-black hover:bg-[#0055FF] hover:text-white transition-none font-sans font-medium text-sm tracking-wider uppercase flex items-center justify-center gap-3 cursor-pointer rounded-none"
+                      >
+                        <span className="w-2 h-2 bg-current" />
+                        REQUEST ALPHA ACCESS TOKEN
+                      </button>
+                    )}
                     <p className="mt-3 text-[11px] font-mono text-[#555555] text-center">
                       ZERO SPAM GUARANTEE · PURE CODE &amp; BINARY RELEASES ONLY
                     </p>
@@ -228,10 +266,22 @@ export default function AeyePricingSection() {
                   className="space-y-6"
                 >
                   <div className="border border-[#0055FF] bg-[#0055FF]/10 p-6 space-y-4">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#0055FF]/30">
-                      <div className="flex items-center gap-2">
-                        <Check className="w-5 h-5 text-[#0055FF]" />
-                        <span className="font-mono text-sm font-bold text-white tracking-wider">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#0055FF]/30 gap-3">
+                      <div className="flex items-center gap-3">
+                        <CallChip
+                          icon="terminal"
+                          name="waitlist"
+                          argument="done! See ya at Crux!"
+                          status="done"
+                          size={34}
+                          radius={0}
+                          color="#ffffff"
+                          surfaceColor="#000000"
+                          doneColor="#22c55e"
+                          washOpacity={0.2}
+                          showTimer={false}
+                        />
+                        <span className="font-mono text-xs font-bold text-white tracking-wider hidden md:inline">
                           ACCESS TICKET ISSUED
                         </span>
                       </div>
