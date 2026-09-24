@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, ArrowDown, Play } from "lucide-react";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 import {
-  CruxMark,
+  CruxLogo,
   StarPixelIcon,
   ThreeSquaresIcon,
   PartnerLogo1,
@@ -83,7 +83,7 @@ export default function AeyeHero() {
           {/* Logo & Version Pill */}
           <div className="flex items-center gap-3 pointer-events-auto">
             <a href="#" className="hover:opacity-90 transition-none no-underline">
-              <CruxBrandLogo size={24} withText={true} />
+              <CruxBrandLogo size={28} />
             </a>
             <div className="px-2.5 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[11px] font-mono text-[#0055FF] uppercase tracking-wider select-none rounded-none font-semibold">
               v0.1.0 // RUST + WEBGPU
@@ -273,7 +273,7 @@ export default function AeyeHero() {
             <span className="text-white font-normal tracking-tight">
               BARE-METAL COLLABORATIVE IDE FOR
             </span>
-            <CruxMark size={20} className="inline-grid align-middle mx-1" />
+            <CruxLogo size={18} className="inline-block align-middle mx-1.5" />
             <span className="text-white font-bold tracking-tight">
               HIGH-VELOCITY ENGINEERING
             </span>

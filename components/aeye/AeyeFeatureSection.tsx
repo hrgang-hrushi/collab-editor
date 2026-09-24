@@ -18,7 +18,7 @@ import {
   User,
   FileCode2,
 } from "lucide-react";
-import { CruxMark } from "./AeyeIcons";
+import { CruxLogo } from "./AeyeIcons";
 
 export default function AeyeFeatureSection() {
   const [activeTab, setActiveTab] = useState<number>(0);
@@ -218,9 +218,9 @@ export default function AeyeFeatureSection() {
                         />
                       </div>
 
-                      {/* Center Core: Crux Silicon Grid Logo */}
-                      <div className="w-16 h-16 bg-[#111111] border border-[#222222] flex items-center justify-center relative flex-shrink-0 z-10">
-                        <CruxMark size={26} />
+                      {/* Center Core: Crux Logo */}
+                      <div className="px-3 h-12 bg-[#111111] border border-[#222222] flex items-center justify-center relative flex-shrink-0 z-10">
+                        <CruxLogo size={18} />
                         <div className="absolute -top-1 -right-1 w-2 h-2 bg-white" />
                       </div>
 
@@ -372,8 +372,8 @@ export default function AeyeFeatureSection() {
                     className="w-full flex flex-col items-center gap-6"
                   >
                     {/* Top Core Box: Crux Logo */}
-                    <div className="w-16 h-16 bg-[#111111] border border-[#222222] flex items-center justify-center relative">
-                      <CruxMark size={26} />
+                    <div className="px-3 h-12 bg-[#111111] border border-[#222222] flex items-center justify-center relative">
+                      <CruxLogo size={18} />
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-white" />
                     </div>
 

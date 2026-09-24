@@ -35,7 +35,7 @@ export default function AeyeFooter() {
           <div className="lg:col-span-5 flex flex-col justify-between">
             <div>
               <div className="flex items-center gap-3">
-                <CruxBrandLogo size={20} withText={true} />
+                <CruxBrandLogo size={24} />
                 <div className="px-2 py-0.5 bg-[#111111] border border-[#222222] rounded-none">
                   <span className="font-mono text-[10px] text-[#888888]">
                     v0.1.0 // RUST + WEBGPU

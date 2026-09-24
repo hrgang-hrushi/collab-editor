@@ -25,18 +25,15 @@ export function CruxMark({ size = 20, className = "" }: { size?: number; classNa
 // Crux Brand Logo: Etna Sans Serif, strictly capital 'C' only: Crux
 export function CruxLogo({ className = "text-white", size = 22 }: { className?: string; size?: number }) {
   return (
-    <div className={`inline-flex items-center gap-2.5 select-none ${className}`}>
-      <CruxMark size={size} />
-      <span
-        className="font-brand font-black tracking-[0px] text-white leading-none"
-        style={{
-          fontFamily: "'Etna Sans Serif', 'Etna', sans-serif",
-          fontSize: Math.max(16, size * 0.9),
-        }}
-      >
-        Crux
-      </span>
-    </div>
+    <span
+      className={`font-brand font-black tracking-[0px] text-white leading-none select-none inline-block ${className}`}
+      style={{
+        fontFamily: "'Etna Sans Serif', 'Etna', sans-serif",
+        fontSize: size,
+      }}
+    >
+      Crux
+    </span>
   );
 }
 

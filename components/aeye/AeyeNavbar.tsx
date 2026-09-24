@@ -82,7 +82,7 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
             }}
             className="flex items-center hover:opacity-85 transition-none no-underline"
           >
-            <CruxBrandLogo size={20} withText={true} />
+            <CruxBrandLogo size={22} />
           </a>
 
           {/* Desktop Segmented Control: Connected Nav Tabs */}
@@ -145,7 +145,7 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
             }}
             className="flex items-center no-underline"
           >
-            <CruxBrandLogo size={18} withText={true} />
+            <CruxBrandLogo size={20} />
           </a>
 
           <motion.button
