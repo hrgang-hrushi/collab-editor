@@ -27,8 +27,7 @@ import PerformanceVisualizer from "./PerformanceVisualizer";
 import AgenticTerminalSandbox from "./AgenticTerminalSandbox";
 import SpatialRewindSection from "./SpatialRewindSection";
 import EngineeringWall from "./EngineeringWall";
-import PricingAndTrustSection from "./PricingAndTrustSection";
-import AeyeCtaSection from "@/components/aeye/AeyeCtaSection";
+import AeyeFooter from "@/components/aeye/AeyeFooter";
 import CruxBrandLogo from "../CruxBrandLogo";
 
 interface CruxLandingPageProps {
@@ -277,56 +276,10 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
         {/* ========================================================================= */}
         <PricingAndTrustSection onOpenWaitlist={() => setIsWaitlistOpen(true)} />
 
-        {/* Crux Insider Dispatch Section */}
-        <AeyeCtaSection />
       </main>
 
-      {/* Sleek Minimalist Footer */}
-      <footer className="border-t border-[#222222] py-14 px-6 max-w-6xl mx-auto text-xs text-[#888888] relative z-10 font-mono">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <CruxBrandLogo size={20} withText={true} />
-            <div className="w-[1px] h-3 bg-[#222222]" />
-            <span>Ultra-Performance Native IDE</span>
-            <div className="w-[1px] h-3 bg-[#222222]" />
-            <span className="text-white font-mono">Rust + WebGPU</span>
-          </div>
-
-          <div className="flex items-center gap-6 font-mono text-[11px]">
-            <a
-              href="https://github.com/hrgang-hrushi/collab-editor"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[#888888] hover:text-white transition-none no-underline"
-            >
-              GitHub
-            </a>
-            <a
-              href="#architecture"
-              className="text-[#888888] hover:text-white transition-none no-underline"
-            >
-              Architecture
-            </a>
-            <a
-              href="#benchmarks"
-              className="text-[#888888] hover:text-white transition-none no-underline"
-            >
-              Benchmarks
-            </a>
-            <button
-              onClick={() => setIsWaitlistOpen(true)}
-              className="text-white hover:underline transition-none cursor-pointer"
-            >
-              Waitlist
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-8 pt-8 border-t border-[#222222] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#444444]">
-          <span>© 2026 Crux Systems Inc. All rights reserved.</span>
-          <span>Engineered for macOS Apple Silicon &amp; Intel.</span>
-        </div>
-      </footer>
+      {/* Master Hardware Brutalism Footer & Dispatch */}
+      <AeyeFooter />
     </div>
   );
 }
