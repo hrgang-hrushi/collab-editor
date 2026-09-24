@@ -13,6 +13,23 @@ export default function AeyePricingSection() {
   const [ticketId, setTicketId] = useState("");
   const [error, setError] = useState("");
 
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("pre_crux_email");
+      if (saved) setEmail(saved);
+    } catch (_) {}
+
+    const handleStorage = () => {
+      try {
+        const saved = localStorage.getItem("pre_crux_email");
+        if (saved) setEmail(saved);
+      } catch (_) {}
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
