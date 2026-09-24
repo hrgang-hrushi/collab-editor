@@ -112,47 +112,47 @@ export default function AeyeHero() {
         <div className="absolute inset-0 aeye-dot-bg invert opacity-15 pointer-events-none" />
 
         <div className="relative z-10 max-w-[1280px] mx-auto">
-          {/* Main H1 Area */}
-          <div className="pb-12">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-[-0.06em] leading-[1.08] text-white font-sans">
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              >
-                A Native Bare-Metal
-              </motion.div>
+          {/* Main Hero Split Grid: Left Heading vs Right Social Proof, Copy & Actions */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start pb-14">
+            {/* Left Column: Heading */}
+            <div className="lg:col-span-7">
+              <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-[76px] font-normal tracking-[-0.06em] leading-[1.08] text-white font-sans">
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  A Native Bare-Metal
+                </motion.div>
 
-              <div className="inline-flex items-center gap-1 min-h-[48px] sm:min-h-[82px] font-mono text-[#0055FF] tracking-tight">
-                <span className="text-[#0055FF]">{displayedText}</span>
-                <motion.span
-                  animate={{ opacity: [1, 0, 1] }}
-                  transition={{ repeat: Infinity, duration: 0.5 }}
-                  className="inline-block w-[18px] sm:w-[26px] h-[34px] sm:h-[48px] bg-[#0055FF] ml-1 align-baseline"
-                />
-              </div>
+                <div className="inline-flex items-center gap-1 min-h-[48px] sm:min-h-[82px] font-mono text-[#0055FF] tracking-tight">
+                  <span className="text-[#0055FF]">{displayedText}</span>
+                  <motion.span
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    className="inline-block w-[18px] sm:w-[26px] h-[34px] sm:h-[48px] bg-[#0055FF] ml-1 align-baseline"
+                  />
+                </div>
 
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-              >
-                for High-Velocity Teams.
-              </motion.div>
-            </h1>
-          </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
+                >
+                  for High-Velocity Teams.
+                </motion.div>
+              </h1>
+            </div>
 
-          {/* Hero Meta Description, Social Proof & Actions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-            className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-8 pb-14 border-t border-[#222222] items-end"
-          >
-            {/* Left Social Proof & Copy */}
-            <div className="lg:col-span-7 flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-sm font-sans">
-                {/* Stacked Avatars */}
+            {/* Right Column: Social Proof, Subtitle Copy, and Actions matching Screenshot */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+              className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4"
+            >
+              {/* Stacked Avatars + Trusted by + Rating */}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm font-sans">
                 <div className="flex items-center -space-x-2">
                   {[
                     "https://framerusercontent.com/images/bCXMojdPVkmoes2tDd7ja8MzUNk.png?width=112&height=112",
@@ -170,73 +170,56 @@ export default function AeyeHero() {
                   ))}
                 </div>
 
-                {/* Trusted by 10K+ */}
                 <div className="text-[#888888]">
-                  Trusted by <span className="font-semibold text-white">10K+</span> Engineers
+                  Trusted by <span className="font-semibold text-white">10K+</span> Teams
                 </div>
 
-                {/* Vertical Divider */}
-                <div className="w-[1px] h-3.5 bg-[#222222]" />
+                <div className="w-[1px] h-3.5 bg-[#333333]" />
 
-                {/* Rating */}
                 <div className="flex items-center gap-1.5">
                   <StarPixelIcon className="w-3.5 h-3.5 text-[#0055FF]" />
                   <span className="font-mono font-bold text-white">4.9</span>
                   <span className="font-mono text-[#71717a]">/5</span>
                 </div>
-
-                {/* Vertical Divider */}
-                <div className="w-[1px] h-3.5 bg-[#222222]" />
-
-                {/* Live Telemetry Ping */}
-                <div className="hidden sm:flex items-center gap-1.5 px-2 py-0.5 border border-[#0055FF]/30 bg-[#0055FF]/10 text-[10px] font-mono text-[#888888] rounded-none">
-                  <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                  <span className="text-[#0055FF] font-medium">120 FPS</span>
-                  <span className="text-[#71717a]">·</span>
-                  <span className="text-[#0055FF]">8.4ms</span>
-                </div>
               </div>
 
-              <p className="text-sm sm:text-base text-[#888888] font-sans max-w-[460px] leading-relaxed">
-                Engineered from bare silicon with Rust and WebGPU. Sub-15ms rendering latency, decentralized AST-CRDT real-time sync, and zero Chromium overhead.
+              {/* Description Paragraph matching Screenshot 1 */}
+              <p className="mt-5 text-sm sm:text-base text-[#888888] font-sans leading-relaxed max-w-[480px]">
+                Automate complex tasks, streamline your workflows, and deliver better results faster — with AI handling the heavy lifting behind the scenes.
               </p>
-            </div>
 
-            {/* Right CTAs (Hardware Brutalist Mechanical Switches) */}
-            <div className="lg:col-span-5 flex flex-col sm:flex-row items-stretch sm:items-center justify-start lg:justify-end gap-3.5">
-              {/* Primary Action Button: LAUNCH CRUX */}
-              <motion.a
-                href="/?app=true"
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-[180px] h-[48px] bg-[#0055FF] hover:bg-[#0044CC] text-white border border-[#0055FF] text-xs font-mono uppercase font-bold tracking-wider flex items-center justify-between px-5 transition-none no-underline group cursor-pointer rounded-none"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span className="w-1.5 h-1.5 bg-white inline-block transition-none" />
-                  <span>LAUNCH CRUX</span>
-                </div>
-                <ArrowRight className="w-3.5 h-3.5 text-white transition-none" />
-              </motion.a>
+              {/* Action Buttons matching Screenshot 1 */}
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                {/* Button 1: GET STARTED */}
+                <a
+                  href="#waitlist"
+                  className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium no-underline group"
+                >
+                  <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block transition-none" />
+                  <span>GET STARTED</span>
+                </a>
 
-              {/* Watch Demo Action Button: WATCH DEMO */}
-              <motion.button
-                onClick={() => setIsWatchDemoOpen(true)}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-[180px] h-[48px] bg-transparent border border-[#222222] text-white hover:bg-white hover:text-black hover:border-white text-xs font-mono uppercase font-bold tracking-wider flex items-center justify-center gap-3 transition-none rounded-none group cursor-pointer"
-              >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>WATCH DEMO</span>
-              </motion.button>
-            </div>
-          </motion.div>
+                {/* Button 2: WATCH DEMO with underline border */}
+                <button
+                  type="button"
+                  onClick={() => setIsWatchDemoOpen(true)}
+                  className="relative group inline-flex items-center gap-2.5 px-4 py-3.5 bg-transparent text-white font-sans text-xs tracking-wider uppercase cursor-pointer transition-none border-b border-white hover:border-[#0055FF] hover:text-[#0055FF] rounded-none"
+                >
+                  <Play className="w-3.5 h-3.5 fill-current" />
+                  <span>WATCH DEMO</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
 
           {/* 3. Partner Logos Grid (Exact 6-cell desktop grid + seamless mobile ticker) */}
-          <div className="mt-4 border border-[#222222] bg-[#000000] overflow-hidden rounded-none">
+          <div className="border border-[#222222] bg-[#000000] overflow-hidden rounded-none">
             {/* Desktop View: Exact 6 Column Grid */}
             <div className="hidden lg:grid grid-cols-6 divide-x divide-[#222222]">
               {PARTNER_ITEMS.map(({ Component, name }, idx) => (
                 <div
                   key={idx}
-                  className="h-[132px] flex items-center justify-center p-4 hover:bg-[#111111] transition-none group cursor-default"
+                  className="h-[120px] flex items-center justify-center p-4 hover:bg-[#111111] transition-none group cursor-default"
                 >
                   <Component className="h-6 w-auto max-w-[120px] transition-none filter brightness-90 group-hover:brightness-100" />
                 </div>
@@ -248,9 +231,9 @@ export default function AeyeHero() {
               {[...PARTNER_ITEMS, ...PARTNER_ITEMS, ...PARTNER_ITEMS].map(({ Component }, idx) => (
                 <div
                   key={idx}
-                  className="h-[100px] px-8 flex items-center justify-center border-r border-[#222222] min-w-[160px]"
+                  className="h-[90px] px-8 flex items-center justify-center border-r border-[#222222] min-w-[150px]"
                 >
-                  <Component className="h-5 w-auto max-w-[110px]" />
+                  <Component className="h-5 w-auto max-w-[100px]" />
                 </div>
               ))}
             </div>
