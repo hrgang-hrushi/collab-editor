@@ -84,6 +84,7 @@ export default function ZenithTerminal() {
   const setSessionExitCode = useWorkspaceStore((state) => state.setSessionExitCode);
   const setSessionDiagnosis = useWorkspaceStore((state) => state.setSessionDiagnosis);
   const setSessionCwd = useWorkspaceStore((state) => state.setSessionCwd);
+  const setSessionName = useWorkspaceStore((state) => state.setSessionName);
   const setSessionInputVal = useWorkspaceStore((state) => state.setSessionInputVal);
   const addSessionHistory = useWorkspaceStore((state) => state.addSessionHistory);
   const broadcastTerminalPeerInput = useWorkspaceStore((state) => state.broadcastTerminalPeerInput);
@@ -501,10 +502,24 @@ export default function ZenithTerminal() {
               const event = JSON.parse(line.slice(6));
               if (event.type === "start") {
                 setSessionStreaming(session.id, true, event.pid);
+                if (trimmed === "agy" || trimmed === "antigravity") {
+                  setSessionName(session.id, "agy");
+                } else if (trimmed === "claude") {
+                  setSessionName(session.id, "claude");
+                }
               } else if (event.type === "stdout") {
                 appendTerminalChunk(session.id, event.data, false);
               } else if (event.type === "stderr") {
                 appendTerminalChunk(session.id, event.data, true);
+              } else if (event.type === "file-created") {
+                useWorkspaceStore.getState().createFileInPath(event.filename, event.content);
+                const currentFiles = useWorkspaceStore.getState().files;
+                const found = currentFiles.find(
+                  (f) => f.name === event.filename || f.path.endsWith(event.filename)
+                );
+                if (found) {
+                  useWorkspaceStore.getState().setActiveFile(found.id);
+                }
               } else if (event.type === "cwd") {
                 setSessionCwd(session.id, event.cwd);
               } else if (event.type === "clear") {
@@ -512,6 +527,9 @@ export default function ZenithTerminal() {
               } else if (event.type === "exit") {
                 setSessionStreaming(session.id, false, null);
                 setSessionExitCode(session.id, event.code);
+                if (session.name === "agy" || session.name === "claude") {
+                  setSessionName(session.id, "sh");
+                }
 
                 // ZERO-CLICK AUTO-HEALING TRIGGER ON NON-ZERO EXIT!
                 if (event.code !== 0 && event.code !== 130) {
@@ -1389,7 +1407,15 @@ function TerminalPaneView({
             {session.isStreaming ? (
               <div className="flex items-center gap-1.5 shrink-0 text-white">
                 <span className="w-1.5 h-1.5 rounded-none bg-white animate-pulse" />
-                <span className="font-mono text-[11px] font-bold tracking-wider">&gt; stdin:</span>
+                <span className="font-mono text-[12px] font-bold tracking-wider">
+                  {session.name?.toLowerCase().includes("claude") ? (
+                    <span className="text-white">claude ❯</span>
+                  ) : session.name?.toLowerCase().includes("agy") ? (
+                    <span className="text-white">agy ❯</span>
+                  ) : (
+                    <span>&gt; stdin:</span>
+                  )}
+                </span>
               </div>
             ) : (
               <span className="text-signal shrink-0 font-bold font-mono text-[12px]">
@@ -1406,8 +1432,12 @@ function TerminalPaneView({
               onKeyDown={handleKeyDown}
               placeholder={
                 session.isStreaming
-                  ? "Type input and press Enter to send to process (stdin)..."
-                  : "type command (e.g. ls, crux status, ?? <query>)..."
+                  ? session.name?.toLowerCase().includes("claude")
+                    ? "Enter instruction for @Claude (or 'exit')..."
+                    : session.name?.toLowerCase().includes("agy")
+                    ? "Enter task or instruction for @AntiGravity (or 'exit')..."
+                    : "Type input and press Enter to send to process (stdin)..."
+                  : "type command (e.g. agy, lets build a task manager, crux status, ls)..."
               }
               className="w-full bg-transparent border-none outline-none font-mono text-[12px] text-signal p-0 focus:ring-0 placeholder:text-muted/40 transition-colors"
             />

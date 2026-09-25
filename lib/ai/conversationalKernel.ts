@@ -182,10 +182,17 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
   // 3. INTELLIGENT NATURAL CONVERSATIONAL & CODE KERNEL
 
   // A. GREETINGS & CASUAL CHAT
+  // Only match pure greetings without trailing tasks or instructions
   const isGreeting =
-    /^(hi|hello|hey|yo|sup|wassup|what'?s\s+up|howdy|greetings|gm|gn|good\s+(morning|afternoon|evening|day)|how\s+are\s+you|how\s+you\s+doing|hows\s+it\s+going|whats\s+good)(\s+.*)?$/i.test(
+    /^(hi|hello|hey|yo|sup|wassup|what'?s\s+up|howdy|greetings|gm|gn|good\s+(morning|afternoon|evening|day)|how\s+are\s+you|how\s+you\s+doing|hows\s+it\s+going|whats\s+good)([!?.,\s]*)$/i.test(
       lowerPrompt
     );
+
+  // If user included a greeting prefix but also a task (e.g. "hi can you build an app"), strip the greeting
+  const strippedGreeting = lowerPrompt
+    .replace(/^(hi|hello|hey|yo|sup|howdy|greetings|gm|gn|good\s+(morning|afternoon|evening|day))[,\s!-]+/i, "")
+    .trim();
+  const effectivePrompt = strippedGreeting.length > 2 ? strippedGreeting : lowerPrompt;
 
   if (isGreeting) {
     sessionMemory.lastPrompt = lowerPrompt;
@@ -196,7 +203,7 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
         `All systems are green across the workspace. Active context: \`${targetFile}\` (Line ${targetLine}).`,
         ``,
         `Here are a few things I can do for you right away:`,
-        `  • **Build Full Apps**: Ask *"Create a simple HTML expense tracker"* or *"Build a React todo app"*`,
+        `  • **Build Full Apps**: Ask *"Create a task manager"* or *"Build an expense tracker"*`,
         `  • **Inspect & Refactor**: Ask *"Explain stream_syncer.ts"* or *"Optimize CRDT locks"*`,
         `  • **Run Terminal Tasks**: Suggest and execute shell commands directly with \`[RUN IN TERMINAL ↵]\``,
         `  • **Multi-Agent Mesh**: Switch instantly between @AntiGravity, @Claude, @Cursor, @Codec, and @OpenClaw`,
@@ -251,6 +258,29 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
       };
     }
 
+    if (sessionMemory.lastTopic === "task_manager" || prevUserPrompt.includes("task")) {
+      sessionMemory.lastTopic = "task_manager";
+      const code = generateTaskManagerHtml();
+      return {
+        text: [
+          `Creating the **Task Manager** now! Here is the complete standalone HTML file:`,
+          ``,
+          `\`\`\`html`,
+          code,
+          `\`\`\``,
+          ``,
+          `Saved to \`task_manager.html\`. Includes priority filters, status flags, and localStorage persistence.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: "python3 -m http.server 8080",
+        fileAction: {
+          filename: "task_manager.html",
+          content: code,
+        },
+      };
+    }
+
     if (sessionMemory.lastTopic === "todo" || prevUserPrompt.includes("todo")) {
       const code = generateTodoAppHtml();
       return {
@@ -278,7 +308,7 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
       text: [
         `Understood! What would you like to build or execute first?`,
         ``,
-        `• **1. Web Applications**: Tell me *"Create an expense tracker HTML"* or *"Create a Todo app"*`,
+        `• **1. Web Applications**: Tell me *"Build a task manager"* or *"Create an expense tracker"*`,
         `• **2. Code Architecture**: Tell me *"Refactor stream_syncer.ts to use zero-copy buffers"*`,
         `• **3. Terminal Checks**: Tell me *"Run test suite"* or *"Check git status"*`,
       ].join("\n"),
@@ -290,10 +320,10 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
 
   // C. EXPENSE TRACKER SPECIFIC (handles typos like "ttracker", "expense app", "budget tracker", etc.)
   if (
-    lowerPrompt.includes("expense") ||
-    lowerPrompt.includes("budget") ||
-    lowerPrompt.includes("spending tracker") ||
-    (lowerPrompt.includes("finance") && lowerPrompt.includes("tracker"))
+    effectivePrompt.includes("expense") ||
+    effectivePrompt.includes("budget") ||
+    effectivePrompt.includes("spending tracker") ||
+    (effectivePrompt.includes("finance") && effectivePrompt.includes("tracker"))
   ) {
     sessionMemory.lastTopic = "expense_tracker";
     sessionMemory.lastPrompt = lowerPrompt;
@@ -325,35 +355,48 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
     };
   }
 
-  // D. TODO LIST / TASK MANAGER
-  if (
-    lowerPrompt.includes("todo") ||
-    lowerPrompt.includes("task manager") ||
-    lowerPrompt.includes("task list")
-  ) {
-    sessionMemory.lastTopic = "todo";
+  // D. TASK MANAGER & TODO LIST
+  const isTaskManagerIntent =
+    effectivePrompt.includes("task manager") ||
+    effectivePrompt.includes("task list") ||
+    effectivePrompt.includes("task tracker") ||
+    effectivePrompt.includes("tasks app") ||
+    effectivePrompt.includes("kanban") ||
+    (effectivePrompt.includes("task") && (effectivePrompt.includes("manage") || effectivePrompt.includes("build") || effectivePrompt.includes("create") || effectivePrompt.includes("app")));
+
+  const isTodoIntent =
+    effectivePrompt.includes("todo") ||
+    effectivePrompt.includes("to-do") ||
+    effectivePrompt.includes("checklist");
+
+  if (isTaskManagerIntent || isTodoIntent) {
+    const isTaskManager = isTaskManagerIntent;
+    sessionMemory.lastTopic = isTaskManager ? "task_manager" : "todo";
     sessionMemory.lastPrompt = lowerPrompt;
-    const code = generateTodoAppHtml();
+    const code = isTaskManager ? generateTaskManagerHtml() : generateTodoAppHtml();
+    const filename = isTaskManager ? "task_manager.html" : "todo.html";
+    const appTitle = isTaskManager ? "Task Manager" : "Todo Application";
 
     return {
       text: [
-        `Here is a complete, self-contained **Todo Application** in single-file HTML/CSS/JS:`,
+        `Here is a complete, self-contained **${appTitle}** in single-file HTML/CSS/JS with Hardware Brutalism styling:`,
         ``,
         `\`\`\`html`,
         code,
         `\`\`\``,
         ``,
-        `### Features:`,
-        `• Add, toggle completion, and delete tasks`,
-        `• Filter by All, Active, and Completed`,
-        `• LocalStorage persistence across page reloads`,
-        `• Keyboard shortcut: Press \`Enter\` to add task`,
+        `### Key Features:`,
+        `• **Monochrome Engine**: Pure #000000 background, 0px border radius, crisp 1px borders (#222222).`,
+        `• **Priority Matrix**: P0 [CRITICAL], P1 [HIGH], P2 [NORMAL] tagging.`,
+        `• **Filters & Counters**: Live metrics for Total, Active, and Completed tasks.`,
+        `• **LocalStorage Persistence**: Auto-saves state in browser storage (\`crux_tasks\`).`,
+        `• **Keyboard Shortcut**: Press \`Enter\` in input to create tasks immediately.`,
       ].join("\n"),
       provider,
       model: effectiveModel,
       command: "python3 -m http.server 8080",
       fileAction: {
-        filename: "todo.html",
+        filename,
         content: code,
       },
     };
@@ -1064,6 +1107,221 @@ function generateExpenseTrackerHtml(): string {
       document.getElementById('descInput').value = '';
       document.getElementById('amountInput').value = '';
       document.getElementById('descInput').focus();
+    });
+
+    render();
+  </script>
+</body>
+</html>`;
+}
+
+/**
+ * Generates a complete Hardware Brutalist Task Manager in single-file HTML.
+ */
+function generateTaskManagerHtml(): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crux Task Manager</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0px !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
+    body { background: #000000; color: #FFFFFF; min-height: 100vh; padding: 40px 20px; display: flex; justify-content: center; }
+    .app { width: 100%; max-width: 760px; border: 1px solid #222222; background: #0A0A0A; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #222222; padding-bottom: 16px; margin-bottom: 20px; }
+    .title-box h1 { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0px; font-family: monospace; }
+    .title-box p { font-size: 11px; color: #666666; font-family: monospace; margin-top: 4px; }
+    .stats { display: flex; gap: 8px; }
+    .stat-pill { border: 1px solid #222222; background: #000000; padding: 4px 10px; font-size: 11px; font-family: monospace; color: #888888; }
+    .stat-pill b { color: #FFFFFF; }
+    
+    .add-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; border: 1px solid #222222; background: #000000; padding: 12px; }
+    .form-inputs { display: flex; gap: 8px; }
+    input[type="text"] { flex: 1; background: #111111; border: 1px solid #333333; color: #FFFFFF; padding: 10px 12px; font-family: monospace; font-size: 12px; outline: none; }
+    input[type="text"]:focus { border-color: #FFFFFF; }
+    select { background: #111111; border: 1px solid #333333; color: #FFFFFF; padding: 10px; font-family: monospace; font-size: 12px; outline: none; }
+    button.btn-add { background: #FFFFFF; color: #000000; border: none; padding: 10px 20px; font-weight: bold; font-family: monospace; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+    button.btn-add:hover { background: #CCCCCC; }
+
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222222; padding-bottom: 10px; margin-bottom: 14px; }
+    .filter-tabs { display: flex; gap: 4px; }
+    .filter-btn { background: transparent; border: 1px solid #222222; color: #666666; font-family: monospace; font-size: 11px; padding: 4px 10px; cursor: pointer; text-transform: uppercase; }
+    .filter-btn.active, .filter-btn:hover { background: #FFFFFF; color: #000000; border-color: #FFFFFF; }
+    .btn-clear { background: transparent; border: 1px solid #333333; color: #888888; font-family: monospace; font-size: 10px; padding: 4px 8px; cursor: pointer; text-transform: uppercase; }
+    .btn-clear:hover { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+
+    .task-list { display: flex; flex-direction: column; gap: 6px; }
+    .task-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #000000; border: 1px solid #222222; }
+    .task-row:hover { border-color: #444444; }
+    .task-row.done { opacity: 0.45; }
+    .task-row.done .task-name { text-decoration: line-through; color: #666666; }
+    .task-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .check-box { width: 14px; height: 14px; border: 1px solid #FFFFFF; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: monospace; font-weight: bold; flex-shrink: 0; }
+    .task-row.done .check-box { background: #FFFFFF; color: #000000; }
+    .task-name { font-family: monospace; font-size: 13px; color: #FFFFFF; word-break: break-word; }
+    .task-right { display: flex; align-items: center; gap: 8px; }
+    .priority-tag { font-size: 10px; font-family: monospace; padding: 2px 6px; border: 1px solid #333333; text-transform: uppercase; }
+    .p-p0 { border-color: #FFFFFF; background: #FFFFFF; color: #000000; font-weight: bold; }
+    .p-p1 { border-color: #888888; color: #FFFFFF; }
+    .p-p2 { border-color: #333333; color: #777777; }
+    .category-chip { font-size: 10px; font-family: monospace; color: #666666; border: 1px solid #222222; padding: 2px 6px; text-transform: uppercase; }
+    .btn-delete { background: transparent; border: 1px solid #333333; color: #666666; font-size: 10px; font-family: monospace; padding: 2px 6px; cursor: pointer; }
+    .btn-delete:hover { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+    .empty-notice { text-align: center; padding: 40px 20px; color: #444444; font-family: monospace; font-size: 12px; border: 1px dashed #222222; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-box">
+        <h1>Crux Task Manager</h1>
+        <p>AUTONOMOUS TASK ENGINE // LOCALSTORAGE PERSISTENT</p>
+      </div>
+      <div class="stats">
+        <div class="stat-pill">TOTAL: <b id="statTotal">0</b></div>
+        <div class="stat-pill">ACTIVE: <b id="statActive">0</b></div>
+        <div class="stat-pill">DONE: <b id="statDone">0</b></div>
+      </div>
+    </div>
+
+    <form class="add-form" id="taskForm">
+      <div class="form-inputs">
+        <input type="text" id="taskTitle" placeholder="Task description (press Enter to create)..." autofocus required />
+        <select id="taskPriority">
+          <option value="p0">P0 // CRITICAL</option>
+          <option value="p1" selected>P1 // HIGH</option>
+          <option value="p2">P2 // NORMAL</option>
+        </select>
+        <select id="taskCategory">
+          <option value="Core">CORE</option>
+          <option value="Frontend">FRONTEND</option>
+          <option value="Infra">INFRA</option>
+          <option value="Bugfix">BUGFIX</option>
+        </select>
+        <button type="submit" class="btn-add">Add ↵</button>
+      </div>
+    </form>
+
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">ALL</button>
+        <button class="filter-btn" data-filter="active">ACTIVE</button>
+        <button class="filter-btn" data-filter="p0">P0 ONLY</button>
+        <button class="filter-btn" data-filter="done">COMPLETED</button>
+      </div>
+      <button class="btn-clear" id="btnClearCompleted">CLEAR COMPLETED</button>
+    </div>
+
+    <div class="task-list" id="taskList"></div>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('crux_tasks') || '[]');
+    let currentFilter = 'all';
+
+    if (tasks.length === 0) {
+      tasks = [
+        { id: '1', title: 'Implement zero-copy PTY buffer streaming', priority: 'p0', category: 'Infra', done: true },
+        { id: '2', title: 'Refactor conversational kernel multi-turn memory', priority: 'p0', category: 'Core', done: false },
+        { id: '3', title: 'Wire up interactive autonomous agent shell', priority: 'p1', category: 'Core', done: false },
+        { id: '4', title: 'Design Hardware Brutalism task manager UI', priority: 'p2', category: 'Frontend', done: true }
+      ];
+      save();
+    }
+
+    function save() {
+      localStorage.setItem('crux_tasks', JSON.stringify(tasks));
+      render();
+    }
+
+    function render() {
+      const list = document.getElementById('taskList');
+      const activeCount = tasks.filter(t => !t.done).length;
+      const doneCount = tasks.filter(t => t.done).length;
+
+      document.getElementById('statTotal').textContent = tasks.length;
+      document.getElementById('statActive').textContent = activeCount;
+      document.getElementById('statDone').textContent = doneCount;
+
+      let filtered = tasks;
+      if (currentFilter === 'active') filtered = tasks.filter(t => !t.done);
+      if (currentFilter === 'done') filtered = tasks.filter(t => t.done);
+      if (currentFilter === 'p0') filtered = tasks.filter(t => t.priority === 'p0');
+
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-notice">[ZERO ACTIVE TASKS IN VIEW]</div>';
+        return;
+      }
+
+      list.innerHTML = '';
+      filtered.forEach((t) => {
+        const row = document.createElement('div');
+        row.className = 'task-row' + (t.done ? ' done' : '');
+        
+        const priorityLabels = { p0: 'P0 // CRITICAL', p1: 'P1 // HIGH', p2: 'P2 // NORMAL' };
+
+        row.innerHTML = \`
+          <div class="task-left">
+            <div class="check-box" onclick="toggleTask('\${t.id}')">\${t.done ? '✓' : ''}</div>
+            <span class="task-name">\${escapeHtml(t.title)}</span>
+          </div>
+          <div class="task-right">
+            <span class="category-chip">\${t.category}</span>
+            <span class="priority-tag p-\${t.priority}">\${priorityLabels[t.priority] || t.priority}</span>
+            <button class="btn-delete" onclick="deleteTask('\${t.id}')">✕</button>
+          </div>
+        \`;
+        list.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    window.toggleTask = function(id) {
+      tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+      save();
+    };
+
+    window.deleteTask = function(id) {
+      tasks = tasks.filter(t => t.id !== id);
+      save();
+    };
+
+    document.getElementById('taskForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const titleInput = document.getElementById('taskTitle');
+      const val = titleInput.value.trim();
+      if (!val) return;
+      
+      const priority = document.getElementById('taskPriority').value;
+      const category = document.getElementById('taskCategory').value;
+
+      tasks.unshift({
+        id: Date.now().toString(),
+        title: val,
+        priority,
+        category,
+        done: false
+      });
+      titleInput.value = '';
+      save();
+    });
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.getAttribute('data-filter');
+        render();
+      });
+    });
+
+    document.getElementById('btnClearCompleted').addEventListener('click', () => {
+      tasks = tasks.filter(t => !t.done);
+      save();
     });
 
     render();

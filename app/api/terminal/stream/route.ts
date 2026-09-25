@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
-      start(controller) {
+      async start(controller) {
         const sendEvent = (event: Record<string, any>) => {
           try {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify(event)}\n\n`));
@@ -200,15 +200,20 @@ export async function POST(req: NextRequest) {
               "\x1b[1;37m[CRUX AGENT CORE // ANTIGRAVITY AGY v1.2.9 INITIALIZED]\x1b[0m\n",
               "\x1b[90mHost Binary: /Users/hrushikeshgangala/.local/bin/antigravity\x1b[0m\n",
               "\x1b[90mEngine: Local IPC Socket unix:///var/run/crux.sock (0.08ms)\x1b[0m\n",
+              `\x1b[90mWorkspace: ${workingDir}\x1b[0m\n`,
               "\x1b[90mSkills: crux-design-system, code-review-and-quality, modern-web-guidance\x1b[0m\n",
               "----------------------------------------------------------------------\n",
               "\x1b[1;36m[@AntiGravity]\x1b[0m Ready. Enter any task, query, or type 'exit' to return to shell.\n\n",
+              "\x1b[1;36magy ❯\x1b[0m ",
             ].join(""),
           });
 
           registerStdinHandler(sessionPid, async (input: string) => {
             const raw = (input || "").trim();
-            if (!raw) return;
+            if (!raw) {
+              sendEvent({ type: "stdout", data: "\x1b[1;36magy ❯\x1b[0m " });
+              return;
+            }
 
             if (raw === "\x03" || raw.toLowerCase() === "exit" || raw.toLowerCase() === "quit") {
               sendEvent({
@@ -221,7 +226,7 @@ export async function POST(req: NextRequest) {
               return;
             }
 
-            sendEvent({ type: "stdout", data: "\x1b[90m[@AntiGravity] Processing task...\x1b[0m\n" });
+            sendEvent({ type: "stdout", data: `\x1b[90m[@AntiGravity] Processing: "${raw}"...\x1b[0m\n` });
 
             const res = await processAiPrompt({
               prompt: raw,
@@ -229,10 +234,47 @@ export async function POST(req: NextRequest) {
               context: { file: "stream_syncer.ts", line: 1 },
             });
 
+            if (res.fileAction) {
+              const destPath = path.isAbsolute(res.fileAction.filename)
+                ? res.fileAction.filename
+                : path.join(workingDir, res.fileAction.filename);
+              try {
+                fs.writeFileSync(destPath, res.fileAction.content, "utf-8");
+                sendEvent({
+                  type: "file-created",
+                  filename: res.fileAction.filename,
+                  content: res.fileAction.content,
+                });
+                sendEvent({
+                  type: "stdout",
+                  data: [
+                    `\x1b[36m[CRUX AGENT CORE // TOOL CALL]\x1b[0m write_to_file\n`,
+                    `  \x1b[90mTarget:\x1b[0m ${destPath}\n`,
+                    `  \x1b[90mSize:\x1b[0m   ${res.fileAction.content.length} B\n`,
+                    `\x1b[32m[OK] Successfully created ${res.fileAction.filename} in workspace\x1b[0m\n\n`,
+                  ].join(""),
+                });
+              } catch (writeErr: any) {
+                sendEvent({
+                  type: "stderr",
+                  data: `\x1b[31m[ERROR] Failed to write file: ${writeErr.message}\x1b[0m\n`,
+                });
+              }
+            }
+
             sendEvent({
               type: "stdout",
               data: `\x1b[1;36m[@AntiGravity]\x1b[0m\n${res.text}\n\n`,
             });
+
+            if (res.command) {
+              sendEvent({
+                type: "stdout",
+                data: `\x1b[90mSuggested verification command:\x1b[0m \x1b[33m${res.command}\x1b[0m\n\n`,
+              });
+            }
+
+            sendEvent({ type: "stdout", data: "\x1b[1;36magy ❯\x1b[0m " });
           });
 
           req.signal.addEventListener("abort", () => {
@@ -250,13 +292,18 @@ export async function POST(req: NextRequest) {
             data: [
               "\x1b[1;37m[CLAUDE CODE CLI // ANTHROPIC SONNET 3.5 INITIALIZED]\x1b[0m\n",
               "\x1b[90mBinary: /Users/hrushikeshgangala/.local/bin/claude\x1b[0m\n",
+              `\x1b[90mWorkspace: ${workingDir}\x1b[0m\n`,
               "\x1b[90mType any instruction for Claude, or 'exit' / Ctrl+C to return to shell.\x1b[0m\n\n",
+              "\x1b[1;35mclaude ❯\x1b[0m ",
             ].join(""),
           });
 
           registerStdinHandler(sessionPid, async (input: string) => {
             const raw = (input || "").trim();
-            if (!raw) return;
+            if (!raw) {
+              sendEvent({ type: "stdout", data: "\x1b[1;35mclaude ❯\x1b[0m " });
+              return;
+            }
 
             if (raw === "\x03" || raw.toLowerCase() === "exit" || raw.toLowerCase() === "quit") {
               sendEvent({
@@ -269,7 +316,7 @@ export async function POST(req: NextRequest) {
               return;
             }
 
-            sendEvent({ type: "stdout", data: "\x1b[90m[@Claude] Processing task...\x1b[0m\n" });
+            sendEvent({ type: "stdout", data: `\x1b[90m[@Claude] Processing: "${raw}"...\x1b[0m\n` });
 
             const res = await processAiPrompt({
               prompt: raw,
@@ -277,15 +324,199 @@ export async function POST(req: NextRequest) {
               context: { file: "auth.ts", line: 1 },
             });
 
+            if (res.fileAction) {
+              const destPath = path.isAbsolute(res.fileAction.filename)
+                ? res.fileAction.filename
+                : path.join(workingDir, res.fileAction.filename);
+              try {
+                fs.writeFileSync(destPath, res.fileAction.content, "utf-8");
+                sendEvent({
+                  type: "file-created",
+                  filename: res.fileAction.filename,
+                  content: res.fileAction.content,
+                });
+                sendEvent({
+                  type: "stdout",
+                  data: [
+                    `\x1b[36m[CRUX AGENT CORE // TOOL CALL]\x1b[0m write_to_file\n`,
+                    `  \x1b[90mTarget:\x1b[0m ${destPath}\n`,
+                    `  \x1b[90mSize:\x1b[0m   ${res.fileAction.content.length} B\n`,
+                    `\x1b[32m[OK] Successfully created ${res.fileAction.filename} in workspace\x1b[0m\n\n`,
+                  ].join(""),
+                });
+              } catch (writeErr: any) {
+                sendEvent({
+                  type: "stderr",
+                  data: `\x1b[31m[ERROR] Failed to write file: ${writeErr.message}\x1b[0m\n`,
+                });
+              }
+            }
+
             sendEvent({
               type: "stdout",
               data: `\x1b[1;35m[@Claude]\x1b[0m\n${res.text}\n\n`,
             });
+
+            if (res.command) {
+              sendEvent({
+                type: "stdout",
+                data: `\x1b[90mSuggested verification command:\x1b[0m \x1b[33m${res.command}\x1b[0m\n\n`,
+              });
+            }
+
+            sendEvent({ type: "stdout", data: "\x1b[1;35mclaude ❯\x1b[0m " });
           });
 
           req.signal.addEventListener("abort", () => {
             unregisterStdinHandler(sessionPid);
           });
+          return;
+        }
+
+        // Single-turn Anti-Gravity / AGY CLI or Claude CLI Execution
+        if (
+          trimmed.startsWith("agy ") ||
+          trimmed.startsWith("antigravity ") ||
+          trimmed.startsWith("claude ") ||
+          trimmed.startsWith("?? ")
+        ) {
+          const isClaude = trimmed.startsWith("claude ");
+          const provider = isClaude ? "anthropic" : "agy";
+          const label = isClaude ? "@Claude" : "@AntiGravity";
+          const taskQuery = trimmed
+            .replace(/^(agy|antigravity|claude|\?\?)\s+/i, "")
+            .replace(/^-(p|-print|--prompt)\s+/, "")
+            .replace(/^["'](.*)["']$/, "$1")
+            .trim();
+
+          const sessionPid = Math.floor(20000 + Math.random() * 70000);
+          sendEvent({ type: "start", pid: sessionPid, cwd: workingDir });
+          sendEvent({
+            type: "stdout",
+            data: [
+              `\x1b[1;37m[CRUX AGENT CORE // ${label}]\x1b[0m\n`,
+              `\x1b[90mExecuting instruction: "${taskQuery}"\x1b[0m\n`,
+              `\x1b[90mWorkspace: ${workingDir}\x1b[0m\n\n`,
+            ].join(""),
+          });
+
+          const res = await processAiPrompt({
+            prompt: taskQuery,
+            provider,
+            context: { file: "stream_syncer.ts", line: 1 },
+          });
+
+          if (res.fileAction) {
+            const destPath = path.isAbsolute(res.fileAction.filename)
+              ? res.fileAction.filename
+              : path.join(workingDir, res.fileAction.filename);
+            try {
+              fs.writeFileSync(destPath, res.fileAction.content, "utf-8");
+              sendEvent({
+                type: "file-created",
+                filename: res.fileAction.filename,
+                content: res.fileAction.content,
+              });
+              sendEvent({
+                type: "stdout",
+                data: [
+                  `\x1b[36m[CRUX AGENT CORE // TOOL CALL]\x1b[0m write_to_file\n`,
+                  `  \x1b[90mTarget:\x1b[0m ${destPath}\n`,
+                  `  \x1b[90mSize:\x1b[0m   ${res.fileAction.content.length} B\n`,
+                  `\x1b[32m[OK] Successfully created and saved ${res.fileAction.filename} in workspace\x1b[0m\n\n`,
+                ].join(""),
+              });
+            } catch (writeErr: any) {
+              sendEvent({
+                type: "stderr",
+                data: `\x1b[31m[ERROR] Failed to write file: ${writeErr.message}\x1b[0m\n`,
+              });
+            }
+          }
+
+          sendEvent({
+            type: "stdout",
+            data: `\x1b[1;36m[${label}]\x1b[0m\n${res.text}\n\n`,
+          });
+
+          if (res.command) {
+            sendEvent({
+              type: "stdout",
+              data: `\x1b[90mSuggested verification command:\x1b[0m \x1b[33m${res.command}\x1b[0m\n`,
+            });
+          }
+
+          sendEvent({ type: "exit", code: 0 });
+          controller.close();
+          return;
+        }
+
+        // Autonomous Agent Natural Language Auto-Routing
+        const isNaturalLanguage =
+          /^(let'?s\s+|build\s+|create\s+|make\s+(me\s+|a\s+|an\s+)?|generate\s+|how\s+(to|do|can)\s+|can\s+you\s+|please\s+|explain\s+|refactor\s+|write\s+(a\s+|an\s+)?|fix\s+)/i.test(
+            trimmed
+          );
+
+        if (isNaturalLanguage) {
+          const sessionPid = Math.floor(20000 + Math.random() * 70000);
+          sendEvent({ type: "start", pid: sessionPid, cwd: workingDir });
+          sendEvent({
+            type: "stdout",
+            data: [
+              `\x1b[1;37m[CRUX AGENT CORE // @AntiGravity]\x1b[0m\n`,
+              `\x1b[90mAutonomous instruction detected: "${trimmed}"\x1b[0m\n`,
+              `\x1b[90mSynthesizing plan across workspace files in ${workingDir}...\x1b[0m\n\n`,
+            ].join(""),
+          });
+
+          const res = await processAiPrompt({
+            prompt: trimmed,
+            provider: "agy",
+            context: { file: "stream_syncer.ts", line: 1 },
+          });
+
+          if (res.fileAction) {
+            const destPath = path.isAbsolute(res.fileAction.filename)
+              ? res.fileAction.filename
+              : path.join(workingDir, res.fileAction.filename);
+            try {
+              fs.writeFileSync(destPath, res.fileAction.content, "utf-8");
+              sendEvent({
+                type: "file-created",
+                filename: res.fileAction.filename,
+                content: res.fileAction.content,
+              });
+              sendEvent({
+                type: "stdout",
+                data: [
+                  `\x1b[36m[CRUX AGENT CORE // TOOL CALL]\x1b[0m write_to_file\n`,
+                  `  \x1b[90mTarget:\x1b[0m ${destPath}\n`,
+                  `  \x1b[90mSize:\x1b[0m   ${res.fileAction.content.length} B\n`,
+                  `\x1b[32m[OK] Successfully created and saved ${res.fileAction.filename} in workspace\x1b[0m\n\n`,
+                ].join(""),
+              });
+            } catch (writeErr: any) {
+              sendEvent({
+                type: "stderr",
+                data: `\x1b[31m[ERROR] Failed to write file: ${writeErr.message}\x1b[0m\n`,
+              });
+            }
+          }
+
+          sendEvent({
+            type: "stdout",
+            data: `\x1b[1;36m[@AntiGravity]\x1b[0m\n${res.text}\n\n`,
+          });
+
+          if (res.command) {
+            sendEvent({
+              type: "stdout",
+              data: `\x1b[90mSuggested verification command:\x1b[0m \x1b[33m${res.command}\x1b[0m\n`,
+            });
+          }
+
+          sendEvent({ type: "exit", code: 0 });
+          controller.close();
           return;
         }
 

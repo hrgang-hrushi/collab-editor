@@ -209,6 +209,7 @@ interface WorkspaceState {
   setSessionExitCode: (sessionId: string, code: number | null) => void;
   setSessionDiagnosis: (sessionId: string, diagnosis: TerminalSession["lastDiagnosis"]) => void;
   setSessionCwd: (sessionId: string, cwd: string) => void;
+  setSessionName: (sessionId: string, name: string) => void;
   setSessionInputVal: (sessionId: string, val: string) => void;
   addSessionHistory: (sessionId: string, cmd: string) => void;
   setTerminalTimeTravelIndex: (index: number | null) => void;
@@ -1557,6 +1558,15 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       terminalSessions: s.terminalSessions.map((session) => {
         if (session.id !== sessionId) return session;
         return { ...session, cwd };
+      }),
+    }));
+  },
+
+  setSessionName: (sessionId, name) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, name };
       }),
     }));
   },
