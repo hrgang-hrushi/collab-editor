@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<"silicon" | "crdt" | "agent">("silicon");
+  const [activeTab, setActiveTab] = useState<"multiplayer" | "silicon" | "crdt" | "agent">("multiplayer");
   const [copied, setCopied] = useState(false);
   const isManualClickRef = useRef(false);
   const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -25,19 +25,16 @@ export default function AeyeInstallationSection() {
   });
 
   // Continuous vertical rail fill height (0% to 100%)
-  const verticalRailHeight = useTransform(smoothProgress, [0.08, 0.92], ["0%", "100%"]);
-
-  // Individual progress fills for header indicator pills
-  const p0 = useTransform(smoothProgress, [0.02, 0.33], ["0%", "100%"]);
-  const p1 = useTransform(smoothProgress, [0.33, 0.66], ["0%", "100%"]);
-  const p2 = useTransform(smoothProgress, [0.66, 0.98], ["0%", "100%"]);
+  const verticalRailHeight = useTransform(smoothProgress, [0.06, 0.94], ["0%", "100%"]);
 
   // Update activeTab ONLY when thresholding across sections (prevents re-render lag)
   useMotionValueEvent(smoothProgress, "change", (latest) => {
     if (isManualClickRef.current) return;
-    if (latest < 0.35) {
+    if (latest < 0.25) {
+      setActiveTab((prev) => (prev !== "multiplayer" ? "multiplayer" : prev));
+    } else if (latest < 0.50) {
       setActiveTab((prev) => (prev !== "silicon" ? "silicon" : prev));
-    } else if (latest < 0.70) {
+    } else if (latest < 0.75) {
       setActiveTab((prev) => (prev !== "crdt" ? "crdt" : prev));
     } else {
       setActiveTab((prev) => (prev !== "agent" ? "agent" : prev));
@@ -46,8 +43,16 @@ export default function AeyeInstallationSection() {
 
   const tabs = [
     {
-      id: "silicon" as const,
+      id: "multiplayer" as const,
       serial: "// 001",
+      label: "Real-Time Collaborative Mesh",
+      subtitle: "SUB-MILLISECOND PEER PRESENCE",
+      desc: "Live multiplayer spatial presence with zero-latency peer cursor vectors, active selection tracking, and conflict-free concurrent editing across teams.",
+      copyText: "Crux Collaborative Multiplayer Engine:\n- Active Peers: Tarika (0.4ms), Pavan (0.6ms)\n- Cursor Transport: Lock-Free WebRTC Mesh\n- Sync Protocol: CRDT Vector Ring Buffer (0-conflict)\n- Presence Precision: Sub-pixel cursor coordinates",
+    },
+    {
+      id: "silicon" as const,
+      serial: "// 002",
       label: "Native Silicon Runtime",
       subtitle: "SUB-15ms INPUT-TO-PHOTON",
       desc: "Direct Metal and WebGPU rasterization bypassing 200MB Chromium bloat. Keystrokes hit phosphor in 4.2ms vs 48.6ms in Electron.",
@@ -55,7 +60,7 @@ export default function AeyeInstallationSection() {
     },
     {
       id: "crdt" as const,
-      serial: "// 002",
+      serial: "// 003",
       label: "Decentralized AST-CRDT",
       subtitle: "STRUCTURAL SYNTAX CONVERGENCE",
       desc: "Deterministic sub-10ms peer synchronization over encrypted P2P WebRTC channels with zero line collisions or syntax breakage.",
@@ -63,7 +68,7 @@ export default function AeyeInstallationSection() {
     },
     {
       id: "agent" as const,
-      serial: "// 003",
+      serial: "// 004",
       label: "Autonomous @CruxAI Agents",
       subtitle: "ISOLATED POSIX OS NAMESPACE",
       desc: "Background compiler passes, multi-file refactors, and atomic git diffs execute directly on host silicon with zero cloud latency.",
@@ -93,7 +98,7 @@ export default function AeyeInstallationSection() {
         const scrollableDistance = containerRef.current.offsetHeight - window.innerHeight;
 
         if (scrollableDistance > 0) {
-          const targets = [0.08, 0.50, 0.92];
+          const targets = [0.05, 0.32, 0.62, 0.92];
           window.scrollTo({
             top: containerTop + targets[idx] * scrollableDistance,
             behavior: "smooth",
@@ -115,7 +120,7 @@ export default function AeyeInstallationSection() {
       <div id="installation" className="absolute -top-20" />
 
       {/* Scroll-driven Sticky Container matching Feature & How-It-Works sections */}
-      <div ref={containerRef} className="relative lg:h-[220vh]">
+      <div ref={containerRef} className="relative lg:h-[260vh]">
         <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-12 lg:py-0">
           <div className="max-w-[1280px] w-full mx-auto px-6">
             {/* Section Header Meta with Live Step Tracking */}
@@ -143,7 +148,7 @@ export default function AeyeInstallationSection() {
                   ))}
                 </div>
                 <span className="text-xs font-mono text-[#0055FF] font-bold">
-                  [ 0{activeIndex + 1} / 03 ]
+                  [ 0{activeIndex + 1} / 04 ]
                 </span>
               </div>
             </div>
@@ -194,7 +199,154 @@ export default function AeyeInstallationSection() {
                     {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
                     <div className="flex-1 p-5 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative">
                       <AnimatePresence mode="wait">
-                        {/* TAB 1: Native Silicon Benchmarks */}
+                        {/* TAB 1: Real-Time Collaborative Mesh (Tarika & Pavan Cursors) */}
+                        {activeTab === "multiplayer" && (
+                          <motion.div
+                            key="tab-multiplayer"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="h-full flex flex-col justify-between select-none relative"
+                          >
+                            {/* Live Presence Header */}
+                            <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-none bg-[#22c55e] animate-pulse" />
+                                <span className="text-white font-bold tracking-wide">CRUX P2P MESH</span>
+                                <span className="text-[#444444]">|</span>
+                                <span className="text-[#06b6d4] font-medium flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-none bg-[#06b6d4]" />
+                                  Tarika
+                                </span>
+                                <span className="text-[#f59e0b] font-medium flex items-center gap-1">
+                                  <span className="w-1.5 h-1.5 rounded-none bg-[#f59e0b]" />
+                                  Pavan
+                                </span>
+                              </div>
+                              <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30 hidden sm:inline">
+                                0-LATENCY
+                              </span>
+                            </div>
+
+                            {/* Collaborative Workspace Buffer Viewport with Live Animated Cursors */}
+                            <div className="relative flex-1 my-2 p-3 border border-[#222222] bg-[#070709] overflow-hidden flex flex-col justify-between font-mono text-[11.5px]">
+                              {/* Background grid pattern */}
+                              <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+
+                              {/* Floating Animated Cursor 1: Tarika */}
+                              <motion.div
+                                className="absolute pointer-events-none z-30 flex items-start gap-1 select-none"
+                                animate={{
+                                  x: [24, 130, 210, 110, 45, 24],
+                                  y: [24, 48, 92, 65, 32, 24],
+                                }}
+                                transition={{
+                                  duration: 7.5,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                }}
+                              >
+                                <svg
+                                  className="w-4 h-4 text-[#06b6d4] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                                  viewBox="0 0 16 16"
+                                  fill="currentColor"
+                                >
+                                  <path d="M0 0L6 14L8.5 8.5L14 6L0 0Z" />
+                                </svg>
+                                <div className="px-1.5 py-0.5 bg-[#0a0a0c] border border-[#06b6d4] text-[9.5px] font-mono font-medium text-white flex items-center gap-1.5 shadow-[0_2px_8px_rgba(6,182,212,0.3)]">
+                                  <span className="w-1.5 h-1.5 rounded-none bg-[#06b6d4]" />
+                                  <span>Tarika</span>
+                                </div>
+                              </motion.div>
+
+                              {/* Floating Animated Cursor 2: Pavan */}
+                              <motion.div
+                                className="absolute pointer-events-none z-30 flex items-start gap-1 select-none"
+                                animate={{
+                                  x: [190, 260, 180, 240, 210, 190],
+                                  y: [80, 125, 145, 62, 105, 80],
+                                }}
+                                transition={{
+                                  duration: 8.5,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                  delay: 0.4,
+                                }}
+                              >
+                                <svg
+                                  className="w-4 h-4 text-[#f59e0b] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                                  viewBox="0 0 16 16"
+                                  fill="currentColor"
+                                >
+                                  <path d="M0 0L6 14L8.5 8.5L14 6L0 0Z" />
+                                </svg>
+                                <div className="px-1.5 py-0.5 bg-[#0a0a0c] border border-[#f59e0b] text-[9.5px] font-mono font-medium text-white flex items-center gap-1.5 shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
+                                  <span className="w-1.5 h-1.5 rounded-none bg-[#f59e0b]" />
+                                  <span>Pavan</span>
+                                </div>
+                              </motion.div>
+
+                              {/* Code / Canvas Content Lines with active multi-selection highlights */}
+                              <div className="space-y-1.5 relative z-10">
+                                <div className="flex items-center gap-2 text-[#555555]">
+                                  <span className="w-5 text-right text-[10px]">01</span>
+                                  <span className="text-[#888888]">// Shared CRDT Ring Buffer · Zero Locks</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="w-5 text-right text-[10px] text-[#555555]">02</span>
+                                  <span className="text-[#0055FF]">export async function</span>
+                                  <span className="text-white font-semibold">streamReplication</span>
+                                  <span className="text-[#71717a]">(ctx: CRDTRing) &#123;</span>
+                                </div>
+                                {/* Line 03: Tarika's selection */}
+                                <div className="flex items-center gap-2 relative bg-[#06b6d4]/10 border-l-2 border-[#06b6d4] pl-1">
+                                  <span className="w-5 text-right text-[10px] text-[#06b6d4]">03</span>
+                                  <span className="text-[#a1a1aa] pl-3">const buffer = await ctx.acquireShm(16 * 1024);</span>
+                                  <span className="ml-auto text-[9px] text-[#06b6d4] font-mono font-semibold pr-1 hidden sm:inline">Tarika selecting</span>
+                                </div>
+                                {/* Line 04: Pavan's active edit */}
+                                <div className="flex items-center gap-2 relative bg-[#f59e0b]/10 border-l-2 border-[#f59e0b] pl-1">
+                                  <span className="w-5 text-right text-[10px] text-[#f59e0b]">04</span>
+                                  <span className="text-[#a1a1aa] pl-3">return buffer.broadcastMultiplayer([&quot;Tarika&quot;, &quot;Pavan&quot;]);</span>
+                                  <span className="ml-auto text-[9px] text-[#f59e0b] font-mono font-semibold pr-1 hidden sm:inline">Pavan editing</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="w-5 text-right text-[10px] text-[#555555]">05</span>
+                                  <span>&#125;</span>
+                                </div>
+                              </div>
+
+                              {/* Real-time telemetry indicators */}
+                              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1a1a20] relative z-10">
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">TARIKA JITTER</span>
+                                  <span className="text-[#06b6d4] font-bold">0.4ms (Tokyo)</span>
+                                </div>
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">PAVAN JITTER</span>
+                                  <span className="text-[#f59e0b] font-bold">0.6ms (SF)</span>
+                                </div>
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">SYNTAX STATE</span>
+                                  <span className="text-[#22c55e] font-bold">100% Attested</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Bottom Status bar */}
+                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px] shrink-0">
+                              <span className="text-[#888888]">
+                                PEER REPLICATION: <strong className="text-white">0 CONFLICTS</strong>
+                              </span>
+                              <span className="text-[#888888]">
+                                PRECISION: <strong className="text-[#0055FF]">SUB-PIXEL PRESENCE</strong>
+                              </span>
+                            </div>
+                          </motion.div>
+                        )}
+
+                        {/* TAB 2: Native Silicon Benchmarks */}
                         {activeTab === "silicon" && (
                           <motion.div
                             key="tab-silicon"
@@ -400,10 +552,18 @@ export default function AeyeInstallationSection() {
                     <div className="h-10 px-4 border-t border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
                       <div className="flex items-center gap-2 text-[#71717a]">
                         <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
-                        <span>RUNTIME: BARE-METAL POSIX / SILICON</span>
+                        <span>
+                          {activeTab === "multiplayer"
+                            ? "MESH: P2P WEBRTC // TARIKA & PAVAN ACTIVE"
+                            : activeTab === "silicon"
+                            ? "RUNTIME: BARE-METAL POSIX / SILICON"
+                            : activeTab === "crdt"
+                            ? "PROTOCOL: ZERO-LOCK AST-CRDT SYNC"
+                            : "KERNEL: @CRUXAI AUTONOMOUS AGENT"}
+                        </span>
                       </div>
                       <span className="text-[#0055FF] font-bold">
-                        LATENCY: &lt; 0.2ms
+                        {activeTab === "multiplayer" ? "SYNC: < 0.4ms" : "LATENCY: < 0.2ms"}
                       </span>
                     </div>
                   </div>
@@ -428,7 +588,7 @@ export default function AeyeInstallationSection() {
                     </Link>
                     <div className="text-[11px] font-mono text-[#71717a] hidden sm:flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                      <span>SCROLL TO ADVANCE // 0{activeIndex + 1} OF 03</span>
+                      <span>SCROLL TO ADVANCE // 0{activeIndex + 1} OF 04</span>
                     </div>
                   </div>
                 </div>
