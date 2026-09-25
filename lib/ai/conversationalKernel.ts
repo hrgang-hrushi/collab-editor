@@ -66,13 +66,19 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
       ? "Claude"
       : provider === "cursor"
       ? "Cursor"
-      : provider === "github-copilot" || provider === "codec"
-      ? "Codec"
+      : provider === "codec" || provider === "github-copilot"
+      ? "Sol 5.6 Medium / Codex"
       : provider === "openclaw"
       ? "OpenClaw"
       : "CruxAI";
 
-  const effectiveModel = model || (provider === "agy" ? "gemini-3.8-flash" : "crux-core-v1");
+  const effectiveModel =
+    model ||
+    (provider === "codec" || provider === "github-copilot"
+      ? "sol-5.6-medium"
+      : provider === "agy"
+      ? "gemini-3.8-flash"
+      : "crux-core-v1");
 
   // 1. Try real external API if token is provided or present in process.env
   const openAiKey = token || process.env.OPENAI_API_KEY;

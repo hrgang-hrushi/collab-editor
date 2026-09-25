@@ -37,6 +37,17 @@ interface LocalAgentProfile {
 }
 
 const LOCAL_AGENT_PROFILES: Record<AiProvider, LocalAgentProfile> = {
+  codec: {
+    name: "Sol 5.6 Medium / Codex",
+    tag: "FOUNDATIONAL // CODEX KERNEL",
+    planName: "Host Codex / Sol 5.6 Native Model",
+    description: "Foundational backend model with buffer AST auto-injection and zero-copy CRDT streaming.",
+    binaryPath: "virtual://crux/ai/sol-5.6-medium",
+    authStatus: "AUTHENTICATED",
+    authNote: "Attached to Crux Native Kernel (Sol 5.6 Medium)",
+    defaultModel: "sol-5.6-medium",
+    modelSuggestions: ["sol-5.6-medium", "codex-preview", "sol-5.6-large"],
+  },
   agy: {
     name: "Anti-Gravity Core (AGY)",
     tag: "GEMINI // LOCAL DAEMON",

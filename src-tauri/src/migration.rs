@@ -369,6 +369,12 @@ pub fn scan_existing_ides() -> Result<IdeScanManifest, String> {
             "settings": selected_ide.and_then(|i| i.settings_json.clone()).unwrap_or(json!({})),
             "keybindings": selected_ide.and_then(|i| i.keybindings_json.clone()).unwrap_or(json!([])),
             "cursorrules": primary_cursorrules.clone(),
+            "ai_assistant": {
+                "foundational_model": "Sol 5.6 medium / Codex",
+                "backend": "codec",
+                "auto_injection": true,
+                "context_window": 128000
+            },
             "detected_ides_count": detected_ides.len(),
             "installed_extensions_count": extensions.len()
         });

@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::io::{Read, Write};
-use std::process::{Command, Stdio};
+use std::process::Command;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::thread;
-use tauri::{AppHandle, Emitter};
+use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize, Child};
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, Emitter};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TerminalEvent {
@@ -14,20 +16,274 @@ pub struct TerminalEvent {
     pub code: Option<i32>,
 }
 
-static TERMINAL_STDIN: OnceLock<Arc<Mutex<HashMap<u32, std::process::ChildStdin>>>> = OnceLock::new();
-
-fn get_terminal_stdin() -> &'static Arc<Mutex<HashMap<u32, std::process::ChildStdin>>> {
-    TERMINAL_STDIN.get_or_init(|| Arc::new(Mutex::new(HashMap::new())))
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PtyOutputEvent {
+    pub pid: u32,
+    pub data: String,
 }
 
-fn get_extended_path() -> String {
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PtyExitEvent {
+    pub pid: u32,
+    pub code: i32,
+}
+
+struct ActivePty {
+    master: Box<dyn MasterPty + Send>,
+    writer: Box<dyn Write + Send>,
+    child: Box<dyn Child + Send + Sync>,
+}
+
+static PTY_REGISTRY: OnceLock<Arc<Mutex<HashMap<u32, ActivePty>>>> = OnceLock::new();
+static PID_COUNTER: AtomicU32 = AtomicU32::new(10000);
+
+fn get_registry() -> &'static Arc<Mutex<HashMap<u32, ActivePty>>> {
+    PTY_REGISTRY.get_or_init(|| Arc::new(Mutex::new(HashMap::new())))
+}
+
+pub fn get_extended_path() -> String {
     let home = std::env::var("HOME").unwrap_or_default();
     let current_path = std::env::var("PATH").unwrap_or_default();
     format!(
-        "{}/.bun/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:{}",
-        home, current_path
+        "{}/.local/bin:{}/.npm-global/bin:{}/.bun/bin:{}/.cargo/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:{}",
+        home, home, home, home, current_path
     )
 }
+
+/// Spawns a true PTY pseudo-terminal process backed by `portable-pty`.
+/// Supports interactive shells, curses applications, and auto-discovered AI CLIs.
+#[tauri::command]
+pub fn pty_spawn(
+    app: AppHandle,
+    command: Option<String>,
+    cwd: Option<String>,
+    rows: Option<u16>,
+    cols: Option<u16>,
+) -> Result<u32, String> {
+    let r = rows.unwrap_or(24);
+    let c = cols.unwrap_or(80);
+
+    let pty_system = native_pty_system();
+    let pair = pty_system
+        .openpty(PtySize {
+            rows: r,
+            cols: c,
+            pixel_width: 0,
+            pixel_height: 0,
+        })
+        .map_err(|e| format!("Failed to open native PTY: {}", e))?;
+
+    let home = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
+    let working_dir = cwd.unwrap_or_else(|| {
+        std::env::current_dir()
+            .map(|p| p.to_string_lossy().to_string())
+            .unwrap_or_else(|_| home.clone())
+    });
+
+    let mut cmd_builder = match command.as_deref() {
+        Some(cmd_str) if !cmd_str.trim().is_empty() => {
+            let mut b = CommandBuilder::new("/bin/zsh");
+            b.arg("-c");
+            b.arg(cmd_str.trim());
+            b
+        }
+        _ => {
+            let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/zsh".to_string());
+            let mut b = CommandBuilder::new(shell);
+            b.arg("-l");
+            b
+        }
+    };
+
+    cmd_builder.cwd(std::path::Path::new(&working_dir));
+    cmd_builder.env("PATH", get_extended_path());
+    cmd_builder.env("HOME", &home);
+    cmd_builder.env("TERM", "xterm-256color");
+    cmd_builder.env("COLORTERM", "truecolor");
+    cmd_builder.env("LANG", "en_US.UTF-8");
+    cmd_builder.env("FORCE_COLOR", "1");
+    cmd_builder.env("CRUX_TERMINAL", "1");
+
+    let child = pair
+        .slave
+        .spawn_command(cmd_builder)
+        .map_err(|e| format!("Failed to spawn PTY child: {}", e))?;
+
+    let real_pid = child.process_id().unwrap_or_else(|| PID_COUNTER.fetch_add(1, Ordering::SeqCst));
+    let mut reader = pair
+        .master
+        .try_clone_reader()
+        .map_err(|e| format!("Failed to clone PTY reader: {}", e))?;
+    let writer = pair
+        .master
+        .take_writer()
+        .map_err(|e| format!("Failed to acquire PTY writer: {}", e))?;
+
+    let pty_session = ActivePty {
+        master: pair.master,
+        writer,
+        child,
+    };
+
+    {
+        let mut reg = get_registry().lock().unwrap();
+        reg.insert(real_pid, pty_session);
+    }
+
+    let app_for_read = app.clone();
+    let pid_for_read = real_pid;
+
+    // Background thread: Stream bytes from PTY to frontend
+    thread::spawn(move || {
+        let mut buf = [0u8; 4096];
+        loop {
+            match reader.read(&mut buf) {
+                Ok(0) => break, // EOF reached
+                Ok(n) => {
+                    let chunk = String::from_utf8_lossy(&buf[..n]).to_string();
+
+                    // Emit to general pty-output listener
+                    let _ = app_for_read.emit(
+                        "pty-output",
+                        PtyOutputEvent {
+                            pid: pid_for_read,
+                            data: chunk.clone(),
+                        },
+                    );
+
+                    // Emit to session-specific terminal event listener (Zenith compatibility)
+                    let _ = app_for_read.emit(
+                        &format!("terminal-event-{}", pid_for_read),
+                        TerminalEvent {
+                            r#type: "stdout".to_string(),
+                            pid: Some(pid_for_read),
+                            data: Some(chunk),
+                            code: None,
+                        },
+                    );
+                }
+                Err(_) => break,
+            }
+        }
+    });
+
+    // Background thread: Wait for child process exit and clean registry
+    let app_for_wait = app.clone();
+    let pid_for_wait = real_pid;
+    thread::spawn(move || {
+        let mut exit_code = 0;
+        let mut child_handle = None;
+
+        {
+            if let Ok(mut reg) = get_registry().lock() {
+                if let Some(session) = reg.remove(&pid_for_wait) {
+                    child_handle = Some(session.child);
+                }
+            }
+        }
+
+        if let Some(mut child) = child_handle {
+            match child.wait() {
+                Ok(status) => {
+                    exit_code = status.exit_code() as i32;
+                }
+                Err(_) => {
+                    exit_code = 1;
+                }
+            }
+        }
+
+        // Emit pty-exit event
+        let _ = app_for_wait.emit(
+            "pty-exit",
+            PtyExitEvent {
+                pid: pid_for_wait,
+                code: exit_code,
+            },
+        );
+
+        // Emit legacy terminal-event exit
+        let _ = app_for_wait.emit(
+            &format!("terminal-event-{}", pid_for_wait),
+            TerminalEvent {
+                r#type: "exit".to_string(),
+                pid: Some(pid_for_wait),
+                data: None,
+                code: Some(exit_code),
+            },
+        );
+    });
+
+    // Emit initial start event
+    let _ = app.emit(
+        &format!("terminal-event-{}", real_pid),
+        TerminalEvent {
+            r#type: "start".to_string(),
+            pid: Some(real_pid),
+            data: None,
+            code: None,
+        },
+    );
+
+    Ok(real_pid)
+}
+
+/// Writes keystrokes or text chunks directly into the active PTY master handle
+#[tauri::command]
+pub fn pty_write(pid: u32, data: String) -> Result<(), String> {
+    let mut reg = get_registry().lock().map_err(|e| e.to_string())?;
+    if let Some(session) = reg.get_mut(&pid) {
+        session
+            .writer
+            .write_all(data.as_bytes())
+            .map_err(|e| format!("Failed to write to PTY: {}", e))?;
+        session
+            .writer
+            .flush()
+            .map_err(|e| format!("Failed to flush PTY: {}", e))?;
+        Ok(())
+    } else {
+        Err(format!("PTY session with PID {} not found or already closed", pid))
+    }
+}
+
+/// Dynamically updates rows and columns of the underlying PTY handle
+#[tauri::command]
+pub fn pty_resize(pid: u32, rows: u16, cols: u16) -> Result<(), String> {
+    let mut reg = get_registry().lock().map_err(|e| e.to_string())?;
+    if let Some(session) = reg.get_mut(&pid) {
+        session
+            .master
+            .resize(PtySize {
+                rows,
+                cols,
+                pixel_width: 0,
+                pixel_height: 0,
+            })
+            .map_err(|e| format!("Failed to resize PTY: {}", e))?;
+        Ok(())
+    } else {
+        Err(format!("PTY session with PID {} not found", pid))
+    }
+}
+
+/// Explicitly terminates the PTY session and subprocess
+#[tauri::command]
+pub fn pty_kill(pid: u32) -> Result<(), String> {
+    let mut reg = get_registry().lock().map_err(|e| e.to_string())?;
+    if let Some(mut session) = reg.remove(&pid) {
+        let _ = session.child.kill();
+        Ok(())
+    } else {
+        // Fallback to OS SIGTERM
+        let _ = Command::new("kill").args(["-TERM", &pid.to_string()]).status();
+        Ok(())
+    }
+}
+
+// =========================================================================
+// BACKWARDS-COMPATIBILITY ALIASES FOR EXISTING CRUX HYPERTERMINAL / ZENITH
+// =========================================================================
 
 #[tauri::command]
 pub fn terminal_spawn(
@@ -36,11 +292,6 @@ pub fn terminal_spawn(
     cwd: Option<String>,
 ) -> Result<u32, String> {
     let trimmed = command.trim();
-    let working_dir = cwd.unwrap_or_else(|| {
-        std::env::current_dir()
-            .map(|p| p.to_string_lossy().to_string())
-            .unwrap_or_else(|_| ".".to_string())
-    });
 
     // Check virtual CRUX commands
     if trimmed == "crux status" {
@@ -109,146 +360,23 @@ pub fn terminal_spawn(
         return Ok(fake_pid);
     }
 
-    // Spawn native shell process
-    let mut cmd = Command::new("/bin/zsh");
-    cmd.arg("-c").arg(trimmed);
-    cmd.current_dir(&working_dir);
-    cmd.env("PATH", get_extended_path());
-    cmd.env("FORCE_COLOR", "1");
-    cmd.env("TERM", "xterm-256color");
-    cmd.env("COLORTERM", "truecolor");
-    cmd.stdin(Stdio::piped());
-    cmd.stdout(Stdio::piped());
-    cmd.stderr(Stdio::piped());
-
-    let mut child = cmd.spawn().map_err(|e| format!("Failed to spawn command '{}': {}", trimmed, e))?;
-    let pid = child.id();
-
-    // Store stdin handle
-    if let Some(stdin) = child.stdin.take() {
-        let mut map = get_terminal_stdin().lock().unwrap();
-        map.insert(pid, stdin);
-    }
-
-    let mut stdout = child.stdout.take();
-    let mut stderr = child.stderr.take();
-
-    let app_clone = app.clone();
-    let event_key = format!("terminal-event-{}", pid);
-
-    // Emit initial start event
-    let _ = app.emit(&event_key, TerminalEvent {
-        r#type: "start".to_string(),
-        pid: Some(pid),
-        data: None,
-        code: None,
-    });
-
-    // Background thread for stdout
-    let app_out = app_clone.clone();
-    let key_out = event_key.clone();
-    if let Some(mut out) = stdout.take() {
-        thread::spawn(move || {
-            let mut buf = [0u8; 4096];
-            loop {
-                match out.read(&mut buf) {
-                    Ok(0) => break, // EOF
-                    Ok(n) => {
-                        let text = String::from_utf8_lossy(&buf[..n]).to_string();
-                        let _ = app_out.emit(&key_out, TerminalEvent {
-                            r#type: "stdout".to_string(),
-                            pid: Some(pid),
-                            data: Some(text),
-                            code: None,
-                        });
-                    }
-                    Err(_) => break,
-                }
-            }
-        });
-    }
-
-    // Background thread for stderr
-    let app_err = app_clone.clone();
-    let key_err = event_key.clone();
-    if let Some(mut err) = stderr.take() {
-        thread::spawn(move || {
-            let mut buf = [0u8; 4096];
-            loop {
-                match err.read(&mut buf) {
-                    Ok(0) => break,
-                    Ok(n) => {
-                        let text = String::from_utf8_lossy(&buf[..n]).to_string();
-                        let _ = app_err.emit(&key_err, TerminalEvent {
-                            r#type: "stderr".to_string(),
-                            pid: Some(pid),
-                            data: Some(text),
-                            code: None,
-                        });
-                    }
-                    Err(_) => break,
-                }
-            }
-        });
-    }
-
-    // Background waiter thread for process exit
-    let app_wait = app_clone;
-    let key_wait = event_key;
-    thread::spawn(move || {
-        let exit_code = match child.wait() {
-            Ok(status) => status.code().unwrap_or(0),
-            Err(_) => 1,
-        };
-
-        // Remove stdin from map
-        if let Ok(mut map) = get_terminal_stdin().lock() {
-            map.remove(&pid);
-        }
-
-        let _ = app_wait.emit(&key_wait, TerminalEvent {
-            r#type: "exit".to_string(),
-            pid: Some(pid),
-            data: None,
-            code: Some(exit_code),
-        });
-    });
-
-    Ok(pid)
+    // Spawn via real PTY subsystem!
+    pty_spawn(app, Some(command), cwd, Some(24), Some(80))
 }
 
 #[tauri::command]
 pub fn terminal_input(pid: u32, input: String) -> Result<(), String> {
-    let mut map = get_terminal_stdin().lock().map_err(|e| e.to_string())?;
-    if let Some(stdin) = map.get_mut(&pid) {
-        let input_with_newline = if input.ends_with('\n') {
-            input
-        } else {
-            format!("{}\n", input)
-        };
-        stdin
-            .write_all(input_with_newline.as_bytes())
-            .map_err(|e| format!("Failed to write to stdin: {}", e))?;
-        stdin.flush().map_err(|e| format!("Failed to flush stdin: {}", e))?;
-        Ok(())
+    let formatted = if input.ends_with('\n') {
+        input
     } else {
-        Err(format!("Process with PID {} not found or stdin closed", pid))
-    }
+        format!("{}\n", input)
+    };
+    pty_write(pid, formatted)
 }
 
 #[tauri::command]
 pub fn terminal_kill(pid: u32) -> Result<(), String> {
-    // Drop stdin to signal EOF
-    if let Ok(mut map) = get_terminal_stdin().lock() {
-        map.remove(&pid);
-    }
-
-    // Send SIGTERM, then SIGKILL if still alive
-    let _ = Command::new("kill")
-        .args(["-TERM", &pid.to_string()])
-        .status();
-
-    Ok(())
+    pty_kill(pid)
 }
 
 #[tauri::command]

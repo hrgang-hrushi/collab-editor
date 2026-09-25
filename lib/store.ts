@@ -1848,6 +1848,57 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   fetchDiscoveryReport: async () => {
     set({ isDiscoveryScanning: true });
+
+    const isTauri = typeof window !== "undefined" && Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__);
+    if (isTauri) {
+      try {
+        const { invoke } = await import("@tauri-apps/api/core");
+        const cliManifest = await invoke<any>("scan_system_clis");
+        if (cliManifest && cliManifest.tools) {
+          const runtimes: DiscoveredModelRuntime[] = cliManifest.tools
+            .filter((t: any) => t.category === "ai" || t.category === "runtime")
+            .map((t: any) => ({
+              id: t.binary_name,
+              name: `${t.name}${t.version ? ` (${t.version})` : ""}`,
+              provider: (t.binary_name === "antigravity" || t.binary_name === "agy" ? "agy" :
+                         t.binary_name === "claude" ? "anthropic" :
+                         t.binary_name === "codec" || t.binary_name === "codex" ? "codec" :
+                         t.binary_name === "opencode" || t.binary_name === "open-code" ? "openclaw" :
+                         t.binary_name === "cursor" ? "cursor" :
+                         t.binary_name === "ollama" ? "ollama" : "custom") as any,
+              type: "local",
+              latencyMs: 1,
+              available: t.available,
+              status: "ACTIVE",
+              tags: ["cli", t.category, t.path],
+              details: { path: t.path, version: t.version, description: t.description },
+            }));
+
+          const profiles: CrexRunProfile[] = cliManifest.tools
+            .filter((t: any) => t.category === "runtime" || t.binary_name === "git" || t.category === "ai")
+            .map((t: any) => ({
+              id: `cli-${t.binary_name}`,
+              source: "native",
+              name: `Execute ${t.name}`,
+              command: `${t.binary_name} --version`,
+              args: [],
+              sdk: t.name,
+              isDefault: t.binary_name === "bun" || t.binary_name === "node",
+            }));
+
+          set({
+            discoveredRuntimes: runtimes,
+            runProfiles: profiles,
+            detectedSdk: { type: cliManifest.primary_ai_engine, path: cliManifest.tools[0]?.path },
+            isDiscoveryScanning: false,
+          });
+          return;
+        }
+      } catch (tauriErr) {
+        console.warn("[Crux Discovery] Native CLI scan error, falling back:", tauriErr);
+      }
+    }
+
     try {
       const res = await fetch("/api/discovery");
       if (res.ok) {

@@ -10,6 +10,7 @@ export type AiProvider =
   | "openai"
   | "anthropic"
   | "agy"
+  | "codec"
   | "cursor"
   | "github-copilot"
   | "openclaw"
@@ -28,12 +29,20 @@ export interface RouteConfig {
 }
 
 const DEFAULT_ROUTES: Record<AiProvider, RouteConfig> = {
+  codec: {
+    provider: "codec",
+    name: "Sol 5.6 Medium / Codex",
+    endpoint: "local://codec-sol-5.6",
+    model: "sol-5.6-medium",
+    isActive: true,
+    source: "foundational-kernel",
+  },
   agy: {
     provider: "agy",
     name: "Anti-Gravity Core (AGY v1.2.9)",
     endpoint: "local://agy-daemon",
     model: "agy-v1.2.9",
-    isActive: true,
+    isActive: false,
     source: "auto-pickup",
   },
   cursor: {

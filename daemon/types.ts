@@ -20,7 +20,7 @@ export interface CrexRunProfile {
 export interface DiscoveredModelRuntime {
   id: string;
   name: string;
-  provider: "ollama" | "openclaw" | "aws-bedrock" | "openai" | "anthropic" | "github-copilot" | "agy" | "cursor" | "custom";
+  provider: "ollama" | "openclaw" | "aws-bedrock" | "openai" | "anthropic" | "github-copilot" | "agy" | "codec" | "cursor" | "custom";
   type: "local" | "cloud-sdk" | "cloud-env";
   latencyMs: number;
   available: boolean;

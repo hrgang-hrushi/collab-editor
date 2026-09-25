@@ -234,6 +234,16 @@ export async function executeUniversalMigration(
     document.documentElement.setAttribute("data-keymap", "vscode");
   }
 
+  // Auto-configure the AI coding assistants layer using Sol 5.6 medium / Codex as foundational backend model
+  if (typeof window !== "undefined") {
+    try {
+      const { CrexAiRouter } = await import("@/lib/ai/aiRouter");
+      CrexAiRouter.setActiveProvider("codec");
+    } catch {
+      // ignore
+    }
+  }
+
   const settingsCount = ide.settings_json ? Object.keys(ide.settings_json).length : 8;
   const keybindingsCount = ide.keybindings_json ? ide.keybindings_json.length : 4;
 

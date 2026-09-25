@@ -166,7 +166,9 @@ pub mod migration;
 pub use migration::{scan_existing_ides, migrate_ide_assets};
 pub mod fs_ops;
 pub mod terminal;
-pub use terminal::{terminal_spawn, terminal_input, terminal_kill, git_command};
+pub use terminal::{pty_spawn, pty_write, pty_resize, pty_kill, terminal_spawn, terminal_input, terminal_kill, git_command};
+pub mod cli_discovery;
+pub use cli_discovery::scan_system_clis;
 
 pub fn run() {
     tauri::Builder::default()
@@ -176,11 +178,16 @@ pub fn run() {
             commands::execute_code,
             migration::scan_existing_ides,
             migration::migrate_ide_assets,
+            cli_discovery::scan_system_clis,
             fs_ops::list_directory_tree,
             fs_ops::read_file_from_disk,
             fs_ops::write_file_to_disk,
             fs_ops::import_directory_from_disk,
             fs_ops::import_paths_from_disk,
+            terminal::pty_spawn,
+            terminal::pty_write,
+            terminal::pty_resize,
+            terminal::pty_kill,
             terminal::terminal_spawn,
             terminal::terminal_input,
             terminal::terminal_kill,
