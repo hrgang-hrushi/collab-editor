@@ -12,6 +12,9 @@
 
 import { execFile } from "child_process";
 import { promisify } from "util";
+import fs from "fs";
+import path from "path";
+import os from "os";
 import { fromNodeProviderChain } from "@aws-sdk/credential-providers";
 import { DiscoveredModelRuntime } from "./types";
 
@@ -62,10 +65,29 @@ export async function scanOllamaRuntimes(): Promise<DiscoveredModelRuntime[]> {
 }
 
 /**
- * Checks local OpenClaw compute endpoint
+ * Checks local OpenClaw compute endpoint and CLI/agent configuration
  */
 export async function scanOpenClawRuntimes(): Promise<DiscoveredModelRuntime[]> {
   const runtimes: DiscoveredModelRuntime[] = [];
+  const home = os.homedir();
+  const openClawConfig = path.join(home, ".openclaw");
+  const openClawBin = path.join(home, ".local/bin/openclaw");
+  const hasOpenClaw = fs.existsSync(openClawConfig) || fs.existsSync(openClawBin);
+
+  if (hasOpenClaw) {
+    runtimes.push({
+      id: "openclaw-agent-core",
+      name: "OpenClaw Agent Core",
+      provider: "openclaw",
+      type: "local",
+      latencyMs: 1,
+      available: true,
+      status: "ACTIVE_AGENT // LOCAL_DAEMON",
+      tags: ["openclaw", "claw-agent", "autonomous"],
+      details: { configPath: openClawConfig, binary: openClawBin },
+    });
+  }
+
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 1200);
@@ -94,9 +116,38 @@ export async function scanOpenClawRuntimes(): Promise<DiscoveredModelRuntime[]> 
       }
     }
   } catch {
-    // OpenClaw not active
+    // OpenClaw REST not active
   }
   return runtimes;
+}
+
+/**
+ * Checks GitHub Copilot / Codec Core authentication and credentials
+ */
+export async function checkCopilotCodecRuntime(): Promise<DiscoveredModelRuntime | null> {
+  const home = os.homedir();
+  const copilotDir = path.join(home, ".copilot");
+  const copilotConfig = path.join(home, ".config/github-copilot");
+  const hasCopilotDir = fs.existsSync(copilotDir);
+  const hasCopilotConfig = fs.existsSync(copilotConfig);
+
+  if (hasCopilotDir || hasCopilotConfig || process.env.GITHUB_COPILOT_TOKEN) {
+    return {
+      id: "github-copilot-codec",
+      name: "GitHub Copilot / Codec Core",
+      provider: "github-copilot",
+      type: "local",
+      latencyMs: 2,
+      available: true,
+      status: "ACTIVE_SESSION // COPILOT_KEYCHAIN",
+      tags: ["copilot", "codec", "code-completion"],
+      details: {
+        copilotDir: hasCopilotDir ? copilotDir : undefined,
+        copilotConfig: hasCopilotConfig ? copilotConfig : undefined,
+      },
+    };
+  }
+  return null;
 }
 
 /**
@@ -197,19 +248,129 @@ export function checkEnvironmentApiKeys(): DiscoveredModelRuntime[] {
 }
 
 /**
+ * Checks Anti-Gravity (AGY) Agent integration (CLI binary, GEMINI.md, skills)
+ */
+export async function checkAntiGravityRuntime(): Promise<DiscoveredModelRuntime | null> {
+  const home = os.homedir();
+  const candidateBinaries = [
+    path.join(home, ".local/bin/antigravity"),
+    path.join(home, ".local/bin/agy"),
+    "/usr/local/bin/antigravity",
+    "/usr/local/bin/agy",
+    "/opt/homebrew/bin/agy",
+  ];
+
+  let binaryPath = candidateBinaries.find((p) => fs.existsSync(p)) || null;
+  const geminiDir = path.join(home, ".gemini/antigravity-cli");
+  const hasGeminiDir = fs.existsSync(geminiDir);
+  const geminiMd = path.join(process.cwd(), "GEMINI.md");
+  const hasGeminiMd = fs.existsSync(geminiMd);
+
+  if (binaryPath || hasGeminiDir || hasGeminiMd) {
+    return {
+      id: "antigravity-agy",
+      name: "Anti-Gravity Agent Core (AGY v1.2.9)",
+      provider: "agy",
+      type: "local",
+      latencyMs: 1,
+      available: true,
+      status: "ACTIVE_AGENT // ZERO_LATENCY_DAEMON",
+      tags: ["antigravity", "skills", "terminal-agent", "gemini-rules"],
+      details: {
+        binary: binaryPath || "agy",
+        hasGeminiMd,
+        geminiDir: hasGeminiDir ? geminiDir : undefined,
+      },
+    };
+  }
+  return null;
+}
+
+/**
+ * Checks Claude Code CLI (Anthropic) and CLAUDE.md
+ */
+export async function checkClaudeCodeRuntime(): Promise<DiscoveredModelRuntime | null> {
+  const home = os.homedir();
+  const candidateBinaries = [
+    path.join(home, ".local/bin/claude"),
+    "/usr/local/bin/claude",
+    "/opt/homebrew/bin/claude",
+  ];
+
+  const binaryPath = candidateBinaries.find((p) => fs.existsSync(p));
+  const claudeMd = path.join(process.cwd(), "CLAUDE.md");
+  const hasClaudeMd = fs.existsSync(claudeMd);
+
+  if (binaryPath || hasClaudeMd) {
+    return {
+      id: "claude-code-cli",
+      name: "Claude Code CLI (Anthropic)",
+      provider: "anthropic",
+      type: "local",
+      latencyMs: 2,
+      available: true,
+      status: "ACTIVE_CLI // SYSTEM_ATTACHED",
+      tags: ["claude-code", "sonnet-3-5", "claude-md"],
+      details: {
+        binary: binaryPath || "claude",
+        hasClaudeMd,
+      },
+    };
+  }
+  return null;
+}
+
+/**
+ * Checks Cursor AI (.cursorrules & configuration)
+ */
+export async function checkCursorRulesRuntime(): Promise<DiscoveredModelRuntime | null> {
+  const home = os.homedir();
+  const cursorRulesPath = path.join(process.cwd(), ".cursorrules");
+  const cursorDir = path.join(home, "Library/Application Support/Cursor/User");
+  const hasCursorRules = fs.existsSync(cursorRulesPath);
+  const hasCursorDir = fs.existsSync(cursorDir);
+
+  if (hasCursorRules || hasCursorDir) {
+    return {
+      id: "cursor-rules-engine",
+      name: "Cursor Rules Engine (.cursorrules)",
+      provider: "cursor",
+      type: "local",
+      latencyMs: 0,
+      available: true,
+      status: "SYNCED // .cursorrules",
+      tags: ["cursor", "composer", "rules-indexer"],
+      details: {
+        hasCursorRules,
+        cursorDir: hasCursorDir ? cursorDir : undefined,
+      },
+    };
+  }
+  return null;
+}
+
+/**
  * Runs full sweep of all discovery providers
  */
 export async function runFullRuntimeScan(): Promise<DiscoveredModelRuntime[]> {
-  const [ollama, openclaw, bedrock, ghCli] = await Promise.all([
+  const [ollama, openclaw, bedrock, ghCli, agy, claude, cursor, copilot] = await Promise.all([
     scanOllamaRuntimes(),
     scanOpenClawRuntimes(),
     checkAwsBedrockRuntime(),
     checkGitHubCliAuth(),
+    checkAntiGravityRuntime(),
+    checkClaudeCodeRuntime(),
+    checkCursorRulesRuntime(),
+    checkCopilotCodecRuntime(),
   ]);
 
   const envRuntimes = checkEnvironmentApiKeys();
 
   const all: DiscoveredModelRuntime[] = [
+    ...(agy ? [agy] : []),
+    ...(claude ? [claude] : []),
+    ...(cursor ? [cursor] : []),
+    ...(copilot ? [copilot] : []),
     ...ollama,
     ...openclaw,
     ...(bedrock ? [bedrock] : []),

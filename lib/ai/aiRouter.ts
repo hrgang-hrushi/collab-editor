@@ -6,7 +6,16 @@
  * Zero graphical settings menus.
  */
 
-export type AiProvider = "openai" | "anthropic" | "agy" | "opencode" | "ollama";
+export type AiProvider =
+  | "openai"
+  | "anthropic"
+  | "agy"
+  | "cursor"
+  | "github-copilot"
+  | "openclaw"
+  | "opencode"
+  | "ollama"
+  | "custom";
 
 export interface RouteConfig {
   provider: AiProvider;
@@ -19,35 +28,67 @@ export interface RouteConfig {
 }
 
 const DEFAULT_ROUTES: Record<AiProvider, RouteConfig> = {
+  agy: {
+    provider: "agy",
+    name: "Anti-Gravity Core (AGY v1.2.9)",
+    endpoint: "local://agy-daemon",
+    model: "agy-v1.2.9",
+    isActive: true,
+    source: "auto-pickup",
+  },
+  cursor: {
+    provider: "cursor",
+    name: "Cursor Rules Engine (.cursorrules)",
+    endpoint: "local://cursorrules",
+    model: "composer-rules-v2",
+    isActive: false,
+    source: "auto-pickup",
+  },
+  anthropic: {
+    provider: "anthropic",
+    name: "Claude Code CLI (Anthropic)",
+    endpoint: "https://api.anthropic.com/v1/messages",
+    model: "claude-3-5-sonnet-20241022",
+    isActive: false,
+    source: "auto-pickup",
+  },
+  "github-copilot": {
+    provider: "github-copilot",
+    name: "GitHub Copilot / Codec Core",
+    endpoint: "https://api.github.com/copilot",
+    model: "copilot-codec",
+    isActive: false,
+    source: "auto-pickup",
+  },
+  openclaw: {
+    provider: "openclaw",
+    name: "OpenClaw Autonomous Agent",
+    endpoint: "http://127.0.0.1:8000/v1",
+    model: "openclaw-agent-v1",
+    isActive: false,
+    source: "auto-pickup",
+  },
+  custom: {
+    provider: "custom",
+    name: "Custom Configured Tool",
+    endpoint: "local://custom-tool",
+    model: "custom-agent-v1",
+    isActive: false,
+    source: "custom",
+  },
   ollama: {
     provider: "ollama",
     name: "Local Ollama Engine",
     endpoint: "http://127.0.0.1:11434/api/generate",
     model: "codellama",
-    isActive: true,
+    isActive: false,
     source: "default",
   },
   openai: {
     provider: "openai",
-    name: "OpenAI GPT Core",
+    name: "OpenAI GPT-4o Core",
     endpoint: "https://api.openai.com/v1/chat/completions",
     model: "gpt-4o",
-    isActive: false,
-    source: "default",
-  },
-  anthropic: {
-    provider: "anthropic",
-    name: "Anthropic Claude Core",
-    endpoint: "https://api.anthropic.com/v1/messages",
-    model: "claude-3-5-sonnet-20241022",
-    isActive: false,
-    source: "default",
-  },
-  agy: {
-    provider: "agy",
-    name: "AGY Native Kernel",
-    endpoint: "https://api.antigravity.ai/v1/completions",
-    model: "agy-code-v1",
     isActive: false,
     source: "default",
   },
@@ -97,7 +138,47 @@ export class CrexAiRouter {
 
   public static getActiveRoute(): RouteConfig {
     this.initialize();
-    return this.routes[this.activeProvider] || DEFAULT_ROUTES.ollama;
+    return this.routes[this.activeProvider] || DEFAULT_ROUTES.agy || DEFAULT_ROUTES.ollama;
+  }
+
+  public static setActiveProvider(provider: AiProvider): void {
+    this.initialize();
+    if (this.routes[provider]) {
+      this.activeProvider = provider;
+      this.save();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("crux:ai-route-changed"));
+      }
+    }
+  }
+
+  public static updateRoute(config: RouteConfig): void {
+    this.initialize();
+    this.routes[config.provider] = config;
+    this.save();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("crux:ai-route-changed"));
+    }
+  }
+
+  public static addCustomRoute(config: { name: string; command?: string; endpoint?: string; model?: string; token?: string }): RouteConfig {
+    this.initialize();
+    const route: RouteConfig = {
+      provider: "custom",
+      name: config.name || "Custom Coding Tool",
+      endpoint: config.endpoint || "local://custom",
+      model: config.model || config.command || "custom-v1",
+      token: config.token,
+      isActive: true,
+      source: "user-configured",
+    };
+    this.routes.custom = route;
+    this.activeProvider = "custom";
+    this.save();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("crux:ai-route-changed"));
+    }
+    return route;
   }
 
   public static getAllRoutes(): RouteConfig[] {
@@ -180,8 +261,20 @@ export class CrexAiRouter {
 
   public static async executePrompt(
     prompt: string,
-    context?: { file?: string; line?: number; selection?: string }
-  ): Promise<{ text: string; provider: string; model: string; latencyMs: number }> {
+    context?: {
+      file?: string;
+      line?: number;
+      selection?: string;
+      history?: Array<{ role: string; content: string }>;
+    }
+  ): Promise<{
+    text: string;
+    provider: string;
+    model: string;
+    command?: string;
+    fileAction?: { filename: string; content: string };
+    latencyMs: number;
+  }> {
     this.initialize();
     const activeRoute = this.getActiveRoute();
     const startTime = Date.now();
@@ -197,6 +290,7 @@ export class CrexAiRouter {
           token: activeRoute.token,
           prompt,
           context,
+          history: context?.history,
         }),
       });
 
@@ -204,8 +298,10 @@ export class CrexAiRouter {
         const data = await res.json();
         return {
           text: data.text || data.reply || "No output generated.",
-          provider: activeRoute.provider,
-          model: activeRoute.model,
+          provider: data.provider || activeRoute.provider,
+          model: data.model || activeRoute.model,
+          command: data.command,
+          fileAction: data.fileAction,
           latencyMs: Date.now() - startTime,
         };
       }
@@ -219,6 +315,7 @@ export class CrexAiRouter {
       text: `[${activeRoute.provider.toUpperCase()} // ${activeRoute.model}]\nProcessed query: "${prompt}"\nTarget file: ${context?.file || "stream_syncer.ts"}:${context?.line || 1}\nStatus: Verification passed with 0 AST violations.`,
       provider: activeRoute.provider,
       model: activeRoute.model,
+      command: "crux status",
       latencyMs: latency,
     };
   }

@@ -42,40 +42,8 @@ export default function AeyeCtaSection() {
   const currentDisplay = mounted ? words[wordIndex].substring(0, charIndex) : "accelerated";
   const isCompleteWord = mounted ? (!isDeleting && charIndex === words[wordIndex].length) : true;
 
-  const tickerItem = (
-    <div className="flex items-center gap-10 font-pixel text-xs sm:text-sm tracking-wide text-[#0055FF] uppercase whitespace-nowrap py-3.5">
-      <span className="flex items-center gap-3">
-        <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#CRUX]</span>
-        <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#KERNEL]</span>
-      </span>
-      <span className="text-[#999999]">●</span>
-      <span className="text-[#111111] font-mono font-bold tracking-wider">BARE-METAL COLLABORATIVE IDE</span>
-      <span className="text-[#999999]">●</span>
-      <span className="flex items-center gap-3">
-        <span className="text-[#0055FF] font-semibold">//</span>
-        <span className="text-[#0055FF]">[#AST-CRDT]</span>
-        <span className="text-[#0055FF]">&amp;</span>
-        <span className="text-[#0055FF]">[#WEBGPU]</span>
-      </span>
-      <span className="text-[#999999]">●</span>
-      <span className="text-[#111111] font-mono font-bold tracking-wider">SUB-15MS MULTIPLAYER LATENCY</span>
-      <span className="text-[#999999]">●</span>
-    </div>
-  );
-
   return (
-    <section id="cta" className="relative w-full bg-white select-none overflow-hidden scroll-mt-14">
-      {/* 1. TOP TICKER (White strip with electric blue text) */}
-      <div className="w-full bg-[#FFFFFF] border-y border-[#e2e2e2] overflow-hidden whitespace-nowrap">
-        <div className="flex w-max animate-aeye-ticker hover:[animation-play-state:paused]">
-          {tickerItem}
-          {tickerItem}
-          {tickerItem}
-          {tickerItem}
-        </div>
-      </div>
+    <section id="cta" className="relative w-full bg-[#000000] select-none overflow-hidden scroll-mt-14 border-t border-[#222222]">
 
       {/* 2. DARK GRID WORKSPACE CANVAS */}
       <div
@@ -162,15 +130,6 @@ export default function AeyeCtaSection() {
         </div>
       </div>
 
-      {/* 4. BOTTOM TICKER (White strip with electric blue text) */}
-      <div className="w-full bg-[#FFFFFF] border-y border-[#e2e2e2] overflow-hidden whitespace-nowrap">
-        <div className="flex w-max animate-aeye-ticker hover:[animation-play-state:paused]">
-          {tickerItem}
-          {tickerItem}
-          {tickerItem}
-          {tickerItem}
-        </div>
-      </div>
     </section>
   );
 }

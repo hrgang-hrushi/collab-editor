@@ -27,6 +27,7 @@ import PerformanceVisualizer from "./PerformanceVisualizer";
 import AgenticTerminalSandbox from "./AgenticTerminalSandbox";
 import SpatialRewindSection from "./SpatialRewindSection";
 import EngineeringWall from "./EngineeringWall";
+import PricingAndTrustSection from "./PricingAndTrustSection";
 import AeyeCtaSection from "@/components/aeye/AeyeCtaSection";
 import AeyeFooter from "@/components/aeye/AeyeFooter";
 import CruxBrandLogo from "../CruxBrandLogo";

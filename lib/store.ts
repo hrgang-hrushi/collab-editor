@@ -208,6 +208,7 @@ interface WorkspaceState {
   setSessionStreaming: (sessionId: string, isStreaming: boolean, pid?: number | null) => void;
   setSessionExitCode: (sessionId: string, code: number | null) => void;
   setSessionDiagnosis: (sessionId: string, diagnosis: TerminalSession["lastDiagnosis"]) => void;
+  setSessionCwd: (sessionId: string, cwd: string) => void;
   setSessionInputVal: (sessionId: string, val: string) => void;
   addSessionHistory: (sessionId: string, cmd: string) => void;
   setTerminalTimeTravelIndex: (index: number | null) => void;
@@ -292,16 +293,19 @@ export const INITIAL_TERMINAL_SESSIONS: TerminalSession[] = [
         id: "init-1",
         rawText: "Crux Interactive Shell v1.2.0-prod [PTY Active]",
         spans: [{ text: "Crux Interactive Shell v1.2.0-prod [PTY Active]", color: "#00E5FF", bold: true }],
+        isComplete: true,
       },
       {
         id: "init-2",
         rawText: "Memory-mapped IPC socket unix:///var/run/crux.sock connected (0.08ms)",
         spans: [{ text: "Memory-mapped IPC socket unix:///var/run/crux.sock connected (0.08ms)", color: "#666666" }],
+        isComplete: true,
       },
       {
         id: "init-3",
         rawText: "Type 'help' for commands, '?? <prompt>' for AI assistance, or any shell command.",
         spans: [{ text: "Type 'help' for commands, '?? <prompt>' for AI assistance, or any shell command.", color: "#666666" }],
+        isComplete: true,
       },
     ],
     history: ["crux status", "ls", "node stream_syncer.ts"],
@@ -1544,6 +1548,15 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       terminalSessions: s.terminalSessions.map((session) => {
         if (session.id !== sessionId) return session;
         return { ...session, lastDiagnosis };
+      }),
+    }));
+  },
+
+  setSessionCwd: (sessionId, cwd) => {
+    set((s) => ({
+      terminalSessions: s.terminalSessions.map((session) => {
+        if (session.id !== sessionId) return session;
+        return { ...session, cwd };
       }),
     }));
   },

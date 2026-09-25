@@ -73,32 +73,8 @@ export default function AeyeFooter() {
     { label: "LinkedIn", href: "https://linkedin.com" },
   ];
 
-  const tickerText = (
-    <div className="flex items-center gap-8 font-mono text-xs text-white tracking-widest uppercase py-4">
-      <span className="text-[#0055FF] font-semibold">// [#CRUX] &amp; [#RUST]</span>
-      <span className="text-[#444444]">●</span>
-      <span className="font-bold text-white">BARE-METAL IDE</span>
-      <span className="text-[#444444]">●</span>
-      <span>SUB-15MS WEBGPU LATENCY</span>
-      <span className="text-[#444444]">●</span>
-      <span className="text-[#0055FF] font-semibold">// [#DECENTRALIZED] &amp; [#AST-CRDT]</span>
-      <span className="text-[#444444]">●</span>
-      <span className="font-bold text-white">ZERO CHROMIUM OVERHEAD</span>
-      <span className="text-[#444444]">●</span>
-      <span className="text-[#0055FF]">TRY CRUX FREE TODAY!</span>
-    </div>
-  );
-
   return (
     <footer id="dispatch" className="relative w-full bg-[#000000] font-sans scroll-mt-20 border-t border-[#222222]">
-      {/* 1. Retro Headline Marquee Ticker */}
-      <div className="border-b border-[#222222] bg-[#000000] overflow-hidden whitespace-nowrap">
-        <div className="flex w-max animate-aeye-marquee hover:[animation-play-state:paused]">
-          {tickerText}
-          {tickerText}
-        </div>
-      </div>
-
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 pt-12 pb-16">
         {/* Section Header Meta */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222222] text-xs font-mono mb-8">

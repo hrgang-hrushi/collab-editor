@@ -29,7 +29,21 @@ import {
   Users,
   CornerDownLeft,
   ArrowRight,
+  Settings,
 } from "lucide-react";
+
+function formatCwdPrompt(cwd?: string): string {
+  if (!cwd) return "~";
+  const userHome = "/Users/hrushikeshgangala";
+  if (cwd === userHome) return "~";
+  if (cwd.startsWith(userHome)) {
+    const rel = "~" + cwd.slice(userHome.length);
+    const parts = rel.split("/");
+    return parts.length > 3 ? ".../" + parts.slice(-2).join("/") : rel;
+  }
+  const parts = cwd.split("/");
+  return parts.length > 3 ? ".../" + parts.slice(-2).join("/") : cwd;
+}
 
 export default function ZenithTerminal() {
   const isTerminalOpen = useWorkspaceStore((state) => state.isTerminalOpen);
@@ -69,6 +83,7 @@ export default function ZenithTerminal() {
   const setSessionStreaming = useWorkspaceStore((state) => state.setSessionStreaming);
   const setSessionExitCode = useWorkspaceStore((state) => state.setSessionExitCode);
   const setSessionDiagnosis = useWorkspaceStore((state) => state.setSessionDiagnosis);
+  const setSessionCwd = useWorkspaceStore((state) => state.setSessionCwd);
   const setSessionInputVal = useWorkspaceStore((state) => state.setSessionInputVal);
   const addSessionHistory = useWorkspaceStore((state) => state.addSessionHistory);
   const broadcastTerminalPeerInput = useWorkspaceStore((state) => state.broadcastTerminalPeerInput);
@@ -342,6 +357,8 @@ export default function ZenithTerminal() {
         session.id,
         [
           "\x1b[1;36mCRUX HYPERTERMINAL ENGINE v2.0-PROD\x1b[0m\n",
+          "  \x1b[32mcrux config\x1b[0m         Open AI Agent & API Key Configuration GUI\n",
+          "  \x1b[32mcrux agents\x1b[0m         List detected AI runtimes and status\n",
           "  \x1b[32mls\x1b[0m                  List workspace files and metrics\n",
           "  \x1b[32mcat <file>\x1b[0m          Inspect workspace buffer in-memory\n",
           "  \x1b[32mnode <file>\x1b[0m         Execute file via V8 runtime sandbox\n",
@@ -353,6 +370,19 @@ export default function ZenithTerminal() {
           "  \x1b[37m<any shell cmd>\x1b[0m     Run live shell commands (git, npm, curl, lsof)\n\n",
         ].join("")
       );
+      return;
+    }
+
+    if (trimmed === "crux config" || trimmed.startsWith("crux config")) {
+      addSessionHistory(session.id, trimmed);
+      const currentCwd = session.cwd || useWorkspaceStore.getState().terminalSessions.find((s) => s.id === session.id)?.cwd;
+      appendTerminalChunk(
+        session.id,
+        `\x1b[36mcrux-sh:${formatCwdPrompt(currentCwd)}$\x1b[0m ${trimmed}\n\x1b[1;36m[CRUX AI KERNEL]\x1b[0m Opening Agent Runtime Configuration GUI...\n\x1b[90mConfigure API keys, model presets, or local daemons.\x1b[0m\n\n`
+      );
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("crux:open-agent-config"));
+      }
       return;
     }
 
@@ -372,7 +402,8 @@ export default function ZenithTerminal() {
     }
 
     // Tag executor for remote multiplayer CRDT (e.g. [Sarah L.] npm run build)
-    const executorTag = executorName ? `\x1b[36m[${executorName}]\x1b[0m ` : `\x1b[36mcrux-sh:~$\x1b[0m `;
+    const currentCwd = session.cwd || useWorkspaceStore.getState().terminalSessions.find((s) => s.id === session.id)?.cwd;
+    const executorTag = executorName ? `\x1b[36m[${executorName}]\x1b[0m ` : `\x1b[36mcrux-sh:${formatCwdPrompt(currentCwd)}$\x1b[0m `;
     // Flush all workspace files to disk before executing terminal commands
     try {
       const { saveFileToDisk } = await import("@/lib/fileUtils");
@@ -474,6 +505,10 @@ export default function ZenithTerminal() {
                 appendTerminalChunk(session.id, event.data, false);
               } else if (event.type === "stderr") {
                 appendTerminalChunk(session.id, event.data, true);
+              } else if (event.type === "cwd") {
+                setSessionCwd(session.id, event.cwd);
+              } else if (event.type === "clear") {
+                clearTerminalSession(session.id);
               } else if (event.type === "exit") {
                 setSessionStreaming(session.id, false, null);
                 setSessionExitCode(session.id, event.code);
@@ -747,6 +782,20 @@ export default function ZenithTerminal() {
               <span>KILL</span>
             </button>
           )}
+
+          {/* AI Config Modal Button */}
+          <button
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent("crux:open-agent-config"));
+              }
+            }}
+            title="Configure AI Agents & API Keys (crux config)"
+            className="px-2 py-0.5 border border-grid bg-void text-[#CCCCCC] hover:text-white hover:border-white transition-none text-[10px] font-mono flex items-center gap-1 shrink-0"
+          >
+            <Settings className="w-3 h-3 text-white" />
+            <span>AI CONFIG</span>
+          </button>
 
           {/* Clear Logs */}
           <button
@@ -1275,21 +1324,78 @@ function TerminalPaneView({
         </div>
       ) : (
         /* INTERACTIVE PROMPT WITH MULTIPLAYER PEER CURSORS */
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmitCommand();
-          }}
-          className="flex items-center gap-2 pt-2 border-t border-grid/60 shrink-0 relative bg-void/30"
-        >
-          {session.isStreaming ? (
-            <div className="flex items-center gap-1.5 shrink-0 text-white">
-              <span className="w-1.5 h-1.5 rounded-none bg-white animate-pulse" />
-              <span className="font-mono text-[11px] font-bold tracking-wider">&gt; stdin:</span>
+        <div className="shrink-0 flex flex-col border-t border-grid/60 bg-void/30">
+          {!session.isStreaming && !isReadOnly && (
+            <div className="flex items-center gap-1.5 px-1 pt-1.5 pb-1 overflow-x-auto no-scrollbar shrink-0 text-[10px] font-mono select-none">
+              <span className="text-[#444444] uppercase tracking-wider shrink-0 mr-0.5">[QUICK EXEC]:</span>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("crux config")}
+                className="px-1.5 py-0.5 border border-[#333333] bg-[#1a1a1a] text-white hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0 font-bold"
+              >
+                crux config ⚙
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("agy")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                agy (chat)
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("antigravity --version")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                antigravity --version
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("crux agents")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                crux agents
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("crux status")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                crux status
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("git status")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                git status
+              </button>
+              <button
+                type="button"
+                onClick={() => onSubmitCommand("ls -la")}
+                className="px-1.5 py-0.5 border border-[#222222] bg-[#111111] text-[#CCCCCC] hover:bg-[#FFFFFF] hover:text-[#000000] transition-none cursor-pointer shrink-0"
+              >
+                ls -la
+              </button>
             </div>
-          ) : (
-            <span className="text-signal shrink-0 font-bold font-mono text-[12px]">crux-sh:~$</span>
           )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              onSubmitCommand();
+            }}
+            className="flex items-center gap-2 pt-1 pb-1 relative"
+          >
+            {session.isStreaming ? (
+              <div className="flex items-center gap-1.5 shrink-0 text-white">
+                <span className="w-1.5 h-1.5 rounded-none bg-white animate-pulse" />
+                <span className="font-mono text-[11px] font-bold tracking-wider">&gt; stdin:</span>
+              </div>
+            ) : (
+              <span className="text-signal shrink-0 font-bold font-mono text-[12px]">
+                crux-sh:{formatCwdPrompt(session.cwd)}$
+              </span>
+            )}
           <div className="flex-1 relative flex items-center">
             <input
               data-testid="terminal-prompt-input"
@@ -1333,6 +1439,7 @@ function TerminalPaneView({
             <span className="w-2 h-3 bg-signal animate-pulse" />
           )}
         </form>
+      </div>
       )}
     </div>
   );

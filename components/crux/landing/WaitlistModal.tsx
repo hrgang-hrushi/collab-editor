@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 import { X, Check, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 import confetti from "canvas-confetti";
 import CruxBrandLogo from "../CruxBrandLogo";

@@ -68,26 +68,26 @@ export default function CruxMinimalistMigrationCard({ className = "", onMigratio
 
   return (
     <>
-      <div className={`w-full border border-[#222222] bg-[#0A0A0A] p-4 text-white ${className}`}>
-        <div className="flex items-start gap-3">
-          <FolderOpen className="h-4 w-4 shrink-0 text-white" />
+      <div className={`w-full border border-[#222222] bg-[#0A0A0A] p-3 sm:p-3.5 text-white ${className}`}>
+        <div className="flex items-start gap-2.5">
+          <FolderOpen className="h-4 w-4 shrink-0 text-white mt-0.5" />
           <div>
             <h4 className="font-mono text-xs font-bold uppercase">Import Existing Workspace</h4>
-            <p className="mt-1 font-mono text-[10px] leading-relaxed text-[#888888]">
+            <p className="mt-0.5 font-mono text-[10px] leading-relaxed text-[#888888]">
               Select a project folder to open its files and subfolders in Crux.
             </p>
           </div>
         </div>
         <button type="button" disabled={isImporting} onClick={openFolder}
-          className="mt-4 flex h-9 w-full items-center justify-center gap-2 border border-white bg-white font-mono text-[11px] font-bold uppercase text-black hover:bg-black hover:text-white disabled:opacity-50">
+          className="mt-2.5 flex h-8 w-full items-center justify-center gap-2 border border-white bg-white font-mono text-[10px] font-bold uppercase text-black hover:bg-black hover:text-white disabled:opacity-50 cursor-pointer transition-none">
           {isImporting ? "Importing Folder…" : "Import Project Folder"}
-          <ArrowRight className="h-3.5 w-3.5" />
+          <ArrowRight className="h-3 w-3" />
         </button>
         <button type="button" onClick={() => setIsModalOpen(true)}
-          className="mt-2 w-full border border-[#222222] px-3 py-2 text-left font-mono text-[10px] uppercase text-[#888888] hover:border-white hover:text-white">
+          className="mt-1.5 w-full border border-[#222222] px-2.5 py-1.5 text-left font-mono text-[9px] uppercase text-[#888888] hover:border-white hover:text-white cursor-pointer transition-none">
           Import VS Code / Cursor settings
         </button>
-        {error && <p role="alert" className="mt-2 font-mono text-[10px] text-white">{error}</p>}
+        {error && <p role="alert" className="mt-1.5 font-mono text-[10px] text-white">{error}</p>}
       </div>
       <input ref={folderInputRef} type="file" multiple className="hidden" onChange={onBrowserFolder}
         {...({ webkitdirectory: "", directory: "" } as React.InputHTMLAttributes<HTMLInputElement>)} />

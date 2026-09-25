@@ -6,6 +6,7 @@ import { CrexAiRouter, RouteConfig } from "@/lib/ai/aiRouter";
 import { CruxAgentEngine, AgentStep, AgentDiffProposal } from "@/lib/agentEngine";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick } from "@/lib/sound";
+import CruxAgentConfigModal from "./CruxAgentConfigModal";
 import {
   Bot,
   Send,
@@ -19,6 +20,8 @@ import {
   Loader2,
   Terminal,
   Zap,
+  Key,
+  Settings,
 } from "lucide-react";
 
 interface HudMessage {
@@ -27,9 +30,23 @@ interface HudMessage {
   content: string;
   provider?: string;
   model?: string;
+  command?: string;
+  fileAction?: {
+    filename: string;
+    content: string;
+  };
   diffProposal?: AgentDiffProposal;
   timestamp: string;
 }
+
+const AVAILABLE_PROVIDERS = [
+  { id: "agy", label: "AntiGravity", tag: "AGY" },
+  { id: "anthropic", label: "Claude", tag: "SONNET" },
+  { id: "cursor", label: "Cursor", tag: "RULES" },
+  { id: "github-copilot", label: "Codec", tag: "COPILOT" },
+  { id: "openclaw", label: "OpenClaw", tag: "CLAW" },
+  { id: "custom", label: "Custom", tag: "TOOL" },
+] as const;
 
 interface CruxDualStateHudProps {
   isAnchorOpen: boolean;
@@ -61,11 +78,24 @@ export default function CruxDualStateHud({
     {
       id: "init",
       role: "agent",
-      content: "AI Assistant ready. Ask questions, generate code, or configure routes with `> route add [provider] [token]`.",
-      provider: "crex-router",
+      content: "Crux AI Agent Kernel ready. Switch providers (@AntiGravity, @Claude, @Cursor, @Codec, @OpenClaw) or run terminal commands directly.",
+      provider: "agy",
+      command: "antigravity --version",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     },
   ]);
+
+  const runInTerminal = (command: string) => {
+    triggerHaptic("click");
+    playMechanicalClick("mid");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("crux:run-terminal", {
+          detail: { command },
+        })
+      );
+    }
+  };
 
   // Drone Drag State
   const [dronePos, setDronePos] = useState<{ x: number; y: number }>({ x: 420, y: 140 });
@@ -75,9 +105,21 @@ export default function CruxDualStateHud({
   const anchorInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Sync active route on mount
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+
+  // Sync active route on mount and listen for config open event
   useEffect(() => {
     setActiveRoute(CrexAiRouter.getActiveRoute());
+
+    const handleOpenConfig = () => setIsConfigModalOpen(true);
+    const handleRouteChanged = () => setActiveRoute(CrexAiRouter.getActiveRoute());
+
+    window.addEventListener("crux:open-agent-config", handleOpenConfig);
+    window.addEventListener("crux:ai-route-changed", handleRouteChanged);
+    return () => {
+      window.removeEventListener("crux:open-agent-config", handleOpenConfig);
+      window.removeEventListener("crux:ai-route-changed", handleRouteChanged);
+    };
   }, [isAnchorOpen, isDroneOpen]);
 
   // Position Drone at current text cursor coordinates on open
@@ -200,6 +242,10 @@ export default function CruxDualStateHud({
       const response = await CrexAiRouter.executePrompt(text, {
         file: activeFile?.name || "stream_syncer.ts",
         line: cursorPos.line,
+        history: messages.slice(-8).map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
       });
 
       // Also run speculative diff engine if query indicates fix/refactor
@@ -223,6 +269,8 @@ export default function CruxDualStateHud({
           content: response.text,
           provider: response.provider,
           model: response.model,
+          command: response.command,
+          fileAction: response.fileAction,
           diffProposal,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
@@ -303,8 +351,8 @@ export default function CruxDualStateHud({
             <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-white">
               AI Assistant
             </span>
-            <span className="text-[9px] font-mono bg-void px-1 border border-[#222222] text-[#888888] uppercase">
-              {activeRoute.provider}
+            <span className="text-[9px] font-mono bg-void px-1 border border-[#222222] text-white uppercase font-bold">
+              @{activeRoute.name || activeRoute.provider}
             </span>
           </div>
 
@@ -328,6 +376,41 @@ export default function CruxDualStateHud({
           </div>
         </div>
 
+        {/* Agent Switcher Strip */}
+        <div className="flex items-center gap-1 px-2.5 py-1 bg-[#050505] border-b border-[#222222] overflow-x-auto no-scrollbar shrink-0 text-[10px] font-mono select-none">
+          <span className="text-[#555555] text-[9px] uppercase tracking-wider shrink-0 mr-1">AGENT:</span>
+          {AVAILABLE_PROVIDERS.map((p) => {
+            const isSelected = activeRoute.provider === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  CrexAiRouter.setActiveProvider(p.id as any);
+                  setActiveRoute(CrexAiRouter.getActiveRoute());
+                  triggerHaptic("tap");
+                }}
+                className={`px-1.5 py-0.5 border text-[9px] uppercase transition-none cursor-pointer shrink-0 font-bold ${
+                  isSelected
+                    ? "bg-white text-black border-white"
+                    : "bg-[#0A0A0A] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
+                }`}
+              >
+                @{p.label}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setIsConfigModalOpen(true)}
+            title="Configure AI API Keys & Models"
+            className="ml-auto px-1.5 py-0.5 border border-[#333333] bg-[#111111] text-white hover:bg-white hover:text-black transition-none text-[9px] uppercase font-bold shrink-0 flex items-center gap-1"
+          >
+            <Key className="w-2.5 h-2.5" />
+            CONFIG
+          </button>
+        </div>
+
         {/* Message Log */}
         <div className="flex-1 p-3 overflow-y-auto space-y-2 max-h-[260px] bg-void font-sans text-xs">
           {messages.map((m) => (
@@ -346,6 +429,41 @@ export default function CruxDualStateHud({
                 <span>{m.timestamp}</span>
               </div>
               <div className="leading-relaxed select-text">{m.content}</div>
+
+              {(m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1]) && (
+                <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between">
+                  <span className="font-mono text-[9px] text-[#888888] truncate max-w-[200px]">
+                    cmd: {m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => runInTerminal(m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1] || "")}
+                    className="px-2 py-0.5 bg-white text-black font-mono font-bold text-[9px] uppercase hover:bg-[#CCCCCC] transition-none flex items-center gap-1 cursor-pointer"
+                  >
+                    <Terminal className="w-2.5 h-2.5" />
+                    <span>RUN IN TERMINAL ↵</span>
+                  </button>
+                </div>
+              )}
+
+              {m.fileAction && (
+                <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between">
+                  <span className="font-mono text-[9px] text-[#00FF66] truncate max-w-[200px]">
+                    file: {m.fileAction.filename}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("success");
+                      playMechanicalClick("high");
+                      useWorkspaceStore.getState().createFile(m.fileAction!.filename, m.fileAction!.content);
+                    }}
+                    className="px-2 py-0.5 bg-white text-black font-mono font-bold text-[9px] uppercase hover:bg-[#CCCCCC] transition-none flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>SAVE &amp; OPEN FILE ↵</span>
+                  </button>
+                </div>
+              )}
 
               {m.diffProposal && (
                 <div className="mt-2 pt-2 border-t border-[#222222]">
@@ -437,8 +555,8 @@ export default function CruxDualStateHud({
             <span className="font-mono text-xs font-bold text-white uppercase tracking-wider">
               AI Assistant
             </span>
-            <span className="px-1.5 py-0.5 text-[9px] font-mono bg-void border border-[#222222] text-[#888888] uppercase">
-              {activeRoute.provider}
+            <span className="px-1.5 py-0.5 text-[9px] font-mono bg-void border border-[#222222] text-white uppercase font-bold">
+              @{activeRoute.name || activeRoute.provider}
             </span>
           </div>
 
@@ -461,6 +579,41 @@ export default function CruxDualStateHud({
               <X className="w-3 h-3" />
             </button>
           </div>
+        </div>
+
+        {/* Agent Switcher Strip */}
+        <div className="flex items-center gap-1 px-3 py-1 bg-[#050505] border-b border-[#222222] overflow-x-auto no-scrollbar shrink-0 text-[10px] font-mono select-none">
+          <span className="text-[#555555] text-[9px] uppercase tracking-wider shrink-0 mr-1">AGENT:</span>
+          {AVAILABLE_PROVIDERS.map((p) => {
+            const isSelected = activeRoute.provider === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  CrexAiRouter.setActiveProvider(p.id as any);
+                  setActiveRoute(CrexAiRouter.getActiveRoute());
+                  triggerHaptic("tap");
+                }}
+                className={`px-1.5 py-0.5 border text-[9px] uppercase transition-none cursor-pointer shrink-0 font-bold ${
+                  isSelected
+                    ? "bg-white text-black border-white"
+                    : "bg-[#0A0A0A] text-[#888888] border-[#222222] hover:text-white hover:border-[#444444]"
+                }`}
+              >
+                @{p.label}
+              </button>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setIsConfigModalOpen(true)}
+            title="Configure AI API Keys & Models"
+            className="ml-auto px-1.5 py-0.5 border border-[#333333] bg-[#111111] text-white hover:bg-white hover:text-black transition-none text-[9px] uppercase font-bold shrink-0 flex items-center gap-1"
+          >
+            <Key className="w-2.5 h-2.5" />
+            CONFIG
+          </button>
         </div>
 
         {/* Active Context Banner */}
@@ -491,6 +644,41 @@ export default function CruxDualStateHud({
                 <span>{m.timestamp}</span>
               </div>
               <div className="leading-relaxed select-text">{m.content}</div>
+
+              {(m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1]) && (
+                <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between">
+                  <span className="font-mono text-[9px] text-[#888888] truncate max-w-[180px]">
+                    cmd: {m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => runInTerminal(m.command || m.content.match(/\[Suggested Terminal Command\]:\s*`([^`]+)`/)?.[1] || "")}
+                    className="px-2 py-0.5 bg-white text-black font-mono font-bold text-[9px] uppercase hover:bg-[#CCCCCC] transition-none flex items-center gap-1 cursor-pointer"
+                  >
+                    <Terminal className="w-2.5 h-2.5" />
+                    <span>RUN IN TERMINAL ↵</span>
+                  </button>
+                </div>
+              )}
+
+              {m.fileAction && (
+                <div className="mt-2 pt-2 border-t border-[#222222] flex items-center justify-between">
+                  <span className="font-mono text-[9px] text-[#00FF66] truncate max-w-[180px]">
+                    file: {m.fileAction.filename}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerHaptic("success");
+                      playMechanicalClick("high");
+                      useWorkspaceStore.getState().createFile(m.fileAction!.filename, m.fileAction!.content);
+                    }}
+                    className="px-2 py-0.5 bg-white text-black font-mono font-bold text-[9px] uppercase hover:bg-[#CCCCCC] transition-none flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>SAVE &amp; OPEN FILE ↵</span>
+                  </button>
+                </div>
+              )}
 
               {m.diffProposal && (
                 <div className="mt-2.5 pt-2 border-t border-[#222222]">
@@ -558,6 +746,10 @@ export default function CruxDualStateHud({
     <>
       {renderAnchor()}
       {renderDrone()}
+      <CruxAgentConfigModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+      />
     </>
   );
 }

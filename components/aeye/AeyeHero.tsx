@@ -36,6 +36,7 @@ export default function AeyeHero() {
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
   const [preCruxEmail, setPreCruxEmail] = useState("");
+  const [preCruxSubmitted, setPreCruxSubmitted] = useState(false);
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
   const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
 

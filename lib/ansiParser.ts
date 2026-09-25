@@ -25,6 +25,7 @@ export interface AnsiLine {
   isError?: boolean;
   executorName?: string;
   executorColor?: string;
+  isComplete?: boolean;
 }
 
 // 16 standard ANSI colors mapped to industrial brutalist palette
@@ -71,27 +72,38 @@ export function parseAnsiText(text: string): AnsiSpan[] {
   let isDim = false;
   let isUnderline = false;
 
-  // Split text by ANSI escape sequence \x1b\[[0-9;]*[a-zA-Z]
-  const ansiRegex = /\x1b\[([0-9;]*)([a-zA-Z])/g;
+  // Comprehensive ANSI sequence matcher:
+  // 1. CSI sequences: \x1b\[[0-9;?>=< ]*([a-zA-Z~@])
+  // 2. OSC sequences: \x1b\][^\x07\x1b]*(?:\x07|\x1b\\)
+  // 3. Simple charset/escape commands: \x1b[()][AB012] | \x1b[a-zA-Z]
+  const ansiRegex =
+    /\x1b\[([0-9;?>=< ]*)([a-zA-Z~@])|\x1b\][^\x07\x1b]*(?:\x07|\x1b\\)|\x1b[()][AB012]|\x1b[a-zA-Z]/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = ansiRegex.exec(text)) !== null) {
     const rawChunk = text.slice(lastIndex, match.index);
     if (rawChunk) {
-      appendSpansWithLinks(spans, rawChunk, {
-        color: currentColor,
-        bgColor: currentBgColor,
-        bold: isBold,
-        dim: isDim,
-        underline: isUnderline,
-      });
+      // Strip unprintable control characters, keeping valid whitespace
+      const cleanChunk = rawChunk.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+      if (cleanChunk) {
+        appendSpansWithLinks(spans, cleanChunk, {
+          color: currentColor,
+          bgColor: currentBgColor,
+          bold: isBold,
+          dim: isDim,
+          underline: isUnderline,
+        });
+      }
     }
 
-    const codes = match[1] ? match[1].split(";").map(Number) : [0];
     const command = match[2];
+    const rawCodeParam = match[1];
 
     if (command === "m") {
+      // Filter out non-numeric chars (like ? or >) from code parameters
+      const cleanCodes = (rawCodeParam || "").replace(/[^0-9;]/g, "");
+      const codes = cleanCodes ? cleanCodes.split(";").map(Number) : [0];
       let i = 0;
       while (i < codes.length) {
         const c = codes[i];
@@ -147,13 +159,16 @@ export function parseAnsiText(text: string): AnsiSpan[] {
 
   const remaining = text.slice(lastIndex);
   if (remaining) {
-    appendSpansWithLinks(spans, remaining, {
-      color: currentColor,
-      bgColor: currentBgColor,
-      bold: isBold,
-      dim: isDim,
-      underline: isUnderline,
-    });
+    const cleanRemaining = remaining.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, "");
+    if (cleanRemaining) {
+      appendSpansWithLinks(spans, cleanRemaining, {
+        color: currentColor,
+        bgColor: currentBgColor,
+        bold: isBold,
+        dim: isDim,
+        underline: isUnderline,
+      });
+    }
   }
 
   return spans;
@@ -204,19 +219,32 @@ export function appendStreamChunkToLines(
   chunk: string,
   isError = false
 ): AnsiLine[] {
+  if (!chunk) return lines;
   const result = [...lines];
-  const parts = chunk.split("\n");
+
+  // Normalize Windows CRLF line endings
+  const normalized = chunk.replace(/\r\n/g, "\n");
+  const endsWithNewline = normalized.endsWith("\n");
+
+  const parts = normalized.split("\n");
+  if (endsWithNewline) {
+    // Trailing empty string created by trailing \n
+    parts.pop();
+  }
 
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
+    const isLastPart = i === parts.length - 1;
+    const partIsCompleted = !isLastPart || endsWithNewline;
 
     // Handle carriage returns within the line (e.g. progress updates overwrite the line)
     const crSplit = part.split("\r");
     const activeText = crSplit[crSplit.length - 1];
 
-    if (i === 0 && result.length > 0 && !chunk.startsWith("\n")) {
-      // Append or overwrite existing last line
-      const lastLine = result[result.length - 1];
+    const lastLine = result.length > 0 ? result[result.length - 1] : null;
+    const canAppendToLast = lastLine !== null && lastLine.isComplete === false;
+
+    if (i === 0 && canAppendToLast) {
       if (crSplit.length > 1) {
         // \r occurred, replace line content
         result[result.length - 1] = {
@@ -224,6 +252,7 @@ export function appendStreamChunkToLines(
           rawText: activeText,
           spans: parseAnsiText(activeText),
           isError: isError || lastLine.isError,
+          isComplete: partIsCompleted,
         };
       } else {
         const combined = lastLine.rawText + activeText;
@@ -232,15 +261,17 @@ export function appendStreamChunkToLines(
           rawText: combined,
           spans: parseAnsiText(combined),
           isError: isError || lastLine.isError,
+          isComplete: partIsCompleted,
         };
       }
-    } else if (activeText.length > 0 || i < parts.length - 1) {
+    } else {
       result.push({
         id: `line-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
         rawText: activeText,
         spans: parseAnsiText(activeText),
         timestamp: Date.now(),
         isError,
+        isComplete: partIsCompleted,
       });
     }
   }

@@ -1,5 +1,9 @@
 import { NextRequest } from "next/server";
-import { writeToProcessStdin, terminalProcesses } from "@/lib/terminalRegistry";
+import {
+  writeToProcessStdin,
+  terminalProcesses,
+  terminalStdinHandlers,
+} from "@/lib/terminalRegistry";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,16 +16,23 @@ export async function POST(req: NextRequest) {
     }
 
     let targetPid = pid ? Number(pid) : null;
-    if (!targetPid || !terminalProcesses.has(targetPid)) {
-      // Fallback to the latest active process in registry
-      const activePids = Array.from(terminalProcesses.keys());
+    const hasTarget =
+      targetPid &&
+      (terminalProcesses.has(targetPid) || terminalStdinHandlers.has(targetPid));
+
+    if (!hasTarget) {
+      // Fallback to the latest active process or interactive handler
+      const activePids = [
+        ...Array.from(terminalProcesses.keys()),
+        ...Array.from(terminalStdinHandlers.keys()),
+      ];
       if (activePids.length > 0) {
         targetPid = activePids[activePids.length - 1];
       }
     }
 
     if (!targetPid) {
-      return new Response(JSON.stringify({ error: "No running process found" }), {
+      return new Response(JSON.stringify({ error: "No running process or session found" }), {
         status: 404,
         headers: { "Content-Type": "application/json" },
       });

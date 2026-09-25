@@ -21,8 +21,11 @@ import {
   Copy,
   Layers,
   Sparkles,
+  Plus,
+  X,
 } from "lucide-react";
 import CruxMinimalistMigrationCard from "../migration/CruxMinimalistMigrationCard";
+import { CrexAiRouter } from "@/lib/ai/aiRouter";
 
 export default function CruxOnboardingStartPage() {
   const currentUser = useWorkspaceStore((state) => state.currentUser);
@@ -61,6 +64,66 @@ export default function CruxOnboardingStartPage() {
   const [telemetryEnabled, setTelemetryEnabled] = useState<boolean>(
     currentUser.telemetryEnabled !== false
   );
+
+  // AI Toolchain Auto-Pickup & Custom Tool Configuration
+  const [discoveredAgents, setDiscoveredAgents] = useState<any[]>([]);
+  const [isScanningAgents, setIsScanningAgents] = useState(true);
+  const [isCustomToolModalOpen, setIsCustomToolModalOpen] = useState(false);
+  const [customToolName, setCustomToolName] = useState("");
+  const [customToolCommand, setCustomToolCommand] = useState("");
+  const [customToolEndpoint, setCustomToolEndpoint] = useState("http://localhost:8000/v1");
+  const [customToolModel, setCustomToolModel] = useState("custom-agent-v1");
+  const [customToolSuccess, setCustomToolSuccess] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/discovery")
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data.runtimes) {
+          setDiscoveredAgents(data.runtimes);
+          setIsScanningAgents(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setIsScanningAgents(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleSaveCustomTool = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customToolName.trim()) return;
+    triggerHaptic("click");
+    CrexAiRouter.addCustomRoute({
+      name: customToolName.trim(),
+      command: customToolCommand.trim() || undefined,
+      endpoint: customToolEndpoint.trim() || undefined,
+      model: customToolModel.trim() || undefined,
+    });
+    setDiscoveredAgents((prev) => [
+      {
+        id: `custom-${Date.now()}`,
+        name: customToolName.trim(),
+        provider: "custom",
+        type: "local",
+        latencyMs: 1,
+        available: true,
+        status: "CONFIGURED // CUSTOM_TOOL",
+        tags: ["custom", customToolCommand || "cli"],
+      },
+      ...prev,
+    ]);
+    setCustomToolSuccess(true);
+    setTimeout(() => {
+      setCustomToolSuccess(false);
+      setIsCustomToolModalOpen(false);
+      setCustomToolName("");
+      setCustomToolCommand("");
+    }, 1000);
+  };
 
   // Dynamically generate cryptographic node UID based on name and timestamp
   const generatedUid = useMemo(() => {
@@ -220,70 +283,121 @@ export default function CruxOnboardingStartPage() {
       </header>
 
       {/* 3. Central Content Arena (Z-30) */}
-      <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-4 sm:p-6 overflow-y-auto">
+      <main className="relative z-30 flex-1 flex flex-col items-center justify-center p-3 sm:p-4 overflow-hidden">
         {/* VIEW 1: WELCOME / GA GATEWAY */}
         {activeView === "welcome" && (
-          <div className="w-full max-w-2xl flex flex-col items-center gap-7 select-none">
-            {/* Monolithic Crux Title (Strictly Capital C Only, 0 Tracking, No Floating Badges) */}
+          <div className="w-full max-w-4xl flex flex-col items-center gap-4 sm:gap-5 select-none">
+            {/* Monolithic Crux Title (Centered Outside, Strictly Capital C, 0 Tracking) */}
             <div className="flex flex-col items-center text-center">
               <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#888888] mb-1">
                 GENERAL AVAILABILITY // v1.0.0
               </div>
-              <h1 className="font-brand font-black text-white text-8xl sm:text-[112px] md:text-[128px] tracking-[0px] leading-none select-none">
+              <h1 className="font-brand font-black text-white text-6xl sm:text-7xl md:text-8xl tracking-[0px] leading-none select-none">
                 Crux
               </h1>
-              <p className="font-sans text-xs sm:text-sm text-[#888888] max-w-lg mt-3 leading-relaxed">
+              <p className="font-sans text-xs text-[#888888] max-w-md mt-2 leading-relaxed">
                 The bare-metal collaborative IDE for high-velocity engineering.
                 Built on raw silicon, lock-free vector clocks, and zero-knowledge peer mesh.
               </p>
             </div>
 
-            {/* Utilitarian Hardware Launch Triggers */}
-            <div className="w-full max-w-md flex flex-col gap-2.5">
-              {/* Primary Kernel Boot Trigger */}
-              <button
-                onClick={handleQuickBoot}
-                className="w-full h-13 px-6 bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-black hover:text-white hover:border-white transition-none flex items-center justify-center gap-3 cursor-pointer border border-white rounded-none"
-              >
-                <span>QUICK BOOT WORKSPACE</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              {/* Guided Setup & Auth Triggers */}
-              <div className="grid grid-cols-2 gap-2.5">
+            {/* 2 Boxes Side-by-Side */}
+            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3.5 items-start">
+              {/* BOX 1 (LEFT): LAUNCH & HARDWARE TELEMETRY */}
+              <div className="flex flex-col gap-2.5">
+                {/* Primary Kernel Boot Trigger */}
                 <button
-                  onClick={handleStartCalibration}
-                  className="h-11 px-4 border border-[#222222] bg-[#0A0A0A] text-[#CCCCCC] hover:text-white hover:border-white transition-none font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
+                  onClick={handleQuickBoot}
+                  className="w-full h-11 px-6 bg-white text-black font-sans font-bold text-xs uppercase tracking-wider hover:bg-black hover:text-white hover:border-white transition-none flex items-center justify-center gap-3 cursor-pointer border border-white rounded-none"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-white" />
-                  <span>CALIBRATE ENCLAVE</span>
+                  <span>QUICK BOOT WORKSPACE</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-                <button
-                  onClick={() => switchTab("auth")}
-                  className="h-11 px-4 border border-[#222222] bg-[#0A0A0A] text-[#CCCCCC] hover:text-white hover:border-white transition-none font-mono text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer rounded-none"
-                >
-                  <Lock className="w-3.5 h-3.5 text-white" />
-                  <span>CONNECT NODE KEY</span>
-                </button>
+
+                {/* Guided Setup & Auth Triggers */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleStartCalibration}
+                    className="h-10 px-3 border border-[#222222] bg-[#0A0A0A] text-[#CCCCCC] hover:text-white hover:border-white transition-none font-mono text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer rounded-none"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-white" />
+                    <span>CALIBRATE ENCLAVE</span>
+                  </button>
+                  <button
+                    onClick={() => switchTab("auth")}
+                    className="h-10 px-3 border border-[#222222] bg-[#0A0A0A] text-[#CCCCCC] hover:text-white hover:border-white transition-none font-mono text-[10px] uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer rounded-none"
+                  >
+                    <Lock className="w-3.5 h-3.5 text-white" />
+                    <span>CONNECT NODE KEY</span>
+                  </button>
+                </div>
+
+                {/* Hardware Telemetry Spec Matrix */}
+                <div className="w-full border border-[#222222] bg-[#0A0A0A] p-3 grid grid-cols-3 gap-2 font-mono text-[9px] uppercase text-[#888888]">
+                  <div>
+                    <span className="block text-[#444444]">SYNC ARCH</span>
+                    <span className="text-white font-bold">Yjs CRDT 0.04ms</span>
+                  </div>
+                  <div>
+                    <span className="block text-[#444444]">SECURITY</span>
+                    <span className="text-white font-bold">Ed25519 Vault</span>
+                  </div>
+                  <div>
+                    <span className="block text-[#444444]">PEER TOPOLOGY</span>
+                    <span className="text-white font-bold">WebRTC Mesh</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Minimalist Migration Entry Point */}
-              <CruxMinimalistMigrationCard />
-            </div>
+              {/* BOX 2 (RIGHT): WORKSPACE IMPORT & AI TOOLS AUTO-PICKUP */}
+              <div className="flex flex-col gap-2.5">
+                {/* Minimalist Migration Entry Point */}
+                <CruxMinimalistMigrationCard />
 
-            {/* Hardware Telemetry Spec Matrix */}
-            <div className="w-full max-w-md border border-[#222222] bg-[#0A0A0A] p-3 grid grid-cols-3 gap-2 font-mono text-[9px] uppercase text-[#888888]">
-              <div>
-                <span className="block text-[#444444]">SYNC ARCH</span>
-                <span className="text-white font-bold">Yjs CRDT 0.04ms</span>
-              </div>
-              <div>
-                <span className="block text-[#444444]">SECURITY</span>
-                <span className="text-white font-bold">Ed25519 Vault</span>
-              </div>
-              <div>
-                <span className="block text-[#444444]">PEER TOPOLOGY</span>
-                <span className="text-white font-bold">WebRTC Mesh</span>
+                {/* AUTO-PICKUP AI CODING AGENTS & TOOLS */}
+                <div className="border border-[#222222] bg-[#0A0A0A] p-3 select-none">
+                  <div className="flex items-center justify-between pb-1.5 border-b border-[#222222]">
+                    <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold text-white tracking-wider">
+                      <Cpu className="w-3.5 h-3.5 text-white" />
+                      <span>AUTO-PICKUP AI AGENTS &amp; TOOLS</span>
+                    </div>
+                    <span className="text-[9px] font-mono text-[#00FF66] font-bold">
+                      {isScanningAgents ? "SCANNING..." : `${discoveredAgents.length} ATTACHED`}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1 font-mono text-[10px] mt-2 max-h-[125px] overflow-y-auto">
+                    {discoveredAgents.map((ag) => (
+                      <div
+                        key={ag.id}
+                        className="py-1 px-2 border border-[#222222] bg-[#000000] flex items-center justify-between text-white"
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <span className="w-1.5 h-1.5 bg-[#00FF66] shrink-0" />
+                          <span className="font-bold truncate text-[10px]">{ag.name}</span>
+                        </div>
+                        <span className="px-1 py-0.2 text-[8px] bg-void border border-[#333333] text-[#AAAAAA] uppercase shrink-0">
+                          {ag.details?.hasGeminiMd ? "GEMINI.md" : ag.details?.hasCursorRules ? ".cursorrules" : ag.provider.toUpperCase()}
+                        </span>
+                      </div>
+                    ))}
+
+                    {discoveredAgents.length === 0 && !isScanningAgents && (
+                      <div className="p-2 border border-[#222222] text-[#666666] text-center text-[10px]">
+                        No external tools found. Defaulting to @CruxAI.
+                      </div>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomToolModalOpen(true)}
+                    className="w-full mt-2 py-1.5 border border-[#222222] bg-[#111111] hover:bg-white hover:text-black transition-none font-mono text-[9px] uppercase tracking-wider font-bold cursor-pointer text-white flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-3 h-3" />
+                    <span>CONFIGURE CUSTOM CODING TOOL</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -549,6 +663,38 @@ export default function CruxOnboardingStartPage() {
                     </div>
                   </div>
 
+                  {/* Auto-Pickup AI Agents in Step 3 */}
+                  <div className="p-3 bg-[#0A0A0A] border border-[#222222] space-y-2 select-none">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] uppercase text-white font-bold block">
+                        AUTO-ATTACHED CODING AGENTS &amp; TOOLS
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomToolModalOpen(true)}
+                        className="text-[9px] uppercase border border-[#222222] px-2 py-0.5 text-white hover:bg-white hover:text-black transition-none cursor-pointer"
+                      >
+                        + CUSTOM TOOL
+                      </button>
+                    </div>
+                    <div className="space-y-1 font-mono text-[10px]">
+                      {discoveredAgents.map((ag) => (
+                        <div
+                          key={ag.id}
+                          className="p-1 border border-[#222222] bg-[#000000] flex items-center justify-between text-white"
+                        >
+                          <div className="flex items-center gap-1.5 truncate">
+                            <span className="w-1 h-1 bg-white shrink-0" />
+                            <span className="truncate">{ag.name}</span>
+                          </div>
+                          <span className="text-[8px] text-[#888888] uppercase shrink-0">
+                            {ag.details?.hasGeminiMd ? "GEMINI.md" : ag.details?.hasCursorRules ? ".cursorrules" : ag.provider.toUpperCase()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Hardware Telemetry */}
                   <div className="p-3 bg-[#0A0A0A] border border-[#222222] flex items-center justify-between">
                     <div>
@@ -731,6 +877,101 @@ export default function CruxOnboardingStartPage() {
                     className="py-2 px-3 border border-[#222222] text-[#888888] hover:text-white text-xs uppercase transition-none font-mono"
                   >
                     BACK
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* CONFIGURE CUSTOM CODING TOOL MODAL */}
+        {isCustomToolModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+            <div className="w-full max-w-md border border-white bg-black p-5 space-y-4 font-mono select-none">
+              <div className="flex items-center justify-between border-b border-[#222222] pb-2">
+                <div className="flex items-center gap-2 text-white font-bold text-xs uppercase tracking-wider">
+                  <Cpu className="w-4 h-4 text-white" />
+                  <span>CONFIGURE CUSTOM CODING TOOL</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomToolModalOpen(false)}
+                  className="text-[#888888] hover:text-white p-1 cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <p className="text-[11px] text-[#888888] leading-relaxed">
+                Connect your own AI coding engine or CLI agent into the Crux Kernel. It will auto-register into the Float HUD, Command Palette, and HyperTerminal.
+              </p>
+
+              <form onSubmit={handleSaveCustomTool} className="space-y-3 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase text-[#666666] block">TOOL NAME</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. My Custom Codec / Devin CLI"
+                    value={customToolName}
+                    onChange={(e) => setCustomToolName(e.target.value)}
+                    className="w-full bg-[#0A0A0A] border border-[#222222] p-2 text-white placeholder:text-[#444444] focus:border-white focus:outline-none rounded-none text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[9px] uppercase text-[#666666] block">CLI COMMAND / EXECUTABLE (OPTIONAL)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. codec, devin, python3 agent.py"
+                    value={customToolCommand}
+                    onChange={(e) => setCustomToolCommand(e.target.value)}
+                    className="w-full bg-[#0A0A0A] border border-[#222222] p-2 text-white placeholder:text-[#444444] focus:border-white focus:outline-none rounded-none text-xs"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase text-[#666666] block">MODEL IDENTIFIER</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. custom-v1"
+                      value={customToolModel}
+                      onChange={(e) => setCustomToolModel(e.target.value)}
+                      className="w-full bg-[#0A0A0A] border border-[#222222] p-2 text-white placeholder:text-[#444444] focus:border-white focus:outline-none rounded-none text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] uppercase text-[#666666] block">ENDPOINT URL</label>
+                    <input
+                      type="text"
+                      placeholder="http://localhost:8000/v1"
+                      value={customToolEndpoint}
+                      onChange={(e) => setCustomToolEndpoint(e.target.value)}
+                      className="w-full bg-[#0A0A0A] border border-[#222222] p-2 text-white placeholder:text-[#444444] focus:border-white focus:outline-none rounded-none text-xs"
+                    />
+                  </div>
+                </div>
+
+                {customToolSuccess && (
+                  <div className="p-2 border border-white bg-white text-black font-bold text-[10px] uppercase text-center">
+                    ✓ CUSTOM CODING TOOL ATTESTED &amp; REGISTERED
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#222222]">
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomToolModalOpen(false)}
+                    className="px-3 py-1.5 border border-[#222222] text-[#888888] hover:text-white uppercase text-[10px] cursor-pointer"
+                  >
+                    CANCEL
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 bg-white text-black font-bold uppercase text-[10px] hover:bg-[#CCCCCC] transition-none cursor-pointer"
+                  >
+                    REGISTER TOOL
                   </button>
                 </div>
               </form>
