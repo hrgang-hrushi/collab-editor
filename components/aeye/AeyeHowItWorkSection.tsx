@@ -72,12 +72,6 @@ export default function AeyeHowItWorkSection() {
       badge: "INGESTION",
       title: "Input your data",
       desc: "Add prompts, data, or context from your workflow with minimal setup.",
-      telemetry: {
-        command: "crux://pipeline/ingest --source=workspace.ast --transport=posix-shm",
-        latency: "0.18ms",
-        status: "ONLINE [BUFFER READY]",
-        log: "Streaming raw tokens from 14 source files · Buffer capacity: 16.4 MB · Zero V8 serialization",
-      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -119,12 +113,6 @@ export default function AeyeHowItWorkSection() {
       badge: "SYNTHESIS",
       title: "Process with AI",
       desc: "Transform inputs into structured, meaningful outputs in real time.",
-      telemetry: {
-        command: "crux://kernel/synthesize --engine=ast-crdt --peers=3",
-        latency: "1.42ms",
-        status: "PROCESSING [CONCURRENT SYNC]",
-        log: "Synthesizing structural AST nodes · 1,840 ops/sec · Merging parallel edits into unified state tree",
-      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -160,12 +148,6 @@ export default function AeyeHowItWorkSection() {
       badge: "EXECUTION",
       title: "Generate results",
       desc: "Turn processed data into actionable outputs ready to use, refine, or share.",
-      telemetry: {
-        command: "crux://compiler/emit --target=aarch64-darwin --opt-level=3",
-        latency: "4.11ms",
-        status: "COMPILED [ZERO WARNINGS]",
-        log: "Emitted native binary [crux-core-arm64] · 64-bit SIMD vectorization · Atomic git diff generated",
-      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -208,12 +190,6 @@ export default function AeyeHowItWorkSection() {
       badge: "RECURSION",
       title: "Refine and repeat",
       desc: "Iterate continuously on your pipeline with autonomous feedback loops.",
-      telemetry: {
-        command: "crux://telemetry/feedback-loop --convergence=deterministic",
-        latency: "0.32ms",
-        status: "VERIFIED [STATE CONVERGED]",
-        log: "Feedback cycle 100% converged · Test assertions: 48/48 passed · Autonomous watchdog armed",
-      },
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -394,37 +370,7 @@ export default function AeyeHowItWorkSection() {
               })}
             </div>
 
-            {/* Synchronized Hardware Execution Console for the Active Step */}
-            <div className="mt-4 border border-[#222222] bg-[#000000] p-4 font-mono text-xs rounded-none">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-[#222222] gap-2">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 bg-[#0055FF] inline-block" />
-                  <span className="text-white font-bold uppercase tracking-wider text-[11px]">
-                    STAGE 0{activeStep + 1} // {steps[activeStep].title}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-[11px]">
-                  <span className="text-[#0055FF] font-bold">
-                    ● {steps[activeStep].telemetry.status}
-                  </span>
-                  <span className="text-[#71717a]">
-                    LATENCY: <strong className="text-white">{steps[activeStep].telemetry.latency}</strong>
-                  </span>
-                </div>
-              </div>
 
-              <div className="pt-2.5 space-y-1 text-[11px]">
-                <div className="flex items-center gap-2">
-                  <span className="text-[#0055FF] font-bold">&gt;</span>
-                  <span className="text-white font-semibold">
-                    {steps[activeStep].telemetry.command}
-                  </span>
-                </div>
-                <div className="text-[#71717a] pl-4">
-                  {steps[activeStep].telemetry.log}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
