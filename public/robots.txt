@@ -1,0 +1,47 @@
+# Robots.txt for Crux IDE (https://codecrux.us)
+# Explicitly allowing AI Crawlers and Search Engine Indexers
+
+User-agent: *
+Allow: /
+
+# OpenAI Crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+# Anthropic Claude Crawlers
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity Crawler
+User-agent: PerplexityBot
+Allow: /
+
+# Common Crawl & Other AI Indexers
+User-agent: CCBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Standard Search Engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemaps and LLM manifest
+Sitemap: https://codecrux.us/sitemap.xml
+# LLMs Machine-Readable Spec: https://codecrux.us/llms.txt

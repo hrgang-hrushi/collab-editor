@@ -1,0 +1,48 @@
+"use client";
+
+import React, { Suspense, useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+import AeyeLandingPage from "@/components/aeye/AeyeLandingPage";
+
+const CruxLandingPage = dynamic(() => import("@/components/crux/landing/CruxLandingPage"), {
+  ssr: false,
+  loading: () => <div className="w-full min-h-screen bg-[#000000]" />,
+});
+
+const CruxEditorView = dynamic(() => import("@/components/crux/CruxEditorView"), {
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-[#000000]" />,
+});
+
+export default function PageClient() {
+  const [view, setView] = useState<"aeye" | "crux" | "editor">("aeye");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+
+      if (searchParams.get("crux") === "true") {
+        setView("crux");
+        return;
+      }
+
+      if (searchParams.get("app") === "true" || searchParams.get("editor") === "true") {
+        setView("editor");
+      }
+    }
+  }, []);
+
+  if (view === "editor") {
+    return (
+      <div className="w-screen h-screen overflow-hidden bg-black">
+        <CruxEditorView onBackToEffects={() => setView("aeye")} />
+      </div>
+    );
+  }
+
+  if (view === "crux") {
+    return <CruxLandingPage onLaunchWebEditor={() => setView("editor")} />;
+  }
+
+  return <AeyeLandingPage />;
+}

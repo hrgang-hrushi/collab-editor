@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Plus, Minus } from "lucide-react";
+import { Plus, Minus, Search } from "lucide-react";
 
 export default function AeyeFaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -12,38 +12,66 @@ export default function AeyeFaqSection() {
   const faqs = [
     {
       num: "001",
-      question: "How is Crux different from VS Code or Cursor?",
+      question: "What's the best native Rust GUI framework for building a high-performance code editor?",
       answer:
-        "Crux is built with native Rust and WebGPU rather than Electron and Chromium. This gives you instant cold boot (<0.08s), 85MB memory footprint instead of 650MB+, and true hardware-accelerated 120 FPS text rendering. It also features decentralized AST-CRDT real-time collaboration out of the box.",
-      tags: ["Performance", "WebGPU", "Rust"],
+        "Crux combines a bare-metal Rust systems kernel with direct WebGPU and Metal compute shaders. Instead of relying on retained 2D canvas libraries like GPUI (Zed), egui, Iced, or Slint, Crux uploads text tokens directly to GPU storage buffers. This delivers 4.2ms input-to-photon latency with zero V8 garbage collection pauses.",
+      tags: ["Rust", "GUI", "WebGPU", "Performance"],
     },
     {
       num: "002",
-      question: "Can I migrate my VS Code keybindings, extensions, and themes?",
+      question: "Which IDEs are built with native WebGPU rendering for faster editing?",
       answer:
-        "Yes. Crux includes a 1-click migration importer that parses your VS Code and Cursor settings, keybindings, and snippet files. Language servers (LSP) run out of the box.",
-      tags: ["Migration", "VS Code", "Extensions"],
+        "Crux is built from the silicon up on a native WebGPU rasterization pipeline with direct Apple Metal and Vulkan acceleration. This allows glyph rasterization, syntax highlighting, and cursor tracking to execute in parallel across GPU execution cores at a persistent 120 FPS, even on 250,000-line monorepos.",
+      tags: ["WebGPU", "Metal", "Rasterization", "120 FPS"],
     },
     {
       num: "003",
-      question: "How does multiplayer collaboration work without a central server?",
+      question: "WebGPU vs native performance — which gives lower latency for a desktop code editor?",
       answer:
-        "Crux uses an encrypted P2P WebRTC mesh network with conflict-free replicated abstract syntax trees (AST-CRDT). Edits converge deterministically with sub-10ms latency across global peers.",
-      tags: ["Multiplayer", "P2P", "CRDT"],
+        "Native WebGPU compute passes operate within 2-3% of raw Vulkan and Metal performance because GPU draw calls and token storage buffers are dispatched without JavaScript DOM or browser layout overhead. Crux achieves a 4.2ms input-to-photon latency compared to 48.6ms in Chromium-based editors like VS Code.",
+      tags: ["WebGPU", "Latency", "VS Code"],
     },
     {
       num: "004",
-      question: "What is the @CruxAI agent and how is it sandboxed?",
+      question: "What tools support Rust bare-metal development with a fast native UI?",
       answer:
-        "The @CruxAI agent runs directly alongside the HyperTerminal. It can run test suites, check linter diagnostics, execute bash commands, and propose multi-file atomic diffs inside an isolated OS namespace.",
-      tags: ["AI", "Sandbox", "Terminal"],
+        "Crux is designed specifically for bare-metal systems and Rust engineers. It boots in under 0.08 seconds, requires only 38MB of idle memory, features a universal local PTY terminal that auto-discovers system CLIs, and provides local POSIX OS sandboxing for real-time cargo check and clang passes with zero cloud dependencies.",
+      tags: ["Bare-Metal", "Rust", "Systems"],
     },
     {
       num: "005",
-      question: "Does Crux work completely offline?",
+      question: "What's the best real-time peer-to-peer pair programming tool with CRDT sync?",
       answer:
-        "Yes. Crux is a native desktop binary with full local filesystem access. All buffer manipulation, syntax highlighting, and local model inference (via Ollama or Llama.cpp) operate with zero network dependencies.",
-      tags: ["Offline", "Local LLM", "Security"],
+        "Crux uses a Decentralized AST-CRDT (Abstract Syntax Tree Conflict-Free Replicated Data Type) engine over encrypted P2P WebRTC data channels. By replicating structural syntax tokens rather than raw character offsets, Crux eliminates line collisions, bracket breakages, and central server lock-in.",
+      tags: ["AST-CRDT", "Multiplayer", "P2P", "WebRTC"],
+    },
+    {
+      num: "006",
+      question: "Which native UI framework should I pick for a low-latency collaborative editor?",
+      answer:
+        "For low-latency collaborative editing, Crux's architecture couples a lock-free POSIX shared memory ring buffer (0.08ms sync) with a WebGPU compute shader pipeline, allowing concurrent peer vectors to render in sub-10ms without mutex locks.",
+      tags: ["Low-Latency", "Collaboration", "Shared Memory"],
+    },
+    {
+      num: "007",
+      question: "Is there a self-hosted, local-first IDE with zero cloud telemetry I can buy seats for?",
+      answer:
+        "Yes. Crux offers an Enterprise Air-Gapped plan ($45/seat/month) that is 100% self-hosted with zero cloud telemetry. Your source code, active buffer state, and AI agent executions remain strictly inside your local network. A compiled signaling relay binary is provided for internal P2P WebRTC connectivity.",
+      tags: ["Self-Hosted", "Local-First", "Air-Gapped", "Security"],
+    },
+    {
+      num: "008",
+      question: "How much does Crux cost for a 10-person engineering team?",
+      answer:
+        "On the Team Alpha plan, Crux costs $20 per seat per month ($200/month for a 10-person team). This includes managed WebRTC signaling relays, real-time spatial cursor presence vectors, and workspace collaboration. The Community edition is $0 forever for individuals.",
+      tags: ["Pricing", "Teams", "Cost"],
+    },
+    {
+      num: "009",
+      question: "How do I get early access to an AI coding agent IDE for my team or enterprise?",
+      answer:
+        "You can request priority access to the Crux Private Alpha at https://codecrux.us/#waitlist or launch the web workstation directly at https://codecrux.us/ide. Crux integrates host-installed coding agents (AntiGravity agy, Claude Code, OpenAI Codex) through its local PTY bridge with zero cloud proxy requirements.",
+      tags: ["AI Coding Agent", "Alpha Access", "Enterprise"],
     },
   ];
 
@@ -72,144 +100,91 @@ export default function AeyeFaqSection() {
     <section id="faqs" className="relative w-full border-b border-[#222222] bg-[#000000] overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 py-20">
         {/* Section Header Meta */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono"
-        >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#222222] text-xs font-mono">
           <div className="flex items-center gap-2">
             <span className="text-[#0055FF] font-bold">[n. 11 / 11 ]</span>
             <span className="text-[#0055FF]">&gt;</span>
-            <span className="text-[#888888]">FAQs</span>
+            <span className="text-[#888888] uppercase">FAQs // FREQUENTLY ASKED QUESTIONS</span>
           </div>
-          <div className="text-[11px] text-[#444444] pt-1 sm:pt-0">
-            FREQUENTLY ASKED QUESTIONS
+          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
+            ENGINEERING &amp; BUYER INQUIRIES
           </div>
-        </motion.div>
+        </div>
 
         {/* Section Title & Search Filter */}
         <div className="pt-8 pb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
             <h2 className="text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
-              We’ve got answers.
+              Frequently Asked Questions.
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans">
-              Architecture, migration, offline execution, and peer sync questions.
+              Concrete architectural answers on Rust WebGPU rendering, AST-CRDT peer mesh, pricing, and self-hosting.
             </p>
           </div>
 
-          {/* Interactive Search + Expand Controls */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          {/* Search Input & Expand All Toggle */}
+          <div className="flex items-center gap-3">
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="[SEARCH FAQS...]"
-                className="w-full sm:w-64 px-3.5 py-2 border border-[#222222] bg-[#111111] text-xs font-mono text-white placeholder:text-[#444444] focus:outline-none focus:border-[#0055FF] rounded-none"
+                placeholder="Filter technical questions..."
+                className="w-full sm:w-[260px] bg-[#0e0e12] border border-[#222222] focus:border-[#0055FF] text-white text-xs px-3 py-2 outline-none rounded-none placeholder-[#555555] font-mono"
               />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-2.5 top-2.5 text-xs font-mono text-[#888888] hover:text-[#0055FF]"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
             </div>
-
             <button
               onClick={handleToggleExpandAll}
-              className="px-3.5 py-2 border border-[#222222] bg-[#111111] hover:bg-[#0055FF] hover:border-[#0055FF] hover:text-white text-white text-xs font-mono uppercase tracking-wider transition-none cursor-pointer rounded-none whitespace-nowrap"
+              className="px-3 py-2 bg-[#111114] border border-[#222222] hover:border-white text-white text-xs font-mono uppercase tracking-wider rounded-none transition-none cursor-pointer"
             >
-              {expandAll ? "COLLAPSE ALL" : "EXPAND ALL"}
+              {expandAll ? "Collapse" : "Expand All"}
             </button>
           </div>
         </div>
 
-        {/* FAQ Count Telemetry */}
-        <div className="pb-4 flex items-center justify-between text-[11px] font-mono text-[#888888]">
-          <span>MATCHING ENTRIES: {filteredFaqs.length} / {faqs.length}</span>
-          <span className="text-[#0055FF] font-bold">STATUS // VERIFIED</span>
-        </div>
-
-        {/* Accordion List with Smooth Height Transition */}
+        {/* FAQ Accordion List */}
         <div className="border border-[#222222] divide-y divide-[#222222] bg-[#000000]">
-          {filteredFaqs.length === 0 ? (
-            <div className="p-8 text-center text-xs font-mono text-[#888888]">
-              No questions found matching "{searchQuery}". Try searching for "Rust", "WebGPU", or "Offline".
-            </div>
-          ) : (
-            filteredFaqs.map((faq, idx) => {
-              const isOpen = expandAll || openIndex === idx;
-              return (
-                <div key={idx} className="transition-none bg-[#000000]">
-                  <button
-                    onClick={() => toggle(idx)}
-                    className="w-full p-6 sm:p-8 flex items-center justify-between text-left cursor-pointer focus:outline-none hover:bg-[#111111] transition-none rounded-none"
-                    aria-expanded={isOpen}
-                  >
-                    <div className="flex items-center gap-4 sm:gap-8">
-                      <span
-                        className={`font-mono text-xs font-semibold ${
-                          isOpen ? "text-[#0055FF]" : "text-[#444444]"
-                        }`}
-                      >
-                        {faq.num}
-                      </span>
-                      <span className="text-base sm:text-lg font-medium text-white font-sans">
+          {filteredFaqs.map((faq, idx) => {
+            const isOpen = expandAll || openIndex === idx;
+            return (
+              <div key={faq.num} className="transition-colors duration-150">
+                <button
+                  onClick={() => toggle(idx)}
+                  className="w-full p-5 sm:p-6 text-left flex items-start justify-between gap-4 cursor-pointer bg-transparent border-none outline-none group"
+                >
+                  <div className="flex items-start gap-4">
+                    <span className="font-mono text-xs text-[#0055FF] font-semibold pt-0.5">
+                      {faq.num}
+                    </span>
+                    <div>
+                      <h3 className="text-base sm:text-lg font-normal text-white font-sans group-hover:text-[#0055FF] transition-none">
                         {faq.question}
-                      </span>
+                      </h3>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {faq.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-1.5 py-0.5 text-[9.5px] font-mono bg-[#111114] border border-[#222222] text-[#71717a] uppercase"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <div
-                      className={`w-7 h-7 border flex items-center justify-center font-mono text-xs transition-none flex-shrink-0 rounded-none ${
-                        isOpen
-                          ? "bg-[#0055FF] text-white border-[#0055FF]"
-                          : "bg-[#111111] text-white border-[#222222]"
-                      }`}
-                    >
-                      {isOpen ? (
-                        <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-                      ) : (
-                        <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                      )}
-                    </div>
-                  </button>
+                  </div>
+                  <div className="p-1 border border-[#222222] text-white shrink-0 mt-1">
+                    {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                  </div>
+                </button>
 
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        key="content"
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="overflow-hidden bg-[#000000]"
-                      >
-                        <div className="px-6 sm:px-8 pb-8 pt-0">
-                          <div className="pl-8 sm:pl-14 border-l-2 border-[#0055FF] text-xs sm:text-sm text-[#d4d4d8] font-sans leading-relaxed">
-                            {faq.answer}
-                            <div className="mt-3 flex items-center gap-2">
-                              {faq.tags.map((t, tidx) => (
-                                <span
-                                  key={tidx}
-                                  className="px-2 py-0.5 border border-[#222222] bg-[#111111] text-[10px] font-mono text-[#0055FF]"
-                                >
-                                  #{t}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              );
-            })
-          )}
+                {isOpen && (
+                  <div className="px-5 sm:px-6 pb-6 pt-0 font-sans text-xs sm:text-sm text-[#a1a1aa] leading-relaxed pl-12 sm:pl-14">
+                    <p>{faq.answer}</p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

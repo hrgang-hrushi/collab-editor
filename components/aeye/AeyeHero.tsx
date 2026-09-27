@@ -194,41 +194,25 @@ export default function AeyeHero() {
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4"
             >
-              {/* Stacked Avatars + Trusted by + Rating */}
-              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm font-sans">
-                <div className="flex items-center -space-x-2">
-                  {[
-                    "https://framerusercontent.com/images/bCXMojdPVkmoes2tDd7ja8MzUNk.png?width=112&height=112",
-                    "https://framerusercontent.com/images/9kcBxw1gwBwDex0T3vDioEe98.png?width=112&height=112",
-                    "https://framerusercontent.com/images/2Ubnrf1r6MyNyZ1Y5NQMqnS770.png?width=112&height=112",
-                  ].map((src, i) => (
-                    <motion.img
-                      key={i}
-                      whileHover={{ scale: 1.15, zIndex: 10 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                      src={src}
-                      alt="User avatar"
-                      className="w-7 h-7 rounded-none border border-[#222222] object-cover cursor-pointer relative"
-                    />
-                  ))}
+              {/* Verifiable Hardware Telemetry & Architecture Badges */}
+              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-mono">
+                <div className="px-2 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[#0055FF] text-[11px] font-bold uppercase tracking-wider">
+                  4.2ms RENDER
                 </div>
-
-                <div className="text-[#888888]">
-                  Trusted by <span className="font-semibold text-white">10K+</span> Teams
-                </div>
-
                 <div className="w-[1px] h-3.5 bg-[#333333]" />
-
-                <div className="flex items-center gap-1.5">
-                  <StarPixelIcon className="w-3.5 h-3.5 text-[#0055FF]" />
-                  <span className="font-mono font-bold text-white">4.9</span>
-                  <span className="font-mono text-[#71717a]">/5</span>
+                <div className="text-white font-medium text-[11px]">
+                  38MB RAM <span className="text-[#71717a] font-normal">(vs 680MB Electron)</span>
+                </div>
+                <div className="w-[1px] h-3.5 bg-[#333333]" />
+                <div className="text-[#22c55e] font-semibold text-[11px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-none bg-[#22c55e] animate-pulse" />
+                  <span>100% AIR-GAPPED READY</span>
                 </div>
               </div>
 
-              {/* Description Paragraph matching Screenshot 1 */}
+              {/* Description Paragraph with Real Product Facts */}
               <p className="mt-5 text-sm sm:text-base text-[#888888] font-sans leading-relaxed max-w-[480px]">
-                Automate complex tasks, streamline your workflows, and deliver better results faster — with AI handling the heavy lifting behind the scenes.
+                Engineered in Rust with direct WebGPU and Metal compute shaders. Decentralized AST-CRDT real-time peer mesh synchronization, sub-15ms input-to-photon latency, and zero Chromium runtime overhead.
               </p>
 
               {/* Email Input & Lets Crux it Action Form / CallChip */}

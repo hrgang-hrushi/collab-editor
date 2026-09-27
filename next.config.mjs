@@ -8,7 +8,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  output: "export",
+  output: process.env.TAURI_BUILD ? "export" : undefined,
   images: {
     unoptimized: true,
   },
