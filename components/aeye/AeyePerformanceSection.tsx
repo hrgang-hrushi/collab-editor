@@ -3,48 +3,64 @@
 import React, { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 
-// 100 data bars with realistic benchmark distribution matching reference screenshot
+// 80 data bars (exactly 10 bars per 100-unit dividend across 8 dividends: 0 - 800)
 const CHART_BARS = [
-  // 0 - 19
-  { low: 8, high: 78 }, { low: 10, high: 82 }, { low: 14, high: 89 }, { low: 18, high: 86 }, { low: 22, high: 94 },
-  { low: 26, high: 91 }, { low: 24, high: 76 }, { low: 28, high: 90 }, { low: 32, high: 93 }, { low: 30, high: 85 },
-  { low: 28, high: 79 }, { low: 32, high: 88 }, { low: 34, high: 83 }, { low: 36, high: 80 }, { low: 32, high: 74 },
-  { low: 28, high: 81 }, { low: 24, high: 76 }, { low: 22, high: 73 }, { low: 20, high: 80 }, { low: 18, high: 77 },
-  // 20 - 39
-  { low: 22, high: 83 }, { low: 26, high: 85 }, { low: 28, high: 82 }, { low: 30, high: 80 }, { low: 32, high: 86 },
-  { low: 34, high: 84 }, { low: 38, high: 90 }, { low: 42, high: 82 }, { low: 40, high: 78 }, { low: 38, high: 85 },
-  { low: 35, high: 81 }, { low: 28, high: 79 }, { low: 22, high: 87 }, { low: 18, high: 84 }, { low: 12, high: 88 },
-  { low: 10, high: 88 }, { low: 8, high: 83 }, { low: 6, high: 75 }, { low: 8, high: 78 }, { low: 10, high: 76 },
-  // 40 - 59
-  { low: 12, high: 82 }, { low: 16, high: 84 }, { low: 20, high: 80 }, { low: 24, high: 85 }, { low: 28, high: 83 },
-  { low: 32, high: 89 }, { low: 30, high: 81 }, { low: 28, high: 87 }, { low: 32, high: 83 }, { low: 34, high: 76 },
-  { low: 38, high: 84 }, { low: 34, high: 81 }, { low: 30, high: 88 }, { low: 26, high: 82 }, { low: 28, high: 86 },
-  { low: 30, high: 84 }, { low: 34, high: 87 }, { low: 36, high: 89 }, { low: 32, high: 85 }, { low: 28, high: 88 },
-  // 60 - 79
-  { low: 25, high: 90 }, { low: 22, high: 93 }, { low: 26, high: 95 }, { low: 28, high: 91 }, { low: 30, high: 88 },
-  { low: 26, high: 92 }, { low: 22, high: 89 }, { low: 18, high: 91 }, { low: 20, high: 95 }, { low: 24, high: 93 },
-  { low: 26, high: 90 }, { low: 28, high: 94 }, { low: 30, high: 96 }, { low: 32, high: 91 }, { low: 34, high: 94 },
-  { low: 32, high: 95 }, { low: 28, high: 88 }, { low: 24, high: 84 }, { low: 22, high: 85 }, { low: 25, high: 89 },
-  // 80 - 99
-  { low: 28, high: 91 }, { low: 30, high: 94 }, { low: 32, high: 92 }, { low: 35, high: 89 }, { low: 38, high: 93 },
-  { low: 36, high: 95 }, { low: 32, high: 91 }, { low: 28, high: 87 }, { low: 25, high: 90 }, { low: 22, high: 92 },
-  { low: 20, high: 89 }, { low: 18, high: 86 }, { low: 16, high: 84 }, { low: 15, high: 88 }, { low: 18, high: 90 },
-  { low: 20, high: 92 }, { low: 22, high: 88 }, { low: 25, high: 85 }, { low: 22, high: 82 }, { low: 18, high: 79 },
+  // Dividend 1: 0 - 100 (bars 0 - 9)
+  { low: 8, high: 82 }, { low: 12, high: 85 }, { low: 18, high: 88 }, { low: 26, high: 91 }, { low: 34, high: 94 },
+  { low: 42, high: 92 }, { low: 46, high: 89 }, { low: 38, high: 87 }, { low: 30, high: 85 }, { low: 24, high: 88 },
+
+  // Dividend 2: 100 - 200 (bars 10 - 19)
+  { low: 20, high: 90 }, { low: 25, high: 93 }, { low: 32, high: 89 }, { low: 38, high: 91 }, { low: 44, high: 95 },
+  { low: 52, high: 93 }, { low: 58, high: 90 }, { low: 64, high: 92 }, { low: 55, high: 94 }, { low: 45, high: 91 },
+
+  // Dividend 3: 200 - 300 (bars 20 - 29)
+  { low: 40, high: 88 }, { low: 32, high: 86 }, { low: 22, high: 89 }, { low: 15, high: 92 }, { low: 10, high: 94 },
+  { low: 8, high: 91 }, { low: 10, high: 88 }, { low: 15, high: 85 }, { low: 22, high: 87 }, { low: 30, high: 90 },
+
+  // Dividend 4: 300 - 400 (bars 30 - 39)
+  { low: 38, high: 92 }, { low: 45, high: 94 }, { low: 50, high: 96 }, { low: 46, high: 93 }, { low: 40, high: 90 },
+  { low: 36, high: 88 }, { low: 42, high: 91 }, { low: 48, high: 95 }, { low: 54, high: 93 }, { low: 48, high: 89 },
+
+  // Dividend 5: 400 - 500 (bars 40 - 49)
+  { low: 42, high: 91 }, { low: 38, high: 93 }, { low: 44, high: 95 }, { low: 48, high: 92 }, { low: 52, high: 89 },
+  { low: 50, high: 91 }, { low: 45, high: 94 }, { low: 40, high: 96 }, { low: 35, high: 93 }, { low: 32, high: 90 },
+
+  // Dividend 6: 500 - 600 (bars 50 - 59)
+  { low: 28, high: 92 }, { low: 33, high: 95 }, { low: 40, high: 93 }, { low: 46, high: 90 }, { low: 52, high: 93 },
+  { low: 56, high: 96 }, { low: 50, high: 94 }, { low: 44, high: 91 }, { low: 38, high: 89 }, { low: 34, high: 92 },
+
+  // Dividend 7: 600 - 700 (bars 60 - 69)
+  { low: 30, high: 94 }, { low: 36, high: 96 }, { low: 42, high: 92 }, { low: 48, high: 90 }, { low: 44, high: 93 },
+  { low: 38, high: 95 }, { low: 32, high: 92 }, { low: 28, high: 89 }, { low: 34, high: 91 }, { low: 40, high: 94 },
+
+  // Dividend 8: 700 - 800 (bars 70 - 79)
+  { low: 45, high: 93 }, { low: 48, high: 95 }, { low: 42, high: 92 }, { low: 36, high: 90 }, { low: 30, high: 88 },
+  { low: 25, high: 86 }, { low: 20, high: 84 }, { low: 16, high: 82 }, { low: 12, high: 79 }, { low: 10, high: 75 },
+];
+
+const DIVIDENDS = [
+  { val: "0", pct: 0 },
+  { val: "100", pct: 12.5 },
+  { val: "200", pct: 25 },
+  { val: "300", pct: 37.5 },
+  { val: "400", pct: 50 },
+  { val: "500", pct: 62.5 },
+  { val: "600", pct: 75 },
+  { val: "700", pct: 87.5 },
+  { val: "800", pct: 100 },
 ];
 
 export default function AeyePerformanceSection() {
-  const [sliderPos, setSliderPos] = useState<number>(50); // percentage 0 - 100
+  const [sliderPos, setSliderPos] = useState<number>(58); // percentage 0 - 100
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const stats = [
-    { value: "< 1.8s", label: "Generated Time" },
-    { value: "2-4x", label: "Faster Execution" },
-    { value: "~ 90%", label: "Steps Reduction" },
-    { value: "< 1.8s", label: "Output Consistency" },
+    { value: "4.2ms", label: "Input-to-Photon" },
+    { value: "38 MB", label: "Idle RAM Footprint" },
+    { value: "120 FPS", label: "250k-Line Scroll" },
+    { value: "0.08s", label: "Cold Boot Launch" },
   ];
-
-  const gridIntervals = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 
   const updatePosition = useCallback((clientX: number) => {
     if (!containerRef.current) return;
@@ -127,119 +143,123 @@ export default function AeyePerformanceSection() {
         <div className="border border-[#222222] bg-[#000000] relative rounded-none select-none overflow-hidden">
           {/* Chart Viewport */}
           <div
-            ref={containerRef}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onPointerUp={handlePointerUp}
-            className="relative w-full h-[320px] sm:h-[380px] md:h-[420px] overflow-hidden cursor-ew-resize touch-none bg-[#000000]"
+            className="relative w-full h-[320px] sm:h-[380px] md:h-[420px] overflow-hidden cursor-ew-resize touch-none bg-[#000000] px-4 sm:px-6"
           >
-            {/* Background 8 Vertical Dashed Grid Columns matching screenshot */}
-            <div className="absolute inset-0 grid grid-cols-8 pointer-events-none z-0">
-              {gridIntervals.slice(0, 8).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-full border-r border-dashed border-[#222222]"
-                />
-              ))}
-            </div>
-
-            {/* Base Layer: WITHOUT CRUX (short, muted gray/dark bars) */}
-            <div className="absolute inset-0 z-10 pointer-events-none px-4 pt-5 pb-3 flex items-end">
-              <svg
-                viewBox="0 0 1000 300"
-                preserveAspectRatio="none"
-                className="w-full h-full overflow-visible"
-              >
-                {CHART_BARS.map((bar, i) => {
-                  const barHeight = (bar.low / 100) * 280;
-                  return (
-                    <rect
-                      key={i}
-                      x={i * 10 + 2}
-                      y={300 - barHeight}
-                      width="5.5"
-                      height={barHeight}
-                      fill="#26262b"
-                    />
-                  );
-                })}
-              </svg>
-            </div>
-
-            {/* Top Clipped Layer: WITH CRUX (tall, vibrant electric blue bars) */}
-            <div
-              style={{
-                clipPath: `inset(0px 0px 0px ${sliderPos}%)`,
-                WebkitClipPath: `inset(0px 0px 0px ${sliderPos}%)`,
-              }}
-              className="absolute inset-0 z-20 pointer-events-none px-4 pt-5 pb-3 flex items-end transition-none"
-            >
-              <svg
-                viewBox="0 0 1000 300"
-                preserveAspectRatio="none"
-                className="w-full h-full overflow-visible"
-              >
-                {CHART_BARS.map((bar, i) => {
-                  const barHeight = (bar.high / 100) * 280;
-                  return (
-                    <rect
-                      key={i}
-                      x={i * 10 + 2}
-                      y={300 - barHeight}
-                      width="5.5"
-                      height={barHeight}
-                      fill="#0055FF"
-                    />
-                  );
-                })}
-              </svg>
-            </div>
-
-            {/* Slider Dividing Vertical Line in Electric Blue */}
-            <div
-              style={{ left: `${sliderPos}%` }}
-              className="absolute top-0 bottom-0 w-[1.5px] bg-[#0055FF] -translate-x-1/2 z-30 pointer-events-none shadow-[0_0_8px_rgba(0,85,255,0.7)]"
-            />
-
-            {/* Slider Handle in the Center: [ WITHOUT CRUX < ] [■] [ > WITH CRUX ] */}
-            <div
-              style={{ left: `${sliderPos}%`, top: "50%" }}
-              className="absolute -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none flex items-center gap-1.5 whitespace-nowrap select-none"
-            >
-              {/* Left Badge: WITHOUT CRUX < */}
-              <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-[#888888] text-[11px] font-mono uppercase tracking-wider rounded-none">
-                <span>WITHOUT CRUX</span>
-                <span className="ml-1 text-[#666666]">&lt;</span>
+            {/* Inner Plot Area spanning 100% of the bar graph space */}
+            <div ref={containerRef} className="relative w-full h-full">
+              {/* 7 Vertical Dashed Grid Lines matching dividends 100 to 700 */}
+              <div className="absolute inset-0 pointer-events-none z-0">
+                {[12.5, 25, 37.5, 50, 62.5, 75, 87.5].map((pct) => (
+                  <div
+                    key={pct}
+                    style={{ left: `${pct}%` }}
+                    className="absolute top-0 bottom-0 w-[1px] border-r border-dashed border-[#222222]"
+                  />
+                ))}
               </div>
 
-              {/* Blue Center Square */}
-              <div className="w-4 h-4 bg-[#0055FF] border border-white flex items-center justify-center rounded-none shadow-[0_0_8px_rgba(0,85,255,0.8)]">
-                <span className="w-1 h-1 bg-white inline-block" />
+              {/* Base Layer: WITHOUT CRUX (short, muted gray/dark bars) */}
+              <div className="absolute inset-0 z-10 pointer-events-none pt-6 pb-3 flex items-end">
+                <svg
+                  viewBox="0 0 800 300"
+                  preserveAspectRatio="none"
+                  className="w-full h-full overflow-visible"
+                >
+                  {CHART_BARS.map((bar, i) => {
+                    const barHeight = (bar.low / 100) * 280;
+                    return (
+                      <rect
+                        key={i}
+                        x={i * 10 + 2}
+                        y={300 - barHeight}
+                        width="6"
+                        height={barHeight}
+                        fill="#26262b"
+                      />
+                    );
+                  })}
+                </svg>
               </div>
 
-              {/* Right Badge: > WITH CRUX */}
-              <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-white text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
-                <span className="mr-1 text-[#0055FF] font-bold">&gt;</span>
-                <span>WITH CRUX</span>
+              {/* Top Clipped Layer: WITH CRUX (tall, vibrant electric blue bars) */}
+              <div
+                style={{
+                  clipPath: `inset(0px 0px 0px ${sliderPos}%)`,
+                  WebkitClipPath: `inset(0px 0px 0px ${sliderPos}%)`,
+                }}
+                className="absolute inset-0 z-20 pointer-events-none pt-6 pb-3 flex items-end transition-none"
+              >
+                <svg
+                  viewBox="0 0 800 300"
+                  preserveAspectRatio="none"
+                  className="w-full h-full overflow-visible"
+                >
+                  {CHART_BARS.map((bar, i) => {
+                    const barHeight = (bar.high / 100) * 280;
+                    return (
+                      <rect
+                        key={i}
+                        x={i * 10 + 2}
+                        y={300 - barHeight}
+                        width="6"
+                        height={barHeight}
+                        fill="#0055FF"
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+
+              {/* Slider Dividing Vertical Line in Electric Blue */}
+              <div
+                style={{ left: `${sliderPos}%` }}
+                className="absolute top-0 bottom-0 w-[1.5px] bg-[#0055FF] -translate-x-1/2 z-30 pointer-events-none shadow-[0_0_8px_rgba(0,85,255,0.7)]"
+              />
+
+              {/* Slider Handle in the Center: [ WITHOUT CRUX < ] [■] [ > WITH CRUX ] */}
+              <div
+                style={{ left: `${sliderPos}%`, top: "50%" }}
+                className="absolute -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none flex items-center gap-1.5 whitespace-nowrap select-none"
+              >
+                {/* Left Badge: WITHOUT CRUX < */}
+                <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-[#888888] text-[11px] font-mono uppercase tracking-wider rounded-none">
+                  <span>WITHOUT CRUX</span>
+                  <span className="ml-1 text-[#666666]">&lt;</span>
+                </div>
+
+                {/* Blue Center Square */}
+                <div className="w-4 h-4 bg-[#0055FF] border border-white flex items-center justify-center rounded-none shadow-[0_0_8px_rgba(0,85,255,0.8)]">
+                  <span className="w-1 h-1 bg-white inline-block" />
+                </div>
+
+                {/* Right Badge: > WITH CRUX */}
+                <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-white text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
+                  <span className="mr-1 text-[#0055FF] font-bold">&gt;</span>
+                  <span>WITH CRUX</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom X-Axis Scale (0 to 800) matching screenshot */}
-          <div className="relative w-full border-t border-[#222222] bg-[#000000] py-3 px-4 font-mono text-xs text-[#71717a]">
-            <div className="grid grid-cols-8 text-left">
-              {gridIntervals.map((num, i) => (
+          {/* Bottom X-Axis Scale (0 to 800) perfectly aligned with grid dividends */}
+          <div className="relative w-full border-t border-[#222222] bg-[#000000] py-3 px-4 sm:px-6 font-mono text-xs text-[#71717a]">
+            <div className="relative w-full h-4">
+              {DIVIDENDS.map(({ val, pct }) => (
                 <div
-                  key={i}
-                  className={
-                    i === 0
-                      ? "text-left"
-                      : i === 8
-                      ? "text-right"
-                      : "text-left -ml-2"
-                  }
+                  key={val}
+                  style={{ left: `${pct}%` }}
+                  className={`absolute top-0 whitespace-nowrap select-none font-mono text-xs ${
+                    pct === 0
+                      ? "left-0 translate-x-0 text-left"
+                      : pct === 100
+                      ? "left-full -translate-x-full text-right"
+                      : "-translate-x-1/2 text-center"
+                  }`}
                 >
-                  {num}
+                  {val}
                 </div>
               ))}
             </div>
