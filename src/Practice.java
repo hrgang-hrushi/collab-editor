@@ -133,5 +133,3 @@ System.out.println("Total Attacks: 15");
 System.out.println("Total Damage: " + totalDamage);
 System.out.println("Rank: " + rank);
 input.close();
-}
-}

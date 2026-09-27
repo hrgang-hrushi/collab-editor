@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crux Expense Tracker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      border-radius: 0px !important;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, monospace, sans-serif;
+    }
+
+    body {
+      background-color: #000000;
+      color: #FFFFFF;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    header {
+      border-bottom: 1px solid #222222;
+      padding-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    .status-tag {
+      font-size: 11px;
+      font-family: monospace;
+      color: #888888;
+      border: 1px solid #222222;
+      padding: 2px 8px;
+      background: #111111;
+    }
+
+    /* Summary Metric Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: #111111;
+      border: 1px solid #222222;
+      padding: 16px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-family: monospace;
+      text-transform: uppercase;
+      color: #888888;
+      margin-bottom: 8px;
+    }
+
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    .val-balance { color: #FFFFFF; }
+    .val-income { color: #00FF66; }
+    .val-expense { color: #FF4444; }
+
+    /* Transaction Form */
+    .form-section {
+      background: #111111;
+      border: 1px solid #222222;
+      padding: 20px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-family: monospace;
+      text-transform: uppercase;
+      color: #CCCCCC;
+      margin-bottom: 16px;
+      letter-spacing: 0.5px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    @media (max-width: 650px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    input, select {
+      background: #000000;
+      border: 1px solid #333333;
+      color: #FFFFFF;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: monospace;
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      border-color: #FFFFFF;
+    }
+
+    button.btn-add {
+      background: #FFFFFF;
+      color: #000000;
+      border: 1px solid #FFFFFF;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-family: monospace;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    button.btn-add:hover {
+      background: #CCCCCC;
+    }
+
+    /* Transactions Table */
+    .table-section {
+      background: #111111;
+      border: 1px solid #222222;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    th {
+      background: #0A0A0A;
+      color: #888888;
+      font-weight: 600;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid #222222;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #1A1A1A;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background: #161616;
+    }
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border: 1px solid #333333;
+      background: #000000;
+      color: #AAAAAA;
+      text-transform: uppercase;
+    }
+
+    .amount-income {
+      color: #00FF66;
+      font-weight: 600;
+    }
+
+    .amount-expense {
+      color: #FF4444;
+      font-weight: 600;
+    }
+
+    .btn-delete {
+      background: transparent;
+      border: 1px solid #333333;
+      color: #888888;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 4px 8px;
+      font-family: monospace;
+    }
+
+    .btn-delete:hover {
+      background: #FF4444;
+      color: #FFFFFF;
+      border-color: #FF4444;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #555555;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div>
+        <h1>Crux Expense Tracker</h1>
+        <div style="font-size: 12px; color: #666666; margin-top: 4px;">Zero-Latency Local Finance Ledger</div>
+      </div>
+      <div class="status-tag">STORAGE: LOCAL // SYNCED</div>
+    </header>
+
+    <!-- Metrics Cards -->
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-label">Current Balance</div>
+        <div id="totalBalance" class="card-value val-balance">$0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Income</div>
+        <div id="totalIncome" class="card-value val-income">+$0.00</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Total Expenses</div>
+        <div id="totalExpense" class="card-value val-expense">-$0.00</div>
+      </div>
+    </div>
+
+    <!-- Add Transaction Form -->
+    <div class="form-section">
+      <div class="section-title">Record Transaction</div>
+      <form id="expenseForm">
+        <div class="form-grid">
+          <input type="text" id="descInput" placeholder="Description (e.g. Server hosting, Groceries)" required />
+          <input type="number" id="amountInput" placeholder="Amount ($)" step="0.01" min="0.01" required />
+          <select id="typeSelect">
+            <option value="expense">Expense (-)</option>
+            <option value="income">Income (+)</option>
+          </select>
+          <select id="categorySelect">
+            <option value="Food & Dining">Food & Dining</option>
+            <option value="Rent & Housing">Rent & Housing</option>
+            <option value="Cloud & Tech">Cloud & Tech</option>
+            <option value="Transport">Transport</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Salary">Salary</option>
+            <option value="Freelance">Freelance</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-add">Add Transaction ↵</button>
+      </form>
+    </div>
+
+    <!-- Transactions List -->
+    <div class="table-section">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Amount</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="transactionBody">
+          <!-- Populated by JavaScript -->
+        </tbody>
+      </table>
+      <div id="emptyNotice" class="empty-state" style="display: none;">
+        No transactions recorded yet. Add your first entry above.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'crux_expense_tracker_data';
+
+    // Starter dataset if empty
+    const DEFAULT_DATA = [
+      { id: '1', date: '2026-09-24', desc: 'Client Retainer Payment', category: 'Freelance', type: 'income', amount: 3500.00 },
+      { id: '2', date: '2026-09-24', desc: 'AWS & Vercel Infrastructure', category: 'Cloud & Tech', type: 'expense', amount: 142.50 },
+      { id: '3', date: '2026-09-24', desc: 'Coffee & Coworking', category: 'Food & Dining', type: 'expense', amount: 18.75 }
+    ];
+
+    function loadTransactions() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : DEFAULT_DATA;
+      } catch {
+        return DEFAULT_DATA;
+      }
+    }
+
+    function saveTransactions(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      render();
+    }
+
+    let transactions = loadTransactions();
+
+    function formatCurrency(val) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+    }
+
+    function render() {
+      const tbody = document.getElementById('transactionBody');
+      const emptyNotice = document.getElementById('emptyNotice');
+      tbody.innerHTML = '';
+
+      if (transactions.length === 0) {
+        emptyNotice.style.display = 'block';
+      } else {
+        emptyNotice.style.display = 'none';
+      }
+
+      let income = 0;
+      let expense = 0;
+
+      transactions.forEach((item) => {
+        if (item.type === 'income') {
+          income += item.amount;
+        } else {
+          expense += item.amount;
+        }
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="color: #888888;">${item.date}</td>
+          <td style="font-weight: 500;">${item.desc}</td>
+          <td><span class="badge">${item.category}</span></td>
+          <td class="${item.type === 'income' ? 'amount-income' : 'amount-expense'}">
+            ${item.type === 'income' ? '+' : '-'}${formatCurrency(item.amount)}
+          </td>
+          <td style="text-align: right;">
+            <button class="btn-delete" onclick="deleteTransaction('${item.id}')">DELETE</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const balance = income - expense;
+      document.getElementById('totalBalance').textContent = formatCurrency(balance);
+      document.getElementById('totalIncome').textContent = '+' + formatCurrency(income);
+      document.getElementById('totalExpense').textContent = '-' + formatCurrency(expense);
+    }
+
+    window.deleteTransaction = function(id) {
+      transactions = transactions.filter(t => t.id !== id);
+      saveTransactions(transactions);
+    };
+
+    document.getElementById('expenseForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const desc = document.getElementById('descInput').value.trim();
+      const amount = parseFloat(document.getElementById('amountInput').value);
+      const type = document.getElementById('typeSelect').value;
+      const category = document.getElementById('categorySelect').value;
+
+      if (!desc || isNaN(amount) || amount <= 0) return;
+
+      const newTx = {
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        desc,
+        amount,
+        type,
+        category
+      };
+
+      transactions.unshift(newTx);
+      saveTransactions(transactions);
+
+      document.getElementById('descInput').value = '';
+      document.getElementById('amountInput').value = '';
+      document.getElementById('descInput').focus();
+    });
+
+    render();
+  </script>
+</body>
+</html>

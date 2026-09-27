@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import PixelGridTransition from "./PixelGridTransition";
 import AeyeNavbar from "./AeyeNavbar";
 import AeyeHero from "./AeyeHero";
@@ -17,8 +17,17 @@ import AeyeBlogSection from "./AeyeBlogSection";
 import AeyeFaqSection from "./AeyeFaqSection";
 import AeyeCtaSection from "./AeyeCtaSection";
 import AeyeFooter from "./AeyeFooter";
+import InteractiveTourModal from "./InteractiveTourModal";
 
 export default function AeyeLandingPage() {
+  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+
+  const openTour = (step = 0) => {
+    setTourStep(step);
+    setIsTourOpen(true);
+  };
+
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -28,29 +37,36 @@ export default function AeyeLandingPage() {
 
   return (
     <div className="min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#0055FF]/40 selection:text-white antialiased">
+      {/* Interactive Tour Modal */}
+      <InteractiveTourModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        initialStep={tourStep}
+      />
+
       {/* 0. Entrance Pixel Grid Reveal Animation */}
       <PixelGridTransition color="#0055FF" columns={12} rowMultiplier={3} squareDuration={0.5} maxDelay={0.6} />
 
       {/* 1. Header & Navigation */}
-      <AeyeNavbar onNavigate={scrollTo} />
+      <AeyeNavbar onNavigate={scrollTo} onOpenTour={() => openTour(0)} />
 
       {/* 2. Hero Section */}
-      <AeyeHero />
+      <AeyeHero onOpenTour={() => openTour(0)} />
 
       {/* 3. Section 01: [n. 01 / 11 ] > key value */}
-      <AeyeBenefitSection />
+      <AeyeBenefitSection onOpenTour={() => openTour(1)} />
 
       {/* 4. Section 02: [n. 02 / 11 ] > Performance */}
-      <AeyePerformanceSection />
+      <AeyePerformanceSection onOpenTour={() => openTour(1)} />
 
       {/* 5. Section 03: [n. 03 / 11 ] > core capabilities */}
-      <AeyeFeatureSection />
+      <AeyeFeatureSection onOpenTour={() => openTour(2)} />
 
       {/* 6. Section 04: [n. 04 / 11 ] > How It Work */}
-      <AeyeHowItWorkSection />
+      <AeyeHowItWorkSection onOpenTour={() => openTour(0)} />
 
       {/* 7. Section 05: [n. 05 / 11 ] > Installation */}
-      <AeyeInstallationSection />
+      <AeyeInstallationSection onOpenTour={openTour} />
 
       {/* 8. Section 06: [n. 06 / 11 ] > Document */}
       <AeyeDocumentSection />
@@ -71,7 +87,7 @@ export default function AeyeLandingPage() {
       <AeyeFaqSection />
 
       {/* 14. Section 12: CTA Workflow Box */}
-      <AeyeCtaSection />
+      <AeyeCtaSection onOpenTour={() => openTour(0)} />
 
       {/* 15. Master Footer & Dispatch */}
       <AeyeFooter />

@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 
-export default function AeyeCtaSection() {
+interface AeyeCtaSectionProps {
+  onOpenTour?: () => void;
+}
+
+export default function AeyeCtaSection({ onOpenTour }: AeyeCtaSectionProps) {
   const words = ["accelerated", "collaborative", "bare-metal", "decentralized", "uncompromised"];
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(words[0].length);
@@ -20,16 +24,13 @@ export default function AeyeCtaSection() {
     let timeout: NodeJS.Timeout;
 
     if (!isDeleting && charIndex === currentWord.length) {
-      // Pause when the word is fully typed
       timeout = setTimeout(() => {
         setIsDeleting(true);
       }, 2400);
     } else if (isDeleting && charIndex === 0) {
-      // Move to next word when completely erased
       setIsDeleting(false);
       setWordIndex((prev) => (prev + 1) % words.length);
     } else {
-      // Typing or deleting characters
       const speed = isDeleting ? 45 : 90;
       timeout = setTimeout(() => {
         setCharIndex((prev) => prev + (isDeleting ? -1 : 1));
@@ -44,8 +45,7 @@ export default function AeyeCtaSection() {
 
   return (
     <section id="cta" className="relative w-full bg-[#000000] select-none overflow-hidden scroll-mt-14 border-t border-[#222222]">
-
-      {/* 2. DARK GRID WORKSPACE CANVAS */}
+      {/* DARK GRID WORKSPACE CANVAS */}
       <div
         className="relative w-full py-20 sm:py-24 md:py-28 px-4 sm:px-8 bg-[#0d0e12] overflow-hidden"
         style={{
@@ -57,7 +57,7 @@ export default function AeyeCtaSection() {
           backgroundPosition: "center center",
         }}
       >
-        {/* 3. CENTER CTA CARD (Pure White, 0px border-radius, 4 Corner Notch Squares) */}
+        {/* CENTER CTA CARD (Pure White, 0px border-radius, 4 Corner Notch Squares) */}
         <div className="relative w-full max-w-[1140px] mx-auto bg-[#FFFFFF] py-16 sm:py-20 md:py-24 px-6 sm:px-12 text-center">
           {/* 4 SOLID CORNER NOTCH SQUARES */}
           <div
@@ -106,8 +106,31 @@ export default function AeyeCtaSection() {
             </h2>
           </div>
 
-          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, GET ON WAITLIST NOW uppercase text) */}
-          <div className="mt-8 sm:mt-12 flex justify-center">
+          {/* ACTION BUTTONS */}
+          <div className="mt-8 sm:mt-12 flex flex-wrap items-center justify-center gap-3.5">
+            <a
+              href="/ide"
+              className="group inline-flex items-center gap-2.5 bg-[#0055FF] hover:bg-[#0044CC] text-white px-8 py-3.5 sm:px-9 sm:py-4 transition-none cursor-pointer no-underline"
+            >
+              <span className="w-2 h-2 bg-white shrink-0 inline-block" />
+              <span className="font-mono font-bold text-xs sm:text-sm tracking-wider uppercase text-white">
+                LAUNCH WEB IDE ↵
+              </span>
+            </a>
+
+            {onOpenTour && (
+              <button
+                type="button"
+                onClick={onOpenTour}
+                className="group inline-flex items-center gap-2.5 bg-[#141414] hover:bg-[#000000] text-white px-7 py-3.5 sm:px-8 sm:py-4 transition-none cursor-pointer border border-[#333333]"
+              >
+                <span className="w-2 h-2 bg-[#0055FF] shrink-0 animate-pulse" />
+                <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-white">
+                  TAKE INTERACTIVE TOUR
+                </span>
+              </button>
+            )}
+
             <a
               href="#waitlist"
               onClick={(e) => {
@@ -117,19 +140,16 @@ export default function AeyeCtaSection() {
                   el.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="group inline-flex items-center gap-3.5 bg-[#141414] hover:bg-[#000000] text-white px-8 py-3.5 sm:px-9 sm:py-4 transition-all duration-150 cursor-pointer shadow-none"
+              className="group inline-flex items-center gap-2.5 bg-[#F0F0F2] hover:bg-[#E5E5E7] text-black px-7 py-3.5 sm:px-8 sm:py-4 transition-none cursor-pointer border border-[#D0D0D4] no-underline"
             >
-              {/* Left Solid White Square Dot */}
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white shrink-0 group-hover:scale-95 transition-transform" />
-              {/* Monospace Uppercase Text */}
-              <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-white">
-                GET ON WAITLIST NOW
+              <span className="w-2 h-2 bg-black shrink-0 inline-block" />
+              <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-black">
+                JOIN WAITLIST
               </span>
             </a>
           </div>
         </div>
       </div>
-
     </section>
   );
 }
