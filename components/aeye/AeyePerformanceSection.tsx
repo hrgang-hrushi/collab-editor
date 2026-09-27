@@ -3,55 +3,47 @@
 import React, { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 
-interface AeyePerformanceSectionProps {
-  onOpenTour?: (stepIndex?: number) => void;
-}
-
-// Benchmark datasets for the 4 interactive categories
-const DATASETS = [
-  // Dataset 0: Pipeline Generation Time (< 1.8s)
-  Array.from({ length: 100 }, (_, i) => ({
-    low: Math.round(15 + Math.sin(i * 0.15) * 10 + (i % 7) * 2),
-    high: Math.round(75 + Math.cos(i * 0.12) * 15 + ((i * 3) % 9)),
-  })),
-  // Dataset 1: Execution Speed (2-4x Faster)
-  Array.from({ length: 100 }, (_, i) => ({
-    low: Math.round(10 + ((i * 2) % 15)),
-    high: Math.round(82 + Math.sin(i * 0.2) * 12),
-  })),
-  // Dataset 2: Steps Reduction (~ 90%)
-  Array.from({ length: 100 }, (_, i) => ({
-    low: Math.round(20 + Math.cos(i * 0.18) * 12),
-    high: Math.round(88 + ((i * 5) % 10)),
-  })),
-  // Dataset 3: Output Consistency (< 1.8s)
-  Array.from({ length: 100 }, (_, i) => ({
-    low: Math.round(12 + Math.sin(i * 0.1) * 8),
-    high: Math.round(91 + ((i * 4) % 8)),
-  })),
+// 100 data bars with realistic benchmark distribution matching reference screenshot
+const CHART_BARS = [
+  // 0 - 19
+  { low: 8, high: 78 }, { low: 10, high: 82 }, { low: 14, high: 89 }, { low: 18, high: 86 }, { low: 22, high: 94 },
+  { low: 26, high: 91 }, { low: 24, high: 76 }, { low: 28, high: 90 }, { low: 32, high: 93 }, { low: 30, high: 85 },
+  { low: 28, high: 79 }, { low: 32, high: 88 }, { low: 34, high: 83 }, { low: 36, high: 80 }, { low: 32, high: 74 },
+  { low: 28, high: 81 }, { low: 24, high: 76 }, { low: 22, high: 73 }, { low: 20, high: 80 }, { low: 18, high: 77 },
+  // 20 - 39
+  { low: 22, high: 83 }, { low: 26, high: 85 }, { low: 28, high: 82 }, { low: 30, high: 80 }, { low: 32, high: 86 },
+  { low: 34, high: 84 }, { low: 38, high: 90 }, { low: 42, high: 82 }, { low: 40, high: 78 }, { low: 38, high: 85 },
+  { low: 35, high: 81 }, { low: 28, high: 79 }, { low: 22, high: 87 }, { low: 18, high: 84 }, { low: 12, high: 88 },
+  { low: 10, high: 88 }, { low: 8, high: 83 }, { low: 6, high: 75 }, { low: 8, high: 78 }, { low: 10, high: 76 },
+  // 40 - 59
+  { low: 12, high: 82 }, { low: 16, high: 84 }, { low: 20, high: 80 }, { low: 24, high: 85 }, { low: 28, high: 83 },
+  { low: 32, high: 89 }, { low: 30, high: 81 }, { low: 28, high: 87 }, { low: 32, high: 83 }, { low: 34, high: 76 },
+  { low: 38, high: 84 }, { low: 34, high: 81 }, { low: 30, high: 88 }, { low: 26, high: 82 }, { low: 28, high: 86 },
+  { low: 30, high: 84 }, { low: 34, high: 87 }, { low: 36, high: 89 }, { low: 32, high: 85 }, { low: 28, high: 88 },
+  // 60 - 79
+  { low: 25, high: 90 }, { low: 22, high: 93 }, { low: 26, high: 95 }, { low: 28, high: 91 }, { low: 30, high: 88 },
+  { low: 26, high: 92 }, { low: 22, high: 89 }, { low: 18, high: 91 }, { low: 20, high: 95 }, { low: 24, high: 93 },
+  { low: 26, high: 90 }, { low: 28, high: 94 }, { low: 30, high: 96 }, { low: 32, high: 91 }, { low: 34, high: 94 },
+  { low: 32, high: 95 }, { low: 28, high: 88 }, { low: 24, high: 84 }, { low: 22, high: 85 }, { low: 25, high: 89 },
+  // 80 - 99
+  { low: 28, high: 91 }, { low: 30, high: 94 }, { low: 32, high: 92 }, { low: 35, high: 89 }, { low: 38, high: 93 },
+  { low: 36, high: 95 }, { low: 32, high: 91 }, { low: 28, high: 87 }, { low: 25, high: 90 }, { low: 22, high: 92 },
+  { low: 20, high: 89 }, { low: 18, high: 86 }, { low: 16, high: 84 }, { low: 15, high: 88 }, { low: 18, high: 90 },
+  { low: 20, high: 92 }, { low: 22, high: 88 }, { low: 25, high: 85 }, { low: 22, high: 82 }, { low: 18, high: 79 },
 ];
 
-export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSectionProps) {
-  const [activeMetricIdx, setActiveMetricIdx] = useState<number>(0);
+export default function AeyePerformanceSection() {
   const [sliderPos, setSliderPos] = useState<number>(50); // percentage 0 - 100
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const stats = [
-    { value: "< 1.8s", label: "Generated Time", desc: "SIMD AST-CRDT pipeline pass" },
-    { value: "2-4x", label: "Faster Execution", desc: "Direct Metal & WebGPU rasterizer" },
-    { value: "~ 90%", label: "Steps Reduction", desc: "Zero Electron DOM serialization" },
-    { value: "< 1.8s", label: "Output Consistency", desc: "Attested compiler-verified output" },
+    { value: "< 1.8s", label: "Generated Time" },
+    { value: "2-4x", label: "Faster Execution" },
+    { value: "~ 90%", label: "Steps Reduction" },
+    { value: "< 1.8s", label: "Output Consistency" },
   ];
 
-  const presets = [
-    { label: "Input-to-Photon (4.2ms)", metricIdx: 1, slider: 40 },
-    { label: "Cold-Start Launch (0.08s)", metricIdx: 0, slider: 65 },
-    { label: "RAM Footprint (38MB)", metricIdx: 2, slider: 50 },
-    { label: "250K Scroll (120 FPS)", metricIdx: 3, slider: 30 },
-  ];
-
-  const currentBars = DATASETS[activeMetricIdx] || DATASETS[0];
   const gridIntervals = [0, 100, 200, 300, 400, 500, 600, 700, 800];
 
   const updatePosition = useCallback((clientX: number) => {
@@ -90,112 +82,43 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
             <span className="text-[#0055FF] font-bold">[N.02/11]</span>
             <span className="text-[#888888]">— &gt;</span>
             <span className="text-[#888888] uppercase">PERFORMANCE</span>
-            <span className="text-[#444444]">|</span>
-            <span className="text-white font-medium">BARE-METAL BENCHMARK MATRIX</span>
           </div>
-          <div className="flex items-center gap-3 pt-2 sm:pt-0">
-            {onOpenTour && (
-              <button
-                onClick={() => onOpenTour(1)}
-                className="px-2.5 py-1 bg-[#111114] hover:bg-[#1a1a24] border border-[#0055FF]/60 hover:border-[#0055FF] text-white text-[11px] font-mono uppercase tracking-wider flex items-center gap-1.5 cursor-pointer rounded-none"
-              >
-                <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                <span>START TELEMETRY TOUR</span>
-              </button>
-            )}
-            <div className="text-[11px] text-[#71717a] font-mono">
-              HARDWARE-ACCELERATED TELEMETRY
-            </div>
+          <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
+            HARDWARE-ACCELERATED BENCHMARKS
           </div>
         </div>
 
-        {/* Top Area: Headline + Button on left, 2x2 Clickable Metric Grid on right */}
+        {/* Top Area: Headline + Button on left, 2x2 Metric Grid on right */}
         <div className="pt-6 pb-6 sm:pb-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
-          {/* Left Column: Heading + Actions */}
+          {/* Left Column: Heading + Action */}
           <div className="lg:col-span-7">
             <h2 className="text-4xl sm:text-5xl lg:text-[56px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.08]">
               Real-time intelligence.<br />
               Zero unnecessary work.
             </h2>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
-              <a
-                href="/ide"
-                className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#000000] border border-white hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium no-underline group"
-              >
-                <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block transition-none" />
-                <span>LAUNCH IN LIVE IDE ↵</span>
-              </a>
-
+            <div className="mt-5">
               <a
                 href="#waitlist"
                 className="inline-flex items-center gap-2.5 px-6 py-3.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium no-underline group"
               >
-                <span>JOIN WAITLIST</span>
+                <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block transition-none" />
+                <span>GET STARTED</span>
               </a>
             </div>
           </div>
 
-          {/* Right Column: 2x2 Interactive Metric Grid (Click to switch dataset) */}
+          {/* Right Column: 2x2 Metric Grid matching screenshot */}
           <div className="lg:col-span-5 border border-[#222222] bg-[#000000] grid grid-cols-2 divide-x divide-y divide-[#222222] rounded-none">
-            {stats.map((item, idx) => {
-              const isSelected = activeMetricIdx === idx;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setActiveMetricIdx(idx)}
-                  className={`p-5 sm:p-6 flex flex-col justify-between min-h-[110px] text-left cursor-pointer transition-none rounded-none border-none outline-none ${
-                    isSelected ? "bg-[#0c0c14] border-l-2 border-l-[#0055FF]" : "bg-[#000000] hover:bg-[#070709]"
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div
-                      className={`text-3xl sm:text-4xl font-normal font-sans tracking-tight transition-none ${
-                        isSelected ? "text-[#0055FF] font-semibold" : "text-white"
-                      }`}
-                    >
-                      {item.value}
-                    </div>
-                    {isSelected && (
-                      <span className="w-2 h-2 bg-[#0055FF] rounded-none" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="mt-2 text-xs sm:text-sm text-white font-sans">
-                      {item.label}
-                    </div>
-                    <div className="text-[10px] text-[#71717a] font-mono truncate">
-                      {item.desc}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Quick Benchmark Preset Selectors */}
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 font-mono text-xs">
-          <div className="flex items-center gap-2 text-[#71717a]">
-            <span className="text-white font-bold">[BENCHMARK PRESETS]:</span>
-            <span>Click to compare hardware profiles</span>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            {presets.map((p, idx) => (
-              <button
-                key={idx}
-                onClick={() => {
-                  setActiveMetricIdx(p.metricIdx);
-                  setSliderPos(p.slider);
-                }}
-                className={`px-2.5 py-1 text-[11px] font-mono cursor-pointer rounded-none border transition-none ${
-                  activeMetricIdx === p.metricIdx
-                    ? "bg-[#0055FF] text-white border-[#0055FF] font-bold"
-                    : "bg-[#111114] text-[#888888] border-[#222222] hover:text-white"
-                }`}
-              >
-                {p.label}
-              </button>
+            {stats.map((item, idx) => (
+              <div key={idx} className="p-5 sm:p-6 flex flex-col justify-between min-h-[100px]">
+                <div className="text-3xl sm:text-4xl font-normal text-white font-sans tracking-tight">
+                  {item.value}
+                </div>
+                <div className="mt-2 text-xs sm:text-sm text-[#71717a] font-sans">
+                  {item.label}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -210,7 +133,7 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
             onPointerUp={handlePointerUp}
             className="relative w-full h-[320px] sm:h-[380px] md:h-[420px] overflow-hidden cursor-ew-resize touch-none bg-[#000000]"
           >
-            {/* Background 8 Vertical Dashed Grid Columns */}
+            {/* Background 8 Vertical Dashed Grid Columns matching screenshot */}
             <div className="absolute inset-0 grid grid-cols-8 pointer-events-none z-0">
               {gridIntervals.slice(0, 8).map((_, i) => (
                 <div
@@ -220,14 +143,14 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
               ))}
             </div>
 
-            {/* Base Layer: WITHOUT CRUX (gray/dark bars) */}
+            {/* Base Layer: WITHOUT CRUX (short, muted gray/dark bars) */}
             <div className="absolute inset-0 z-10 pointer-events-none px-4 pt-5 pb-3 flex items-end">
               <svg
                 viewBox="0 0 1000 300"
                 preserveAspectRatio="none"
                 className="w-full h-full overflow-visible"
               >
-                {currentBars.map((bar, i) => {
+                {CHART_BARS.map((bar, i) => {
                   const barHeight = (bar.low / 100) * 280;
                   return (
                     <rect
@@ -243,7 +166,7 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
               </svg>
             </div>
 
-            {/* Top Clipped Layer: WITH CRUX (tall electric blue bars) */}
+            {/* Top Clipped Layer: WITH CRUX (tall, vibrant electric blue bars) */}
             <div
               style={{
                 clipPath: `inset(0px 0px 0px ${sliderPos}%)`,
@@ -256,7 +179,7 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
                 preserveAspectRatio="none"
                 className="w-full h-full overflow-visible"
               >
-                {currentBars.map((bar, i) => {
+                {CHART_BARS.map((bar, i) => {
                   const barHeight = (bar.high / 100) * 280;
                   return (
                     <rect
@@ -275,30 +198,51 @@ export default function AeyePerformanceSection({ onOpenTour }: AeyePerformanceSe
             {/* Slider Dividing Vertical Line in Electric Blue */}
             <div
               style={{ left: `${sliderPos}%` }}
-              className="absolute top-0 bottom-0 w-[2px] bg-[#0055FF] z-30 pointer-events-none"
-            >
-              <div className="absolute top-1/2 -translate-y-1/2 -left-3.5 w-7 h-7 bg-[#0055FF] border border-white flex items-center justify-center shadow-lg">
-                <span className="text-[10px] text-white font-mono font-bold select-none">&lt;&gt;</span>
-              </div>
-            </div>
+              className="absolute top-0 bottom-0 w-[1.5px] bg-[#0055FF] -translate-x-1/2 z-30 pointer-events-none shadow-[0_0_8px_rgba(0,85,255,0.7)]"
+            />
 
-            {/* Float Labels: Without Crux vs With Crux */}
-            <div className="absolute top-4 left-4 z-40 bg-[#000000]/80 border border-[#222222] px-3 py-1.5 text-xs font-mono text-[#888888]">
-              TRADITIONAL ELECTRON: <span className="text-white">UNOPTIMIZED</span>
-            </div>
-            <div className="absolute top-4 right-4 z-40 bg-[#0055FF]/20 border border-[#0055FF] px-3 py-1.5 text-xs font-mono text-[#0055FF] font-bold">
-              WITH CRUX: <span className="text-white">HARDWARE NATIVE</span>
+            {/* Slider Handle in the Center: [ WITHOUT CRUX < ] [■] [ > WITH CRUX ] */}
+            <div
+              style={{ left: `${sliderPos}%`, top: "50%" }}
+              className="absolute -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none flex items-center gap-1.5 whitespace-nowrap select-none"
+            >
+              {/* Left Badge: WITHOUT CRUX < */}
+              <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-[#888888] text-[11px] font-mono uppercase tracking-wider rounded-none">
+                <span>WITHOUT CRUX</span>
+                <span className="ml-1 text-[#666666]">&lt;</span>
+              </div>
+
+              {/* Blue Center Square */}
+              <div className="w-4 h-4 bg-[#0055FF] border border-white flex items-center justify-center rounded-none shadow-[0_0_8px_rgba(0,85,255,0.8)]">
+                <span className="w-1 h-1 bg-white inline-block" />
+              </div>
+
+              {/* Right Badge: > WITH CRUX */}
+              <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-white text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
+                <span className="mr-1 text-[#0055FF] font-bold">&gt;</span>
+                <span>WITH CRUX</span>
+              </div>
             </div>
           </div>
 
-          {/* Footer Bar */}
-          <div className="h-10 px-4 border-t border-[#222222] bg-[#08080a] flex items-center justify-between text-[11px] font-mono">
-            <span className="text-[#71717a]">
-              ACTIVE METRIC: <strong className="text-white">{stats[activeMetricIdx].label}</strong>
-            </span>
-            <span className="text-[#0055FF] font-bold">
-              DRAG SLIDER TO REVEAL BARE-METAL DELTA
-            </span>
+          {/* Bottom X-Axis Scale (0 to 800) matching screenshot */}
+          <div className="relative w-full border-t border-[#222222] bg-[#000000] py-3 px-4 font-mono text-xs text-[#71717a]">
+            <div className="grid grid-cols-8 text-left">
+              {gridIntervals.map((num, i) => (
+                <div
+                  key={i}
+                  className={
+                    i === 0
+                      ? "text-left"
+                      : i === 8
+                      ? "text-right"
+                      : "text-left -ml-2"
+                  }
+                >
+                  {num}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

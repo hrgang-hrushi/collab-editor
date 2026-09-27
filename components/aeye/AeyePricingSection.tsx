@@ -346,14 +346,7 @@ export default function AeyePricingSection() {
                     A verification ping and download credential have been queued for your contact. You can test the web playground in the meantime.
                   </p>
 
-                  <div className="flex flex-wrap gap-3 pt-2">
-                    <a
-                      href="/ide"
-                      className="px-6 py-3 bg-[#0055FF] text-white hover:bg-[#0044CC] transition-none font-sans text-xs tracking-wider uppercase font-semibold flex items-center gap-2 no-underline cursor-pointer"
-                    >
-                      <span className="w-1.5 h-1.5 bg-white" />
-                      <span>LAUNCH WEB IDE NOW ↵</span>
-                    </a>
+                  <div className="flex gap-4 pt-2">
                     <a
                       href="#dispatch"
                       onClick={(e) => {
@@ -361,10 +354,10 @@ export default function AeyePricingSection() {
                         const el = document.getElementById("dispatch");
                         if (el) el.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className="px-5 py-3 bg-white text-black hover:bg-[#111114] hover:text-white transition-none font-sans text-xs tracking-wider uppercase font-medium flex items-center gap-2 no-underline"
+                      className="px-6 py-3 bg-white text-black hover:bg-[#0055FF] hover:text-white transition-none font-sans text-xs tracking-wider uppercase font-medium flex items-center gap-2"
                     >
                       <span className="w-1.5 h-1.5 bg-current" />
-                      <span>VIEW DISPATCH NOTES</span>
+                      VIEW DISPATCH NOTES
                     </a>
                     <button
                       onClick={() => setIsSubmitted(false)}

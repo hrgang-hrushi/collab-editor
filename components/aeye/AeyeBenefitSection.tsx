@@ -1,16 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Cpu, Workflow, Gauge, ArrowRight, Terminal, Check } from "lucide-react";
+import { motion } from "framer-motion";
+import { Cpu, Workflow, Gauge } from "lucide-react";
 
-interface AeyeBenefitSectionProps {
-  onOpenTour?: (stepIndex?: number) => void;
-}
-
-export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionProps) {
+export default function AeyeBenefitSection() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [activeBlueprintIdx, setActiveBlueprintIdx] = useState<number | null>(0);
 
   const cards = [
     {
@@ -22,11 +17,6 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
       badgeIcon: Cpu,
       iconLine: "/icons/card1_line.png",
       iconPixel: "/icons/card1_pixel.png",
-      blueprint: {
-        engine: "Rust SIMD Vector Parser",
-        latency: "0.14ms input-to-AST",
-        spec: "Direct token streaming into WebGPU buffers. Bypasses JavaScript V8 serialization overhead completely.",
-      },
     },
     {
       serial: "// 002",
@@ -37,11 +27,6 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
       badgeIcon: Workflow,
       iconLine: "/icons/card2_line.png",
       iconPixel: "/icons/card2_pixel.png",
-      blueprint: {
-        engine: "Decentralized AST-CRDT Mesh",
-        latency: "Sub-10ms peer sync",
-        spec: "P2P WebRTC data channels with lock-free vector clocks. 0-collision merge guarantees across remote teams.",
-      },
     },
     {
       serial: "// 003",
@@ -52,11 +37,6 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
       badgeIcon: Gauge,
       iconLine: "/icons/card3_line.png",
       iconPixel: "/icons/card3_pixel.png",
-      blueprint: {
-        engine: "@CruxAI Autonomous Kernel",
-        latency: "0ms cloud latency",
-        spec: "Isolated host POSIX OS namespace for cargo check, clang compiles, and multi-file atomic git diffs.",
-      },
     },
   ];
 
@@ -69,26 +49,16 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="flex items-center justify-between pb-6 text-xs font-mono"
+          className="flex items-center gap-3 pb-6 text-xs font-mono"
         >
-          <div className="flex items-center gap-3">
-            <span className="text-[#0055FF] font-semibold tracking-wider">[N.01/11]</span>
-            <span className="w-8 h-[1px] bg-[#222222]" />
-            <span className="text-[#0055FF] font-bold">&gt;</span>
-            <span className="text-[#888888] uppercase tracking-wider font-semibold">KEY VALUE</span>
-          </div>
-          {onOpenTour && (
-            <button
-              onClick={() => onOpenTour(0)}
-              className="px-2.5 py-1 bg-[#111114] hover:bg-[#1a1a24] border border-[#0055FF]/60 hover:border-[#0055FF] text-white text-[11px] font-mono uppercase tracking-wider flex items-center gap-1.5 cursor-pointer rounded-none"
-            >
-              <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-              <span>EXPLORE VIA TOUR</span>
-            </button>
-          )}
+          <span className="text-[#0055FF] font-semibold tracking-wider">[N.01/11]</span>
+          <span className="w-8 h-[1px] bg-[#222222]" />
+          <span className="text-[#0055FF] font-bold">&gt;</span>
+          <span className="text-[#888888] uppercase tracking-wider font-semibold">KEY VALUE</span>
+          <div className="flex-1 h-[1px] bg-[#222222] ml-2" />
         </motion.div>
 
-        {/* Section Headline & Actions */}
+        {/* Section Headline & GET STARTED Action */}
         <div className="pt-6 pb-14 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -107,17 +77,16 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex-shrink-0 flex items-center gap-3 flex-wrap"
+            className="flex-shrink-0"
           >
             <a
-              href="/ide"
-              className="px-5 py-3.5 bg-[#000000] hover:bg-white hover:text-black text-white border border-white text-xs font-mono uppercase tracking-wider flex items-center gap-2 transition-none cursor-pointer rounded-none font-bold no-underline"
-            >
-              <span>LAUNCH WEB IDE ↵</span>
-            </a>
-            <a
               href="#waitlist"
-              className="px-6 py-3.5 bg-[#0055FF] hover:bg-[#0044CC] text-white border border-[#0055FF] text-xs font-mono uppercase tracking-wider flex items-center gap-3 transition-none cursor-pointer rounded-none font-bold no-underline group"
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById("waitlist");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="px-6 py-3.5 bg-[#0055FF] hover:bg-[#0044CC] text-white border border-[#0055FF] text-xs font-mono uppercase tracking-wider flex items-center gap-3 transition-none cursor-pointer rounded-none font-bold group"
             >
               <span className="w-2.5 h-2.5 bg-white inline-block transition-none" />
               <span>GET STARTED</span>
@@ -129,7 +98,6 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {cards.map((card, idx) => {
             const isHovered = hoveredIndex === idx;
-            const isSelected = activeBlueprintIdx === idx;
             const BadgeIcon = card.badgeIcon;
             return (
               <motion.div
@@ -140,9 +108,8 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                 onMouseEnter={() => setHoveredIndex(idx)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                onClick={() => setActiveBlueprintIdx(idx)}
-                className={`p-6 sm:p-8 flex flex-col justify-between min-h-[480px] transition-colors duration-200 relative cursor-pointer rounded-none border ${
-                  isSelected || isHovered ? "border-[#0055FF] bg-[#0055FF]/5" : "border-[#222222] bg-[#000000]"
+                className={`p-8 sm:p-10 flex flex-col justify-between min-h-[520px] transition-colors duration-200 relative cursor-pointer rounded-none border ${
+                  isHovered ? "border-[#0055FF] bg-[#0055FF]/5" : "border-[#222222] bg-[#000000]"
                 }`}
               >
                 {/* Top Row: Serial Number & Status Indicator */}
@@ -150,7 +117,7 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
                   <div className="flex items-center gap-1.5">
                     <span
                       className={`w-1.5 h-1.5 transition-colors duration-200 rounded-none ${
-                        isSelected || isHovered ? "bg-[#0055FF]" : "bg-[#333333]"
+                        isHovered ? "bg-[#0055FF]" : "bg-[#333333]"
                       }`}
                     />
                     <span className="font-mono text-[10px] text-[#555555] uppercase">
@@ -162,81 +129,85 @@ export default function AeyeBenefitSection({ onOpenTour }: AeyeBenefitSectionPro
                   </span>
                 </div>
 
-                {/* Center Wireframe-to-Pixel Hover Transition */}
-                <div className="flex-1 flex items-center justify-center my-4 relative min-h-[180px] select-none">
+                {/* Center Wireframe-to-Pixel Hover Transition (Exact match to reference recording) */}
+                <div className="flex-1 flex items-center justify-center my-6 relative min-h-[240px] select-none">
+                  {/* Subtle 1px background grid corner ticks */}
                   <span
                     className={`absolute top-2 left-2 font-mono text-[10px] leading-none transition-colors duration-200 select-none ${
-                      isSelected || isHovered ? "text-[#0055FF]" : "text-[#222222]"
+                      isHovered ? "text-[#0055FF]" : "text-[#222222]"
                     }`}
                   >
                     +
                   </span>
                   <span
                     className={`absolute top-2 right-2 font-mono text-[10px] leading-none transition-colors duration-200 select-none ${
-                      isSelected || isHovered ? "text-[#0055FF]" : "text-[#222222]"
+                      isHovered ? "text-[#0055FF]" : "text-[#222222]"
                     }`}
                   >
                     +
                   </span>
                   <span
                     className={`absolute bottom-2 left-2 font-mono text-[10px] leading-none transition-colors duration-200 select-none ${
-                      isSelected || isHovered ? "text-[#0055FF]" : "text-[#222222]"
+                      isHovered ? "text-[#0055FF]" : "text-[#222222]"
                     }`}
                   >
                     +
                   </span>
                   <span
                     className={`absolute bottom-2 right-2 font-mono text-[10px] leading-none transition-colors duration-200 select-none ${
-                      isSelected || isHovered ? "text-[#0055FF]" : "text-[#222222]"
+                      isHovered ? "text-[#0055FF]" : "text-[#222222]"
                     }`}
                   >
                     +
                   </span>
 
-                  <div className="relative w-36 h-36 flex items-center justify-center">
-                    <img
-                      src={card.iconLine}
-                      alt={card.title}
-                      className={`absolute inset-0 w-full h-full object-contain filter invert transition-opacity duration-300 pointer-events-none ${
-                        isHovered || isSelected ? "opacity-0" : "opacity-80"
-                      }`}
-                    />
-                    <img
-                      src={card.iconPixel}
-                      alt={card.title}
-                      className={`absolute inset-0 w-full h-full object-contain filter invert transition-opacity duration-300 pointer-events-none ${
-                        isHovered || isSelected ? "opacity-100 scale-105" : "opacity-0 scale-95"
-                      }`}
-                    />
-                  </div>
+                  {/* Line illustration (default wireframe, fades completely out when hovered) */}
+                  <img
+                    src={card.iconLine}
+                    alt={card.title}
+                    className={`w-48 h-48 object-contain filter invert transition-all duration-200 pointer-events-none ${
+                      isHovered ? "opacity-0 scale-95" : "opacity-90 scale-100"
+                    }`}
+                  />
+
+                  {/* Full Electric Blue Pixel Art Graphic (Hover State) */}
+                  <img
+                    src={card.iconPixel}
+                    alt={`${card.title} Pixel`}
+                    className={`w-48 h-48 object-contain absolute transition-all duration-200 pointer-events-none ${
+                      isHovered
+                        ? "opacity-100 scale-100"
+                        : "opacity-0 scale-95"
+                    }`}
+                  />
                 </div>
 
-                {/* Bottom Content Area */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <BadgeIcon className="w-3.5 h-3.5 text-[#0055FF]" />
-                    <span className="text-[10px] font-mono tracking-wider text-[#71717a] uppercase font-semibold">
-                      {card.tag}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl sm:text-2xl font-normal text-white font-sans tracking-tight mb-2">
+                {/* Bottom Content: Title & Tag */}
+                <div className="pt-4 border-t border-[#222222]">
+                  <h3 className="text-2xl font-normal tracking-tight text-white font-sans">
                     {card.title}
                   </h3>
-
-                  <p className="text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
+                  <p
+                    className={`mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed min-h-[44px] transition-all duration-300 ${
+                      isHovered
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-0 translate-y-1 pointer-events-none"
+                    }`}
+                  >
                     {card.description}
                   </p>
 
-                  {/* Expandable Architecture Blueprint Inspector */}
-                  <div className="mt-4 pt-3 border-t border-[#222222] font-mono text-[10.5px]">
-                    <div className="flex items-center justify-between text-[#71717a]">
-                      <span className="text-white font-semibold">{card.blueprint.engine}</span>
-                      <span className="text-[#0055FF]">{card.blueprint.latency}</span>
-                    </div>
-                    <p className="mt-1 text-[#666666] text-[10px] leading-relaxed">
-                      {card.blueprint.spec}
-                    </p>
+                  <div className="mt-6">
+                    <span
+                      className={`px-3 py-1.5 bg-[#111111] border text-[10px] sm:text-[11px] font-mono uppercase tracking-wider transition-colors duration-200 rounded-none inline-flex items-center gap-1.5 ${
+                        isHovered
+                          ? "border-[#0055FF] text-[#0055FF]"
+                          : "border-[#222222] text-[#888888]"
+                      }`}
+                    >
+                      <BadgeIcon className="w-3 h-3 stroke-[2]" />
+                      <span>{card.tag}</span>
+                    </span>
                   </div>
                 </div>
               </motion.div>

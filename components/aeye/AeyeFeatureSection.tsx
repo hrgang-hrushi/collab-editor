@@ -99,11 +99,7 @@ function getPerimeterPoint(p: number, w: number, h: number) {
   }
 }
 
-interface AeyeFeatureSectionProps {
-  onOpenTour?: () => void;
-}
-
-export default function AeyeFeatureSection({ onOpenTour }: AeyeFeatureSectionProps = {}) {
+export default function AeyeFeatureSection() {
   const [activeTab, setActiveTab] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);

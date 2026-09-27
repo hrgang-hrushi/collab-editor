@@ -2,56 +2,15 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
-import { Copy, Check, Terminal, Zap, GitMerge, Bot, Activity, Cpu, Play, CornerDownLeft, Sparkles, RefreshCw } from "lucide-react";
+import { Copy, Check, Terminal, Zap, GitMerge, Bot, Activity, Cpu } from "lucide-react";
 import Link from "next/link";
 
-interface AeyeInstallationSectionProps {
-  onOpenTour?: (stepIndex?: number) => void;
-}
-
-export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallationSectionProps) {
+export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"multiplayer" | "silicon" | "crdt" | "agent">("multiplayer");
   const [copied, setCopied] = useState(false);
   const isManualClickRef = useRef(false);
   const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Tab 1 (Multiplayer): User cursor tracking + editable code line + simulated peer edits
-  const bufferRef = useRef<HTMLDivElement>(null);
-  const [userCursor, setUserCursor] = useState({ x: 140, y: 120, active: false });
-  const [userCustomCode, setUserCustomCode] = useState('ctx.commit({ user: "you", payload: "vector_ok" });');
-  const [tarikaLineText, setTarikaLineText] = useState('const buffer = await ctx.acquireShm(16 * 1024);');
-  const [pavanLineText, setPavanLineText] = useState('return buffer.broadcastMultiplayer(["Tarika", "Pavan"]);');
-  const [tarikaJitter, setTarikaJitter] = useState("0.4ms (Tokyo)");
-  const [pavanJitter, setPavanJitter] = useState("0.6ms (SF)");
-  const [meshFlashing, setMeshFlashing] = useState<"tarika" | "pavan" | null>(null);
-
-  // Tab 2 (Silicon): Real physical keystroke latency tester
-  const [measuredLatency, setMeasuredLatency] = useState<number>(4.2);
-  const [keyPressCount, setKeyPressCount] = useState<number>(8);
-  const [lastKeyPressed, setLastKeyPressed] = useState<string>("CMD+ENTER");
-  const [typingInput, setTypingInput] = useState<string>("");
-
-  // Tab 3 (CRDT): Live event log + vector clock
-  const [vectorClock, setVectorClock] = useState<[number, number, number]>([142, 89, 204]);
-  const [crdtEvents, setCrdtEvents] = useState([
-    { id: "1", time: "09:54:12.018", peer: "peer://tokyo-node", op: 'inserts ASTNode::FnDecl("handle_stream")', type: "tokyo" },
-    { id: "2", time: "09:54:12.022", peer: "peer://sf-node", op: 'edits ASTNode::Ident("stream_handler")', type: "sf" },
-    { id: "3", time: "09:54:12.025", peer: "engine", op: "Applied structural AST delta · 0 syntax collisions", type: "engine" },
-    { id: "4", time: "09:54:12.028", peer: "crypto", op: "SECP256K1 P2P channel handshake verified", type: "crypto" },
-    { id: "5", time: "09:54:12.030", peer: "status", op: "Vector clock [142, 89, 204] · Converged in 0.8ms", type: "status" },
-  ]);
-
-  // Tab 4 (Agent): Interactive terminal execution
-  const [agentInput, setAgentInput] = useState("");
-  const [agentOutputLines, setAgentOutputLines] = useState<Array<{ prefix: string; text: string; color?: string }>>([
-    { prefix: "[@CruxAI]", text: "Ingested 14 source files in 1.4ms (zero cloud proxy)" },
-    { prefix: "[@CruxAI]", text: "Applied SIMD token streaming pass (+48, -12 lines)" },
-    { prefix: "[@CruxAI]", text: "Running background compiler check:" },
-    { prefix: "✓", text: "cargo check --target=aarch64-apple-darwin: 0 warnings", color: "#22c55e" },
-    { prefix: "[@CruxAI]", text: "Generated atomic AST git commit: a9b42e1" },
-  ]);
-  const [isAgentExecuting, setIsAgentExecuting] = useState(false);
 
   // Smooth scroll interpolation using spring physics for butter-smooth response
   const { scrollYProgress } = useScroll({
@@ -155,138 +114,26 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Tab 1: Buffer mouse movement for user cursor
-  const handleBufferMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!bufferRef.current) return;
-    const rect = bufferRef.current.getBoundingClientRect();
-    const x = Math.max(10, Math.min(rect.width - 60, e.clientX - rect.left));
-    const y = Math.max(10, Math.min(rect.height - 30, e.clientY - rect.top));
-    setUserCursor({ x, y, active: true });
-  };
-
-  const handleBufferMouseLeave = () => {
-    setUserCursor((prev) => ({ ...prev, active: false }));
-  };
-
-  const simulateTarikaEdit = () => {
-    setMeshFlashing("tarika");
-    const options = [
-      "const buffer = await ctx.acquireShm(32 * 1024);",
-      "const stream = ctx.pipeToWebGPU({ fps: 120 });",
-      'ctx.registerPeerChannel("tokyo_opt", { lockFree: true });',
-    ];
-    const next = options[Math.floor(Math.random() * options.length)];
-    setTarikaLineText(next);
-    setTarikaJitter(`${(0.32 + Math.random() * 0.15).toFixed(2)}ms (Tokyo)`);
-    setTimeout(() => setMeshFlashing(null), 700);
-  };
-
-  const simulatePavanEdit = () => {
-    setMeshFlashing("pavan");
-    const options = [
-      'return buffer.broadcastMultiplayer(["Tarika", "Pavan", "You"]);',
-      'return ctx.replicateDelta({ convergence: "< 0.4ms" });',
-      "return stream.renderBuffer(surfaceHandle);",
-    ];
-    const next = options[Math.floor(Math.random() * options.length)];
-    setPavanLineText(next);
-    setPavanJitter(`${(0.42 + Math.random() * 0.2).toFixed(2)}ms (SF)`);
-    setTimeout(() => setMeshFlashing(null), 700);
-  };
-
-  // Tab 2: Keystroke latency tester
-  const handlePhysicalKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const t0 = performance.now();
-    setLastKeyPressed(e.key.length === 1 ? e.key.toUpperCase() : e.key);
-    setKeyPressCount((prev) => prev + 1);
-    const delta = performance.now() - t0;
-    const latency = Math.max(2.8, Math.min(5.4, 3.2 + delta * 8 + ((performance.now() * 100) % 9) * 0.12));
-    setMeasuredLatency(parseFloat(latency.toFixed(2)));
-  };
-
-  // Tab 3: CRDT Divergence & Merge
-  const injectCrdtMutation = (nodeName: string, isTokyo: boolean) => {
-    const now = new Date();
-    const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}:${now.getSeconds().toString().padStart(2, "0")}.${now.getMilliseconds().toString().padStart(3, "0")}`;
-    const newV: [number, number, number] = [
-      vectorClock[0] + (isTokyo ? 1 : 0),
-      vectorClock[1] + (isTokyo ? 0 : 1),
-      vectorClock[2] + 1,
-    ];
-    setVectorClock(newV);
-
-    const newEvents = [
-      ...crdtEvents.slice(-3),
-      {
-        id: Math.random().toString(),
-        time: timeStr,
-        peer: isTokyo ? "peer://tokyo-node" : "peer://sf-node",
-        op: `mutates ASTNode::${nodeName}("${isTokyo ? "tokyo_patch" : "sf_merge"}")`,
-        type: isTokyo ? "tokyo" : "sf",
-      },
-      {
-        id: Math.random().toString(),
-        time: timeStr,
-        peer: "status",
-        op: `Vector clock [${newV.join(", ")}] · Auto-resolved in 0.4ms (0-collision)`,
-        type: "status",
-      },
-    ];
-    setCrdtEvents(newEvents);
-  };
-
-  // Tab 4: Agent Task Execution
-  const runAgentTask = (cmd: string) => {
-    if (isAgentExecuting) return;
-    setIsAgentExecuting(true);
-    const targetCmd = cmd || agentInput || "cargo check";
-    setAgentInput(targetCmd);
-
-    setAgentOutputLines([
-      { prefix: "host@darwin", text: `~/workspace % @CruxAI ${targetCmd}` },
-      { prefix: "[@CruxAI]", text: `Analyzing task "${targetCmd}" across AST workspace...` },
-    ]);
-
-    setTimeout(() => {
-      setAgentOutputLines((prev) => [
-        ...prev,
-        { prefix: "[@CruxAI]", text: "Running SIMD vector compiler pass on host silicon (0.8ms)" },
-        { prefix: "✓", text: "Compiler verification passed: 0 warnings, 0 syntax regressions", color: "#22c55e" },
-        { prefix: "[@CruxAI]", text: `Atomic patch applied · Commit: ${Math.random().toString(16).substring(2, 8)}` },
-      ]);
-      setIsAgentExecuting(false);
-    }, 600);
-  };
-
   return (
     <section id="why-crux" className="relative w-full border-b border-[#222222] bg-[#000000]">
       {/* Anchor for backwards compatibility */}
       <div id="installation" className="absolute -top-20" />
 
-      {/* Scroll-driven Sticky Container */}
+      {/* Scroll-driven Sticky Container matching Feature & How-It-Works sections */}
       <div ref={containerRef} className="relative lg:h-[260vh]">
         <div className="relative lg:sticky lg:top-0 lg:h-screen lg:flex lg:flex-col lg:justify-center overflow-visible lg:overflow-hidden py-12 lg:py-0">
           <div className="max-w-[1280px] w-full mx-auto px-6">
-            {/* Section Header Meta with Live Step Tracking & Tour Actions */}
+            {/* Section Header Meta with Live Step Tracking */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222222] text-xs font-mono">
               <div className="flex items-center gap-2">
                 <span className="text-[#0055FF] font-bold">[N.05/11]</span>
                 <span className="text-[#888888]">— &gt;</span>
                 <span className="text-[#888888] uppercase">WHY CRUX?</span>
-                <span className="text-[#444444]">|</span>
-                <span className="text-white font-medium">4 BARE-METAL MILESTONES</span>
               </div>
               <div className="flex items-center gap-3 pt-2 sm:pt-0">
-                {onOpenTour && (
-                  <button
-                    onClick={() => onOpenTour(activeIndex)}
-                    className="px-2.5 py-1 bg-[#111114] hover:bg-[#1a1a24] border border-[#0055FF]/60 hover:border-[#0055FF] text-white text-[11px] font-mono uppercase tracking-wider flex items-center gap-1.5 cursor-pointer rounded-none"
-                  >
-                    <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                    <span>LAUNCH INTERACTIVE WALKTHROUGH</span>
-                  </button>
-                )}
-
+                <span className="text-[10px] text-[#71717a] uppercase tracking-wider hidden sm:inline font-mono">
+                  THE BARE-METAL ADVANTAGE
+                </span>
                 <div className="flex items-center gap-1.5">
                   {tabs.map((tab, idx) => (
                     <button
@@ -307,10 +154,10 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
             </div>
 
             {/* 2-Column Section Layout */}
-            <div className="pt-6 sm:pt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
-              {/* Left Column: Fixed-Height Interactive Engineering Display */}
+            <div className="pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
+              {/* Left Column: Fixed-Height Interactive Engineering Display (Zero Height Jumping) */}
               <div className="lg:col-span-7">
-                <div className="relative p-4 sm:p-5 border border-[#222222] bg-[#050507]">
+                <div className="relative p-5 sm:p-6 border border-[#222222] bg-[#050507]">
                   {/* Corner Double-Dot Accents */}
                   <div className="absolute top-2 left-2 flex gap-1 font-mono text-[9px] text-[#444444] select-none">
                     ■ ■
@@ -325,8 +172,8 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                     ■ ■
                   </div>
 
-                  {/* Rock-solid Fixed-Size Box (h-[440px]) - Interactive Playgrounds */}
-                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[440px] flex flex-col justify-between">
+                  {/* Rock-solid Fixed-Size Box (h-[390px]) - NEVER resizes between tabs */}
+                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[390px] flex flex-col justify-between">
                     {/* Header bar */}
                     <div className="h-10 px-4 bg-[#111114] border-b border-[#222222] flex items-center justify-between shrink-0">
                       <div className="flex items-center gap-2.5">
@@ -335,26 +182,24 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                           CRUX // {currentTab.subtitle}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={handleCopy}
-                          className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
-                          aria-label="Copy data"
-                        >
-                          <span>{copied ? "Copied" : "Copy"}</span>
-                          {copied ? (
-                            <Check className="w-3.5 h-3.5 text-[#0055FF]" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
+                      <button
+                        onClick={handleCopy}
+                        className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
+                        aria-label="Copy data"
+                      >
+                        <span>{copied ? "Copied" : "Copy"}</span>
+                        {copied ? (
+                          <Check className="w-3.5 h-3.5 text-[#0055FF]" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                     </div>
 
                     {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
-                    <div className="flex-1 p-4 font-mono text-xs sm:text-[12.5px] leading-relaxed overflow-hidden relative">
+                    <div className="flex-1 p-5 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative">
                       <AnimatePresence mode="wait">
-                        {/* TAB 1: Real-Time Collaborative Mesh (Interactive User Cursor + Tarika + Pavan) */}
+                        {/* TAB 1: Real-Time Collaborative Mesh (Tarika & Pavan Cursors) */}
                         {activeTab === "multiplayer" && (
                           <motion.div
                             key="tab-multiplayer"
@@ -362,13 +207,13 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between relative"
+                            className="h-full flex flex-col justify-between select-none relative"
                           >
                             {/* Live Presence Header */}
                             <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
-                              <div className="flex items-center gap-2 flex-wrap">
+                              <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-none bg-[#22c55e] animate-pulse" />
-                                <span className="text-white font-bold tracking-wide">P2P MESH</span>
+                                <span className="text-white font-bold tracking-wide">CRUX P2P MESH</span>
                                 <span className="text-[#444444]">|</span>
                                 <span className="text-[#06b6d4] font-medium flex items-center gap-1">
                                   <span className="w-1.5 h-1.5 rounded-none bg-[#06b6d4]" />
@@ -378,23 +223,14 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                   <span className="w-1.5 h-1.5 rounded-none bg-[#f59e0b]" />
                                   Pavan
                                 </span>
-                                <span className="text-[#0055FF] font-medium flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-none bg-[#0055FF]" />
-                                  You {userCursor.active ? `(${Math.round(userCursor.x)}, ${Math.round(userCursor.y)})` : "(move inside)"}
-                                </span>
                               </div>
                               <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30 hidden sm:inline">
-                                0-CONFLICT LOCK-FREE
+                                0-LATENCY
                               </span>
                             </div>
 
-                            {/* Collaborative Workspace Buffer Viewport with Live Interactive Cursors */}
-                            <div
-                              ref={bufferRef}
-                              onMouseMove={handleBufferMouseMove}
-                              onMouseLeave={handleBufferMouseLeave}
-                              className="relative flex-1 my-2 p-3 border border-[#222222] bg-[#070709] overflow-hidden flex flex-col justify-between font-mono text-[11.5px] cursor-crosshair"
-                            >
+                            {/* Collaborative Workspace Buffer Viewport with Live Animated Cursors */}
+                            <div className="relative flex-1 my-2 p-3 border border-[#222222] bg-[#070709] overflow-hidden flex flex-col justify-between font-mono text-[11.5px]">
                               {/* Background grid pattern */}
                               <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
 
@@ -429,7 +265,7 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                 className="absolute pointer-events-none z-30 flex items-start gap-1 select-none"
                                 animate={{
                                   x: [190, 260, 180, 240, 210, 190],
-                                  y: [70, 115, 135, 55, 95, 70],
+                                  y: [80, 125, 145, 62, 105, 80],
                                 }}
                                 transition={{
                                   duration: 8.5,
@@ -451,23 +287,8 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                 </div>
                               </motion.div>
 
-                              {/* Interactive User Cursor (Tracks mouse) */}
-                              {userCursor.active && (
-                                <div
-                                  style={{ left: userCursor.x, top: userCursor.y }}
-                                  className="absolute pointer-events-none z-40 flex items-start gap-1 select-none transition-none"
-                                >
-                                  <svg className="w-4 h-4 text-[#0055FF]" viewBox="0 0 16 16" fill="currentColor">
-                                    <path d="M0 0L6 14L8.5 8.5L14 6L0 0Z" />
-                                  </svg>
-                                  <div className="px-1.5 py-0.5 bg-[#001133] border border-[#0055FF] text-[9.5px] font-mono font-bold text-white flex items-center gap-1">
-                                    <span>You</span>
-                                  </div>
-                                </div>
-                              )}
-
                               {/* Code / Canvas Content Lines with active multi-selection highlights */}
-                              <div className="space-y-1 relative z-10 select-none">
+                              <div className="space-y-1.5 relative z-10">
                                 <div className="flex items-center gap-2 text-[#555555]">
                                   <span className="w-5 text-right text-[10px]">01</span>
                                   <span className="text-[#888888]">// Shared CRDT Ring Buffer · Zero Locks</span>
@@ -479,82 +300,53 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                   <span className="text-[#71717a]">(ctx: CRDTRing) &#123;</span>
                                 </div>
                                 {/* Line 03: Tarika's selection */}
-                                <div
-                                  className={`flex items-center gap-2 relative border-l-2 pl-1 transition-colors duration-150 ${
-                                    meshFlashing === "tarika"
-                                      ? "bg-[#06b6d4]/25 border-[#06b6d4]"
-                                      : "bg-[#06b6d4]/10 border-[#06b6d4]"
-                                  }`}
-                                >
+                                <div className="flex items-center gap-2 relative bg-[#06b6d4]/10 border-l-2 border-[#06b6d4] pl-1">
                                   <span className="w-5 text-right text-[10px] text-[#06b6d4]">03</span>
-                                  <span className="text-[#a1a1aa] pl-3 truncate">{tarikaLineText}</span>
-                                  <span className="ml-auto text-[9px] text-[#06b6d4] font-mono font-semibold pr-1 hidden sm:inline">
-                                    Tarika active
-                                  </span>
+                                  <span className="text-[#a1a1aa] pl-3">const buffer = await ctx.acquireShm(16 * 1024);</span>
+                                  <span className="ml-auto text-[9px] text-[#06b6d4] font-mono font-semibold pr-1 hidden sm:inline">Tarika selecting</span>
                                 </div>
                                 {/* Line 04: Pavan's active edit */}
-                                <div
-                                  className={`flex items-center gap-2 relative border-l-2 pl-1 transition-colors duration-150 ${
-                                    meshFlashing === "pavan"
-                                      ? "bg-[#f59e0b]/25 border-[#f59e0b]"
-                                      : "bg-[#f59e0b]/10 border-[#f59e0b]"
-                                  }`}
-                                >
+                                <div className="flex items-center gap-2 relative bg-[#f59e0b]/10 border-l-2 border-[#f59e0b] pl-1">
                                   <span className="w-5 text-right text-[10px] text-[#f59e0b]">04</span>
-                                  <span className="text-[#a1a1aa] pl-3 truncate">{pavanLineText}</span>
-                                  <span className="ml-auto text-[9px] text-[#f59e0b] font-mono font-semibold pr-1 hidden sm:inline">
-                                    Pavan editing
-                                  </span>
+                                  <span className="text-[#a1a1aa] pl-3">return buffer.broadcastMultiplayer([&quot;Tarika&quot;, &quot;Pavan&quot;]);</span>
+                                  <span className="ml-auto text-[9px] text-[#f59e0b] font-mono font-semibold pr-1 hidden sm:inline">Pavan editing</span>
                                 </div>
-                                {/* Line 05: User's editable line */}
-                                <div className="flex items-center gap-2 relative bg-[#0055FF]/15 border-l-2 border-[#0055FF] pl-1">
-                                  <span className="w-5 text-right text-[10px] text-[#0055FF]">05</span>
-                                  <input
-                                    type="text"
-                                    value={userCustomCode}
-                                    onChange={(e) => setUserCustomCode(e.target.value)}
-                                    className="bg-transparent text-white font-mono text-[11px] border-none outline-none pl-3 w-full"
-                                    placeholder="Type your code here (live collaborative buffer)..."
-                                  />
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="w-5 text-right text-[10px] text-[#555555]">05</span>
+                                  <span>&#125;</span>
                                 </div>
                               </div>
 
-                              {/* Interactive Simulation Controls */}
-                              <div className="pt-2 border-t border-[#1a1a20] relative z-20 flex flex-wrap items-center justify-between gap-2">
-                                <div className="flex items-center gap-2">
-                                  <button
-                                    onClick={simulateTarikaEdit}
-                                    className="px-2 py-1 bg-[#111116] hover:bg-[#1a1a24] border border-[#06b6d4]/50 hover:border-[#06b6d4] text-[#06b6d4] text-[10px] font-mono uppercase cursor-pointer rounded-none"
-                                  >
-                                    Simulate Tarika Edit
-                                  </button>
-                                  <button
-                                    onClick={simulatePavanEdit}
-                                    className="px-2 py-1 bg-[#111116] hover:bg-[#1a1a24] border border-[#f59e0b]/50 hover:border-[#f59e0b] text-[#f59e0b] text-[10px] font-mono uppercase cursor-pointer rounded-none"
-                                  >
-                                    Simulate Pavan Edit
-                                  </button>
+                              {/* Real-time telemetry indicators */}
+                              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1a1a20] relative z-10">
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">TARIKA JITTER</span>
+                                  <span className="text-[#06b6d4] font-bold">0.4ms (Tokyo)</span>
                                 </div>
-                                <span className="text-[10px] text-[#71717a] font-mono">
-                                  Hover to track your cursor
-                                </span>
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">PAVAN JITTER</span>
+                                  <span className="text-[#f59e0b] font-bold">0.6ms (SF)</span>
+                                </div>
+                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
+                                  <span className="text-[#71717a] block">SYNTAX STATE</span>
+                                  <span className="text-[#22c55e] font-bold">100% Attested</span>
+                                </div>
                               </div>
                             </div>
 
                             {/* Bottom Status bar */}
-                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px] shrink-0 font-mono">
+                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px] shrink-0">
                               <span className="text-[#888888]">
-                                TARIKA: <strong className="text-[#06b6d4]">{tarikaJitter}</strong> · PAVAN:{" "}
-                                <strong className="text-[#f59e0b]">{pavanJitter}</strong>
+                                PEER REPLICATION: <strong className="text-white">0 CONFLICTS</strong>
                               </span>
                               <span className="text-[#888888]">
-                                BUFFER STATE: <strong className="text-[#0055FF]">ZERO-COLLISION MERGED</strong>
+                                PRECISION: <strong className="text-[#0055FF]">SUB-PIXEL PRESENCE</strong>
                               </span>
                             </div>
                           </motion.div>
                         )}
 
-                        {/* TAB 2: Native Silicon Benchmarks (Interactive Keystroke Latency Tester) */}
+                        {/* TAB 2: Native Silicon Benchmarks */}
                         {activeTab === "silicon" && (
                           <motion.div
                             key="tab-silicon"
@@ -562,35 +354,9 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between font-mono"
+                            className="h-full flex flex-col justify-between"
                           >
-                            <div className="space-y-3 text-left">
-                              {/* Live Interactive Benchmark Input */}
-                              <div className="p-2.5 border border-[#0055FF] bg-[#001133]/30">
-                                <div className="flex items-center justify-between text-[11px] mb-1.5">
-                                  <span className="text-white font-bold flex items-center gap-1.5">
-                                    <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                                    TEST YOUR HARDWARE LATENCY:
-                                  </span>
-                                  <span className="text-[#0055FF] font-mono font-bold">
-                                    {measuredLatency}ms (Crux Hardware)
-                                  </span>
-                                </div>
-                                <input
-                                  type="text"
-                                  value={typingInput}
-                                  onChange={(e) => setTypingInput(e.target.value)}
-                                  onKeyDown={handlePhysicalKey}
-                                  placeholder="Type anything on your keyboard to measure dispatch speed..."
-                                  className="w-full bg-[#000000] border border-[#222222] focus:border-[#0055FF] text-white text-xs px-2.5 py-1.5 outline-none rounded-none placeholder-[#555555]"
-                                />
-                                <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#71717a]">
-                                  <span>Keys Dispatched: {keyPressCount}</span>
-                                  <span>Last Trigger: {lastKeyPressed}</span>
-                                  <span className="text-[#22c55e]">Metal Frame: 120 FPS</span>
-                                </div>
-                              </div>
-
+                            <div className="space-y-4 text-left font-mono">
                               {/* Metric 1 */}
                               <div>
                                 <div className="flex items-center justify-between text-xs mb-1">
@@ -601,14 +367,9 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                   <div className="flex items-center gap-3">
                                     <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
                                     <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div
-                                        className="h-full bg-[#0055FF] transition-all duration-150"
-                                        style={{ width: `${Math.min(100, (measuredLatency / 48.6) * 100 * 2.5)}%` }}
-                                      />
+                                      <div className="h-full bg-[#0055FF] w-[14%]" />
                                     </div>
-                                    <span className="w-14 text-right text-xs text-white font-bold">
-                                      {measuredLatency}ms
-                                    </span>
+                                    <span className="w-14 text-right text-xs text-white font-bold">4.2ms</span>
                                   </div>
                                   <div className="flex items-center gap-3">
                                     <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
@@ -643,18 +404,35 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                                   </div>
                                 </div>
                               </div>
-                            </div>
 
-                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
-                              <span className="text-[#888888]">
-                                RASTER ENGINE: <strong className="text-white">Direct Metal &amp; WebGPU</strong>
-                              </span>
-                              <span className="text-[#0055FF] font-bold">ZERO CHROMIUM RUNTIME</span>
+                              {/* Metric 3 */}
+                              <div>
+                                <div className="flex items-center justify-between text-xs mb-1">
+                                  <span className="text-white font-medium">250,000-Line Monorepo Scroll</span>
+                                  <span className="text-[#0055FF] font-bold">6.6x SMOOTHER</span>
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#0055FF] w-[100%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-white font-bold">120 FPS</span>
+                                  </div>
+                                  <div className="flex items-center gap-3">
+                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
+                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
+                                      <div className="h-full bg-[#333333] w-[22%]" />
+                                    </div>
+                                    <span className="w-14 text-right text-xs text-[#71717a]">18 FPS</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </motion.div>
                         )}
 
-                        {/* TAB 3: Decentralized AST-CRDT Sync (Interactive Conflict Injector) */}
+                        {/* TAB 2: Decentralized AST-CRDT Sync */}
                         {activeTab === "crdt" && (
                           <motion.div
                             key="tab-crdt"
@@ -664,73 +442,54 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                             transition={{ duration: 0.15 }}
                             className="h-full flex flex-col justify-between select-none"
                           >
-                            <div className="space-y-2 font-mono text-xs sm:text-[12px]">
+                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
                               <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between">
-                                <span className="text-white font-bold">P2P WEBRTC MESH PROTOCOL</span>
-                                <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30">
-                                  VECTOR CLOCK [{vectorClock.join(", ")}]
-                                </span>
+                                <span className="text-white font-bold">P2P WEBRTC MESH</span>
+                                <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30">LIVE CHANNEL</span>
                               </div>
 
-                              {/* Interactive mutation buttons */}
-                              <div className="flex flex-wrap items-center gap-2 pt-1">
-                                <button
-                                  onClick={() => injectCrdtMutation("FnDecl", true)}
-                                  className="px-2.5 py-1 bg-[#111116] hover:bg-[#1a1a24] border border-[#06b6d4]/60 hover:border-[#06b6d4] text-[#06b6d4] text-[10px] font-mono cursor-pointer rounded-none"
-                                >
-                                  + Inject Tokyo Mutation
-                                </button>
-                                <button
-                                  onClick={() => injectCrdtMutation("IdentEdit", false)}
-                                  className="px-2.5 py-1 bg-[#111116] hover:bg-[#1a1a24] border border-[#f59e0b]/60 hover:border-[#f59e0b] text-[#f59e0b] text-[10px] font-mono cursor-pointer rounded-none"
-                                >
-                                  + Inject SF Mutation
-                                </button>
-                                <button
-                                  onClick={() => injectCrdtMutation("AutoMerge", true)}
-                                  className="px-2.5 py-1 bg-[#0055FF]/20 hover:bg-[#0055FF]/30 border border-[#0055FF] text-white text-[10px] font-mono cursor-pointer rounded-none ml-auto"
-                                >
-                                  Force Auto-Convergence
-                                </button>
+                              <div className="space-y-1.5 pt-1 text-[11px]">
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.018]</span>
+                                  <span className="text-white font-semibold">peer://tokyo-node</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">inserts ASTNode::FnDecl("handle_stream")</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.022]</span>
+                                  <span className="text-white font-semibold">peer://sf-node</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">edits ASTNode::Ident("stream_handler")</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.025]</span>
+                                  <span className="text-[#0055FF] font-bold">engine</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-white">Applied structural AST delta · 0 syntax collisions</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.028]</span>
+                                  <span className="text-[#0055FF] font-bold">crypto</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-[#a1a1aa]">SECP256K1 P2P channel handshake verified</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#555555]">[09:54:12.030]</span>
+                                  <span className="text-white font-bold">status</span>
+                                  <span className="text-[#0055FF]">&gt;</span>
+                                  <span className="text-white">Vector clock [142, 89, 204] · Converged in 0.8ms</span>
+                                </div>
                               </div>
 
-                              {/* Live event log stream */}
-                              <div className="space-y-1.5 pt-1 text-[11px] max-h-[175px] overflow-y-auto">
-                                {crdtEvents.map((evt) => (
-                                  <div key={evt.id} className="flex items-center gap-2 text-[#71717a]">
-                                    <span className="text-[#555555]">[{evt.time}]</span>
-                                    <span
-                                      className={`font-semibold ${
-                                        evt.type === "tokyo"
-                                          ? "text-[#06b6d4]"
-                                          : evt.type === "sf"
-                                          ? "text-[#f59e0b]"
-                                          : evt.type === "engine"
-                                          ? "text-[#0055FF]"
-                                          : "text-white"
-                                      }`}
-                                    >
-                                      {evt.peer}
-                                    </span>
-                                    <span className="text-[#0055FF]">&gt;</span>
-                                    <span className="text-[#a1a1aa] truncate">{evt.op}</span>
-                                  </div>
-                                ))}
+                              <div className="pt-2 p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
+                                <span className="text-[#888888]">LINE-COLLISION RISK: <strong className="text-white">0.00%</strong></span>
+                                <span className="text-[#888888]">SYNTAX TREE HEALTH: <strong className="text-[#0055FF]">100% VALID</strong></span>
                               </div>
-                            </div>
-
-                            <div className="pt-2 p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px] font-mono">
-                              <span className="text-[#888888]">
-                                LINE-COLLISION RISK: <strong className="text-white">0.00%</strong>
-                              </span>
-                              <span className="text-[#888888]">
-                                SYNTAX TREE HEALTH: <strong className="text-[#0055FF]">100% VALIDATED</strong>
-                              </span>
                             </div>
                           </motion.div>
                         )}
 
-                        {/* TAB 4: Autonomous @CruxAI Agents (Interactive Terminal Sandbox) */}
+                        {/* TAB 3: Autonomous @CruxAI Agents */}
                         {activeTab === "agent" && (
                           <motion.div
                             key="tab-agent"
@@ -738,74 +497,51 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between font-mono"
+                            className="h-full flex flex-col justify-between select-none"
                           >
-                            <div className="space-y-2 text-xs sm:text-[12px]">
-                              {/* Quick Command Execution Presets */}
-                              <div className="flex flex-wrap items-center gap-2 pb-1">
-                                {[
-                                  { label: "cargo check", cmd: "cargo check" },
-                                  { label: "optimize SIMD", cmd: "optimize --simd ./src/parser.rs" },
-                                  { label: "test --all", cmd: "test --workspace --no-fail-fast" },
-                                  { label: "git commit", cmd: "git commit -m 'autofix AST regression'" },
-                                ].map((preset) => (
-                                  <button
-                                    key={preset.label}
-                                    onClick={() => runAgentTask(preset.cmd)}
-                                    disabled={isAgentExecuting}
-                                    className="px-2 py-0.5 bg-[#111116] hover:bg-[#1a1a24] border border-[#333333] hover:border-[#0055FF] text-[#a1a1aa] hover:text-white text-[10px] cursor-pointer rounded-none transition-none"
-                                  >
-                                    [@CruxAI {preset.label}]
-                                  </button>
-                                ))}
+                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
+                              {/* Command line */}
+                              <div>
+                                <div className="flex items-center gap-2 text-[#71717a]">
+                                  <span className="text-[#0055FF] font-bold">host@darwin</span>
+                                  <span className="text-[#444444]">:</span>
+                                  <span className="text-white">~/workspace</span>
+                                  <span className="text-[#0055FF] font-bold">%</span>
+                                  <span className="text-white font-medium">@CruxAI refactor ./src/parser.rs --optimize</span>
+                                </div>
                               </div>
 
-                              {/* Terminal Command Input */}
-                              <div className="p-2 border border-[#222222] bg-[#0c0c10] flex items-center gap-2">
-                                <span className="text-[#0055FF] font-bold text-[11px]">host@darwin</span>
+                              {/* Output steps */}
+                              <div className="space-y-1.5 text-[11px] pl-2 border-l border-[#222222]">
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Ingested 14 source files in 1.4ms (zero cloud proxy)
+                                </div>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Applied SIMD token streaming pass (<span className="text-[#22c55e]">+48</span>, <span className="text-[#ef4444]">-12</span> lines)
+                                </div>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Running background compiler check:
+                                </div>
+                                <div className="pl-3 text-white">
+                                  <span className="text-[#22c55e]">✓</span> cargo check --target=aarch64-apple-darwin: 0 warnings
+                                </div>
+                                <div className="text-[#888888]">
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Generated atomic AST git commit: <code className="text-white">a9b42e1</code>
+                                </div>
+                              </div>
+
+                              {/* Active Prompt with Blinking Hardware Cursor */}
+                              <div className="pt-1 flex items-center gap-2 text-[#71717a]">
+                                <span className="text-[#0055FF] font-bold">host@darwin</span>
                                 <span className="text-[#444444]">:</span>
-                                <span className="text-white text-[11px]">~/workspace</span>
+                                <span className="text-white">~/workspace</span>
                                 <span className="text-[#0055FF] font-bold">%</span>
-                                <input
-                                  type="text"
-                                  value={agentInput}
-                                  onChange={(e) => setAgentInput(e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") runAgentTask(agentInput);
-                                  }}
-                                  placeholder="Type command, e.g. refactor ./src/parser.rs..."
-                                  className="bg-transparent border-none outline-none text-white text-[11px] flex-1 font-mono placeholder-[#555555]"
+                                <motion.span
+                                  animate={{ opacity: [1, 0, 1] }}
+                                  transition={{ repeat: Infinity, duration: 0.9, ease: "linear" }}
+                                  className="w-2 h-4 bg-white inline-block align-middle"
                                 />
-                                <button
-                                  onClick={() => runAgentTask(agentInput)}
-                                  disabled={isAgentExecuting}
-                                  className="px-2 py-0.5 bg-[#0055FF] hover:bg-[#0044CC] text-white text-[10px] font-bold cursor-pointer rounded-none"
-                                >
-                                  {isAgentExecuting ? "RUNNING..." : "RUN ↵"}
-                                </button>
                               </div>
-
-                              {/* Terminal Output stream */}
-                              <div className="space-y-1.5 text-[11px] pl-2 border-l border-[#222222] max-h-[145px] overflow-y-auto">
-                                {agentOutputLines.map((line, idx) => (
-                                  <div key={idx} className="text-[#888888]">
-                                    <span
-                                      className="font-semibold mr-1.5"
-                                      style={{ color: line.color || "#0055FF" }}
-                                    >
-                                      {line.prefix}
-                                    </span>
-                                    <span className="text-white">{line.text}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
-                              <span className="text-[#888888]">
-                                SANDBOX: <strong className="text-white">Local POSIX OS Namespace</strong>
-                              </span>
-                              <span className="text-[#0055FF] font-bold">ZERO CLOUD PROXY</span>
                             </div>
                           </motion.div>
                         )}
@@ -818,7 +554,7 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                         <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
                         <span>
                           {activeTab === "multiplayer"
-                            ? "MESH: P2P WEBRTC // TARIKA, PAVAN & YOU ACTIVE"
+                            ? "MESH: P2P WEBRTC // TARIKA & PAVAN ACTIVE"
                             : activeTab === "silicon"
                             ? "RUNTIME: BARE-METAL POSIX / SILICON"
                             : activeTab === "crdt"
@@ -826,13 +562,9 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                             : "KERNEL: @CRUXAI AUTONOMOUS AGENT"}
                         </span>
                       </div>
-                      <a
-                        href="/ide"
-                        className="text-[#0055FF] hover:text-white font-bold flex items-center gap-1 no-underline"
-                      >
-                        <span>LAUNCH FULL IDE</span>
-                        <span>↵</span>
-                      </a>
+                      <span className="text-[#0055FF] font-bold">
+                        {activeTab === "multiplayer" ? "SYNC: < 0.4ms" : "LATENCY: < 0.2ms"}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -846,29 +578,23 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                     <span className="block text-[#888888]">Engineered for radical velocity.</span>
                   </h2>
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <a
-                      href="/ide"
-                      className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-[#000000] border border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none no-underline"
+                  <div className="mt-6 flex items-center gap-4">
+                    <Link
+                      href="#pricing"
+                      className="inline-flex items-center gap-2.5 px-4 py-2.5 bg-[#000000] border border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none"
                     >
                       <span className="w-1.5 h-1.5 bg-white group-hover:bg-black inline-block" />
-                      <span>LAUNCH WEB IDE ↵</span>
-                    </a>
-
-                    {onOpenTour && (
-                      <button
-                        onClick={() => onOpenTour(activeIndex)}
-                        className="inline-flex items-center gap-2 px-3.5 py-2.5 bg-[#121217] hover:bg-[#1c1c24] border border-[#0055FF] text-white font-mono text-xs uppercase tracking-wider transition-none cursor-pointer rounded-none"
-                      >
-                        <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                        <span>INTERACTIVE WALKTHROUGH</span>
-                      </button>
-                    )}
+                      GET STARTED
+                    </Link>
+                    <div className="text-[11px] font-mono text-[#71717a] hidden sm:flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
+                      <span>SCROLL TO ADVANCE // 0{activeIndex + 1} OF 04</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Continuous Vertical Timeline Rail with clean bounds */}
-                <div className="mt-8 sm:mt-10 relative pl-8 select-none">
+                {/* Continuous Vertical Timeline Rail exactly as before with clean bounds */}
+                <div className="mt-10 sm:mt-12 relative pl-8 select-none">
                   {/* Background Track Rail */}
                   <div className="absolute left-[8px] top-3 bottom-5 w-[2px] bg-[#1a1a1e]" />
 
@@ -880,7 +606,7 @@ export default function AeyeInstallationSection({ onOpenTour }: AeyeInstallation
                     />
                   </div>
 
-                  <div className="space-y-6 sm:space-y-7">
+                  <div className="space-y-7 sm:space-y-8">
                     {tabs.map((tab, idx) => {
                       const isActive = activeTab === tab.id;
 

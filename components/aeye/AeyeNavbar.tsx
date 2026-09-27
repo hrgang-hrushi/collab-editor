@@ -7,10 +7,9 @@ import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 interface AeyeNavbarProps {
   onNavigate?: (sectionId: string) => void;
-  onOpenTour?: () => void;
 }
 
-export default function AeyeNavbar({ onNavigate, onOpenTour }: AeyeNavbarProps) {
+export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
   const [activeTab, setActiveTab] = useState("CRUX");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -129,26 +128,8 @@ export default function AeyeNavbar({ onNavigate, onOpenTour }: AeyeNavbarProps) 
           </nav>
         </div>
 
-        {/* Right Actions: Interactive Tour, Direct Web IDE, and Waitlist */}
-        <div className="hidden lg:flex items-center gap-2.5 pointer-events-auto">
-          {onOpenTour && (
-            <button
-              onClick={onOpenTour}
-              className="h-[40px] px-3.5 bg-[#111114] hover:bg-[#1a1a24] border border-[#333333] hover:border-[#0055FF] text-white transition-none flex items-center gap-2 text-[12px] font-mono font-medium tracking-tight uppercase cursor-pointer rounded-none group"
-            >
-              <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse rounded-none" />
-              <span>TAKE A TOUR</span>
-            </button>
-          )}
-
-          <a
-            href="/ide"
-            className="h-[40px] px-3.5 bg-[#000000] hover:bg-white hover:text-black border border-[#444444] hover:border-white text-white transition-none flex items-center gap-1.5 text-[12px] font-mono font-semibold tracking-tight uppercase no-underline cursor-pointer rounded-none"
-          >
-            <span>LAUNCH IDE</span>
-            <span className="text-[#0055FF] group-hover:text-black">↵</span>
-          </a>
-
+        {/* Right Action: Waitlist Button */}
+        <div className="hidden lg:flex items-center pointer-events-auto">
           <a
             href="#waitlist"
             onClick={(e) => {
@@ -159,7 +140,7 @@ export default function AeyeNavbar({ onNavigate, onOpenTour }: AeyeNavbarProps) 
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className="h-[40px] px-4 bg-[#0055FF] hover:bg-[#0044CC] border border-[#0055FF] text-white transition-none flex items-center gap-2 text-[12px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
+            className="h-[40px] px-5 bg-[#0055FF] hover:bg-[#0044CC] border border-[#0055FF] text-white transition-none flex items-center gap-2 text-[12px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
           >
             <span>JOIN WAITLIST</span>
           </a>
@@ -218,24 +199,6 @@ export default function AeyeNavbar({ onNavigate, onOpenTour }: AeyeNavbarProps) 
                 </a>
               );
             })}
-            {onOpenTour && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenTour();
-                }}
-                className="mt-2 py-2 px-3 bg-[#111114] border border-[#0055FF] text-white font-mono text-xs text-center uppercase flex items-center justify-center gap-2 cursor-pointer rounded-none"
-              >
-                <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-                <span>TAKE INTERACTIVE TOUR</span>
-              </button>
-            )}
-            <a
-              href="/ide"
-              className="py-2 px-3 bg-[#000000] border border-white text-white font-mono text-xs text-center uppercase flex items-center justify-center gap-1.5 no-underline rounded-none hover:bg-white hover:text-black"
-            >
-              <span>LAUNCH WEB IDE ↵</span>
-            </a>
             <a
               href="#waitlist"
               onClick={(e) => {
@@ -247,7 +210,7 @@ export default function AeyeNavbar({ onNavigate, onOpenTour }: AeyeNavbarProps) 
                   if (el) el.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="mt-1 py-2.5 px-3 bg-[#0055FF] text-white font-bold text-xs font-mono text-center uppercase flex items-center justify-center gap-1.5 no-underline rounded-none hover:bg-[#0044CC]"
+              className="mt-2 py-2.5 px-3 bg-[#0055FF] text-white font-bold text-xs font-mono text-center uppercase flex items-center justify-center gap-1.5 no-underline rounded-none hover:bg-[#0044CC]"
             >
               <span>JOIN WAITLIST</span>
               <ArrowRight className="w-3.5 h-3.5 inline" />
