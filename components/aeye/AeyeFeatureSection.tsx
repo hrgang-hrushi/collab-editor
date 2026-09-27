@@ -268,16 +268,16 @@ export default function AeyeFeatureSection() {
 
   const bottomFeatures = [
     {
-      title: "Works with your workflow",
-      desc: "Connect seamlessly with your existing tools, systems, and data sources.",
+      title: "Hardware Brutalist DOM Engine",
+      desc: "0px border radius, 1px dividers, sub-15ms input-to-photon latency, and zero V8 garbage collection pauses.",
     },
     {
-      title: "Minimal by default",
-      desc: "Focus only on what matters, no unnecessary complexity.",
+      title: "Lock-Free Shared Memory Ring Buffer",
+      desc: "64-bit atomic vector clock with 0.08ms local IPC sync latency across editor and agent threads.",
     },
     {
-      title: "Built to scale",
-      desc: "Handle growing workflows, data, and outputs over time.",
+      title: "100% Air-Gapped Zero Telemetry",
+      desc: "Zero cloud telemetry dependencies with complete local filesystem residency and private alpha self-hosting.",
     },
   ];
 

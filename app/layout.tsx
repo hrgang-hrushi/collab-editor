@@ -206,6 +206,48 @@ const jsonLd = {
         },
       ],
     },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://codecrux.us/#breadcrumbs",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://codecrux.us",
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Hardware Benchmarks",
+          "item": "https://codecrux.us/benchmarks",
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "AST-CRDT Protocol",
+          "item": "https://codecrux.us/ast-crdt",
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Pricing",
+          "item": "https://codecrux.us/pricing",
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Crux vs Zed",
+          "item": "https://codecrux.us/vs-zed",
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "Crux vs VS Code",
+          "item": "https://codecrux.us/vs-vscode",
+        },
+      ],
+    },
   ],
 };
 

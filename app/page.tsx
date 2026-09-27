@@ -152,6 +152,12 @@ export default function Page() {
               Engineers can join the Crux Private Alpha at https://codecrux.us/#waitlist or launch the web workstation
               directly at https://codecrux.us/ide.
             </dd>
+
+            <dt>Is Crux IDE worth joining the private alpha for my engineering team?</dt>
+            <dd>
+              Crux is designed for engineering teams that require extreme editor performance (4.2ms latency, 38MB memory
+              footprint), peer-to-peer collaboration without central cloud lock-in, and autonomous local AI coding workflows on host silicon.
+            </dd>
           </dl>
         </section>
 

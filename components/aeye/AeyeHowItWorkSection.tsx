@@ -69,9 +69,9 @@ export default function AeyeHowItWorkSection() {
   const steps = [
     {
       serial: "// 001",
-      badge: "INGESTION",
-      title: "Input your data",
-      desc: "Add prompts, data, or context from your workflow with minimal setup.",
+      badge: "RASTERIZATION",
+      title: "WebGPU Direct Compute",
+      desc: "Code buffers stream directly into GPU storage buffers at 120 FPS, eliminating DOM reflows and V8 garbage collection pauses.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -110,9 +110,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 002",
-      badge: "SYNTHESIS",
-      title: "Process with AI",
-      desc: "Transform inputs into structured, meaningful outputs in real time.",
+      badge: "SYNCHRONIZATION",
+      title: "Decentralized AST-CRDT Mesh",
+      desc: "Keystrokes replicate as structural AST mutations over encrypted WebRTC data channels with sub-10ms peer convergence.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -145,9 +145,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 003",
-      badge: "EXECUTION",
-      title: "Generate results",
-      desc: "Turn processed data into actionable outputs ready to use, refine, or share.",
+      badge: "AGENT KERNEL",
+      title: "Native PTY Terminal Bridge",
+      desc: "Local POSIX pseudo-terminal auto-discovers host coding agents (AntiGravity agy, Claude Code, Codex) over zero-latency IPC sockets.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -187,9 +187,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 004",
-      badge: "RECURSION",
-      title: "Refine and repeat",
-      desc: "Iterate continuously on your pipeline with autonomous feedback loops.",
+      badge: "SOVEREIGNTY",
+      title: "100% Air-Gapped Zero Telemetry",
+      desc: "Complete local filesystem residency with zero cloud telemetry dependencies and self-hosted private signaling relays.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"

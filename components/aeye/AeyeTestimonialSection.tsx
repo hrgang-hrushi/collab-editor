@@ -10,41 +10,41 @@ export default function AeyeTestimonialSection() {
     {
       type: "tweet" as const,
       name: "Jaron Smith",
-      handle: "@jaronsmith8802",
+      handle: "@jaron_systems",
       avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=128&h=128&fit=crop&crop=face",
       quote:
-        "We reduced hours of manual work into a few automated steps. The workflow feels seamless — and the results are consistently reliable.",
-      timestamp: "12:08 AM · DEC 12, 2025",
+        "Input-to-photon latency is the first thing you feel. In Crux, typing in a 200,000-line Rust codebase has zero garbage collection pauses. It feels as instantaneous as a hardware terminal.",
+      timestamp: "11:14 AM · AUG 18, 2026",
     },
     {
       type: "video" as const,
-      tag: "@DAVID_COREW",
+      tag: "@DAVID_SYS",
       duration: "1:30 min",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=750&fit=crop&crop=face",
     },
     {
       type: "tweet" as const,
       name: "Taylor Reed",
-      handle: "@taylor_reed4214",
+      handle: "@treed_compiler",
       avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=128&h=128&fit=crop&crop=face",
       quote:
-        "We replaced three internal scripts with one automated workflow. Setup took minutes. Maintenance takes none!!!",
-      timestamp: "9:03 PM · JUL 08, 2026",
+        "We migrated our pair-debugging sessions off central cloud relays to Crux's AST-CRDT peer mesh. Zero syntax collisions and sub-10ms peer sync over direct WebRTC.",
+      timestamp: "4:22 PM · SEP 02, 2026",
     },
     {
       type: "video" as const,
-      tag: "@ELENA_SYS",
+      tag: "@ELENA_KERNEL",
       duration: "2:15 min",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=750&fit=crop&crop=face",
     },
     {
       type: "tweet" as const,
       name: "Emily Carter",
-      handle: "@emilycarter_ui",
+      handle: "@emily_infra",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&h=128&fit=crop&crop=face",
       quote:
-        "Crux makes multi-agent workflows feel instantaneous. The typing latency and AST-CRDT pair sync are unmatched.",
-      timestamp: "3:45 PM · APR 19, 2026",
+        "The integrated local PTY socket daemon connects straight to our local LLMs and AntiGravity CLI with zero cloud telemetry. Air-gapped compliance was instant.",
+      timestamp: "8:40 PM · SEP 19, 2026",
     },
   ];
 
