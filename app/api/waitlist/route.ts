@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, role, arch, referral } = body || {};
+    const { email, role, arch, referral, contact, company, teamSize } = body || {};
 
     if (!email || typeof email !== "string" || !email.includes("@")) {
       return NextResponse.json(
@@ -32,6 +32,9 @@ export async function POST(req: NextRequest) {
       role,
       arch,
       referredBy: referral,
+      contact,
+      company,
+      teamSize,
     });
 
     return NextResponse.json({

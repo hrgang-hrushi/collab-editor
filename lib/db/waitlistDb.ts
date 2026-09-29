@@ -8,6 +8,9 @@ export interface WaitlistEntry {
   arch: string;
   referralCode: string;
   referredBy?: string;
+  contact?: string;
+  company?: string;
+  teamSize?: string;
   queuePosition: number;
   createdAt: string;
   status: "pending" | "confirmed";
@@ -49,6 +52,9 @@ export function addToWaitlist(data: {
   role?: string;
   arch?: string;
   referredBy?: string;
+  contact?: string;
+  company?: string;
+  teamSize?: string;
 }): { entry: WaitlistEntry; isNew: boolean; totalCount: number } {
   const normalizedEmail = data.email.trim().toLowerCase();
   const entries = readWaitlist();
@@ -56,6 +62,23 @@ export function addToWaitlist(data: {
   const existingIndex = entries.findIndex((e) => e.email === normalizedEmail);
   if (existingIndex !== -1) {
     const existing = entries[existingIndex];
+    // Update contact/company/teamSize if provided and previously missing
+    let modified = false;
+    if (data.contact && !existing.contact) {
+      existing.contact = data.contact;
+      modified = true;
+    }
+    if (data.company && !existing.company) {
+      existing.company = data.company;
+      modified = true;
+    }
+    if (data.teamSize && !existing.teamSize) {
+      existing.teamSize = data.teamSize;
+      modified = true;
+    }
+    if (modified) {
+      saveWaitlist(entries);
+    }
     return {
       entry: existing,
       isNew: false,
@@ -69,10 +92,13 @@ export function addToWaitlist(data: {
   const newEntry: WaitlistEntry = {
     id: `wl_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
     email: normalizedEmail,
-    role: data.role || "Systems & Rust Engineer",
+    role: data.role || (data.teamSize ? `Team: ${data.teamSize}` : "Systems & Rust Engineer"),
     arch: data.arch || "apple_silicon",
     referralCode,
     referredBy: data.referredBy,
+    contact: data.contact,
+    company: data.company,
+    teamSize: data.teamSize,
     queuePosition,
     createdAt: new Date().toISOString(),
     status: "confirmed",

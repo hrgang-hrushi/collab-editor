@@ -65,6 +65,18 @@ export default function AeyeHero() {
         localStorage.setItem("pre_crux_email", preCruxEmail);
       } catch (_) {}
 
+      // Fire asynchronous waitlist registration to persistent database
+      try {
+        fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: preCruxEmail,
+            role: "Hero Pre-Crux Quick Access",
+          }),
+        }).catch((err) => console.warn("[Hero Waitlist] Sync warn:", err));
+      } catch (_) {}
+
       setChipStage("almost");
 
       setTimeout(() => {

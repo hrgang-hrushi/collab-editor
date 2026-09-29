@@ -32,7 +32,7 @@ export default function AeyePricingSection() {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       setError("Please provide a valid work email address.");
@@ -44,12 +44,36 @@ export default function AeyePricingSection() {
     }
 
     setError("");
-    // Generate deterministic brutalist ticket ID
+    // Generate deterministic brutalist ticket ID fallback
     const randomHex = Math.random().toString(16).substring(2, 8).toUpperCase();
-    const generatedId = `CRUX-ALPHA-${randomHex}`;
+    let generatedId = `CRUX-ALPHA-${randomHex}`;
     setTicketId(generatedId);
 
     setChipStage("almost");
+
+    // Persist to waitlist database API
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          contact,
+          company,
+          teamSize,
+          role: company ? `${company} (${teamSize})` : teamSize,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.referralCode) {
+          generatedId = data.referralCode;
+          setTicketId(generatedId);
+        }
+      }
+    } catch (err) {
+      console.warn("[Waitlist] Network sync failed, falling back to local ID:", err);
+    }
 
     setTimeout(() => {
       setChipStage("gone");
@@ -63,7 +87,14 @@ export default function AeyePricingSection() {
       try {
         localStorage.setItem(
           "crux_waitlist_ticket",
-          JSON.stringify({ ticketId: generatedId, email, contact, teamSize, date: new Date().toISOString() })
+          JSON.stringify({
+            ticketId: generatedId,
+            email,
+            contact,
+            teamSize,
+            company,
+            date: new Date().toISOString(),
+          })
         );
       } catch (_) {}
     }, 2000);

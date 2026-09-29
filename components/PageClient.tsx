@@ -15,19 +15,20 @@ const CruxEditorView = dynamic(() => import("@/components/crux/CruxEditorView"),
 });
 
 export default function PageClient() {
-  const [view, setView] = useState<"crux" | "editor" | "aeye">("crux");
+  const [view, setView] = useState<"crux" | "editor" | "aeye">("aeye");
 
   useEffect(() => {
     if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
 
-      if (searchParams.get("aeye") === "true") {
-        setView("aeye");
+      if (searchParams.get("crux") === "true") {
+        setView("crux");
         return;
       }
 
       if (searchParams.get("app") === "true" || searchParams.get("editor") === "true") {
         setView("editor");
+        return;
       }
     }
   }, []);
@@ -35,14 +36,14 @@ export default function PageClient() {
   if (view === "editor") {
     return (
       <div className="w-screen h-screen overflow-hidden bg-black">
-        <CruxEditorView onBackToEffects={() => setView("crux")} />
+        <CruxEditorView onBackToEffects={() => setView("aeye")} />
       </div>
     );
   }
 
-  if (view === "aeye") {
-    return <AeyeLandingPage />;
+  if (view === "crux") {
+    return <CruxLandingPage onLaunchWebEditor={() => setView("editor")} />;
   }
 
-  return <CruxLandingPage onLaunchWebEditor={() => setView("editor")} />;
+  return <AeyeLandingPage />;
 }

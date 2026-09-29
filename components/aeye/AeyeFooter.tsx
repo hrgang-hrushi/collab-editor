@@ -35,6 +35,18 @@ export default function AeyeFooter() {
         localStorage.setItem("crux_dispatch_email", email);
       } catch (_) {}
 
+      // Fire asynchronous registration to waitlist database
+      try {
+        fetch("/api/waitlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            role: "Crux Insider Dispatch / Newsletter",
+          }),
+        }).catch((err) => console.warn("[Dispatch] Sync warn:", err));
+      } catch (_) {}
+
       setChipStage("almost");
 
       setTimeout(() => {
