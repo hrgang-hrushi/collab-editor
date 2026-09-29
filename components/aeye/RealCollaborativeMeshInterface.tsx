@@ -23,9 +23,9 @@ export default function RealCollaborativeMeshInterface({
   showHeader = true,
   showStatusBar = true,
 }: RealCollaborativeMeshInterfaceProps) {
-  // Live typing simulation on line 6 by Mohyman
+  // Live typing simulation on line 6 by Muhaymin
   const [typedSuffix, setTypedSuffix] = useState("");
-  const [mohymanStatus, setMohymanStatus] = useState<"idle" | "typing" | "selecting">("idle");
+  const [muhayminStatus, setMuhayminStatus] = useState<"idle" | "typing" | "selecting">("idle");
   const [cursorPosCol, setCursorPosCol] = useState(22);
 
   // Cycling interaction loop directly mirroring real live collaborative typing
@@ -37,7 +37,7 @@ export default function RealCollaborativeMeshInterface({
 
     const runLoop = () => {
       if (mode === "typing") {
-        setMohymanStatus("typing");
+        setMuhayminStatus("typing");
         if (index < targetText.length) {
           index += 1;
           setTypedSuffix(targetText.slice(0, index));
@@ -45,16 +45,16 @@ export default function RealCollaborativeMeshInterface({
           timeout = setTimeout(runLoop, 220);
         } else {
           mode = "pausing";
-          setMohymanStatus("idle");
+          setMuhayminStatus("idle");
           timeout = setTimeout(runLoop, 2400);
         }
       } else if (mode === "pausing") {
         mode = "selecting";
-        setMohymanStatus("selecting");
+        setMuhayminStatus("selecting");
         timeout = setTimeout(runLoop, 2200);
       } else if (mode === "selecting") {
         mode = "erasing";
-        setMohymanStatus("typing");
+        setMuhayminStatus("typing");
         timeout = setTimeout(runLoop, 400);
       } else if (mode === "erasing") {
         if (index > 0) {
@@ -64,7 +64,7 @@ export default function RealCollaborativeMeshInterface({
           timeout = setTimeout(runLoop, 140);
         } else {
           mode = "typing";
-          setMohymanStatus("idle");
+          setMuhayminStatus("idle");
           timeout = setTimeout(runLoop, 1200);
         }
       }
@@ -106,7 +106,7 @@ export default function RealCollaborativeMeshInterface({
             </div>
           </div>
 
-          {/* Right: Active Collaborators (Hrushikesh Gangala & Mohyman) + Share */}
+          {/* Right: Active Collaborators (Hrushikesh Gangala & Muhaymin) + Share */}
           <div className="flex items-center gap-2">
             {/* Peer 1: Hrushikesh Gangala (Host) */}
             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#111114] border border-[#222222] text-[11px] text-white font-sans">
@@ -116,12 +116,12 @@ export default function RealCollaborativeMeshInterface({
               <span className="truncate max-w-[120px] font-medium hidden sm:inline">Hrushikesh Gangala</span>
             </div>
 
-            {/* Peer 2: Mohyman */}
+            {/* Peer 2: Muhaymin */}
             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#111114] border border-[#222222] text-[11px] text-white font-sans">
               <div className="w-3.5 h-3.5 rounded-full bg-white text-black flex items-center justify-center text-[8px] font-bold shrink-0">
                 M
               </div>
-              <span className="truncate max-w-[80px] font-medium hidden sm:inline">Mohyman</span>
+              <span className="truncate max-w-[80px] font-medium hidden sm:inline">Muhaymin</span>
             </div>
 
             {/* Share Button */}
@@ -247,7 +247,7 @@ export default function RealCollaborativeMeshInterface({
             <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
 
             {/* ============================================================== */}
-            {/* REMOTE PEER 1: MOHYMAN LIVE CANVA DART CURSOR                  */}
+            {/* REMOTE PEER 1: MUHAYMIN LIVE CANVA DART CURSOR                 */}
             {/* ============================================================== */}
             <motion.div
               className="absolute pointer-events-none z-30 select-none"
@@ -262,10 +262,10 @@ export default function RealCollaborativeMeshInterface({
               }}
             >
               <CruxPointerCursor
-                name="Mohyman"
-                uid="MOHYMAN"
+                name="Muhaymin"
+                uid="MUHAYMIN"
                 color="#FFFFFF"
-                status={mohymanStatus === "typing" ? "typing" : mohymanStatus === "selecting" ? "selecting" : undefined}
+                status={muhayminStatus === "typing" ? "typing" : muhayminStatus === "selecting" ? "selecting" : undefined}
               />
             </motion.div>
 
@@ -331,7 +331,7 @@ export default function RealCollaborativeMeshInterface({
                 </span>
               </div>
 
-              {/* Line 06: Live typing simulation by Mohyman */}
+              {/* Line 06: Live typing simulation by Muhaymin */}
               <div className="flex items-center relative bg-[#ffffff]/5 pl-0.5">
                 <span className="w-6 text-right text-[10px] text-white font-bold select-none pr-3">6</span>
                 <span className="text-white pl-3 font-mono">
@@ -395,7 +395,7 @@ export default function RealCollaborativeMeshInterface({
               </div>
 
               {/* Line 14: Hrushikesh Gangala editing cursor point */}
-              <div className={`flex items-center relative pl-0.5 ${mohymanStatus === "selecting" ? "bg-[#007AFF]/20 border-l-2 border-[#007AFF]" : ""}`}>
+              <div className={`flex items-center relative pl-0.5 ${muhayminStatus === "selecting" ? "bg-[#007AFF]/20 border-l-2 border-[#007AFF]" : ""}`}>
                 <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">14</span>
                 <span className="text-white pl-3">
                   vector: <span className="text-[#007AFF]">SyncVector</span>
