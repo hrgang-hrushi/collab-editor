@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import { Copy, Check, Terminal, Zap, GitMerge, Bot, Activity, Cpu } from "lucide-react";
 import Link from "next/link";
+import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -182,24 +183,45 @@ export default function AeyeInstallationSection() {
                           CRUX // {currentTab.subtitle}
                         </span>
                       </div>
-                      <button
-                        onClick={handleCopy}
-                        className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
-                        aria-label="Copy data"
-                      >
-                        <span>{copied ? "Copied" : "Copy"}</span>
-                        {copied ? (
-                          <Check className="w-3.5 h-3.5 text-[#0055FF]" />
-                        ) : (
-                          <Copy className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-3">
+                        {activeTab === "multiplayer" && (
+                          <div className="hidden sm:flex items-center gap-2">
+                            <div className="flex items-center -space-x-1">
+                              <div className="w-4 h-4 bg-[#0055FF] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-30" title="Host">
+                                OP
+                              </div>
+                              <div className="w-4 h-4 bg-[#06b6d4] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-20" title="Tarika">
+                                TK
+                              </div>
+                              <div className="w-4 h-4 bg-[#f59e0b] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-10" title="Pavan">
+                                PV
+                              </div>
+                            </div>
+                            <span className="text-[10px] text-[#22c55e] font-mono flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-none animate-pulse" />
+                              2 PEERS
+                            </span>
+                          </div>
                         )}
-                      </button>
+                        <button
+                          onClick={handleCopy}
+                          className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
+                          aria-label="Copy data"
+                        >
+                          <span>{copied ? "Copied" : "Copy"}</span>
+                          {copied ? (
+                            <Check className="w-3.5 h-3.5 text-[#0055FF]" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      </div>
                     </div>
 
                     {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
-                    <div className="flex-1 p-5 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative">
+                    <div className={`flex-1 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative ${activeTab === "multiplayer" ? "p-0" : "p-5"}`}>
                       <AnimatePresence mode="wait">
-                        {/* TAB 1: Real-Time Collaborative Mesh (Tarika & Pavan Cursors) */}
+                        {/* TAB 1: Real-Time Collaborative Mesh (Real Crux IDE Interface) */}
                         {activeTab === "multiplayer" && (
                           <motion.div
                             key="tab-multiplayer"
@@ -207,142 +229,9 @@ export default function AeyeInstallationSection() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between select-none relative"
+                            className="h-full w-full select-none relative"
                           >
-                            {/* Live Presence Header */}
-                            <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
-                              <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 rounded-none bg-[#22c55e] animate-pulse" />
-                                <span className="text-white font-bold tracking-wide">CRUX P2P MESH</span>
-                                <span className="text-[#444444]">|</span>
-                                <span className="text-[#06b6d4] font-medium flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-none bg-[#06b6d4]" />
-                                  Tarika
-                                </span>
-                                <span className="text-[#f59e0b] font-medium flex items-center gap-1">
-                                  <span className="w-1.5 h-1.5 rounded-none bg-[#f59e0b]" />
-                                  Pavan
-                                </span>
-                              </div>
-                              <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30 hidden sm:inline">
-                                0-LATENCY
-                              </span>
-                            </div>
-
-                            {/* Collaborative Workspace Buffer Viewport with Live Animated Cursors */}
-                            <div className="relative flex-1 my-2 p-3 border border-[#222222] bg-[#070709] overflow-hidden flex flex-col justify-between font-mono text-[11.5px]">
-                              {/* Background grid pattern */}
-                              <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
-
-                              {/* Floating Animated Cursor 1: Tarika */}
-                              <motion.div
-                                className="absolute pointer-events-none z-30 flex items-start gap-1 select-none"
-                                animate={{
-                                  x: [24, 130, 210, 110, 45, 24],
-                                  y: [24, 48, 92, 65, 32, 24],
-                                }}
-                                transition={{
-                                  duration: 7.5,
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                }}
-                              >
-                                <svg
-                                  className="w-4 h-4 text-[#06b6d4] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                                  viewBox="0 0 16 16"
-                                  fill="currentColor"
-                                >
-                                  <path d="M0 0L6 14L8.5 8.5L14 6L0 0Z" />
-                                </svg>
-                                <div className="px-1.5 py-0.5 bg-[#0a0a0c] border border-[#06b6d4] text-[9.5px] font-mono font-medium text-white flex items-center gap-1.5 shadow-[0_2px_8px_rgba(6,182,212,0.3)]">
-                                  <span className="w-1.5 h-1.5 rounded-none bg-[#06b6d4]" />
-                                  <span>Tarika</span>
-                                </div>
-                              </motion.div>
-
-                              {/* Floating Animated Cursor 2: Pavan */}
-                              <motion.div
-                                className="absolute pointer-events-none z-30 flex items-start gap-1 select-none"
-                                animate={{
-                                  x: [190, 260, 180, 240, 210, 190],
-                                  y: [80, 125, 145, 62, 105, 80],
-                                }}
-                                transition={{
-                                  duration: 8.5,
-                                  repeat: Infinity,
-                                  ease: "easeInOut",
-                                  delay: 0.4,
-                                }}
-                              >
-                                <svg
-                                  className="w-4 h-4 text-[#f59e0b] drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                                  viewBox="0 0 16 16"
-                                  fill="currentColor"
-                                >
-                                  <path d="M0 0L6 14L8.5 8.5L14 6L0 0Z" />
-                                </svg>
-                                <div className="px-1.5 py-0.5 bg-[#0a0a0c] border border-[#f59e0b] text-[9.5px] font-mono font-medium text-white flex items-center gap-1.5 shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
-                                  <span className="w-1.5 h-1.5 rounded-none bg-[#f59e0b]" />
-                                  <span>Pavan</span>
-                                </div>
-                              </motion.div>
-
-                              {/* Code / Canvas Content Lines with active multi-selection highlights */}
-                              <div className="space-y-1.5 relative z-10">
-                                <div className="flex items-center gap-2 text-[#555555]">
-                                  <span className="w-5 text-right text-[10px]">01</span>
-                                  <span className="text-[#888888]">// Shared CRDT Ring Buffer · Zero Locks</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-5 text-right text-[10px] text-[#555555]">02</span>
-                                  <span className="text-[#0055FF]">export async function</span>
-                                  <span className="text-white font-semibold">streamReplication</span>
-                                  <span className="text-[#71717a]">(ctx: CRDTRing) &#123;</span>
-                                </div>
-                                {/* Line 03: Tarika's selection */}
-                                <div className="flex items-center gap-2 relative bg-[#06b6d4]/10 border-l-2 border-[#06b6d4] pl-1">
-                                  <span className="w-5 text-right text-[10px] text-[#06b6d4]">03</span>
-                                  <span className="text-[#a1a1aa] pl-3">const buffer = await ctx.acquireShm(16 * 1024);</span>
-                                  <span className="ml-auto text-[9px] text-[#06b6d4] font-mono font-semibold pr-1 hidden sm:inline">Tarika selecting</span>
-                                </div>
-                                {/* Line 04: Pavan's active edit */}
-                                <div className="flex items-center gap-2 relative bg-[#f59e0b]/10 border-l-2 border-[#f59e0b] pl-1">
-                                  <span className="w-5 text-right text-[10px] text-[#f59e0b]">04</span>
-                                  <span className="text-[#a1a1aa] pl-3">return buffer.broadcastMultiplayer([&quot;Tarika&quot;, &quot;Pavan&quot;]);</span>
-                                  <span className="ml-auto text-[9px] text-[#f59e0b] font-mono font-semibold pr-1 hidden sm:inline">Pavan editing</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="w-5 text-right text-[10px] text-[#555555]">05</span>
-                                  <span>&#125;</span>
-                                </div>
-                              </div>
-
-                              {/* Real-time telemetry indicators */}
-                              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1a1a20] relative z-10">
-                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
-                                  <span className="text-[#71717a] block">TARIKA JITTER</span>
-                                  <span className="text-[#06b6d4] font-bold">0.4ms (Tokyo)</span>
-                                </div>
-                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
-                                  <span className="text-[#71717a] block">PAVAN JITTER</span>
-                                  <span className="text-[#f59e0b] font-bold">0.6ms (SF)</span>
-                                </div>
-                                <div className="p-1.5 border border-[#222222] bg-[#0c0c10] text-[10px]">
-                                  <span className="text-[#71717a] block">SYNTAX STATE</span>
-                                  <span className="text-[#22c55e] font-bold">100% Attested</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Bottom Status bar */}
-                            <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px] shrink-0">
-                              <span className="text-[#888888]">
-                                PEER REPLICATION: <strong className="text-white">0 CONFLICTS</strong>
-                              </span>
-                              <span className="text-[#888888]">
-                                PRECISION: <strong className="text-[#0055FF]">SUB-PIXEL PRESENCE</strong>
-                              </span>
-                            </div>
+                            <RealCollaborativeMeshInterface showHeader={false} showStatusBar={false} />
                           </motion.div>
                         )}
 
