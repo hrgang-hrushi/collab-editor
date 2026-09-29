@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import os from "os";
 
 export interface WaitlistEntry {
   id: string;
@@ -16,35 +17,77 @@ export interface WaitlistEntry {
   status: "pending" | "confirmed";
 }
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DB_FILE = path.join(DATA_DIR, "waitlist.json");
 const BASE_QUEUE_OFFSET = 1480; // Baseline founding engineer seed for social proof
 
-function ensureDbFile(): void {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DB_FILE)) {
-    fs.writeFileSync(DB_FILE, JSON.stringify([], null, 2), "utf-8");
-  }
+// In-memory cache across serverless warm executions
+let inMemoryEntries: WaitlistEntry[] | null = null;
+
+function getStoragePaths(): { primary: string; fallback: string } {
+  const localPath = path.join(process.cwd(), "data", "waitlist.json");
+  const tmpPath = path.join(os.tmpdir(), "crux_waitlist.json");
+  return { primary: localPath, fallback: tmpPath };
 }
 
 export function readWaitlist(): WaitlistEntry[] {
-  ensureDbFile();
-  try {
-    const raw = fs.readFileSync(DB_FILE, "utf-8");
-    return JSON.parse(raw) as WaitlistEntry[];
-  } catch (err) {
-    console.error("[WaitlistDB] Read error:", err);
-    return [];
+  if (inMemoryEntries !== null && inMemoryEntries.length > 0) {
+    return inMemoryEntries;
   }
+
+  const { primary, fallback } = getStoragePaths();
+
+  // Try reading from fallback (/tmp) first if it exists
+  if (fs.existsSync(fallback)) {
+    try {
+      const raw = fs.readFileSync(fallback, "utf-8");
+      const parsed = JSON.parse(raw) as WaitlistEntry[];
+      inMemoryEntries = parsed;
+      return inMemoryEntries;
+    } catch (_) {}
+  }
+
+  // Next try reading from primary (local repo / seed)
+  if (fs.existsSync(primary)) {
+    try {
+      const raw = fs.readFileSync(primary, "utf-8");
+      const parsed = JSON.parse(raw) as WaitlistEntry[];
+      inMemoryEntries = parsed;
+      return inMemoryEntries;
+    } catch (_) {}
+  }
+
+  inMemoryEntries = [];
+  return inMemoryEntries;
 }
 
 export function saveWaitlist(entries: WaitlistEntry[]): void {
-  ensureDbFile();
-  const tmpFile = `${DB_FILE}.tmp`;
-  fs.writeFileSync(tmpFile, JSON.stringify(entries, null, 2), "utf-8");
-  fs.renameSync(tmpFile, DB_FILE);
+  inMemoryEntries = entries;
+  const { primary, fallback } = getStoragePaths();
+
+  let saved = false;
+  // Try saving to primary (local filesystem)
+  try {
+    const dir = path.dirname(primary);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const tmpFile = `${primary}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(entries, null, 2), "utf-8");
+    fs.renameSync(tmpFile, primary);
+    saved = true;
+  } catch (_) {
+    // Expected in read-only serverless lambdas (/var/task)
+  }
+
+  // Always also write to /tmp as reliable writable location in serverless
+  try {
+    const tmpFile = `${fallback}.tmp`;
+    fs.writeFileSync(tmpFile, JSON.stringify(entries, null, 2), "utf-8");
+    fs.renameSync(tmpFile, fallback);
+  } catch (err) {
+    if (!saved) {
+      console.warn("[WaitlistDB] Filesystem write failed, retained in memory:", err);
+    }
+  }
 }
 
 export function addToWaitlist(data: {

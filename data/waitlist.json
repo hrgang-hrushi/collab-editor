@@ -1,0 +1,22 @@
+[
+  {
+    "id": "wl_1790695760069_kuu3",
+    "email": "lead.dev@crux.systems",
+    "role": "Systems & Rust Engineer",
+    "arch": "apple_silicon",
+    "referralCode": "CRUX-BR7K",
+    "queuePosition": 1481,
+    "createdAt": "2026-09-29T15:29:20.069Z",
+    "status": "confirmed"
+  },
+  {
+    "id": "wl_1790696078569_z4sy",
+    "email": "alpha_tester@engineering.org",
+    "role": "systems",
+    "arch": "apple_silicon",
+    "referralCode": "CRUX-UBUM",
+    "queuePosition": 1482,
+    "createdAt": "2026-09-29T15:34:38.569Z",
+    "status": "confirmed"
+  }
+]

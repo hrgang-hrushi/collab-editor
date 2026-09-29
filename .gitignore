@@ -58,5 +58,6 @@ cloudflare-env.d.ts
 
 !.env.example
 output/
-data/
+data/*
+!data/waitlist.json
 
