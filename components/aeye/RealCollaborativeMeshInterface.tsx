@@ -3,23 +3,32 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Files,
   FileCode2,
-  GitBranch,
-  Radio,
-  Bot,
-  Terminal,
+  Folder,
+  FolderOpen,
+  Plus,
+  Download,
+  Search,
   Settings,
-  SplitSquareVertical,
+  Terminal,
+  Sparkles,
+  Share2,
+  Lock,
+  Unlock,
+  Inbox,
   Play,
   Save,
-  Share2,
-  Check,
-  Cpu,
-  Wifi,
-  ShieldCheck,
-  Sparkles,
+  Link2,
+  SplitSquareVertical,
+  Maximize2,
+  Trash2,
+  Clock,
+  GitBranch,
+  ChevronDown,
+  Layers,
+  Code2,
 } from "lucide-react";
+import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 import CruxPointerCursor from "@/components/crux/CruxPointerCursor";
 
 interface RealCollaborativeMeshInterfaceProps {
@@ -28,471 +37,578 @@ interface RealCollaborativeMeshInterfaceProps {
 }
 
 export default function RealCollaborativeMeshInterface({
-  showHeader = false,
+  showHeader = true,
   showStatusBar = true,
 }: RealCollaborativeMeshInterfaceProps) {
-  // Marcus Vance typing simulation inside acquireLock
-  const fullParamString = 'channel = "stream-mesh-primary"';
-  const [typedChars, setTypedChars] = useState(fullParamString.length);
-  const [isTyping, setIsTyping] = useState(true);
+  // Live typing simulation on line 6: path: "/var/crux/wal.bin", Hr|
+  const [typedSuffix, setTypedSuffix] = useState("");
+  const [bussiwStatus, setBussiwStatus] = useState<"idle" | "typing" | "selecting">("idle");
+  const [cursorPosCol, setCursorPosCol] = useState(22);
 
-  // Real-time jitter telemetry for real peers
-  const [sarahLatency, setSarahLatency] = useState("0.28ms");
-  const [marcusLatency, setMarcusLatency] = useState("0.41ms");
-
-  useEffect(() => {
-    const jitterInterval = setInterval(() => {
-      setSarahLatency(`${(0.24 + Math.random() * 0.08).toFixed(2)}ms`);
-      setMarcusLatency(`${(0.36 + Math.random() * 0.10).toFixed(2)}ms`);
-    }, 1400);
-    return () => clearInterval(jitterInterval);
-  }, []);
-
-  // Character-by-character live typing loop for Marcus Vance
+  // Cycling interaction loop directly mirroring the user's video recording
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    let charIndex = fullParamString.length;
-    let forward = false;
+    const targetText = " Hr";
+    let index = 0;
+    let mode: "typing" | "pausing" | "erasing" | "selecting" = "typing";
 
-    const runTypingLoop = () => {
-      if (forward) {
-        if (charIndex < fullParamString.length) {
-          charIndex += 1;
-          setTypedChars(charIndex);
-          setIsTyping(true);
-          const typingDelay = 40 + Math.random() * 50;
-          timeout = setTimeout(runTypingLoop, typingDelay);
+    const runLoop = () => {
+      if (mode === "typing") {
+        setBussiwStatus("typing");
+        if (index < targetText.length) {
+          index += 1;
+          setTypedSuffix(targetText.slice(0, index));
+          setCursorPosCol(22 + index);
+          timeout = setTimeout(runLoop, 220);
         } else {
-          setIsTyping(false);
-          timeout = setTimeout(() => {
-            forward = false;
-            runTypingLoop();
-          }, 3600);
+          mode = "pausing";
+          setBussiwStatus("idle");
+          timeout = setTimeout(runLoop, 2400);
         }
-      } else {
-        if (charIndex > 10) {
-          charIndex -= 1;
-          setTypedChars(charIndex);
-          timeout = setTimeout(runTypingLoop, 35);
+      } else if (mode === "pausing") {
+        mode = "selecting";
+        setBussiwStatus("selecting");
+        timeout = setTimeout(runLoop, 2200);
+      } else if (mode === "selecting") {
+        mode = "erasing";
+        setBussiwStatus("typing");
+        timeout = setTimeout(runLoop, 400);
+      } else if (mode === "erasing") {
+        if (index > 0) {
+          index -= 1;
+          setTypedSuffix(targetText.slice(0, index));
+          setCursorPosCol(22 + index);
+          timeout = setTimeout(runLoop, 140);
         } else {
-          forward = true;
-          timeout = setTimeout(runTypingLoop, 800);
+          mode = "typing";
+          setBussiwStatus("idle");
+          timeout = setTimeout(runLoop, 1200);
         }
       }
     };
 
-    timeout = setTimeout(runTypingLoop, 2000);
+    timeout = setTimeout(runLoop, 800);
     return () => clearTimeout(timeout);
   }, []);
 
   return (
-    <div className="w-full h-full bg-[#000000] flex flex-col justify-between font-mono select-none overflow-hidden text-xs">
-      {/* 1. IDE TOP TITLEBAR & WORKSPACE BREADCRUMBS */}
+    <div className="w-full h-full bg-[#000000] flex flex-col justify-between font-sans select-none overflow-hidden text-xs">
+      {/* 1. CRUX DESKTOP TOP BAR (Exact 1-to-1 match to video) */}
       {showHeader && (
-        <div className="h-8 px-3 bg-[#0a0a0d] border-b border-[#222222] flex items-center justify-between shrink-0">
-          {/* Left: Window Controls + Breadcrumbs */}
-          <div className="flex items-center gap-2.5 min-w-0">
+        <header className="h-9 px-3 bg-[#0a0a0c] border-b border-[#222222] flex items-center justify-between shrink-0 select-none">
+          {/* Left: Window Notches + Crux Logo + Mode Toggle */}
+          <div className="flex items-center gap-3">
+            {/* Brutalist window control dots */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <span className="w-2 h-2 bg-[#007AFF] rounded-none inline-block" />
-              <span className="text-[11px] font-mono text-white font-bold tracking-tight">CRUX</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f56]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#ffbd2e]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-[#27c93f]" />
             </div>
 
-            <div className="w-[1px] h-3 bg-[#222222]" />
+            <div className="w-[1px] h-3.5 bg-[#222222]" />
 
-            <div className="flex items-center gap-1 text-[11px] text-[#666666] truncate font-mono">
-              <span className="text-[#888888]">crux-stream-sync</span>
-              <span className="text-[#333333]">/</span>
-              <span className="text-[#888888]">src</span>
-              <span className="text-[#333333]">/</span>
-              <span className="text-white font-medium flex items-center gap-1">
-                <FileCode2 className="w-3 h-3 text-[#007AFF]" />
-                stream_syncer.ts
+            {/* Crux Wordmark */}
+            <div className="flex items-center gap-2">
+              <CruxBrandLogo size={16} withText={true} />
+            </div>
+
+            {/* Mode Switcher: [EDITOR] [CANVAS] */}
+            <div className="flex items-center border border-[#222222] bg-[#000000] text-[10px] font-mono">
+              <span className="px-2 py-0.5 bg-[#141418] text-white font-bold border-r border-[#222222]">
+                EDITOR
+              </span>
+              <span className="px-2 py-0.5 text-[#555555] hover:text-white cursor-pointer">
+                CANVAS
               </span>
             </div>
           </div>
 
-          {/* Right: Live Collaborative Presence Badges */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div className="flex items-center -space-x-1">
-              <div
-                className="w-5 h-5 bg-[#007AFF] text-[9px] font-bold text-white flex items-center justify-center rounded-none z-30 border border-black"
-                title="Hrushikesh Gangala (Host)"
-              >
+          {/* Right: User Profile + Status Pills + Controls */}
+          <div className="flex items-center gap-2">
+            {/* Active User Pill with Mech Avatar */}
+            <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#111114] border border-[#222222] text-[11px] text-white font-sans">
+              <div className="w-3.5 h-3.5 rounded-full bg-[#007AFF] flex items-center justify-center text-[8px] font-bold text-white shrink-0">
                 HG
               </div>
-              <div
-                className="w-5 h-5 bg-[#38b6ff] text-[9px] font-bold text-black flex items-center justify-center rounded-none z-20 border border-black"
-                title="Sarah Lin (Staff Infrastructure)"
-              >
-                SL
-              </div>
-              <div
-                className="w-5 h-5 bg-[#ff914d] text-[9px] font-bold text-black flex items-center justify-center rounded-none z-10 border border-black"
-                title="Marcus Vance (Systems Architect)"
-              >
-                MV
-              </div>
-              <div
-                className="w-5 h-5 bg-[#ff5757] text-[9px] font-bold text-white flex items-center justify-center rounded-none z-0 border border-black"
-                title="CruxAI (Speculative Co-Pilot)"
-              >
-                AI
-              </div>
+              <span className="truncate max-w-[120px] font-medium hidden sm:inline">Hrushikesh Gangala</span>
             </div>
 
-            <div className="px-1.5 py-0.5 border border-[#22c55e]/40 bg-[#22c55e]/10 text-[9px] text-[#22c55e] font-mono flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-[#22c55e] animate-pulse rounded-none" />
-              <span className="font-semibold hidden sm:inline">3 PEERS IN-SYNC</span>
+            {/* Unlocked Pill */}
+            <div className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 border border-[#222222] text-[#888888] text-[10px] font-mono">
+              <Unlock className="w-3 h-3 text-[#888888]" />
+              <span>UNLOCKED</span>
+            </div>
+
+            {/* Collaborative Inbox with Badge */}
+            <div className="relative p-1 border border-[#222222] bg-[#111114] text-[#888888] flex items-center justify-center">
+              <Inbox className="w-3 h-3" />
+              <span className="absolute -top-1 -right-1 bg-white text-black text-[8px] font-mono font-bold w-3 h-3 flex items-center justify-center leading-none border border-[#222222]">
+                1
+              </span>
+            </div>
+
+            {/* Settings Gear */}
+            <div className="p-1 border border-[#222222] bg-[#111114] text-[#888888] hidden sm:flex items-center justify-center">
+              <Settings className="w-3 h-3" />
+            </div>
+
+            {/* Window Layout Toggles */}
+            <div className="hidden md:flex items-center border border-[#222222] divide-x divide-[#222222]">
+              <span className="p-1 bg-[#141418] text-white">
+                <Code2 className="w-3 h-3" />
+              </span>
+              <span className="p-1 bg-[#000000] text-[#555555]">
+                <Terminal className="w-3 h-3" />
+              </span>
+              <span className="p-1 bg-[#000000] text-[#555555]">
+                <Sparkles className="w-3 h-3" />
+              </span>
+            </div>
+
+            {/* Share Button */}
+            <div className="px-2 py-0.5 bg-[#000000] border border-white text-white font-sans text-[10px] font-semibold uppercase flex items-center gap-1 cursor-pointer hover:bg-white hover:text-black transition-none">
+              <Share2 className="w-2.5 h-2.5" />
+              <span>SHARE</span>
             </div>
           </div>
-        </div>
+        </header>
       )}
 
-      {/* 2. MAIN WORKSPACE (ACTIVITY BAR + ZENITH FILE TREE + CODE EDITOR PANE) */}
+      {/* 2. CRUX MENU BAR (File Edit Selection View Go Run Terminal Help) */}
+      <div className="h-5 bg-[#060608] border-b border-[#1a1a1e] flex items-center px-3 gap-3 text-[11px] font-sans text-[#777777] select-none shrink-0 overflow-x-auto">
+        <span className="text-white hover:text-white cursor-pointer">File</span>
+        <span className="hover:text-white cursor-pointer">Edit</span>
+        <span className="hover:text-white cursor-pointer">Selection</span>
+        <span className="hover:text-white cursor-pointer">View</span>
+        <span className="hover:text-white cursor-pointer">Go</span>
+        <span className="hover:text-white cursor-pointer">Run</span>
+        <span className="hover:text-white cursor-pointer">Terminal</span>
+        <span className="hover:text-white cursor-pointer">Help</span>
+      </div>
+
+      {/* 3. MAIN WORKSPACE (EXPLORER SIDEBAR + CODE EDITOR PANE) */}
       <div className="flex-1 flex overflow-hidden min-h-0 bg-[#000000]">
-        {/* Left Activity Bar */}
-        <div className="w-8 sm:w-9 bg-[#08080a] border-r border-[#222222] flex flex-col items-center justify-between py-2 shrink-0">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-full flex items-center justify-center relative cursor-pointer text-white">
-              <div className="absolute left-0 top-1 bottom-1 w-[2px] bg-[#007AFF]" />
-              <Files className="w-3.5 h-3.5 text-white" />
-            </div>
-            <GitBranch className="w-3.5 h-3.5 text-[#555555] hover:text-[#888888] cursor-pointer" />
-            <div className="relative cursor-pointer">
-              <Radio className="w-3.5 h-3.5 text-[#007AFF]" />
-              <span className="absolute -top-1 -right-1 w-1 h-1 bg-[#22c55e] rounded-none animate-ping" />
-            </div>
-            <Bot className="w-3.5 h-3.5 text-[#555555] hover:text-[#888888] cursor-pointer" />
-          </div>
-          <div className="flex flex-col items-center gap-2">
-            <Terminal className="w-3.5 h-3.5 text-[#555555]" />
-            <Settings className="w-3.5 h-3.5 text-[#555555]" />
-          </div>
-        </div>
-
-        {/* Real Zenith File Tree Sidebar */}
-        <div className="w-28 sm:w-36 bg-[#0a0a0c] border-r border-[#222222] p-2 flex flex-col justify-between shrink-0 hidden sm:flex">
+        {/* Left Explorer Sidebar */}
+        <div className="w-36 sm:w-44 bg-[#0a0a0c] border-r border-[#222222] p-2 flex flex-col justify-between shrink-0 select-none hidden sm:flex">
           <div>
-            <div className="text-[9px] uppercase tracking-wider text-[#666666] font-semibold pb-1 border-b border-[#1c1c20] mb-1.5 flex items-center justify-between">
+            {/* Explorer Header */}
+            <div className="text-[10px] font-mono text-[#888888] font-bold pb-1.5 border-b border-[#1a1a1e] flex items-center justify-between mb-2">
               <span>EXPLORER</span>
-              <span className="text-[8px] text-[#444444]">CRUX</span>
-            </div>
-            <div className="space-y-0.5 text-[10px]">
-              <div className="text-[#888888] flex items-center gap-1 py-0.5 px-1 font-mono text-[9px]">
-                <span className="text-[8px]">▾</span>
-                <span>crux-stream-sync</span>
-              </div>
-              <div className="bg-[#141418] border-l-2 border-[#007AFF] text-white flex items-center gap-1.5 py-0.5 pl-2 font-mono text-[9.5px]">
-                <span className="w-1 h-1 bg-[#007AFF] rounded-none" />
-                <span className="font-semibold truncate">stream_syncer.ts</span>
-              </div>
-              <div className="text-[#666666] flex items-center gap-1.5 py-0.5 pl-3 font-mono text-[9px] hover:text-white cursor-pointer">
-                <span className="w-1 h-1 bg-[#333333] rounded-none" />
-                <span className="truncate">database.ts</span>
-              </div>
-              <div className="text-[#666666] flex items-center gap-1.5 py-0.5 pl-3 font-mono text-[9px] hover:text-white cursor-pointer">
-                <span className="w-1 h-1 bg-[#333333] rounded-none" />
-                <span className="truncate">auth.ts</span>
-              </div>
-              <div className="text-[#666666] flex items-center gap-1.5 py-0.5 pl-3 font-mono text-[9px] hover:text-white cursor-pointer">
-                <span className="w-1 h-1 bg-[#333333] rounded-none" />
-                <span className="truncate">spatialEngine.ts</span>
-              </div>
-              <div className="text-[#555555] flex items-center gap-1.5 py-0.5 pl-2 font-mono text-[9px]">
-                <span>package.json</span>
+              <div className="flex items-center gap-1.5 text-[#555555]">
+                <Plus className="w-3 h-3 hover:text-white cursor-pointer" />
+                <Download className="w-3 h-3 hover:text-white cursor-pointer" />
+                <Search className="w-3 h-3 hover:text-white cursor-pointer" />
               </div>
             </div>
-          </div>
 
-          {/* Active Peers Micro-List */}
-          <div className="pt-2 border-t border-[#1c1c20] text-[8.5px] space-y-1">
-            <div className="text-[#555555] uppercase font-bold tracking-wider">LIVE MESH</div>
-            <div className="flex items-center justify-between text-[#38b6ff]">
-              <span className="flex items-center gap-1 truncate">
-                <span className="w-1 h-1 bg-[#38b6ff] rounded-none" />
-                Sarah Lin
-              </span>
-              <span className="text-[7.5px] text-[#666666] shrink-0">{sarahLatency}</span>
+            {/* Quick Import Buttons */}
+            <div className="space-y-1 mb-2">
+              <div className="w-full py-1 px-1.5 bg-[#ffffff] text-black text-[9px] font-mono font-bold uppercase flex items-center gap-1 cursor-pointer">
+                <span>+ IMPORT FOLDER</span>
+              </div>
+              <div className="w-full py-1 px-1.5 border border-[#333333] text-white text-[9px] font-mono font-bold uppercase flex items-center gap-1 cursor-pointer">
+                <span>+ IMPORT FILES</span>
+              </div>
             </div>
-            <div className="flex items-center justify-between text-[#ff914d]">
-              <span className="flex items-center gap-1 truncate">
-                <span className="w-1 h-1 bg-[#ff914d] rounded-none" />
-                Marcus Vance
-              </span>
-              <span className="text-[7.5px] text-[#666666] shrink-0">{marcusLatency}</span>
-            </div>
-            <div className="flex items-center justify-between text-[#ff5757]">
-              <span className="flex items-center gap-1 truncate">
-                <span className="w-1 h-1 bg-[#ff5757] rounded-none" />
-                @CruxAI
-              </span>
-              <span className="text-[7.5px] text-[#22c55e] shrink-0">ACTIVE</span>
+
+            {/* File Tree */}
+            <div className="space-y-1 text-[10px] font-mono">
+              {/* SRC Folder */}
+              <div>
+                <div className="text-[#888888] flex items-center gap-1 py-0.5">
+                  <FolderOpen className="w-3 h-3 text-[#666666]" />
+                  <span className="font-semibold text-white">SRC</span>
+                </div>
+                <div className="pl-3 space-y-0.5 text-[#777777]">
+                  <div className="flex items-center gap-1.5 py-0.5 hover:text-white cursor-pointer truncate">
+                    <span className="text-[9px] text-[#444444]">JS</span>
+                    <span className="truncate">canvas/spatialEngine.ts</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 py-0.5 hover:text-white cursor-pointer truncate">
+                    <span className="text-[9px] text-[#444444]">☕</span>
+                    <span className="truncate">Practice.java</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 py-0.5 hover:text-white cursor-pointer truncate">
+                    <span className="text-[9px] text-[#444444]">JS</span>
+                    <span className="truncate">types.ts</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* ROOT FILES Folder */}
+              <div className="pt-1">
+                <div className="text-[#888888] flex items-center gap-1 py-0.5">
+                  <FolderOpen className="w-3 h-3 text-[#666666]" />
+                  <span className="font-semibold text-white">ROOT FILES</span>
+                </div>
+                <div className="pl-3 space-y-0.5">
+                  <div className="flex items-center gap-1.5 py-0.5 text-[#777777] hover:text-white cursor-pointer truncate">
+                    <span className="text-[9px] text-[#444444]">JS</span>
+                    <span className="truncate">auth.ts</span>
+                  </div>
+                  {/* database.ts (Active file) */}
+                  <div className="flex items-center gap-1.5 py-0.5 px-1 bg-[#141418] border-l-2 border-[#007AFF] text-white font-semibold cursor-pointer truncate">
+                    <span className="text-[9px] text-[#007AFF]">JS</span>
+                    <span className="truncate">database.ts</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 py-0.5 text-[#777777] hover:text-white cursor-pointer truncate">
+                    <span className="text-[9px] text-[#444444]">JS</span>
+                    <span className="truncate">stream_syncer.ts</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Main Code Editor Pane */}
         <div className="flex-1 flex flex-col min-w-0 bg-[#000000] relative">
-          {/* Zenith Tab Bar */}
-          <div className="h-7 bg-[#111111] border-b border-[#222222] flex items-center justify-between px-2 shrink-0 select-none">
-            <div className="flex items-center h-full overflow-hidden">
-              {/* Active Tab */}
-              <div className="h-full px-3 bg-[#000000] border-r border-[#222222] text-white flex items-center gap-2 text-[11px] font-sans uppercase tracking-tight font-medium">
-                <span>stream_syncer.ts</span>
-                <span className="text-[9px] text-[#444444] font-mono shrink-0 hidden md:inline">14L</span>
-                <span className="w-1.5 h-1.5 bg-white shrink-0" title="Unsaved changes" />
-                <span className="text-[#444444] hover:text-white cursor-pointer ml-1">×</span>
-              </div>
-              {/* Inactive Tabs */}
-              <div className="h-full px-3 bg-[#111111] text-[#444444] hover:text-white border-r border-[#222222] items-center gap-2 text-[11px] font-sans uppercase tracking-tight cursor-pointer hidden sm:flex">
-                <span>database.ts</span>
-              </div>
-              <div className="h-full px-3 bg-[#111111] text-[#444444] hover:text-white border-r border-[#222222] items-center gap-2 text-[11px] font-sans uppercase tracking-tight cursor-pointer hidden md:flex">
-                <span>auth.ts</span>
+          {/* Tab Strip */}
+          <div className="h-7 bg-[#111114] border-b border-[#222222] flex items-center justify-between px-2 shrink-0 select-none">
+            <div className="flex items-center h-full">
+              <div className="h-full px-3 bg-[#000000] border-r border-[#222222] text-white flex items-center gap-2 text-[11px] font-sans uppercase font-bold tracking-tight">
+                <span>STREAM_SYNCER.TS</span>
+                <span className="w-1.5 h-1.5 bg-white shrink-0" title="Active" />
               </div>
             </div>
 
-            {/* Tab Strip Right Controls */}
-            <div className="flex items-center gap-1 text-[#888888]">
-              <div className="px-1.5 py-0.5 text-[9px] font-mono border border-[#222222] text-[#888888] uppercase hidden sm:block">
+            <div className="flex items-center gap-1.5">
+              <div className="px-2 py-0.5 text-[9px] font-mono border border-[#222222] bg-[#000000] text-[#888888] uppercase hidden sm:block">
                 HARDWARE VIEW
               </div>
-              <div className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#007AFF] hover:text-white flex items-center gap-1 font-mono text-[9px] uppercase font-bold cursor-pointer">
+              <div className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-white flex items-center gap-1 font-mono text-[9px] uppercase font-bold">
                 <Play className="w-2.5 h-2.5 fill-current text-[#007AFF]" />
                 <span>RUN ↵</span>
               </div>
+              <div className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] hover:text-white font-mono text-[9px] uppercase hidden md:flex items-center gap-1">
+                <Link2 className="w-2.5 h-2.5" />
+                <span>SHARE LINK</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Sub-bar: Workspace Breadcrumb + CruxAI Suggestion Header */}
+          <div className="h-6 bg-[#09090c] border-b border-[#222222] px-3 flex items-center justify-between text-[10px] font-mono shrink-0 select-none overflow-hidden">
+            <div className="flex items-center gap-2 truncate text-[#888888]">
+              <span className="text-white font-bold">CruxAI</span>
+              <span className="text-[#666666]">suggests an update:</span>
+              <span className="text-[#a1a1aa] bg-[#141418] px-2 py-0.5 border border-[#222222] truncate hidden sm:inline">
+                Sync WAL flushes with 60Hz/120Hz display refresh intervals to guarantee zero tearing
+              </span>
+            </div>
+            <div className="text-[9px] text-[#007AFF] font-bold uppercase shrink-0">
+              WORKSPACE / database.ts
             </div>
           </div>
 
           {/* Real Code Buffer Canvas with Live Cursor Motion */}
           <div className="flex-1 p-2 sm:p-3 overflow-hidden relative font-mono text-[11px] sm:text-[11.5px] leading-[1.65] bg-[#000000]">
-            {/* Subtle Hardware Matrix Background Pattern */}
-            <div className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
+            {/* Subtle Hardware Matrix Pattern */}
+            <div className="absolute inset-0 opacity-[0.02] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none" />
 
             {/* ============================================================== */}
-            {/* COLLABORATOR 1: SARAH LIN LIVE CURSOR (HOVERING ACQUIRELOCK)  */}
+            {/* REMOTE PEER 1: BUSSIW HRUSHI LIVE CANVA DART CURSOR           */}
             {/* ============================================================== */}
             <motion.div
               className="absolute pointer-events-none z-30 select-none"
               animate={{
-                x: [80, 160, 240, 190, 110, 80],
-                y: [142, 146, 168, 144, 138, 142],
+                x: [180, 240, 290, 260, 200, 180],
+                y: [86, 88, 92, 90, 88, 86],
               }}
               transition={{
-                duration: 7.2,
+                duration: 6.8,
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
             >
               <CruxPointerCursor
-                name="Sarah Lin"
-                uid="CRX-9941-SL"
-                color="#38b6ff"
+                name="bussiw hrushi"
+                uid="IXROSRI9"
+                color="#FFFFFF"
+                status={bussiwStatus === "typing" ? "typing" : bussiwStatus === "selecting" ? "selecting" : undefined}
               />
             </motion.div>
 
             {/* ============================================================== */}
-            {/* COLLABORATOR 2: MARCUS VANCE LIVE CURSOR (LIVE TYPING PARAM)   */}
+            {/* REMOTE PEER 2: HRUSHIKESH GANGALA LIVE BLUE DART CURSOR       */}
             {/* ============================================================== */}
             <motion.div
-              className="absolute pointer-events-none z-30 select-none"
+              className="absolute pointer-events-none z-30 select-none hidden md:block"
               animate={{
-                x: [180, 260, 310, 280, 210, 180],
-                y: [98, 100, 102, 100, 98, 98],
+                x: [240, 310, 380, 330, 260, 240],
+                y: [168, 172, 178, 174, 170, 168],
               }}
               transition={{
-                duration: 6.5,
+                duration: 7.4,
                 repeat: Infinity,
                 ease: "easeInOut",
-                delay: 0.2,
+                delay: 0.4,
               }}
             >
               <CruxPointerCursor
-                name="Marcus Vance"
-                uid="CRX-5520-MV"
-                color="#ff914d"
-                status={isTyping ? "typing" : undefined}
+                name="Hrushikesh Gangala"
+                uid="CRX-7447-HG"
+                color="#007AFF"
+                status="typing"
               />
             </motion.div>
 
-            {/* ============================================================== */}
-            {/* COLLABORATOR 3: @CRUXAI CO-PILOT DRONE CURSOR                 */}
-            {/* ============================================================== */}
-            <motion.div
-              className="absolute pointer-events-none z-20 select-none hidden md:block"
-              animate={{
-                x: [240, 270, 250, 230, 240],
-                y: [180, 184, 188, 182, 180],
-              }}
-              transition={{
-                duration: 8.5,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1.0,
-              }}
-            >
-              <CruxPointerCursor
-                name="@CruxAI"
-                uid="CRX-0001-AI"
-                color="#ff5757"
-              />
-            </motion.div>
-
-            {/* CODE LINES WITH REAL CRUX SYNTAX & MULTIPLAYER HIGHLIGHTS */}
-            <div className="space-y-0.5 relative z-10">
+            {/* CODE LINES (Exact database.ts from video recording) */}
+            <div className="space-y-0.5 relative z-10 text-[11px] leading-[1.6]">
               {/* Line 01 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">01</span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">1</span>
                 <span className="text-white">
-                  <span className="text-[#007AFF] font-semibold">import</span> &#123; LocalDaemonClient &#125; <span className="text-[#007AFF] font-semibold">from</span> <span className="text-[#22c55e]">"@crux/daemon"</span>;
+                  <span className="text-[#007AFF] font-semibold">import</span> &#123; <span className="text-white font-medium">LocalWriteAheadLog</span> &#125; <span className="text-[#007AFF] font-semibold">from</span> <span className="text-[#ff914d]">"@crux/wal"</span>;
                 </span>
               </div>
 
               {/* Line 02 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">02</span>
-                <span></span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">2</span>
+                <span className="text-white">
+                  <span className="text-[#007AFF] font-semibold">import</span> &#123; <span className="text-white font-medium">SyncVector</span> &#125; <span className="text-[#007AFF] font-semibold">from</span> <span className="text-[#ff914d]">"./types"</span>;
+                </span>
               </div>
 
               {/* Line 03 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">03</span>
-                <span className="text-white">
-                  <span className="text-[#007AFF] font-semibold">export class</span> <span className="text-white font-bold">StreamSyncer</span> &#123;
-                </span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">3</span>
+                <span></span>
               </div>
 
               {/* Line 04 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">04</span>
-                <span className="text-white pl-3">
-                  timeout = <span className="text-[#22c55e]">5000</span>;
-                </span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">4</span>
+                <span className="text-[#888888] italic">// Monotonic local-first persistent write-ahead store</span>
               </div>
 
               {/* Line 05 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">05</span>
-                <span className="text-white pl-3">
-                  daemon = <span className="text-[#007AFF]">new</span> LocalDaemonClient(&#123; port: <span className="text-[#22c55e]">7447</span> &#125;);
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">5</span>
+                <span className="text-white">
+                  <span className="text-[#007AFF] font-semibold">export const</span> wal = <span className="text-[#007AFF] font-semibold">new</span> LocalWriteAheadLog(&#123;
                 </span>
               </div>
 
-              {/* Line 06: Marcus Vance Live Typing Line */}
-              <div className="flex items-center relative bg-[#ff914d]/10 border-l-2 border-[#ff914d] pl-0.5">
-                <span className="w-6 text-right text-[10px] text-[#ff914d] font-bold select-none pr-3">06</span>
+              {/* Line 06: Live typing simulation */}
+              <div className="flex items-center relative bg-[#ffffff]/5 pl-0.5">
+                <span className="w-5 text-right text-[10px] text-white font-bold select-none pr-3">6</span>
                 <span className="text-white pl-3 font-mono">
-                  <span className="text-[#007AFF]">async</span> acquireLock(
-                  <span className="text-[#e4e4e7]">{fullParamString.slice(0, typedChars)}</span>
-                  {/* Blinking 1px Caret */}
+                  path: <span className="text-[#ff914d]">"/var/crux/wal.bin"</span>,{typedSuffix}
                   <motion.span
                     animate={{ opacity: [1, 0, 1] }}
                     transition={{ repeat: Infinity, duration: 0.5 }}
-                    className="inline-block w-1.5 h-3 bg-[#ff914d] ml-0.5 align-middle select-none"
+                    className="inline-block w-1.5 h-3 bg-white ml-0.5 align-middle select-none"
                   />
-                  ) &#123;
-                </span>
-                <span className="ml-auto text-[8.5px] font-mono text-[#ff914d] uppercase tracking-wider font-semibold pr-2 hidden md:inline select-none">
-                  [Marcus Vance typing]
                 </span>
               </div>
 
               {/* Line 07 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">07</span>
-                <span className="text-[#888888] pl-6 italic">
-                  console.log(<span className="text-[#22c55e]">"[StreamSyncer] Requesting mutual exclusion lock..."</span>);
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">7</span>
+                <span className="text-white pl-3">
+                  <span className="underline decoration-wavy decoration-[#ff5757]">fsyncIntervalMs</span>: <span className="text-[#22c55e]">50</span>,
                 </span>
               </div>
 
-              {/* Line 08: Sarah Lin Active Selection Highlight */}
-              <div className="flex items-center relative bg-[#38b6ff]/15 border-l-2 border-[#38b6ff] pl-0.5">
-                <span className="w-6 text-right text-[10px] text-[#38b6ff] font-bold select-none pr-3">08</span>
-                <span className="text-white pl-6">
-                  <span className="text-[#007AFF]">const</span> ticket = <span className="text-[#007AFF]">await</span> <span className="text-white font-medium">this.daemon.acquireLock(channel);</span>
-                </span>
-                <span className="ml-auto text-[8.5px] font-mono text-[#38b6ff] uppercase tracking-wider font-semibold pr-2 hidden md:inline select-none">
-                  [Sarah Lin selecting]
-                </span>
+              {/* Line 08 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">8</span>
+                <span className="text-white">&#125;);</span>
               </div>
 
               {/* Line 09 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">09</span>
-                <span className="text-white pl-6">
-                  <span className="text-[#007AFF]">return</span> ticket;
-                </span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">9</span>
+                <span></span>
               </div>
 
-              {/* Line 10: CruxAI Ghost Diff Recommendation */}
-              <div className="flex items-center relative bg-[#ff5757]/10 border-l-2 border-[#ff5757] pl-0.5 py-0.5">
-                <span className="w-6 text-right text-[10px] text-[#ff5757] font-bold select-none pr-3">+</span>
-                <span className="text-[#ff5757] pl-6 text-[10.5px]">
-                  // @CruxAI: Sub-millisecond mutual exclusion lock verified (0.08ms IPC)
-                </span>
-                <span className="ml-auto text-[8px] font-mono text-[#ff5757] border border-[#ff5757]/40 px-1 py-0.5 uppercase tracking-wider font-semibold pr-1 hidden sm:inline select-none">
-                  [TAB TO ACCEPT]
-                </span>
+              {/* Line 10 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">10</span>
+                <span className="text-[#888888] italic">/**</span>
               </div>
 
               {/* Line 11 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">11</span>
-                <span className="text-[#71717a] pl-3">&#125;</span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">11</span>
+                <span className="text-[#888888] italic pl-2">* Commits a state vector change directly to the memory-mapped ring buffer.</span>
               </div>
 
               {/* Line 12 */}
               <div className="flex items-center">
-                <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">12</span>
-                <span className="text-[#71717a]">&#125;</span>
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">12</span>
+                <span className="text-[#888888] italic pl-2">* Automatically replicated to all subscribed edge workers.</span>
+              </div>
+
+              {/* Line 13 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">13</span>
+                <span className="text-[#888888] italic pl-2">*/</span>
+              </div>
+
+              {/* Line 14: Active selection highlight */}
+              <div className={`flex items-center relative pl-0.5 ${bussiwStatus === "selecting" ? "bg-[#007AFF]/20 border-l-2 border-[#007AFF]" : ""}`}>
+                <span className="w-5 text-right text-[10px] text-[#007AFF] font-bold select-none pr-3">14</span>
+                <span className="text-white">
+                  <span className="text-[#007AFF] font-semibold">export async function</span> persistStateVector(docId: <span className="text-[#007AFF]">string</span>, bytes: <span className="text-[#007AFF]">Uint8Array</span>): <span className="text-[#007AFF]">Promise</span>&lt;<span className="text-[#007AFF]">number</span>&gt; &#123;
+                </span>
+              </div>
+
+              {/* Line 15 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">15</span>
+                <span className="text-white pl-3">
+                  <span className="text-[#007AFF] font-semibold">const</span> monotonicSequence = <span className="text-[#007AFF] font-semibold">await</span> wal.append(&#123;
+                </span>
+              </div>
+
+              {/* Line 16 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">16</span>
+                <span className="text-white pl-6">docId,</span>
+              </div>
+
+              {/* Line 17 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">17</span>
+                <span className="text-white pl-6">payload: bytes,</span>
+              </div>
+
+              {/* Line 18 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">18</span>
+                <span className="text-white pl-6">timestamp: Date.now(),</span>
+              </div>
+
+              {/* Line 19 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">19</span>
+                <span className="text-white pl-3">&#125;);</span>
+              </div>
+
+              {/* Line 20 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">20</span>
+                <span className="text-white pl-3">
+                  <span className="text-[#007AFF] font-semibold">return</span> monotonicSequence;
+                </span>
+              </div>
+
+              {/* Line 21 */}
+              <div className="flex items-center">
+                <span className="w-5 text-right text-[10px] text-[#444444] select-none pr-3">21</span>
+                <span className="text-white">&#125;</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. CRUX HYPERTERMINAL (Direct 1-to-1 replication of video recording) */}
+          <div className="h-28 sm:h-32 bg-[#050507] border-t border-[#222222] flex flex-col justify-between shrink-0 font-mono text-[10px] sm:text-[11px] select-text">
+            {/* Terminal Header Strip */}
+            <div className="h-6 px-2.5 bg-[#0a0a0c] border-b border-[#1c1c20] flex items-center justify-between select-none shrink-0 text-[#71717a]">
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 bg-[#007AFF]" />
+                <span className="text-white text-[9.5px] font-bold">REWIND ( ) NOW</span>
+                <div className="flex items-center gap-1 ml-1">
+                  <span className="w-2 h-2 bg-[#007AFF]" />
+                  <span className="w-2 h-2 bg-[#ff914d]" />
+                  <span className="w-2 h-2 bg-[#111111] border border-[#333333]" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 text-[9px]">
+                <div className="px-1.5 py-0.5 bg-[#141418] border border-[#27272a] text-white flex items-center gap-1">
+                  <span>[AI: ⚡ AUTO // ANTI-GRAVITY CLI]</span>
+                  <ChevronDown className="w-2.5 h-2.5 text-[#888888]" />
+                </div>
+                <div className="px-1 py-0.5 border border-[#27272a] text-[#888888] flex items-center gap-1 hidden sm:flex">
+                  <Settings className="w-2.5 h-2.5" />
+                  <span>AI CONFIG</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Terminal Output Text */}
+            <div className="flex-1 p-2 overflow-hidden space-y-0.5 text-[10px] leading-tight">
+              <div className="text-[#007AFF] font-bold">
+                Crux Interactive Shell v1.2.0-prod [PTY Active]
+              </div>
+              <div className="text-[#888888]">
+                Memory-mapped IPC socket unix:///var/run/crux.sock connected (0.08ms)
+              </div>
+              <div className="text-[#555555] hidden sm:block">
+                Type 'help' for commands, '?? &lt;prompt&gt;' for AI assistance, or any shell command.
+              </div>
+            </div>
+
+            {/* AI Tools List & Shell Prompt */}
+            <div className="border-t border-[#1c1c20] p-1.5 bg-[#070709] shrink-0">
+              <div className="flex items-center gap-1 text-[8.5px] text-[#666666] mb-1 overflow-x-auto no-scrollbar hidden sm:flex">
+                <span className="font-bold text-[#888888]">[AI TOOLS]:</span>
+                <span className="px-1 py-0.5 bg-white text-black font-bold">⚡ AUTO</span>
+                <span className="px-1 py-0.5 border border-[#222222] text-[#888888]">● agy</span>
+                <span className="px-1 py-0.5 border border-[#222222] text-[#888888]">● claude</span>
+                <span className="px-1 py-0.5 border border-[#222222] text-[#888888]">● codex</span>
+                <span className="px-1 py-0.5 border border-[#222222] text-[#888888]">● opencode</span>
+                <span className="px-1 py-0.5 border border-[#222222] text-[#888888]">● cursor</span>
+                <span className="text-[#333333]">|</span>
+                <span className="text-[#777777]">crux tools</span>
+                <span className="text-[#777777]">git status</span>
+              </div>
+
+              <div className="flex items-center gap-1.5 text-[10px]">
+                <span className="text-white font-bold shrink-0">
+                  crux-sh:~/Projects/collab-editor-main$
+                </span>
+                <span className="text-[#555555] truncate">
+                  type command (e.g. agy, lets build a task manager, crux status, ls)...
+                </span>
+                <motion.span
+                  animate={{ opacity: [1, 0, 1] }}
+                  transition={{ repeat: Infinity, duration: 0.8 }}
+                  className="w-1.5 h-3 bg-white inline-block shrink-0"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 3. REAL CRUX STATUS BAR */}
+      {/* 5. REAL CRUX STATUS BAR (Exact 1-to-1 match to video) */}
       {showStatusBar && (
-        <div className="h-6 px-3 bg-[#08080a] border-t border-[#222222] flex items-center justify-between text-[10px] font-mono text-[#888888] select-none shrink-0">
-          {/* Left Telemetry matching CruxStatusBar.tsx */}
+        <footer className="h-6 px-3 bg-[#08080a] border-t border-[#222222] flex items-center justify-between text-[10px] font-mono text-[#888888] select-none shrink-0">
+          {/* Left: Branch + Disk sync */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-white">
-              <span className="w-1.5 h-1.5 rounded-none bg-[#007AFF]" />
-              <span className="font-medium">Crux Daemon</span>
-              <span className="text-white text-[9px] px-1 bg-black border border-[#222222] rounded-none">
-                0.08ms IPC
-              </span>
+            <div className="flex items-center gap-1 text-white font-medium">
+              <GitBranch className="w-3 h-3 text-[#007AFF]" />
+              <span>main*</span>
             </div>
 
             <span className="text-[#333333]">·</span>
 
-            <div className="hidden sm:flex items-center gap-1 text-[#888888]">
-              <Cpu className="w-3 h-3 text-[#007AFF]" />
-              <span>Apple Silicon Metal Compute</span>
+            <div className="flex items-center gap-1 text-[#22c55e]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+              <span>DISK IN-SYNC 36ms</span>
             </div>
           </div>
 
-          {/* Right Telemetry matching CruxStatusBar.tsx */}
+          {/* Center: History counter */}
+          <div className="hidden sm:flex items-center gap-1 text-[#888888]">
+            <Clock className="w-3 h-3" />
+            <span>HISTORY (41)</span>
+          </div>
+
+          {/* Right: Line/Col, UTF-8, TYPESCRIPT */}
           <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-1 text-[#888888]">
-              <ShieldCheck className="w-3 h-3 text-[#888888]" />
-              <span>Zero-Knowledge CRDT Vector</span>
-            </div>
-
-            <span className="text-[#333333] hidden md:inline">·</span>
-
-            <div className="flex items-center gap-1.5 text-white">
-              <Wifi className="w-3 h-3 text-[#007AFF]" />
-              <span>3 Peers In-Sync</span>
-            </div>
-
+            <span>Ln 6, Col {cursorPosCol}</span>
+            <span className="text-[#333333] hidden sm:inline">·</span>
+            <span className="hidden sm:inline">UTF-8</span>
             <span className="text-[#333333]">·</span>
-
-            <div className="text-[#007AFF] font-bold">
-              <span>120 FPS</span>
-            </div>
+            <span className="text-white font-bold">TYPESCRIPT</span>
           </div>
-        </div>
+        </footer>
       )}
     </div>
   );

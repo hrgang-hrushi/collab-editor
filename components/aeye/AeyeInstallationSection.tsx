@@ -173,53 +173,33 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Rock-solid Fixed-Size Box (h-[390px]) - NEVER resizes between tabs */}
-                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[390px] flex flex-col justify-between">
-                    {/* Header bar */}
-                    <div className="h-10 px-4 bg-[#111114] border-b border-[#222222] flex items-center justify-between shrink-0">
-                      <div className="flex items-center gap-2.5">
-                        <span className="w-2 h-2 bg-[#0055FF] inline-block" />
-                        <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
-                          CRUX // {currentTab.subtitle}
-                        </span>
+                  {/* Rock-solid Fixed-Size Box - NEVER resizes between tabs */}
+                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[540px] sm:h-[580px] flex flex-col justify-between">
+                    {/* Header bar (only for non-multiplayer tabs, since Crux IDE has its own native header) */}
+                    {activeTab !== "multiplayer" && (
+                      <div className="h-10 px-4 bg-[#111114] border-b border-[#222222] flex items-center justify-between shrink-0">
+                        <div className="flex items-center gap-2.5">
+                          <span className="w-2 h-2 bg-[#0055FF] inline-block" />
+                          <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
+                            CRUX // {currentTab.subtitle}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={handleCopy}
+                            className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
+                            aria-label="Copy data"
+                          >
+                            <span>{copied ? "Copied" : "Copy"}</span>
+                            {copied ? (
+                              <Check className="w-3.5 h-3.5 text-[#0055FF]" />
+                            ) : (
+                              <Copy className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
-                        {activeTab === "multiplayer" && (
-                          <div className="hidden sm:flex items-center gap-2">
-                            <div className="flex items-center -space-x-1">
-                              <div className="w-4 h-4 bg-[#007AFF] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-30 border border-black" title="Hrushikesh Gangala (Host)">
-                                HG
-                              </div>
-                              <div className="w-4 h-4 bg-[#38b6ff] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-20 border border-black" title="Sarah Lin (Staff Infrastructure)">
-                                SL
-                              </div>
-                              <div className="w-4 h-4 bg-[#ff914d] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-10 border border-black" title="Marcus Vance (Systems Architect)">
-                                MV
-                              </div>
-                              <div className="w-4 h-4 bg-[#ff5757] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-0 border border-black" title="CruxAI (Speculative Co-Pilot)">
-                                AI
-                              </div>
-                            </div>
-                            <span className="text-[10px] text-[#22c55e] font-mono flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-none animate-pulse" />
-                              3 PEERS IN-SYNC
-                            </span>
-                          </div>
-                        )}
-                        <button
-                          onClick={handleCopy}
-                          className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
-                          aria-label="Copy data"
-                        >
-                          <span>{copied ? "Copied" : "Copy"}</span>
-                          {copied ? (
-                            <Check className="w-3.5 h-3.5 text-[#0055FF]" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                    )}
 
                     {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
                     <div className={`flex-1 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative ${activeTab === "multiplayer" ? "p-0" : "p-5"}`}>
@@ -234,7 +214,7 @@ export default function AeyeInstallationSection() {
                             transition={{ duration: 0.15 }}
                             className="h-full w-full select-none relative"
                           >
-                            <RealCollaborativeMeshInterface showHeader={false} showStatusBar={false} />
+                            <RealCollaborativeMeshInterface showHeader={true} showStatusBar={true} />
                           </motion.div>
                         )}
 
@@ -440,24 +420,22 @@ export default function AeyeInstallationSection() {
                       </AnimatePresence>
                     </div>
 
-                    {/* Bottom Console Footer */}
-                    <div className="h-10 px-4 border-t border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
-                      <div className="flex items-center gap-2 text-[#71717a]">
-                        <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
-                        <span>
-                          {activeTab === "multiplayer"
-                            ? "MESH: P2P WEBRTC // SARAH LIN & MARCUS VANCE ACTIVE"
-                            : activeTab === "silicon"
-                            ? "RUNTIME: BARE-METAL POSIX / SILICON"
-                            : activeTab === "crdt"
-                            ? "PROTOCOL: ZERO-LOCK AST-CRDT SYNC"
-                            : "KERNEL: @CRUXAI AUTONOMOUS AGENT"}
-                        </span>
+                    {/* Bottom Console Footer (only for non-multiplayer tabs, since Crux IDE has its own native status bar) */}
+                    {activeTab !== "multiplayer" && (
+                      <div className="h-10 px-4 border-t border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
+                        <div className="flex items-center gap-2 text-[#71717a]">
+                          <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
+                          <span>
+                            {activeTab === "silicon"
+                              ? "RUNTIME: BARE-METAL POSIX / SILICON"
+                              : activeTab === "crdt"
+                              ? "PROTOCOL: ZERO-LOCK AST-CRDT SYNC"
+                              : "KERNEL: @CRUXAI AUTONOMOUS AGENT"}
+                          </span>
+                        </div>
+                        <span className="text-[#0055FF] font-bold">LATENCY: &lt; 0.2ms</span>
                       </div>
-                      <span className="text-[#0055FF] font-bold">
-                        {activeTab === "multiplayer" ? "SYNC: < 0.4ms" : "LATENCY: < 0.2ms"}
-                      </span>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
