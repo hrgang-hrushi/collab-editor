@@ -2,14 +2,12 @@
 
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
-import { Copy, Check, Terminal, Zap, GitMerge, Bot, Activity, Cpu } from "lucide-react";
 import Link from "next/link";
 import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"multiplayer" | "silicon" | "crdt" | "agent">("multiplayer");
-  const [copied, setCopied] = useState(false);
   const isManualClickRef = useRef(false);
   const manualTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -109,12 +107,6 @@ export default function AeyeInstallationSection() {
     }
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(currentTab.copyText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <section id="why-crux" className="relative w-full border-b border-[#222222] bg-[#000000]">
       {/* Anchor for backwards compatibility */}
@@ -173,269 +165,24 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Rock-solid Fixed-Size Box - NEVER resizes between tabs */}
-                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[460px] sm:h-[490px] lg:h-[510px] flex flex-col justify-between">
-                    {/* Header bar (only for non-multiplayer tabs, since Crux IDE has its own native header) */}
-                    {activeTab !== "multiplayer" && (
-                      <div className="h-10 px-4 bg-[#111114] border-b border-[#222222] flex items-center justify-between shrink-0">
-                        <div className="flex items-center gap-2.5">
-                          <span className="w-2 h-2 bg-[#0055FF] inline-block" />
-                          <span className="font-mono text-xs font-semibold text-white uppercase tracking-wider">
-                            CRUX // {currentTab.subtitle}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={handleCopy}
-                            className="flex items-center gap-1.5 font-mono text-xs text-[#888888] hover:text-white transition-none px-2 py-1 border border-transparent hover:border-[#333333]"
-                            aria-label="Copy data"
-                          >
-                            <span>{copied ? "Copied" : "Copy"}</span>
-                            {copied ? (
-                              <Check className="w-3.5 h-3.5 text-[#0055FF]" />
-                            ) : (
-                              <Copy className="w-3.5 h-3.5" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Dedicated Interface Body (Smooth Crossfade inside Fixed Frame) */}
-                    <div className={`flex-1 font-mono text-xs sm:text-[13px] leading-relaxed overflow-hidden relative ${activeTab === "multiplayer" ? "p-0" : "p-5"}`}>
-                      <AnimatePresence mode="wait">
-                        {/* TAB 1: Real-Time Collaborative Mesh (Real Crux IDE Interface) */}
-                        {activeTab === "multiplayer" && (
-                          <motion.div
-                            key="tab-multiplayer"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className="h-full w-full select-none relative"
-                          >
-                            <RealCollaborativeMeshInterface showHeader={true} showStatusBar={true} />
-                          </motion.div>
-                        )}
-
-                        {/* TAB 2: Native Silicon Benchmarks */}
-                        {activeTab === "silicon" && (
-                          <motion.div
-                            key="tab-silicon"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between"
-                          >
-                            <div className="space-y-4 text-left font-mono">
-                              {/* Metric 1 */}
-                              <div>
-                                <div className="flex items-center justify-between text-xs mb-1">
-                                  <span className="text-white font-medium">Input-to-Photon Latency</span>
-                                  <span className="text-[#0055FF] font-bold">11.5x FASTER</span>
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#0055FF] w-[14%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-white font-bold">4.2ms</span>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#333333] w-[95%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-[#71717a]">48.6ms</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Metric 2 */}
-                              <div>
-                                <div className="flex items-center justify-between text-xs mb-1">
-                                  <span className="text-white font-medium">Idle Memory Footprint</span>
-                                  <span className="text-[#0055FF] font-bold">17.8x LEANER</span>
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#0055FF] w-[10%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-white font-bold">38 MB</span>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#333333] w-[90%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-[#71717a]">680 MB</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Metric 3 */}
-                              <div>
-                                <div className="flex items-center justify-between text-xs mb-1">
-                                  <span className="text-white font-medium">250,000-Line Monorepo Scroll</span>
-                                  <span className="text-[#0055FF] font-bold">6.6x SMOOTHER</span>
-                                </div>
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#71717a]">CRUX</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#0055FF] w-[100%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-white font-bold">120 FPS</span>
-                                  </div>
-                                  <div className="flex items-center gap-3">
-                                    <span className="w-16 text-[10px] text-[#555555]">ELECTRON</span>
-                                    <div className="flex-1 h-3 bg-[#111114] border border-[#222222] relative overflow-hidden">
-                                      <div className="h-full bg-[#333333] w-[22%]" />
-                                    </div>
-                                    <span className="w-14 text-right text-xs text-[#71717a]">18 FPS</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        {/* TAB 2: Decentralized AST-CRDT Sync */}
-                        {activeTab === "crdt" && (
-                          <motion.div
-                            key="tab-crdt"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between select-none"
-                          >
-                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
-                              <div className="p-2 border border-[#222222] bg-[#0e0e12] flex items-center justify-between">
-                                <span className="text-white font-bold">P2P WEBRTC MESH</span>
-                                <span className="text-[#0055FF] font-bold text-[10px] px-1.5 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30">LIVE CHANNEL</span>
-                              </div>
-
-                              <div className="space-y-1.5 pt-1 text-[11px]">
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#555555]">[09:54:12.018]</span>
-                                  <span className="text-white font-semibold">peer://sarah-lin</span>
-                                  <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">mutates stream_syncer.ts (acquireLock)</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#555555]">[09:54:12.022]</span>
-                                  <span className="text-white font-semibold">peer://marcus-vance</span>
-                                  <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">mutates database.ts (persistStateVector)</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#555555]">[09:54:12.025]</span>
-                                  <span className="text-[#0055FF] font-bold">engine</span>
-                                  <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-white">Applied structural AST delta · 0 syntax collisions</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#555555]">[09:54:12.028]</span>
-                                  <span className="text-[#0055FF] font-bold">crypto</span>
-                                  <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">Ed25519 WebCrypto peer attestation verified</span>
-                                </div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#555555]">[09:54:12.030]</span>
-                                  <span className="text-white font-bold">status</span>
-                                  <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-white">Ring Vector clock [142, 89, 204] · Converged in 0.42ms</span>
-                                </div>
-                              </div>
-
-                              <div className="pt-2 p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
-                                <span className="text-[#888888]">LINE-COLLISION RISK: <strong className="text-white">0.00%</strong></span>
-                                <span className="text-[#888888]">SYNTAX TREE HEALTH: <strong className="text-[#0055FF]">100% VALID</strong></span>
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-
-                        {/* TAB 3: Autonomous @CruxAI Agents */}
-                        {activeTab === "agent" && (
-                          <motion.div
-                            key="tab-agent"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                            className="h-full flex flex-col justify-between select-none"
-                          >
-                            <div className="space-y-2.5 font-mono text-xs sm:text-[12px]">
-                              {/* Command line */}
-                              <div>
-                                <div className="flex items-center gap-2 text-[#71717a]">
-                                  <span className="text-[#0055FF] font-bold">host@darwin</span>
-                                  <span className="text-[#444444]">:</span>
-                                  <span className="text-white">~/crux-stream-sync</span>
-                                  <span className="text-[#0055FF] font-bold">%</span>
-                                  <span className="text-white font-medium">@CruxAI refactor ./src/stream_syncer.ts --optimize</span>
-                                </div>
-                              </div>
-
-                              {/* Output steps */}
-                              <div className="space-y-1.5 text-[11px] pl-2 border-l border-[#222222]">
-                                <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Ingested 5 workspace source files in 0.8ms (zero cloud proxy)
-                                </div>
-                                <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Applied zero-alloc lock ticket caching (<span className="text-[#22c55e]">+12</span>, <span className="text-[#ef4444]">-4</span> lines)
-                                </div>
-                                <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Running background compiler check:
-                                </div>
-                                <div className="pl-3 text-white">
-                                  <span className="text-[#22c55e]">✓</span> cargo / tsc check --target=aarch64-apple-darwin: 0 errors
-                                </div>
-                                <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Generated atomic AST git commit: <code className="text-white">a9b42e1</code>
-                                </div>
-                              </div>
-
-                              {/* Active Prompt with Blinking Hardware Cursor */}
-                              <div className="pt-1 flex items-center gap-2 text-[#71717a]">
-                                <span className="text-[#0055FF] font-bold">host@darwin</span>
-                                <span className="text-[#444444]">:</span>
-                                <span className="text-white">~/crux-stream-sync</span>
-                                <span className="text-[#0055FF] font-bold">%</span>
-                                <motion.span
-                                  animate={{ opacity: [1, 0, 1] }}
-                                  transition={{ repeat: Infinity, duration: 0.9, ease: "linear" }}
-                                  className="w-2 h-4 bg-white inline-block align-middle"
-                                />
-                              </div>
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-
-                    {/* Bottom Console Footer (only for non-multiplayer tabs, since Crux IDE has its own native status bar) */}
-                    {activeTab !== "multiplayer" && (
-                      <div className="h-10 px-4 border-t border-[#222222] bg-[#0e0e12] flex items-center justify-between text-[11px] font-mono shrink-0">
-                        <div className="flex items-center gap-2 text-[#71717a]">
-                          <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
-                          <span>
-                            {activeTab === "silicon"
-                              ? "RUNTIME: BARE-METAL POSIX / SILICON"
-                              : activeTab === "crdt"
-                              ? "PROTOCOL: ZERO-LOCK AST-CRDT SYNC"
-                              : "KERNEL: @CRUXAI AUTONOMOUS AGENT"}
-                          </span>
-                        </div>
-                        <span className="text-[#0055FF] font-bold">LATENCY: &lt; 0.2ms</span>
-                      </div>
-                    )}
+                  {/* Rock-solid Fixed-Size Box - Authentic Crux IDE Simulation */}
+                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden h-[460px] sm:h-[490px] lg:h-[510px] flex flex-col justify-between">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={`tab-${activeTab}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="h-full w-full select-none relative"
+                      >
+                        <RealCollaborativeMeshInterface
+                          mode={activeTab === "agent" ? "agents" : (activeTab as "multiplayer" | "silicon" | "crdt")}
+                          showHeader={true}
+                          showStatusBar={true}
+                        />
+                      </motion.div>
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>

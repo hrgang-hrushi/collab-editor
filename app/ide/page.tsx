@@ -3,6 +3,7 @@
 import React, { Suspense } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import DemoRecorder from "@/components/crux/demo/DemoRecorder";
 
 const CruxEditorView = dynamic(() => import("@/components/crux/CruxEditorView"), {
   ssr: false,
@@ -28,6 +29,7 @@ export default function IdePage() {
         }
       >
         <CruxEditorView onBackToEffects={() => router.push("/")} />
+        <DemoRecorder />
       </Suspense>
     </main>
   );
