@@ -23,6 +23,12 @@ import {
   Database,
   History,
   Check,
+  Share2,
+  PanelLeft,
+  Sparkles,
+  Unlock,
+  Settings,
+  Inbox,
 } from "lucide-react";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 import CruxPointerCursor from "@/components/crux/CruxPointerCursor";
@@ -197,6 +203,9 @@ export default function RealCollaborativeMeshInterface({
     }
   }, [mode]);
 
+  // Menu bar items matching CruxEditorView.tsx line 643
+  const menuItems = ["File", "Edit", "Selection", "View", "Go", "Run", "Terminal", "Help"];
+
   // Actual BranchedMenu Tree Data exactly mirroring ZenithFileTree
   const branchedMenuItems: BranchedMenuItem[] = useMemo(() => {
     return [
@@ -266,49 +275,68 @@ export default function RealCollaborativeMeshInterface({
 
   return (
     <div className="w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-hidden font-sans border-0">
-      {/* 1. EXACT CRUX IDE TOP HEADER (CruxHeader.tsx layout) */}
+      {/* ========================================================================= */}
+      {/* 1. EXACT CRUX IDE TOP HEADER (CruxEditorView.tsx lines 465-641)           */}
+      {/* ========================================================================= */}
       {showHeader && (
-        <header className="w-full h-9 px-3 flex items-center justify-between border-b border-[#222222] bg-[#000000] select-none text-xs font-mono shrink-0 z-20">
-          {/* Left: Brand + Breadcrumbs */}
+        <header className="h-9 px-3 border-b border-[#222222] bg-[#000000] flex items-center justify-between shrink-0 select-none z-20">
+          {/* Left: Brand + Quick Open Command Palette Search */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <CruxBrandLogo size={15} withText={true} />
-              <span className="w-1.5 h-1.5 rounded-none bg-white ml-1" />
-              <span className="text-[10px] text-[#888888] hidden sm:inline font-mono">
-                0.08ms
-              </span>
+              <CruxBrandLogo size={16} withText={true} />
+              <span className="w-1.5 h-1.5 rounded-none bg-white ml-0.5" />
+              <span className="text-[10px] text-[#888888] hidden sm:inline font-mono">0.08ms</span>
             </div>
 
-            <div className="h-3 w-[1px] bg-[#222222] mx-0.5" />
-
-            {/* File Breadcrumb */}
-            <div className="flex items-center gap-1.5 text-xs text-[#888888]">
-              <span className="text-[#888888]">{fileMeta.folder}</span>
-              <ChevronRight className="w-3 h-3 text-[#333333]" />
-              <span className="text-[#888888]">{fileMeta.crumb}</span>
-              <ChevronRight className="w-3 h-3 text-[#333333]" />
-              <div className="flex items-center gap-1.5 text-white px-1.5 py-0.5 bg-black border border-[#222222]">
-                <FileCode2 className="w-3.5 h-3.5 text-white" />
-                <span>{fileMeta.name}</span>
-              </div>
+            {/* Quick Open Command Palette Search matching line 474 */}
+            <div className="hidden lg:flex items-center gap-2 px-2.5 py-0.5 bg-[#000000] border border-[#222222] text-[#888888] text-[10px]">
+              <Search className="w-3 h-3 text-[#71717a]" />
+              <span className="font-mono text-[#888888]">{fileMeta.name}</span>
+              <kbd className="text-[9px] bg-[#111111] text-[#71717a] px-1 border border-[#222222] font-mono">⌘P</kbd>
             </div>
           </div>
 
-          {/* Right: Authentic Collaborator Badges with Real BotAvatars + Share */}
+          {/* Center: Segmented Control: Editor vs Canvas matching line 486 */}
+          <div className="flex items-center bg-[#000000] border border-[#222222] p-0.5">
+            <span className="px-3 py-0.5 text-[10px] font-medium tracking-wide uppercase bg-[#222222] text-white font-bold">
+              Editor
+            </span>
+            <span className="px-3 py-0.5 text-[10px] font-medium tracking-wide uppercase text-[#71717a]">
+              Canvas
+            </span>
+          </div>
+
+          {/* Right Status & Actions matching lines 512-640 */}
           <div className="flex items-center gap-2">
-            <div
-              role="group"
-              aria-label="Active Collaborators"
-              className="flex items-center border border-[#222222] rounded-none select-none bg-black"
-            >
-              {/* Hrushikesh Gangala (Host) */}
+            {/* Identity Pill Button */}
+            <div className="hidden xl:flex items-center gap-1.5 px-2 py-0.5 bg-[#000000] border border-[#222222] text-white text-[10px] font-mono">
+              <BotAvatar
+                type="mech"
+                size={20}
+                state="default"
+                seed={avatarMotionSeed("Hrushikesh Gangala")}
+                interactive={false}
+                theme="dark"
+              />
+              <span className="truncate max-w-[85px] font-medium">Hrushikesh</span>
+            </div>
+
+            {/* Viewer Lock Quick Toggle */}
+            <div className="hidden 2xl:flex items-center gap-1 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider border border-[#222222] bg-[#000000] text-[#888888]">
+              <Unlock className="w-2.5 h-2.5" />
+              <span>UNLOCKED</span>
+            </div>
+
+            {/* High-Density Multiplayer Presence matching lines 595 */}
+            <div className="flex items-center border border-[#222222] rounded-none select-none bg-black">
+              {/* Host Avatar: Hrushikesh Gangala */}
               <div
-                title="Hrushikesh Gangala (You)"
-                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-white"
+                title="Hrushikesh Gangala (Host)"
+                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] bg-transparent"
               >
                 <BotAvatar
                   type="mech"
-                  size={22}
+                  size={20}
                   state="default"
                   seed={avatarMotionSeed("Hrushikesh Gangala")}
                   interactive={false}
@@ -316,14 +344,14 @@ export default function RealCollaborativeMeshInterface({
                 />
               </div>
 
-              {/* Muhaymin (Remote Collaborator) */}
+              {/* Collaborator Avatar: Muhaymin */}
               <div
-                title="Muhaymin (Remote Peer)"
-                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-[#888888]"
+                title="Muhaymin (Remote Collaborator)"
+                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] bg-transparent"
               >
                 <BotAvatar
                   type="alien"
-                  size={22}
+                  size={20}
                   state="default"
                   seed={avatarMotionSeed("Muhaymin")}
                   interactive={false}
@@ -331,15 +359,15 @@ export default function RealCollaborativeMeshInterface({
                 />
               </div>
 
-              {/* @CruxAI (Agent) */}
+              {/* AI Agent Avatar when in agents mode */}
               {mode === "agents" && (
                 <div
-                  title="@CruxAI (Local Droid)"
-                  className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-[#0055FF]"
+                  title="@CruxAI (Local Agent)"
+                  className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] bg-transparent"
                 >
                   <BotAvatar
                     type="droid"
-                    size={22}
+                    size={20}
                     state="default"
                     seed={avatarMotionSeed("@CruxAI")}
                     interactive={false}
@@ -348,30 +376,56 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               )}
 
-              {/* Share button */}
-              <div
-                title="Share workspace or invite peers"
-                className="px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider leading-none text-[#888888] hover:text-white transition-none"
-              >
+              {/* Share Trigger */}
+              <div className="px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-[#888888]">
                 + SHARE
               </div>
             </div>
 
-            <div className="h-3 w-[1px] bg-[#222222] mx-0.5 hidden sm:block" />
+            {/* Window Layout Toggles matching lines 598-626 */}
+            <div className="flex items-center gap-1">
+              <div className="p-1 border border-[#222222] bg-[#222222] text-white">
+                <PanelLeft className="w-3 h-3" />
+              </div>
+              <div className={`p-1 border border-[#222222] ${mode === "silicon" || mode === "output" ? "bg-[#222222] text-white" : "bg-[#000000] text-[#71717a]"}`}>
+                <Terminal className="w-3 h-3" />
+              </div>
+              <div className={`p-1 border border-[#222222] ${mode === "agents" ? "bg-white text-black" : "bg-[#000000] text-[#71717a]"}`}>
+                <Sparkles className="w-3 h-3" />
+              </div>
+            </div>
 
-            <div className="px-2 py-0.5 border text-[11px] rounded-none font-mono bg-black text-[#888888] border-[#222222] hidden sm:block">
-              Direct Edit
+            {/* Share Button matching line 629 */}
+            <div className="px-2.5 py-0.5 text-[10px] font-medium border border-[#222222] bg-[#000000] text-white uppercase flex items-center gap-1 hidden sm:flex">
+              <Share2 className="w-3 h-3 text-current" />
+              <span>Share</span>
             </div>
           </div>
         </header>
       )}
 
-      {/* 2. BODY SPLIT: EXACT ZENITH FILE TREE + MAIN EDITOR CANVAS */}
+      {/* ========================================================================= */}
+      {/* 1b. EXACT CRUX MENU BAR (CruxEditorView.tsx lines 643-655)                */}
+      {/* ========================================================================= */}
+      <div className="h-6 border-b border-[#111111] bg-[#050505] flex items-center px-3 shrink-0 select-none overflow-x-auto">
+        {menuItems.map((item) => (
+          <span
+            key={item}
+            className="px-2.5 h-full text-[11px] text-[#71717a] hover:text-white flex items-center cursor-default font-sans"
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 2. MAIN LAYOUT: EXACT ZENITH FILE TREE + MAIN WORKBENCH                   */}
+      {/* ========================================================================= */}
       <div className="flex-1 flex min-h-0 bg-[#000000] overflow-hidden">
-        {/* Left Vertical Explorer: EXACT ZenithFileTree Clone with Real BranchedMenu */}
-        <aside className="w-52 sm:w-56 border-r border-[#222222] bg-[#000000] flex flex-col select-none shrink-0 h-full font-sans hidden sm:flex">
+        {/* Left Sidebar: EXACT ZenithFileTree Clone with Real BranchedMenu */}
+        <aside className="w-48 sm:w-52 border-r border-[#222222] bg-[#000000] flex flex-col select-none shrink-0 h-full font-sans hidden sm:flex">
           {/* Explorer Header matching ZenithFileTree.tsx line 357 */}
-          <div className="px-3 py-2 border-b border-[#222222] text-[10px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between">
+          <div className="px-3 py-1.5 border-b border-[#222222] text-[10px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between">
             <span>Explorer</span>
             <div className="flex items-center gap-1.5 text-[#888888]">
               <Plus className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
@@ -399,8 +453,8 @@ export default function RealCollaborativeMeshInterface({
               defaultOpen={[0, 1]}
               active={fileMeta.name}
               width="100%"
-              rowHeight={26}
-              indent={24}
+              rowHeight={24}
+              indent={22}
               fontSize={11}
               color="#888888"
               accentColor="#ffffff"
@@ -1003,7 +1057,9 @@ export default function RealCollaborativeMeshInterface({
         </main>
       </div>
 
-      {/* 3. EXACT CRUX IDE STATUS BAR (CruxEditorView.tsx line 709) */}
+      {/* ========================================================================= */}
+      {/* 3. EXACT CRUX IDE STATUS BAR (CruxEditorView.tsx line 709)                */}
+      {/* ========================================================================= */}
       {showStatusBar && (
         <footer className="h-[22px] px-3 bg-[#000000] border-t border-[#222222] text-[#888888] flex items-center justify-between text-[10px] font-mono select-none shrink-0 z-30">
           <div className="flex items-center gap-3">
