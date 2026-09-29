@@ -1,7 +1,10 @@
+import type { BotAvatarType } from "bot-avatars";
+
 export interface User {
   id: string;
   name: string;
   avatar: string;
+  avatarType?: BotAvatarType;
   color: string;
   role?: string;
   isSelf?: boolean;
@@ -219,4 +222,3 @@ export interface FileRevision {
     removed: number;
   };
 }
-

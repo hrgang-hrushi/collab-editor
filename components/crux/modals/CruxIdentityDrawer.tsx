@@ -4,18 +4,24 @@ import React, { useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { X, User, Key, Mail, Shield, Copy, Check, LogOut, Lock } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { BotAvatar } from "bot-avatars";
+import CruxAvatarPicker from "../avatars/CruxAvatarPicker";
+import { avatarMotionSeed } from "../avatars/avatarMotion";
+import { updateLocalAvatarAwareness } from "@/lib/crdt/yjsProvider";
 
 export default function CruxIdentityDrawer() {
   const isIdentityDrawerOpen = useWorkspaceStore((state) => state.isIdentityDrawerOpen);
   const setIdentityDrawerOpen = useWorkspaceStore((state) => state.setIdentityDrawerOpen);
   const currentUser = useWorkspaceStore((state) => state.currentUser);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
+  const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const viewerLock = useWorkspaceStore((state) => state.viewerLock);
   const toggleViewerLock = useWorkspaceStore((state) => state.toggleViewerLock);
   const accessLevel = useWorkspaceStore((state) => state.accessLevel);
   const setAccessLevel = useWorkspaceStore((state) => state.setAccessLevel);
 
   const [copied, setCopied] = useState(false);
+  const [isAvatarPickerOpen, setAvatarPickerOpen] = useState(false);
 
   if (!isIdentityDrawerOpen) return null;
 
@@ -36,7 +42,7 @@ export default function CruxIdentityDrawer() {
 
   return (
     <div className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 font-sans select-none animate-in fade-in duration-150">
-      <div className="w-full max-w-md bg-surface border border-grid flex flex-col overflow-hidden">
+      <div className="w-full max-w-md max-h-[calc(100vh-2rem)] bg-surface border border-grid flex flex-col overflow-y-auto">
         {/* Header */}
         <div className="h-11 px-4 border-b border-grid bg-void flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -57,6 +63,31 @@ export default function CruxIdentityDrawer() {
         <div className="p-5 space-y-4">
           {/* Identity Card */}
           <div className="p-4 bg-void border border-grid space-y-3 font-mono text-xs">
+            <div className="flex items-center gap-3 border-b border-grid pb-3">
+              <BotAvatar type={currentUser.avatarType || "mech"} size={64} state="default" seed={avatarMotionSeed(currentUser.uid || currentUser.id)} interactive={false} theme="dark" />
+              <div className="min-w-0 flex-1">
+                <span className="block text-[9px] uppercase tracking-widest text-muted">Profile avatar</span>
+                <span className="block text-white font-bold truncate">{currentUser.name}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAvatarPickerOpen((open) => !open)}
+                aria-expanded={isAvatarPickerOpen}
+                className="border border-grid px-2 py-1 text-[10px] uppercase text-white hover:bg-white hover:text-black transition-none"
+              >
+                Change
+              </button>
+            </div>
+            {isAvatarPickerOpen && (
+              <CruxAvatarPicker
+                value={currentUser.avatarType || "mech"}
+                identity={currentUser.uid || currentUser.id}
+                onChange={(avatarType) => {
+                  setUserProfile({ avatarType });
+                  updateLocalAvatarAwareness(avatarType);
+                }}
+              />
+            )}
             <div className="flex items-center justify-between">
               <span className="text-[10px] uppercase text-muted tracking-wider">DEVELOPER</span>
               <span className="text-signal font-bold">{currentUser.name}</span>

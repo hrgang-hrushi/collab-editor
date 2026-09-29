@@ -4,15 +4,16 @@
   "version": "0.1.0",
   "identifier": "com.crux.ide",
   "build": {
-    "frontendDist": "../out",
+    "frontendDist": "../.next-prod",
     "devUrl": "http://localhost:3000",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "TAURI_BUILD=1 npm run build:export"
   },
   "app": {
     "windows": [
       {
         "title": "Crux",
+        "url": "ide.html",
         "width": 1280,
         "height": 820,
         "resizable": true,
@@ -37,22 +38,23 @@
       "debugApplicationIdSuffix": ".debug"
     },
     "macOS": {
+      "signingIdentity": "-",
+      "entitlements": "entitlements.plist",
       "dmg": {
-        "background": "icons/background.tiff",
+        "background": "../public/crux-dmg-background.png",
         "windowSize": {
           "width": 800,
-          "height": 400
+          "height": 432
         },
         "appPosition": {
-          "x": 200,
-          "y": 200
+          "x": 180,
+          "y": 205
         },
         "applicationFolderPosition": {
-          "x": 600,
-          "y": 200
+          "x": 620,
+          "y": 205
         }
       }
     }
   }
 }
-

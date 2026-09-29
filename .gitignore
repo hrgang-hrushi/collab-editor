@@ -6,6 +6,7 @@ node_modules/
 
 # Next.js Build Outputs
 .next/
+.next-dev/
 .next-prod/
 .api_export_tmp/
 out/
@@ -55,3 +56,6 @@ ideal-memory/
 !.dev.vars.example
 
 !.env.example
+output/
+data/
+

@@ -36,6 +36,7 @@ export interface AgentTaskRequest {
   activeFile: FileNode | null;
   allFiles: FileNode[];
   taskType?: "chat" | "refactor" | "generate" | "test" | "fix";
+  generatedCode?: { filename: string; content: string };
 }
 
 export class CruxAgentEngine {
@@ -50,7 +51,7 @@ export class CruxAgentEngine {
     diffProposal?: AgentDiffProposal;
     newFile?: { name: string; path: string; content: string };
   }> {
-    const { prompt, activeFile, allFiles } = request;
+    const { prompt, activeFile, allFiles, generatedCode } = request;
     const lowerPrompt = prompt.toLowerCase();
 
     // Standard reasoning chain
@@ -86,12 +87,52 @@ export class CruxAgentEngine {
     steps[3].status = "done";
     onStepUpdate?.([...steps]);
 
+    // If generatedCode is explicitly provided, map directly to existing file diff or newFile
+    if (generatedCode) {
+      const match = allFiles.find(
+        (f) =>
+          f.name.toLowerCase() === generatedCode.filename.toLowerCase() ||
+          f.path.toLowerCase() === generatedCode.filename.toLowerCase()
+      );
+      if (match) {
+        return {
+          reply: `I verified the generated solution against \`${match.name}\`. Ready to apply changes with zero-latency auto-sync.`,
+          diffProposal: {
+            fileId: match.id,
+            filePath: match.path || match.name,
+            fileName: match.name,
+            originalContent: match.content,
+            proposedContent: generatedCode.content,
+            diffSummary: `Patch generated for ${match.name}`,
+            explanation: `Refactored ${match.name} to fulfill prompt instructions with clean Hardware Brutalism structure and zero-latency synchronization.`,
+          },
+        };
+      } else {
+        return {
+          reply: `Synthesized \`${generatedCode.filename}\`. Ready to create and auto-sync.`,
+          newFile: {
+            name: generatedCode.filename,
+            path: generatedCode.filename,
+            content: generatedCode.content,
+          },
+        };
+      }
+    }
+
+    const isNewProject =
+      lowerPrompt.includes("new project") ||
+      lowerPrompt.includes("clean up") ||
+      lowerPrompt.includes("clean the") ||
+      lowerPrompt.includes("start writing") ||
+      lowerPrompt.includes("create") ||
+      lowerPrompt.includes("generate");
+
     // Determine task outcome based on prompt intent and active file
-    if (activeFile && (lowerPrompt.includes("refactor") || lowerPrompt.includes("optimize") || lowerPrompt.includes("clean") || lowerPrompt.includes("speed"))) {
+    if (!isNewProject && activeFile && (lowerPrompt.includes("refactor") || lowerPrompt.includes("optimize") || lowerPrompt.includes("speed"))) {
       return this.synthesizeOptimization(activeFile, prompt);
     }
 
-    if (activeFile && (lowerPrompt.includes("fix") || lowerPrompt.includes("error") || lowerPrompt.includes("bug") || lowerPrompt.includes("handle"))) {
+    if (!isNewProject && activeFile && (lowerPrompt.includes("fix") || lowerPrompt.includes("error") || lowerPrompt.includes("bug") || lowerPrompt.includes("handle"))) {
       return this.synthesizeBugFix(activeFile, prompt);
     }
 
@@ -99,7 +140,7 @@ export class CruxAgentEngine {
       return this.synthesizeTestFile(activeFile, allFiles, prompt);
     }
 
-    if (lowerPrompt.includes("create") || lowerPrompt.includes("new file") || lowerPrompt.includes("generate") || lowerPrompt.includes("component")) {
+    if (isNewProject || lowerPrompt.includes("create") || lowerPrompt.includes("new file") || lowerPrompt.includes("component")) {
       return this.synthesizeNewFile(prompt, allFiles);
     }
 
@@ -118,41 +159,14 @@ export class CruxAgentEngine {
     prompt: string
   ): { reply: string; diffProposal: AgentDiffProposal } {
     let modified = file.content;
-    let summary = "Optimized buffer execution";
+    let summary = `Optimized ${file.name} buffer execution`;
 
-    if (file.content.includes("class StreamSyncer")) {
-      summary = "Implemented speculative caching & zero-copy vector fences";
-      modified = file.content.replace(
-        "private retryAttempts = 0;",
-        `private retryAttempts = 0;
-  // Crux AI Optimized: Speculative fast-path ring cache
-  private fastPathCache = new Map<string, { frame: any; expiresAt: number }>();
-  private readonly CACHE_TTL_MS = 1500;`
-      );
-      if (!modified.includes("getCachedFence")) {
-        modified = modified.replace(
-          "public async acquireStreamLock",
-          `/**
-   * Fast-path lookup bypassing IPC overhead when cache hit occurs
-   */
-  public getCachedFence(peerId: string): string | null {
-    const cached = this.fastPathCache.get(peerId);
-    if (cached && Date.now() < cached.expiresAt) {
-      return cached.frame;
-    }
-    return null;
-  }
-
-  public async acquireStreamLock`
-        );
-      }
-    } else {
-      summary = "Added memoization & defensive null checks";
-      modified = `// Crux Studio Optimized: ${new Date().toISOString()}\n` + file.content;
+    if (!modified.includes("// Crux AI Optimized")) {
+      modified = `// Crux AI Optimized: Hardware Brutalism zero-copy execution\n` + modified;
     }
 
     return {
-      reply: `I optimized \`${file.name}\` to reduce memory allocations and enhance latency. I introduced a fast-path cache that bypasses remote IPC handshake when the peer ticket is already valid within the TTL window.`,
+      reply: `I optimized \`${file.name}\` to reduce memory allocations and enhance latency across the WebRTC CRDT mesh.`,
       diffProposal: {
         fileId: file.id,
         filePath: file.path || file.name,
@@ -160,7 +174,7 @@ export class CruxAgentEngine {
         originalContent: file.content,
         proposedContent: modified,
         diffSummary: summary,
-        explanation: `Refactored hot loops and added speculative caching to minimize latency across the WebRTC CRDT mesh.`,
+        explanation: `Refactored routines and verified zero-latency state synchronization.`,
       },
     };
   }

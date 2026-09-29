@@ -16,6 +16,10 @@ export default function VoidCanvas({ children }: { children?: React.ReactNode })
 
   return (
     <div className="relative w-screen h-screen bg-[#000000] text-white overflow-hidden select-none flex flex-col font-sans">
+      <div
+        className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center opacity-35"
+        style={{ backgroundImage: "url('/crux-hardware-background.png')" }}
+      />
       {/* 1. Macro Silicon Wafer Architectural Circuit Grid (Z-0) */}
       <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden opacity-15">
         <svg

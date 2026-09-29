@@ -200,6 +200,8 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
       decorations: DecorationSet;
       private awarenessListener: () => void;
       private typingTimer: NodeJS.Timeout | null = null;
+      private refreshQueued = false;
+      private destroyed = false;
 
       constructor(view: EditorView) {
         this.decorations = Decoration.none;
@@ -221,15 +223,24 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
         };
         updateInitial();
 
-        // When awareness updates from peers, dispatch an annotated transaction to immediately refresh decorations
+        // Awareness can fire synchronously while CodeMirror is updating (including
+        // while ySync applies a remote edit). Defer the refresh until that update ends.
         this.awarenessListener = () => {
-          view.dispatch({ annotations: [crexCursorAnnotation.of()] });
+          if (this.refreshQueued || this.destroyed) return;
+          this.refreshQueued = true;
+          queueMicrotask(() => {
+            this.refreshQueued = false;
+            if (!this.destroyed) {
+              view.dispatch({ annotations: [crexCursorAnnotation.of()] });
+            }
+          });
         };
 
         awareness.on("change", this.awarenessListener);
       }
 
       destroy() {
+        this.destroyed = true;
         awareness.off("change", this.awarenessListener);
         if (this.typingTimer) clearTimeout(this.typingTimer);
       }
@@ -250,7 +261,7 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
 
         // Track local cursor position into awareness
         const localState = awareness.getLocalState();
-        if (localState && (update.selectionSet || update.docChanged || update.view.hasFocus)) {
+        if (localState && (update.selectionSet || update.docChanged)) {
           const mainSel = update.state.selection.main;
           const anchor = Y.createRelativePositionFromTypeIndex(ytext, mainSel.anchor);
           const head = Y.createRelativePositionFromTypeIndex(ytext, mainSel.head);
@@ -290,8 +301,9 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
           const isIdle = now - lastActive > 3000;
           const isTyping = !isIdle && !!state.isTyping;
 
-          const start = Math.min(anchorPos.index, headPos.index);
-          const end = Math.max(anchorPos.index, headPos.index);
+          const docLength = update.state.doc.length;
+          const start = Math.max(0, Math.min(docLength, anchorPos.index, headPos.index));
+          const end = Math.max(0, Math.min(docLength, Math.max(anchorPos.index, headPos.index)));
           const isSelecting = start !== end;
 
           // 1. Text Selection Highlight Ribbon
@@ -359,7 +371,7 @@ export function createCrexBrutalistCursorExtension(awareness: Awareness) {
                 isSelecting,
                 isIdle
               ),
-            }).range(headPos.index)
+            }).range(Math.max(0, Math.min(docLength, headPos.index)))
           );
         });
 

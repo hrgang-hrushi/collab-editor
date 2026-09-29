@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  icons: { icon: "/crux-icon.png" },
   metadataBase: new URL("https://codecrux.us"),
   title: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
   description:

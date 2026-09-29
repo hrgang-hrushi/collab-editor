@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { X, Send, Lock, Shield, User, FileText, Check, AlertTriangle, Link2, Copy } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
+import { markCrexSessionAsHost } from "@/lib/crdt/yjsProvider";
+import { getBrowserShareBaseUrl } from "@/lib/crdt/shareUrl";
 
 export default function CruxShareModal() {
   const isShareModalOpen = useWorkspaceStore((state) => state.isShareModalOpen);
@@ -11,6 +13,7 @@ export default function CruxShareModal() {
   const currentUser = useWorkspaceStore((state) => state.currentUser);
   const projectName = useWorkspaceStore((state) => state.projectName);
   const files = useWorkspaceStore((state) => state.files);
+  const activeFileId = useWorkspaceStore((state) => state.activeFileId);
   const sendInvite = useWorkspaceStore((state) => state.sendInvite);
   const viewerLock = useWorkspaceStore((state) => state.viewerLock);
   const setViewerLock = useWorkspaceStore((state) => state.setViewerLock);
@@ -27,6 +30,7 @@ export default function CruxShareModal() {
 
   const activeSessionId = useWorkspaceStore((state) => state.activeSessionId);
   const setActiveSessionId = useWorkspaceStore((state) => state.setActiveSessionId);
+  const pendingSessionId = useRef(`session-${Math.random().toString(36).substring(2, 9)}`);
 
   const getSessionId = (): string => {
     if (activeSessionId) return activeSessionId;
@@ -38,16 +42,17 @@ export default function CruxShareModal() {
         return window.location.hash.replace("#session-", "").split("?")[0];
       }
     }
-    return "session-" + Math.random().toString(36).substring(2, 9);
+    return pendingSessionId.current;
   };
 
-  const getComputedShareUrl = (overrideAccess?: "full" | "limited" | "viewer") => {
+  const getComputedShareUrl = (overrideAccess?: "full" | "limited" | "viewer", sessionId?: string) => {
     if (typeof window === "undefined") return "";
     const effectiveAccess = overrideAccess || accessLevel;
-    const base = `${window.location.origin}${window.location.pathname}`;
-    const sid = getSessionId();
+    const base = getBrowserShareBaseUrl();
+    const sid = sessionId || getSessionId();
     const params = new URLSearchParams();
     params.set("session", sid);
+    if (activeFileId) params.set("file", activeFileId);
     if (effectiveAccess === "viewer" || (overrideAccess === undefined && localViewerLock)) {
       params.set("access", "viewer");
     } else if (effectiveAccess === "limited") {
@@ -65,6 +70,7 @@ export default function CruxShareModal() {
     if (typeof window === "undefined") return;
     triggerHaptic("click");
     const sid = getSessionId();
+    markCrexSessionAsHost(sid);
     setActiveSessionId(sid);
 
     // Keep host URL matching session
@@ -79,7 +85,7 @@ export default function CruxShareModal() {
       window.location.hash = sid.startsWith("session-") ? sid : `session-${sid}`;
     }
 
-    const url = getComputedShareUrl(overrideAccess);
+    const url = getComputedShareUrl(overrideAccess, sid);
     navigator.clipboard.writeText(url);
     setCopiedMeshLink(true);
     setTimeout(() => setCopiedMeshLink(false), 2000);

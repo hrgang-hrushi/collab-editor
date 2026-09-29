@@ -43,7 +43,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import ContextualCommentPanel from "../threads/ContextualCommentPanel";
-import { initCrexCRDTSession, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { initCrexCRDTSession, replaceCrexYTextContent, CrexCRDTSession } from "@/lib/crdt/yjsProvider";
 import { createCrexBrutalistCursorExtension } from "@/lib/crdt/codemirrorCursorPlugin";
 import { ySyncFacet, ySync, YSyncConfig } from "y-codemirror.next";
 
@@ -563,6 +563,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
   const [activeEditorView, setActiveEditorView] = useState<EditorView | null>(null);
 
   const updateFileContent = useWorkspaceStore((state) => state.updateFileContent);
+  const activeSessionId = useWorkspaceStore((state) => state.activeSessionId);
   const suggestions = useWorkspaceStore((state) => state.suggestions);
   const comments = useWorkspaceStore((state) => state.comments);
   const acceptSuggestion = useWorkspaceStore((state) => state.acceptSuggestion);
@@ -634,6 +635,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
 
   // Active Yjs CRDT Session for real-time WebRTC P2P mesh
   const crdtSessionRef = useRef<CrexCRDTSession | null>(null);
+  const lastMirroredContentRef = useRef<string | null>(null);
   const [awarenessInstance, setAwarenessInstance] = useState<any>(null);
 
   // Mount CodeMirror 6 instance with native Yjs CRDT & WebRTC bindings
@@ -649,8 +651,12 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       name: currentUser.name || "Principal Developer",
       color: currentUser.color || "#FFFFFF",
       uid: currentUser.uid || "CRX-7447-HG",
+      avatarType: currentUser.avatarType || "mech",
     });
     crdtSessionRef.current = session;
+    // A joining peer must not inject its local file snapshot into the room.
+    // Only later external file actions should write into Y.Text.
+    lastMirroredContentRef.current = file.content;
     setAwarenessInstance(session.awareness);
 
     // Initial content directly from Y.Text (which was initialized on first room creation in initCrexCRDTSession)
@@ -703,6 +709,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             const newContent = update.state.doc.toString();
+            lastMirroredContentRef.current = newContent;
             updateFileContent(file.id, newContent);
 
             // Debounced revision history logging
@@ -772,6 +779,7 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
     // Sync Yjs text changes into local workspace store
     const ytextObserver = () => {
       const updatedText = session.ytext.toString();
+      lastMirroredContentRef.current = updatedText;
       updateFileContent(file.id, updatedText);
     };
     session.ytext.observe(ytextObserver);
@@ -811,21 +819,21 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       session.ytext.unobserve(ytextObserver);
       session.awareness.off("change", awarenessMouseObserver);
       view.destroy();
+      session.release?.();
+      if (crdtSessionRef.current === session) crdtSessionRef.current = null;
       viewRef.current = null;
       setActiveEditorView(null);
     };
-  }, [file.id, getLanguageExtension, readOnly, isMonochromeTheme]);
+  }, [file.id, activeSessionId, getLanguageExtension, readOnly, isMonochromeTheme]);
 
-  // Keep editor content in sync when updated externally (e.g. accepted suggestion)
+  // External actions (accepted suggestions, AI patches, file writes) enter the
+  // same Y.Text as keystrokes. Never replace the CodeMirror document directly:
+  // doing so replays the entire buffer as a second concurrent Yjs insertion.
   useEffect(() => {
-    if (viewRef.current) {
-      const currentDoc = viewRef.current.state.doc.toString();
-      if (currentDoc !== file.content) {
-        viewRef.current.dispatch({
-          changes: { from: 0, to: currentDoc.length, insert: file.content },
-        });
-      }
-    }
+    const session = crdtSessionRef.current;
+    if (!session || file.content === lastMirroredContentRef.current) return;
+    lastMirroredContentRef.current = file.content;
+    replaceCrexYTextContent(session.ytext, file.content);
   }, [file.content]);
 
   // Hotkey listener for Cmd+I (AI Assistant)

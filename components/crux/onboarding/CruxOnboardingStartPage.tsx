@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
 import MagneticNeedleField from "../void/MagneticNeedleField";
@@ -23,8 +23,10 @@ import {
   Sparkles,
   Plus,
   X,
+  RefreshCw,
 } from "lucide-react";
 import CruxMinimalistMigrationCard from "../migration/CruxMinimalistMigrationCard";
+import CruxSystemSettingsModal from "../modals/CruxSystemSettingsModal";
 import { CrexAiRouter } from "@/lib/ai/aiRouter";
 
 export default function CruxOnboardingStartPage() {
@@ -32,7 +34,9 @@ export default function CruxOnboardingStartPage() {
   const setUserProfile = useWorkspaceStore((state) => state.setUserProfile);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
+  const setSettingsModalOpen = useWorkspaceStore((state) => state.setSettingsModalOpen);
   const loadWorkspaceTemplate = useWorkspaceStore((state) => state.loadWorkspaceTemplate);
+  const setAiToolSelection = useWorkspaceStore((state) => state.setAiToolSelection);
 
   // Flow views:
   // - "welcome": GA Hero landing with Quick Launch, Calibration, or Connect Node Key
@@ -68,6 +72,15 @@ export default function CruxOnboardingStartPage() {
   // AI Toolchain Auto-Pickup & Custom Tool Configuration
   const [discoveredAgents, setDiscoveredAgents] = useState<any[]>([]);
   const [isScanningAgents, setIsScanningAgents] = useState(true);
+  const [orchestrationManifest, setOrchestrationManifest] = useState<{
+    selectionMode: string;
+    activeToolId: string;
+    autoPickedId: string;
+    autoPickedName: string;
+    rationale: string;
+    totalDetected: number;
+  } | null>(null);
+  const [selectedAiToolId, setSelectedAiToolId] = useState<string>("auto");
   const [isCustomToolModalOpen, setIsCustomToolModalOpen] = useState(false);
   const [customToolName, setCustomToolName] = useState("");
   const [customToolCommand, setCustomToolCommand] = useState("");
@@ -75,23 +88,41 @@ export default function CruxOnboardingStartPage() {
   const [customToolModel, setCustomToolModel] = useState("custom-agent-v1");
   const [customToolSuccess, setCustomToolSuccess] = useState(false);
 
-  useEffect(() => {
-    let isMounted = true;
+  const scanHostTools = useCallback(() => {
+    setIsScanningAgents(true);
     fetch("/api/discovery")
       .then((res) => res.json())
       .then((data) => {
-        if (isMounted && data.runtimes) {
+        if (data.runtimes) {
           setDiscoveredAgents(data.runtimes);
+          if (data.orchestration) {
+            setOrchestrationManifest(data.orchestration);
+            setSelectedAiToolId(data.orchestration.autoPickedId || "antigravity-agy");
+          }
           setIsScanningAgents(false);
         }
       })
       .catch(() => {
-        if (isMounted) setIsScanningAgents(false);
+        setIsScanningAgents(false);
       });
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  useEffect(() => {
+    scanHostTools();
+  }, [scanHostTools]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCmd = e.metaKey || e.ctrlKey;
+      if (isCmd && e.key.toLowerCase() === ",") {
+        e.preventDefault();
+        triggerHaptic("click");
+        setSettingsModalOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [setSettingsModalOpen]);
 
   const handleSaveCustomTool = (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,6 +178,11 @@ export default function CruxOnboardingStartPage() {
   const handleQuickBoot = () => {
     triggerHaptic("click");
     loadWorkspaceTemplate("mesh");
+    const effectiveTool =
+      selectedAiToolId !== "auto"
+        ? selectedAiToolId
+        : orchestrationManifest?.autoPickedId || "antigravity-agy";
+    setAiToolSelection(effectiveTool);
     setUserProfile({
       name: name.trim() || "Operator",
       role,
@@ -185,22 +221,34 @@ export default function CruxOnboardingStartPage() {
     } else if (step === 3) {
       // Begin mechanical boot sequence
       setStep(4);
+      const effectiveTool =
+        selectedAiToolId !== "auto"
+          ? selectedAiToolId
+          : orchestrationManifest?.autoPickedId || "antigravity-agy";
+      const toolObj = discoveredAgents.find((a) => a.id === effectiveTool);
+      const toolName = toolObj?.name || orchestrationManifest?.autoPickedName || "Anti-Gravity AGY";
+
       setBootLogs(["[INIT] ALLOCATING HARDWARE MEMORY ENCLAVE..."]);
 
       setTimeout(() => {
         setBootLogs((prev) => [...prev, "[OK] INGESTING SELECTED BLUEPRINT MATRIX..."]);
-      }, 350);
+      }, 300);
+
+      setTimeout(() => {
+        setBootLogs((prev) => [...prev, `[ATTACH] BOUND PRIMARY AI RUNTIME: ${toolName.toUpperCase()}`]);
+      }, 600);
 
       setTimeout(() => {
         setBootLogs((prev) => [...prev, "[OK] INITIALIZING VECTOR CLOCK & ED25519 VAULT..."]);
-      }, 700);
+      }, 900);
 
       setTimeout(() => {
         setBootLogs((prev) => [...prev, `[READY] OPERATOR ${generatedUid} ATTESTED // DISPATCHING GA RUNTIME.`]);
-      }, 1050);
+      }, 1200);
 
       setTimeout(() => {
         loadWorkspaceTemplate(selectedTemplate);
+        setAiToolSelection(effectiveTool);
         setUserProfile({
           name: name.trim() || "Operator",
           role,
@@ -214,7 +262,7 @@ export default function CruxOnboardingStartPage() {
         });
         setOnboarded(true);
         setZeroStateOpen(false);
-      }, 1450);
+      }, 1500);
     }
   };
 
@@ -240,6 +288,10 @@ export default function CruxOnboardingStartPage() {
 
   return (
     <div className="relative w-screen h-screen bg-[#000000] text-white overflow-hidden select-none flex flex-col font-sans">
+      <div
+        className="absolute inset-0 z-0 pointer-events-none bg-cover bg-center opacity-35"
+        style={{ backgroundImage: "url('/crux-hardware-background.png')" }}
+      />
       {/* 1. Interactive Cursor-Magnetic Vector Needle Matrix (Z-0) */}
       <div className="absolute inset-0 z-0 pointer-events-auto">
         <MagneticNeedleField
@@ -273,11 +325,15 @@ export default function CruxOnboardingStartPage() {
             <span>[WEBRTC: MESH READY]</span>
           </div>
           <button
-            onClick={() => switchTab(activeView === "settings" ? "welcome" : "settings")}
-            className="flex items-center gap-1 text-[#888888] hover:text-white border border-[#222222] px-2 py-0.5 transition-none"
+            onClick={() => {
+              triggerHaptic("click");
+              setSettingsModalOpen(true);
+            }}
+            className="flex items-center gap-1 text-[#888888] hover:text-white border border-[#222222] px-2 py-0.5 transition-none cursor-pointer"
+            title="Open System Settings Hub (Cmd+,)"
           >
             <Settings className="w-3 h-3" />
-            <span>{activeView === "settings" ? "EXIT CONFIG" : "CONFIG"}</span>
+            <span>CONFIG</span>
           </button>
         </div>
       </header>
@@ -359,28 +415,88 @@ export default function CruxOnboardingStartPage() {
                   <div className="flex items-center justify-between pb-1.5 border-b border-[#222222]">
                     <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase font-bold text-white tracking-wider">
                       <Cpu className="w-3.5 h-3.5 text-white" />
-                      <span>AUTO-PICKUP AI AGENTS &amp; TOOLS</span>
+                      <span>AUTO-PICKUP AI TOOLS</span>
                     </div>
-                    <span className="text-[9px] font-mono text-[#00FF66] font-bold">
-                      {isScanningAgents ? "SCANNING..." : `${discoveredAgents.length} ATTACHED`}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={scanHostTools}
+                        disabled={isScanningAgents}
+                        className="px-1.5 py-0.5 border border-[#333333] hover:border-white text-[8px] font-mono text-[#AAAAAA] hover:text-white transition-none uppercase cursor-pointer flex items-center gap-1"
+                        title="Re-scan host silicon for newly installed AI CLI agents"
+                      >
+                        <RefreshCw className={`w-2.5 h-2.5 ${isScanningAgents ? "animate-spin text-white" : ""}`} />
+                        <span>RE-SCAN</span>
+                      </button>
+                      <span className="text-[9px] font-mono text-[#00FF66] font-bold">
+                        {isScanningAgents ? "SCANNING..." : `${discoveredAgents.length} HOST ENGINES`}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="space-y-1 font-mono text-[10px] mt-2 max-h-[125px] overflow-y-auto">
-                    {discoveredAgents.map((ag) => (
-                      <div
-                        key={ag.id}
-                        className="py-1 px-2 border border-[#222222] bg-[#000000] flex items-center justify-between text-white"
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <span className="w-1.5 h-1.5 bg-[#00FF66] shrink-0" />
-                          <span className="font-bold truncate text-[10px]">{ag.name}</span>
+                  {/* Auto-Picked Winner Banner */}
+                  {orchestrationManifest && (
+                    <div className="mt-2 p-2 bg-[#121212] border border-white text-white font-mono text-[10px]">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 truncate">
+                          <span className="w-1.5 h-1.5 bg-white shrink-0 animate-hard-blink" />
+                          <span className="font-bold uppercase tracking-wider truncate text-[10.5px]">
+                            AUTO-PICK: {orchestrationManifest.autoPickedName}
+                          </span>
                         </div>
-                        <span className="px-1 py-0.2 text-[8px] bg-void border border-[#333333] text-[#AAAAAA] uppercase shrink-0">
-                          {ag.details?.hasGeminiMd ? "GEMINI.md" : ag.details?.hasCursorRules ? ".cursorrules" : ag.provider.toUpperCase()}
+                        <span className="px-1.5 py-0.2 bg-white text-black font-bold text-[8px] shrink-0 uppercase tracking-widest">
+                          100/100 AFFINITY // AUTO-PICKED
                         </span>
                       </div>
-                    ))}
+                      <p className="text-[9px] text-[#888888] mt-1 leading-tight">
+                        {orchestrationManifest.rationale}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-1 font-mono text-[10px] mt-2 max-h-[140px] overflow-y-auto">
+                    {discoveredAgents.map((ag) => {
+                      const isAuto = ag.isAutoPicked || ag.id === orchestrationManifest?.autoPickedId;
+                      const isSelected = selectedAiToolId === ag.id || (selectedAiToolId === "auto" && isAuto);
+                      return (
+                        <div
+                          key={ag.id}
+                          onClick={() => setSelectedAiToolId(ag.id)}
+                          className={`py-1 px-2 border cursor-pointer flex items-center justify-between text-white transition-none ${
+                            isSelected
+                              ? "border-white bg-[#1A1A1A]"
+                              : "border-[#222222] bg-[#000000] hover:border-[#444444]"
+                          }`}
+                          title={ag.affinityRationale || ag.details?.path || ag.name}
+                        >
+                          <div className="flex items-center gap-2 truncate">
+                            <span
+                              className={`w-1.5 h-1.5 shrink-0 ${
+                                isSelected ? "bg-white" : isAuto ? "bg-[#00FF66]" : "bg-[#444444]"
+                              }`}
+                            />
+                            <span className="font-bold truncate text-[10px]">{ag.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            {isAuto && (
+                              <span className="px-1 py-0.2 text-[8px] bg-white text-black font-bold uppercase tracking-wider">
+                                AUTO-PICKED
+                              </span>
+                            )}
+                            <span className="text-[8px] text-white font-bold bg-[#151515] px-1 py-0.2 border border-[#333333]">
+                              {ag.affinityScore || 100}/100
+                            </span>
+                            <span className="px-1 py-0.2 text-[8px] bg-void border border-[#333333] text-[#AAAAAA] uppercase">
+                              {ag.details?.hasGeminiMd
+                                ? "GEMINI.md"
+                                : ag.details?.hasCursorRules
+                                ? ".cursorrules"
+                                : "0ms LOCAL"}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
 
                     {discoveredAgents.length === 0 && !isScanningAgents && (
                       <div className="p-2 border border-[#222222] text-[#666666] text-center text-[10px]">
@@ -667,31 +783,81 @@ export default function CruxOnboardingStartPage() {
                   <div className="p-3 bg-[#0A0A0A] border border-[#222222] space-y-2 select-none">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] uppercase text-white font-bold block">
-                        AUTO-ATTACHED CODING AGENTS &amp; TOOLS
+                        PRIMARY AI CODING ENGINE // AUTO-PICK SELECTION
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => setIsCustomToolModalOpen(true)}
-                        className="text-[9px] uppercase border border-[#222222] px-2 py-0.5 text-white hover:bg-white hover:text-black transition-none cursor-pointer"
-                      >
-                        + CUSTOM TOOL
-                      </button>
-                    </div>
-                    <div className="space-y-1 font-mono text-[10px]">
-                      {discoveredAgents.map((ag) => (
-                        <div
-                          key={ag.id}
-                          className="p-1 border border-[#222222] bg-[#000000] flex items-center justify-between text-white"
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={scanHostTools}
+                          disabled={isScanningAgents}
+                          className="text-[9px] uppercase border border-[#222222] px-2 py-0.5 text-[#888888] hover:text-white hover:border-white transition-none cursor-pointer flex items-center gap-1"
                         >
-                          <div className="flex items-center gap-1.5 truncate">
-                            <span className="w-1 h-1 bg-white shrink-0" />
-                            <span className="truncate">{ag.name}</span>
+                          <RefreshCw className={`w-2.5 h-2.5 ${isScanningAgents ? "animate-spin text-white" : ""}`} />
+                          <span>RE-SCAN</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsCustomToolModalOpen(true)}
+                          className="text-[9px] uppercase border border-[#222222] px-2 py-0.5 text-white hover:bg-white hover:text-black transition-none cursor-pointer"
+                        >
+                          + CUSTOM TOOL
+                        </button>
+                      </div>
+                    </div>
+
+                    {orchestrationManifest && (
+                      <div className="p-2 border border-white bg-[#121212] text-white text-[9px] font-mono flex items-center justify-between">
+                        <span className="truncate">
+                          DEFAULT: <strong>{orchestrationManifest.autoPickedName}</strong> (AFFINITY: 100/100)
+                        </span>
+                        <span className="px-1.5 py-0.2 bg-white text-black font-bold uppercase text-[8px] shrink-0 ml-2">
+                          ACTIVE ENGINE
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="space-y-1 font-mono text-[10px] max-h-[140px] overflow-y-auto">
+                      {discoveredAgents.map((ag) => {
+                        const isAuto = ag.isAutoPicked || ag.id === orchestrationManifest?.autoPickedId;
+                        const isSelected = selectedAiToolId === ag.id || (selectedAiToolId === "auto" && isAuto);
+                        return (
+                          <div
+                            key={ag.id}
+                            onClick={() => setSelectedAiToolId(ag.id)}
+                            className={`p-1.5 border cursor-pointer flex items-center justify-between transition-none ${
+                              isSelected
+                                ? "border-white bg-[#1A1A1A] text-white font-bold"
+                                : "border-[#222222] bg-[#000000] text-white hover:border-[#444444]"
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 truncate">
+                              <span
+                                className={`w-1.5 h-1.5 shrink-0 ${
+                                  isSelected ? "bg-white" : isAuto ? "bg-[#00FF66]" : "bg-[#444444]"
+                                }`}
+                              />
+                              <span className="truncate">{ag.name}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0 text-[8px]">
+                              {isAuto && (
+                                <span className="px-1 py-0.2 uppercase font-bold bg-white text-black">
+                                  AUTO-PICK
+                                </span>
+                              )}
+                              <span className="text-[8px] text-white font-bold bg-[#151515] px-1 py-0.2 border border-[#333333]">
+                                {ag.affinityScore || 100}/100
+                              </span>
+                              <span className="px-1 py-0.2 bg-void border border-[#333333] text-[#AAAAAA] uppercase">
+                                {ag.details?.hasGeminiMd
+                                  ? "GEMINI.md"
+                                  : ag.details?.hasCursorRules
+                                  ? ".cursorrules"
+                                  : "0ms LOCAL"}
+                              </span>
+                            </div>
                           </div>
-                          <span className="text-[8px] text-[#888888] uppercase shrink-0">
-                            {ag.details?.hasGeminiMd ? "GEMINI.md" : ag.details?.hasCursorRules ? ".cursorrules" : ag.provider.toUpperCase()}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -993,8 +1159,23 @@ export default function CruxOnboardingStartPage() {
           <span>HOST: CODECRUX.US</span>
           <span className="text-[#333333]">|</span>
           <span className="text-white">PROD GA</span>
+          <span className="text-[#333333]">|</span>
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setSettingsModalOpen(true);
+            }}
+            className="flex items-center gap-1 text-[#888888] hover:text-white hover:border-white border border-[#222222] px-1.5 py-0.5 transition-none cursor-pointer"
+            title="Open System Settings Pop-up (Cmd+,)"
+          >
+            <Settings className="w-2.5 h-2.5" />
+            <span>SETTINGS</span>
+          </button>
         </div>
       </footer>
+
+      {/* 5. System Configuration & Workspace Hub */}
+      <CruxSystemSettingsModal />
     </div>
   );
 }

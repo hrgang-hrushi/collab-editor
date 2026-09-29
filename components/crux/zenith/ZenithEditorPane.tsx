@@ -23,6 +23,8 @@ import {
 import { Rise, Morph } from "cube-motion/react";
 import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
 import { triggerHaptic } from "@/lib/haptics";
+import { markCrexSessionAsHost } from "@/lib/crdt/yjsProvider";
+import { getBrowserShareBaseUrl } from "@/lib/crdt/shareUrl";
 
 export default function ZenithEditorPane() {
   const files = useWorkspaceStore((state) => state.files);
@@ -72,8 +74,9 @@ export default function ZenithEditorPane() {
       if (!sid) {
         sid = "session-" + Math.random().toString(36).substring(2, 9);
       }
-      setActiveSessionId(sid);
     }
+    markCrexSessionAsHost(sid);
+    setActiveSessionId(sid);
 
     const currentParams = new URLSearchParams(window.location.search);
     currentParams.set("session", sid);
@@ -85,9 +88,12 @@ export default function ZenithEditorPane() {
       window.location.hash = sid.startsWith("session-") ? sid : `session-${sid}`;
     }
 
-    const fullUrl = `${window.location.origin}${window.location.pathname}?session=${sid}&access=full#${
-      sid.startsWith("session-") ? sid : `session-${sid}`
-    }`;
+    const shareUrl = new URL(getBrowserShareBaseUrl());
+    shareUrl.searchParams.set("session", sid);
+    shareUrl.searchParams.set("access", "full");
+    if (activeFile) shareUrl.searchParams.set("file", activeFile.id);
+    shareUrl.hash = sid.startsWith("session-") ? sid : `session-${sid}`;
+    const fullUrl = shareUrl.toString();
     navigator.clipboard.writeText(fullUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);

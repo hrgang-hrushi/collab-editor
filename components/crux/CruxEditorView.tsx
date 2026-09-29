@@ -16,12 +16,16 @@ import CruxInboxModal from "./modals/CruxInboxModal";
 import CruxIdentityDrawer from "./modals/CruxIdentityDrawer";
 import CruxLibraryModal from "./modals/CruxLibraryModal";
 import CruxTimelineHistoryDrawer from "./history/CruxTimelineHistoryDrawer";
+import CruxSystemSettingsModal from "./modals/CruxSystemSettingsModal";
 import CruxAuthGate from "./auth/CruxAuthGate";
 import CruxBrandLogo from "./CruxBrandLogo";
 import CruxErrorBoundary from "./CruxErrorBoundary";
+import { autoSyncEngine, SyncStatus } from "@/lib/autoSyncEngine";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { BotAvatar } from "bot-avatars";
+import { avatarMotionSeed } from "./avatars/avatarMotion";
 import { Morph } from "cube-motion/react";
 import {
   Layers,
@@ -44,9 +48,12 @@ import {
   Inbox,
   Share2,
   ArrowLeft,
+  Settings,
+  RefreshCw,
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
 import { isTauriDesktop, readNativePaths } from "@/lib/fileUtils";
+import { restoreCleanCheckpoints } from "@/lib/recovery/restoreCleanCheckpoints";
 
 interface CruxEditorViewProps {
   onBackToEffects?: () => void;
@@ -61,6 +68,13 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
     branch: "main",
     isDirty: false,
   });
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() => autoSyncEngine.getStatus());
+
+  useEffect(() => {
+    return autoSyncEngine.subscribe((status) => {
+      setSyncStatus(status);
+    });
+  }, []);
 
   const isOnboarded = useWorkspaceStore((state) => state.isOnboarded);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
@@ -77,6 +91,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   const setShareModalOpen = useWorkspaceStore((state) => state.setShareModalOpen);
   const isInboxOpen = useWorkspaceStore((state) => state.isInboxOpen);
   const setInboxOpen = useWorkspaceStore((state) => state.setInboxOpen);
+  const setSettingsModalOpen = useWorkspaceStore((state) => state.setSettingsModalOpen);
   const setHistoryDrawerOpen = useWorkspaceStore((state) => state.setHistoryDrawerOpen);
   const fileRevisions = useWorkspaceStore((state) => state.fileRevisions);
 
@@ -98,7 +113,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
 
   const pendingInvitesCount = inboxInvites.filter((inv) => inv.status === "pending").length;
 
-  const [isMounted, setIsMounted] = useState(typeof window !== "undefined");
+  const [isMounted, setIsMounted] = useState(false);
   const [livePeers, setLivePeers] = useState<Array<{ name: string; color: string; uid?: string }>>([]);
 
   const isNexus = mode === "canvas";
@@ -178,8 +193,37 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
   }, [activeFile?.id]);
 
   useEffect(() => {
-    setIsMounted(true);
     if (typeof window !== "undefined") {
+      try {
+        restoreCleanCheckpoints();
+      } catch (error) {
+        console.error("Could not restore clean workspace checkpoints", error);
+      }
+      // Expose globally for dev console reset
+      (window as any).cruxResetEnclave = () => {
+        localStorage.removeItem("crux_onboarded");
+        localStorage.removeItem("crux_user_profile");
+        window.dispatchEvent(new CustomEvent("crux:reset-ai-chat"));
+        setOnboarded(false);
+      };
+
+      const searchParams = new URLSearchParams(window.location.search);
+      if (
+        searchParams.get("reset") === "1" ||
+        searchParams.get("reset") === "true" ||
+        searchParams.get("onboarding") === "1" ||
+        searchParams.get("onboarding") === "true"
+      ) {
+        localStorage.removeItem("crux_onboarded");
+        localStorage.removeItem("crux_user_profile");
+        window.dispatchEvent(new CustomEvent("crux:reset-ai-chat"));
+        setOnboarded(false);
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, "", newUrl);
+        setIsMounted(true);
+        return;
+      }
+
       const stored = localStorage.getItem("crux_onboarded");
       if (stored === "true") {
         setOnboarded(true);
@@ -211,6 +255,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
         } catch {}
       }
     }
+    setIsMounted(true);
   }, [setOnboarded, setUserProfile]);
 
   // Listen to Firebase Auth state
@@ -374,6 +419,9 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       } else if (isCmd && key === "k") {
         e.preventDefault();
         useWorkspaceStore.getState().toggleDrone();
+      } else if (isCmd && key === ",") {
+        e.preventDefault();
+        setSettingsModalOpen(true);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -471,7 +519,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-void hover:bg-grid border border-grid text-signal text-[11px] font-mono transition-colors"
             title="User Profile (Click to switch user)"
           >
-            <div className="w-1.5 h-1.5 bg-white" />
+            <BotAvatar type={currentUser.avatarType || "mech"} size={24} state="default" seed={avatarMotionSeed(currentUser.uid || currentUser.id)} interactive={false} theme="dark" />
             <span className="font-medium truncate max-w-[110px]">{currentUser.name || "Developer"}</span>
           </button>
 
@@ -511,6 +559,36 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
                 {pendingInvitesCount}
               </span>
             )}
+          </button>
+
+          {/* System Settings & Management Hub */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              setSettingsModalOpen(true);
+            }}
+            className="p-1.5 border border-grid bg-void hover:bg-grid text-muted hover:text-signal transition-colors flex items-center justify-center cursor-pointer"
+            title="System Settings & Management Hub (Cmd+,)"
+          >
+            <Settings className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Quick Reset Onboarding & AI Enclave */}
+          <button
+            onClick={() => {
+              triggerHaptic("click");
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("crux_onboarded");
+                localStorage.removeItem("crux_user_profile");
+                window.dispatchEvent(new CustomEvent("crux:reset-ai-chat"));
+              }
+              setOnboarded(false);
+            }}
+            className="hidden xl:flex items-center gap-1.5 px-2 py-1 border border-grid bg-void hover:bg-white hover:text-black text-muted hover:border-white transition-none text-[10px] font-mono uppercase tracking-wider cursor-pointer"
+            title="Reset Onboarding & Test AI Auto-Pickup"
+          >
+            <RefreshCw className="w-3 h-3" />
+            <span>RESET ONBOARDING</span>
           </button>
 
           {/* High-Density Contiguous Hardware Brutalism Multiplayer Presence */}
@@ -579,28 +657,32 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <div className="flex flex-1 overflow-hidden">
         {!isNexus ? (
           /* ZENITH: BRUTALIST IDE WORKSPACE */
-          <div className="w-full h-full flex flex-col overflow-hidden bg-void">
-            <div className="flex flex-1 overflow-hidden">
-              {/* SIDEBAR (EXPLORER) */}
-              {isSidebarOpen && <ZenithFileTree />}
+          <div className="w-full h-full flex overflow-hidden bg-void">
+            {/* WORKBENCH COLUMN (Sidebar + Editor Canvas + Terminal Drawer) */}
+            <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
+              {/* UPPER REGION: SIDEBAR & EDITOR CANVAS */}
+              <div className="flex flex-1 min-h-0 overflow-hidden">
+                {/* SIDEBAR (EXPLORER) */}
+                {isSidebarOpen && <ZenithFileTree />}
 
-              {/* EDITOR CANVAS */}
-              <CruxErrorBoundary
-                fallbackTitle="Editor Starter"
-                fallbackDescription="A display error occurred in the editor pane. Click below to load the starter workspace."
-              >
-                <ZenithEditorPane />
-              </CruxErrorBoundary>
+                {/* EDITOR CANVAS */}
+                <CruxErrorBoundary
+                  fallbackTitle="Editor Starter"
+                  fallbackDescription="A display error occurred in the editor pane. Click below to load the starter workspace."
+                >
+                  <ZenithEditorPane />
+                </CruxErrorBoundary>
+              </div>
 
-              {/* DUAL-STATE HUD (STATE A: THE ANCHOR, STATE B: THE DRONE) */}
-              <CruxDualStateHud
-                isAnchorOpen={isAgentOpen}
-                onCloseAnchor={() => setIsAgentOpen(false)}
-              />
+              {/* TERMINAL DRAWER (Alters layout to fit within workbench column, giving full top-to-bottom height to AI assistant) */}
+              {isTerminalOpen && <ZenithTerminal />}
             </div>
 
-            {/* TERMINAL DRAWER */}
-            {isTerminalOpen && <ZenithTerminal />}
+            {/* DUAL-STATE HUD (STATE A: THE ANCHOR - FULL TOP-TO-BOTTOM HEIGHT) */}
+            <CruxDualStateHud
+              isAnchorOpen={isAgentOpen}
+              onCloseAnchor={() => setIsAgentOpen(false)}
+            />
           </div>
         ) : (
           /* CANVAS VIEW */
@@ -630,11 +712,25 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
             <GitBranch className="w-3 h-3 text-muted" />
             <span className="text-signal">{gitInfo.branch}{gitInfo.isDirty ? "*" : ""}</span>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 bg-white" />
-            <span className="text-[10px] tracking-wider uppercase">IN SYNC</span>
+          <div
+            onClick={() => autoSyncEngine.flush()}
+            className="hidden sm:flex items-center gap-1.5 cursor-pointer hover:text-white"
+            title="Universal Background Auto-Sync to Disk (Click to force flush)"
+          >
+            <span
+              className={`w-1.5 h-1.5 ${
+                syncStatus.state === "syncing"
+                  ? "bg-[#FFFF00] animate-pulse"
+                  : syncStatus.state === "error"
+                  ? "bg-[#FF3333]"
+                  : "bg-[#00FF66]"
+              }`}
+            />
+            <span className="text-[10px] tracking-wider uppercase font-mono">
+              {syncStatus.state === "syncing" ? "DISK SYNCING..." : "DISK IN-SYNC"}
+            </span>
           </div>
-          <span className="text-[10px] text-muted">Speed: 0.08ms</span>
+          <span className="text-[10px] text-muted font-mono">{syncStatus.latencyMs}ms</span>
 
           {/* Revision History & Timeline Button */}
           <button
@@ -674,6 +770,7 @@ export default function CruxEditorView({ onBackToEffects }: CruxEditorViewProps 
       <CruxIdentityDrawer />
       <CruxLibraryModal />
       <CruxTimelineHistoryDrawer />
+      <CruxSystemSettingsModal />
       {isAuthGateOpen && (
         <div className="fixed inset-0 z-50 bg-[#000000]/90 flex items-center justify-center p-4">
           <CruxAuthGate

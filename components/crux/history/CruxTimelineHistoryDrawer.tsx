@@ -80,6 +80,18 @@ export default function CruxTimelineHistoryDrawer() {
     setTimeout(() => setRestoredId(null), 2000);
   };
 
+  const handleExportRevision = (rev: FileRevision) => {
+    const blob = new Blob([rev.content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${rev.fileName.replace(/[^a-zA-Z0-9._-]/g, "_")}-${rev.id}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleCreateCheckpoint = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeFileId) return;
@@ -303,6 +315,15 @@ export default function CruxTimelineHistoryDrawer() {
                               <User className="w-2.5 h-2.5" />
                               <span>{rev.author}</span>
                             </span>
+
+                            <button
+                              type="button"
+                              onClick={() => handleExportRevision(rev)}
+                              className="px-2 py-0.5 border border-[#222222] text-[9px] uppercase text-[#888888] hover:border-white hover:text-white"
+                              title="Download this revision without replacing the current buffer"
+                            >
+                              EXPORT COPY
+                            </button>
 
                             {/* Restore Button */}
                             <button

@@ -32,12 +32,17 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    ".next-dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
+    "output",
     "stream_syncer.ts",
+    "src/stream_syncer.ts",
     "auth.ts",
-    "database.ts"
+    "src/auth.ts",
+    "database.ts",
+    "src/database.ts"
   ]
 }

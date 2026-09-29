@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 
 export async function POST(req: NextRequest) {
   try {
@@ -81,11 +83,22 @@ export async function POST(req: NextRequest) {
 
     if (action === "diagnose-error" || action === "auto-heal") {
       const err = stderr || "";
-      const targetFile = activeFileName || "stream_syncer.ts";
+      const cwd = process.cwd();
+
+      // Extract failing file and line number directly from compiler / runtime stderr
+      const errorMatch = err.match(
+        /(?:([a-zA-Z0-9_.-]+\.(?:java|ts|tsx|js|jsx|py|rs|c|cpp|go|rb|php|html|css|json)))[:\s]+(?:line\s+)?(\d+)/i
+      );
+      const detectedFile = errorMatch ? errorMatch[1] : null;
+      const detectedLine = errorMatch ? parseInt(errorMatch[2], 10) : cursorLine || 1;
+      const targetFile = detectedFile || activeFileName || "stream_syncer.ts";
+
       let summary = "Process exited with an error";
       let rootCause = "Uncaught runtime or shell failure.";
       let suggestedCommand: string | undefined = undefined;
-      let fixProposedIn = `${targetFile}:${cursorLine || 14}`;
+      let fixProposedIn = `${targetFile}:${detectedLine}`;
+      let fixedContent: string | null = null;
+      let autoHealed = false;
       let suggestedDiff: {
         originalText: string;
         suggestedText: string;
@@ -93,13 +106,99 @@ export async function POST(req: NextRequest) {
         line: number;
       } | null = null;
 
-      if (err.includes("SyntaxError: Unexpected token") || err.includes("SyntaxError")) {
+      // Helper: balance braces
+      const balanceBraces = (code: string): string => {
+        let open = 0;
+        let inString = false;
+        let inChar = false;
+        let inLineComment = false;
+        let inBlockComment = false;
+
+        for (let i = 0; i < code.length; i++) {
+          const ch = code[i];
+          const next = code[i + 1];
+          if (inLineComment) { if (ch === "\n") inLineComment = false; continue; }
+          if (inBlockComment) { if (ch === "*" && next === "/") { inBlockComment = false; i++; } continue; }
+          if (inString) { if (ch === "\\") { i++; continue; } if (ch === '"') inString = false; continue; }
+          if (inChar) { if (ch === "\\") { i++; continue; } if (ch === "'") inChar = false; continue; }
+          if (ch === "/" && next === "/") { inLineComment = true; i++; continue; }
+          if (ch === "/" && next === "*") { inBlockComment = true; i++; continue; }
+          if (ch === '"') { inString = true; continue; }
+          if (ch === "'") { inChar = true; continue; }
+          if (ch === "{") open++;
+          else if (ch === "}") open--;
+        }
+
+        if (open > 0) {
+          let res = code.trimEnd() + "\n";
+          for (let i = 0; i < open; i++) res += "}\n";
+          return res;
+        }
+        return code;
+      };
+
+      // 1. JAVA ERRORS
+      if (err.includes("reached end of file while parsing")) {
+        summary = `Java EOF Error: reached end of file while parsing in ${targetFile}:${detectedLine}`;
+        rootCause = "Missing closing brace '}' terminating class or method body.";
+        suggestedCommand = `javac ${targetFile} && java TrainingArena`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
+        suggestedDiff = {
+          line: detectedLine,
+          originalText: "input.close();",
+          suggestedText: "input.close();\n    }\n}",
+          description: `@CruxAI Auto-Healing: Appended missing closing braces '}' to close class and method`,
+        };
+
+        // Auto-heal file on disk if requested
+        if (action === "auto-heal") {
+          try {
+            const diskPaths = [
+              path.join(cwd, targetFile),
+              path.join(cwd, targetFile.toLowerCase()),
+              path.join(cwd, "Practice.java"),
+            ];
+            for (const p of diskPaths) {
+              if (fs.existsSync(p)) {
+                const currentOnDisk = fs.readFileSync(p, "utf-8");
+                const balanced = balanceBraces(currentOnDisk);
+                if (balanced !== currentOnDisk) {
+                  fs.writeFileSync(p, balanced, "utf-8");
+                  fixedContent = balanced;
+                  autoHealed = true;
+                }
+              }
+            }
+          } catch {}
+        }
+      } else if (err.includes("is public, should be declared in a file named")) {
+        const classMatch = err.match(/class\s+([A-Za-z0-9_]+)\s+is public/);
+        const expectedClass = classMatch ? classMatch[1] : "Main";
+        summary = `Java Public Class Mismatch: ${expectedClass}.java`;
+        rootCause = `In Java, a public class '${expectedClass}' must be declared in '${expectedClass}.java'.`;
+        suggestedCommand = `javac ${expectedClass}.java && java ${expectedClass}`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
+      } else if (err.includes("NoSuchElementException") || err.includes("No line found")) {
+        summary = `Java Scanner Stream Exhausted (Interactive Stdin Required)`;
+        rootCause = `The program expected interactive user console input via Scanner, but input stream ended or was piped.`;
+        suggestedCommand = `java TrainingArena`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
+      } else if (err.includes("cannot find symbol")) {
+        const symMatch = err.match(/symbol:\s+([^\n]+)/);
+        const sym = symMatch ? symMatch[1].trim() : "identifier";
+        summary = `Java Symbol Error: Cannot find symbol '${sym}'`;
+        rootCause = `The symbol '${sym}' is unresolved or unimported in ${targetFile}.`;
+        suggestedCommand = `javac ${targetFile}`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
+      }
+      // 2. TYPESCRIPT / JAVASCRIPT ERRORS
+      else if (err.includes("SyntaxError: Unexpected token") || err.includes("SyntaxError")) {
         summary = "SyntaxError: Incomplete statement or invalid token syntax";
         rootCause = "A trailing dot or unclosed punctuation interrupted AST transpilation.";
         suggestedCommand = `node ${targetFile}`;
-        fixProposedIn = `${targetFile}:8`;
+        fixProposedIn = `${targetFile}:${detectedLine || 8}`;
         suggestedDiff = {
-          line: 8,
+          line: detectedLine || 8,
           originalText: "await this.daemon.",
           suggestedText: "const ticket = await this.daemon.acquireLock('stream-mesh-primary');",
           description: "@CruxAI Auto-Healing: Resolved trailing operator with acquireLock call",
@@ -126,21 +225,24 @@ export async function POST(req: NextRequest) {
         summary = "Permission Denied: Insufficient filesystem privileges";
         rootCause = "The process attempted to write to a restricted path or socket.";
         suggestedCommand = "chmod +x " + (command?.split(" ")[0] || "script.sh");
-        fixProposedIn = "workspace:0";
+        fixProposedIn = `${targetFile}:1`;
       } else if (err.includes("SIGINT") || exitCode === 130) {
         summary = "Process aborted by user (SIGINT)";
         rootCause = "The running command was interrupted via Ctrl+C / kill signal.";
-      } else {
+      }
+      // 3. PYTHON ERRORS
+      else if (err.includes("IndentationError") || err.includes("NameError") || err.includes("ModuleNotFoundError")) {
+        summary = `Python Runtime Error in ${targetFile}:${detectedLine}`;
+        rootCause = err.split("\n").filter(Boolean).pop() || "Python exception thrown.";
+        suggestedCommand = `python3 ${targetFile}`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
+      }
+      // 4. GENERAL FALLBACK
+      else {
         summary = `Process exited with code ${exitCode || 1}`;
-        rootCause = err.split("\n")[0] || "Command failed with non-zero exit status.";
-        suggestedCommand = `node ${targetFile}`;
-        fixProposedIn = `${targetFile}:14`;
-        suggestedDiff = {
-          line: 14,
-          originalText: "// Pending verification pass",
-          suggestedText: "// Auto-healed: Injected verification guard\nif (!token) return false;",
-          description: "@CruxAI Auto-Healing: Injected null guard for peer signature token",
-        };
+        rootCause = err.split("\n").find((l: string) => l.trim().length > 0) || "Command failed with non-zero exit status.";
+        suggestedCommand = command ? command : `node ${targetFile}`;
+        fixProposedIn = `${targetFile}:${detectedLine}`;
       }
 
       return NextResponse.json({
@@ -149,6 +251,8 @@ export async function POST(req: NextRequest) {
         suggestedCommand,
         fixProposedIn,
         suggestedDiff,
+        fixedContent,
+        autoHealed,
       });
     }
 

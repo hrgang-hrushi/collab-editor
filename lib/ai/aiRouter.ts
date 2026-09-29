@@ -275,7 +275,8 @@ export class CrexAiRouter {
       line?: number;
       selection?: string;
       history?: Array<{ role: string; content: string }>;
-    }
+    },
+    signal?: AbortSignal
   ): Promise<{
     text: string;
     provider: string;
@@ -301,6 +302,7 @@ export class CrexAiRouter {
           context,
           history: context?.history,
         }),
+        signal,
       });
 
       if (res.ok) {
@@ -314,7 +316,10 @@ export class CrexAiRouter {
           latencyMs: Date.now() - startTime,
         };
       }
-    } catch {
+    } catch (err: any) {
+      if (err?.name === "AbortError" || signal?.aborted) {
+        throw new Error("Prompt execution stopped by user.");
+      }
       // Fallback local response if network or daemon is offline
     }
 

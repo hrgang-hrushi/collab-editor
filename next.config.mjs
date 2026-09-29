@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  distDir: process.env.VERCEL ? undefined : (process.env.NEXT_DIST_DIR || ".next"),
+  distDir: process.env.VERCEL
+    ? undefined
+    : (process.env.NEXT_DIST_DIR || (process.env.NODE_ENV === "development" ? ".next-dev" : ".next")),
   reactStrictMode: false, // Prevents duplicate double-mount on WebRTC/Yjs provider in dev
   eslint: {
     ignoreDuringBuilds: true,

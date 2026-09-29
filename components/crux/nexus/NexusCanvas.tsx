@@ -77,6 +77,7 @@ export default function NexusCanvas({ onSwitchToZenith }: NexusCanvasProps) {
       name: currentUser.name || "Collaborator",
       color: currentUser.color || "#38b6ff",
       uid: currentUser.uid || "CRX-PEER",
+      avatarType: currentUser.avatarType || "mech",
     });
     canvasSessionRef.current = session;
 

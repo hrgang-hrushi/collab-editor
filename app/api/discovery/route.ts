@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { runFullRuntimeScan } from "@/daemon/scanner";
 import { importAllWorkspaceConfigurations } from "@/daemon/importer";
 import { DiscoveryReport } from "@/daemon/types";
+import { computeOrchestrationManifest } from "@/lib/ai/toolOrchestrator";
+import fs from "fs";
+import path from "path";
 
 export const dynamic = "auto";
 
@@ -12,13 +15,20 @@ export const dynamic = "auto";
  */
 export async function GET(req: NextRequest) {
   const isEventStream = req.headers.get("accept")?.includes("text/event-stream");
+  const cwd = process.cwd();
+  const signal = {
+    cwd,
+    hasGeminiMd: fs.existsSync(path.join(cwd, "GEMINI.md")),
+    hasClaudeMd: fs.existsSync(path.join(cwd, "CLAUDE.md")),
+    hasCursorRules: fs.existsSync(path.join(cwd, ".cursorrules")),
+    hasCopilotInstructions: fs.existsSync(path.join(cwd, ".github/copilot-instructions.md")),
+  };
 
   if (isEventStream) {
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
       async start(controller) {
-        // Send initial heartbeat
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify({ type: "init", status: "DISCOVERY_DAEMON_ATTACHED" })}\n\n`)
         );
@@ -31,18 +41,51 @@ export async function GET(req: NextRequest) {
           );
 
           // 2. Import workspace profiles
-          const { profiles, detectedSdk } = await importAllWorkspaceConfigurations(process.cwd());
+          const { profiles, detectedSdk } = await importAllWorkspaceConfigurations(cwd);
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ type: "profiles", profiles, detectedSdk })}\n\n`)
           );
 
-          // 3. Complete packet
+          // 3. Compute orchestration manifest
+          const manifest = computeOrchestrationManifest(
+            runtimes.map((r) => ({
+              id: r.id,
+              name: r.name,
+              binaryName: r.binaryName || r.id,
+              binaryPath: r.binaryPath,
+              version: r.version,
+              category: "ai",
+              provider: r.provider as any,
+              type: r.type as any,
+              available: r.available,
+              status: r.status,
+              latencyMs: r.latencyMs,
+              tags: r.tags || [],
+              capabilities: r.capabilities || [],
+              affinityScore: r.affinityScore || 0,
+              affinityRationale: r.affinityRationale || "",
+              affinityBreakdown: r.affinityBreakdown,
+              details: r.details,
+            })),
+            null,
+            signal
+          );
+
           const report: DiscoveryReport = {
             timestamp: Date.now(),
             runtimes,
             profiles,
             detectedSdk,
+            orchestration: {
+              selectionMode: manifest.selectionMode,
+              activeToolId: manifest.activeToolId,
+              autoPickedId: manifest.autoPickedTool.id,
+              autoPickedName: manifest.autoPickedTool.name,
+              rationale: manifest.rationale,
+              totalDetected: manifest.totalDetected,
+            },
           };
+
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ type: "discovery", ...report })}\n\n`)
           );
@@ -69,14 +112,46 @@ export async function GET(req: NextRequest) {
   try {
     const [runtimes, { profiles, detectedSdk }] = await Promise.all([
       runFullRuntimeScan(),
-      importAllWorkspaceConfigurations(process.cwd()),
+      importAllWorkspaceConfigurations(cwd),
     ]);
+
+    const manifest = computeOrchestrationManifest(
+      runtimes.map((r) => ({
+        id: r.id,
+        name: r.name,
+        binaryName: r.binaryName || r.id,
+        binaryPath: r.binaryPath,
+        version: r.version,
+        category: "ai",
+        provider: r.provider as any,
+        type: r.type as any,
+        available: r.available,
+        status: r.status,
+        latencyMs: r.latencyMs,
+        tags: r.tags || [],
+        capabilities: r.capabilities || [],
+        affinityScore: r.affinityScore || 0,
+        affinityRationale: r.affinityRationale || "",
+        affinityBreakdown: r.affinityBreakdown,
+        details: r.details,
+      })),
+      null,
+      signal
+    );
 
     const report: DiscoveryReport = {
       timestamp: Date.now(),
       runtimes,
       profiles,
       detectedSdk,
+      orchestration: {
+        selectionMode: manifest.selectionMode,
+        activeToolId: manifest.activeToolId,
+        autoPickedId: manifest.autoPickedTool.id,
+        autoPickedName: manifest.autoPickedTool.name,
+        rationale: manifest.rationale,
+        totalDetected: manifest.totalDetected,
+      },
     };
 
     return NextResponse.json(report);

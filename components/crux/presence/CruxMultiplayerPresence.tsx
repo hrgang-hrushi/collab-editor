@@ -4,6 +4,8 @@ import React from "react";
 import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
 import { playMechanicalClick } from "@/lib/sound";
+import { BotAvatar, botAvatarTypes, type BotAvatarType } from "bot-avatars";
+import { avatarMotionSeed } from "../avatars/avatarMotion";
 
 export interface PresencePeer {
   id: string;
@@ -12,6 +14,7 @@ export interface PresencePeer {
   isSelf: boolean;
   uid?: string;
   activeFileId?: string;
+  avatarType?: BotAvatarType;
 }
 
 interface CruxMultiplayerPresenceProps {
@@ -48,16 +51,17 @@ export default function CruxMultiplayerPresence({
       initials: getInitials(selfName),
       isSelf: true,
       uid: currentUser?.uid || "CRX-LOCAL",
+      avatarType: currentUser?.avatarType || "mech",
     };
 
     const peersList: PresencePeer[] = [selfPeer];
 
     // Dynamically pull live peers from Yjs awareness
     if (activeUsers && activeUsers.length > 0) {
-      const seen = new Set<string>([selfPeer.name.toLowerCase()]);
+      const seen = new Set<string>();
       activeUsers.forEach((u) => {
-        if (u.isSelf || u.id === currentUser?.uid || seen.has(u.name.toLowerCase())) return;
-        seen.add(u.name.toLowerCase());
+        if (u.isSelf || seen.has(u.id)) return;
+        seen.add(u.id);
         peersList.push({
           id: u.id,
           name: u.name,
@@ -65,6 +69,7 @@ export default function CruxMultiplayerPresence({
           isSelf: false,
           uid: u.uid,
           activeFileId: u.activeFileId,
+          avatarType: u.avatarType,
         });
       });
     }
@@ -102,6 +107,11 @@ export default function CruxMultiplayerPresence({
     >
       {activePeers.map((peer, idx) => {
         const isLocal = peer.isSelf || idx === 0;
+        const hash = Array.from(peer.uid || peer.id || peer.name).reduce(
+          (value, character) => (value * 31 + character.charCodeAt(0)) >>> 0,
+          0
+        );
+        const avatarType = peer.avatarType || botAvatarTypes[hash % botAvatarTypes.length];
         return (
           <button
             key={peer.id || idx}
@@ -112,13 +122,21 @@ export default function CruxMultiplayerPresence({
                 ? `${peer.name} (You) · Click to share`
                 : `${peer.name} (${peer.uid || "Remote Peer"}) · Click to view active file`
             }
-            className={`px-2 py-1 font-mono text-[10px] uppercase tracking-widest leading-none border-r border-[#222222] rounded-none transition-none ${
+            aria-label={isLocal ? `${peer.name}, you` : `${peer.name}, collaborator`}
+            className={`px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none transition-none ${
               isLocal
-                ? "bg-white text-black font-bold cursor-pointer"
+                ? "bg-transparent text-white hover:bg-[#111111] cursor-pointer"
                 : "bg-transparent text-[#888888] hover:text-white cursor-pointer"
             }`}
           >
-            {peer.initials}
+            <BotAvatar
+              type={avatarType}
+              size={28}
+              state="default"
+              seed={avatarMotionSeed(peer.uid || peer.id || peer.name)}
+              interactive={false}
+              theme="dark"
+            />
           </button>
         );
       })}

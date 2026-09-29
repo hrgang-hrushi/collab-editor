@@ -7,7 +7,7 @@ Program Description:
 Lab 1.
 */
 import java.util.Scanner;
-class TrainingArena {
+public class TrainingArena {
 public static void main(String[] args) {
 Scanner input = new Scanner(System.in);
 // Declare variables
@@ -135,3 +135,4 @@ System.out.println("Rank: " + rank);
 input.close();
 }
 }
+

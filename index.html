@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crux Task Manager // PyScript</title>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; border-radius: 0px !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
+    body { background: #000000; color: #FFFFFF; min-height: 100vh; padding: 40px 20px; display: flex; justify-content: center; }
+    .app { width: 100%; max-width: 780px; border: 1px solid #222222; background: #0A0A0A; padding: 24px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid #222222; padding-bottom: 16px; margin-bottom: 20px; }
+    .title-box h1 { font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 0px; font-family: monospace; display: flex; align-items: center; gap: 8px; }
+    .python-badge { font-size: 10px; background: #FFFFFF; color: #000000; padding: 2px 6px; font-weight: bold; }
+    .title-box p { font-size: 11px; color: #666666; font-family: monospace; margin-top: 4px; }
+    .stats { display: flex; gap: 8px; }
+    .stat-pill { border: 1px solid #222222; background: #000000; padding: 4px 10px; font-size: 11px; font-family: monospace; color: #888888; }
+    .stat-pill b { color: #FFFFFF; }
+    
+    .add-form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; border: 1px solid #222222; background: #000000; padding: 12px; }
+    .form-inputs { display: flex; gap: 8px; }
+    input[type="text"] { flex: 1; background: #111111; border: 1px solid #333333; color: #FFFFFF; padding: 10px 12px; font-family: monospace; font-size: 12px; outline: none; }
+    input[type="text"]:focus { border-color: #FFFFFF; }
+    select { background: #111111; border: 1px solid #333333; color: #FFFFFF; padding: 10px; font-family: monospace; font-size: 12px; outline: none; }
+    button.btn-add { background: #FFFFFF; color: #000000; border: none; padding: 10px 20px; font-weight: bold; font-family: monospace; cursor: pointer; text-transform: uppercase; font-size: 12px; transition: none; }
+    button.btn-add:hover { background: #CCCCCC; }
+
+    .filter-bar { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222222; padding-bottom: 10px; margin-bottom: 14px; }
+    .filter-tabs { display: flex; gap: 4px; }
+    .filter-btn { background: transparent; border: 1px solid #222222; color: #666666; font-family: monospace; font-size: 11px; padding: 4px 10px; cursor: pointer; text-transform: uppercase; }
+    .filter-btn.active, .filter-btn:hover { background: #FFFFFF; color: #000000; border-color: #FFFFFF; }
+    .btn-clear { background: transparent; border: 1px solid #333333; color: #888888; font-family: monospace; font-size: 10px; padding: 4px 8px; cursor: pointer; text-transform: uppercase; }
+    .btn-clear:hover { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+
+    .task-list { display: flex; flex-direction: column; gap: 6px; min-height: 80px; }
+    .task-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #000000; border: 1px solid #222222; }
+    .task-row:hover { border-color: #444444; }
+    .task-row.done { opacity: 0.45; }
+    .task-row.done .task-name { text-decoration: line-through; color: #666666; }
+    .task-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+    .check-box { width: 14px; height: 14px; border: 1px solid #FFFFFF; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 10px; font-family: monospace; font-weight: bold; flex-shrink: 0; }
+    .task-row.done .check-box { background: #FFFFFF; color: #000000; }
+    .task-name { font-family: monospace; font-size: 13px; color: #FFFFFF; word-break: break-word; }
+    .task-right { display: flex; align-items: center; gap: 8px; }
+    .priority-tag { font-size: 10px; font-family: monospace; padding: 2px 6px; border: 1px solid #333333; text-transform: uppercase; }
+    .p-p0 { border-color: #FFFFFF; background: #FFFFFF; color: #000000; font-weight: bold; }
+    .p-p1 { border-color: #888888; color: #FFFFFF; }
+    .p-p2 { border-color: #333333; color: #777777; }
+    .category-chip { font-size: 10px; font-family: monospace; color: #666666; border: 1px solid #222222; padding: 2px 6px; text-transform: uppercase; }
+    .btn-delete { background: transparent; border: 1px solid #333333; color: #666666; font-size: 10px; font-family: monospace; padding: 2px 6px; cursor: pointer; }
+    .btn-delete:hover { background: #FF4444; color: #FFFFFF; border-color: #FF4444; }
+    .empty-notice { text-align: center; padding: 40px 20px; color: #444444; font-family: monospace; font-size: 12px; border: 1px dashed #222222; }
+    .runtime-status { margin-top: 20px; padding: 8px 12px; border: 1px solid #1A1A1A; background: #050505; display: flex; justify-content: space-between; font-size: 10px; font-family: monospace; color: #555555; }
+    .status-active { color: #00FF66; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="title-box">
+        <h1>Crux Task Manager <span class="python-badge">PyScript</span></h1>
+        <p>CLIENT-SIDE PYTHON ON WEBASSEMBLY // LOCALSTORAGE PERSISTENT</p>
+      </div>
+      <div class="stats">
+        <div class="stat-pill">TOTAL: <b id="statTotal">0</b></div>
+        <div class="stat-pill">ACTIVE: <b id="statActive">0</b></div>
+        <div class="stat-pill">DONE: <b id="statDone">0</b></div>
+      </div>
+    </div>
+
+    <form class="add-form" id="taskForm">
+      <div class="form-inputs">
+        <input type="text" id="taskTitle" placeholder="Task description (press Enter to create)..." autofocus required />
+        <select id="taskPriority">
+          <option value="p0">P0 // CRITICAL</option>
+          <option value="p1" selected>P1 // HIGH</option>
+          <option value="p2">P2 // NORMAL</option>
+        </select>
+        <select id="taskCategory">
+          <option value="Core">CORE</option>
+          <option value="Frontend">FRONTEND</option>
+          <option value="Infra">INFRA</option>
+          <option value="Bugfix">BUGFIX</option>
+        </select>
+        <button type="submit" class="btn-add">Add ↵</button>
+      </div>
+    </form>
+
+    <div class="filter-bar">
+      <div class="filter-tabs">
+        <button class="filter-btn active" id="filter-all" onclick="set_filter('all')">ALL</button>
+        <button class="filter-btn" id="filter-active" onclick="set_filter('active')">ACTIVE</button>
+        <button class="filter-btn" id="filter-p0" onclick="set_filter('p0')">P0 ONLY</button>
+        <button class="filter-btn" id="filter-done" onclick="set_filter('done')">COMPLETED</button>
+      </div>
+      <button class="btn-clear" id="btnClearCompleted" onclick="clear_completed()">CLEAR COMPLETED</button>
+    </div>
+
+    <div class="task-list" id="taskList">
+      <div class="empty-notice">[INITIALIZING PYSCRIPT WEBASSEMBLY ENGINE...]</div>
+    </div>
+
+    <div class="runtime-status">
+      <span>RUNTIME: <b class="status-active">PYTHON 3 (PYODIDE / WASM)</b></span>
+      <span>STORAGE: <b>LOCALSTORAGE</b></span>
+      <span>LATENCY: <b>0.02ms</b></span>
+    </div>
+  </div>
+
+  <!-- PYTHON IN THE BROWSER VIA PYSCRIPT -->
+  <script type="py">
+    from pyscript import document, window
+    from pyodide.ffi import create_proxy
+    import json
+    import time
+
+    STORAGE_KEY = "crux_pyscript_tasks"
+    stored_data = window.localStorage.getItem(STORAGE_KEY)
+
+    if stored_data:
+        try:
+            tasks = json.loads(stored_data)
+        except Exception:
+            tasks = []
+    else:
+        tasks = [
+            {"id": "1", "title": "Bootstrap PyScript WebAssembly runtime", "priority": "p0", "category": "Infra", "done": True},
+            {"id": "2", "title": "Implement zero-copy DOM updates with Pyodide", "priority": "p0", "category": "Core", "done": False},
+            {"id": "3", "title": "Wire up Python localStorage persistence", "priority": "p1", "category": "Core", "done": True},
+            {"id": "4", "title": "Hardware Brutalism monochrome theme", "priority": "p2", "category": "Frontend", "done": True}
+        ]
+        window.localStorage.setItem(STORAGE_KEY, json.dumps(tasks))
+
+    current_filter = "all"
+
+    def save():
+        window.localStorage.setItem(STORAGE_KEY, json.dumps(tasks))
+        render()
+
+    def escape_html(text):
+        return (str(text)
+                .replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace('"', "&quot;"))
+
+    def render():
+        global tasks, current_filter
+        list_container = document.getElementById("taskList")
+        active_count = sum(1 for t in tasks if not t.get("done"))
+        done_count = sum(1 for t in tasks if t.get("done"))
+
+        document.getElementById("statTotal").textContent = str(len(tasks))
+        document.getElementById("statActive").textContent = str(active_count)
+        document.getElementById("statDone").textContent = str(done_count)
+
+        filtered = tasks
+        if current_filter == "active":
+            filtered = [t for t in tasks if not t.get("done")]
+        elif current_filter == "done":
+            filtered = [t for t in tasks if t.get("done")]
+        elif current_filter == "p0":
+            filtered = [t for t in tasks if t.get("priority") == "p0"]
+
+        if not filtered:
+            list_container.innerHTML = '<div class="empty-notice">[ZERO ACTIVE TASKS IN VIEW]</div>'
+            return
+
+        priority_labels = {
+            "p0": "P0 // CRITICAL",
+            "p1": "P1 // HIGH",
+            "p2": "P2 // NORMAL"
+        }
+
+        html = ""
+        for t in filtered:
+            tid = str(t.get("id"))
+            done = bool(t.get("done"))
+            title = escape_html(t.get("title", ""))
+            category = escape_html(t.get("category", "General"))
+            prio = t.get("priority", "p1")
+            prio_label = priority_labels.get(prio, prio.upper())
+
+            row_class = "task-row done" if done else "task-row"
+            check_mark = "✓" if done else ""
+
+            html += f'''
+              <div class="{row_class}">
+                <div class="task-left">
+                  <div class="check-box" onclick="toggle_task('{tid}')">{check_mark}</div>
+                  <span class="task-name">{title}</span>
+                </div>
+                <div class="task-right">
+                  <span class="category-chip">{category}</span>
+                  <span class="priority-tag p-{prio}">{prio_label}</span>
+                  <button class="btn-delete" onclick="delete_task('{tid}')">✕</button>
+                </div>
+              </div>
+            '''
+        list_container.innerHTML = html
+
+    def add_task(event):
+        event.preventDefault()
+        title_el = document.getElementById("taskTitle")
+        val = title_el.value.strip()
+        if not val:
+            return
+
+        priority = document.getElementById("taskPriority").value
+        category = document.getElementById("taskCategory").value
+
+        new_task = {
+            "id": str(int(time.time() * 1000)),
+            "title": val,
+            "priority": priority,
+            "category": category,
+            "done": False
+        }
+        tasks.insert(0, new_task)
+        title_el.value = ""
+        save()
+
+    def toggle_task(task_id):
+        for t in tasks:
+            if str(t.get("id")) == str(task_id):
+                t["done"] = not t.get("done", False)
+                break
+        save()
+
+    def delete_task(task_id):
+        global tasks
+        tasks = [t for t in tasks if str(t.get("id")) != str(task_id)]
+        save()
+
+    def set_filter(filter_name):
+        global current_filter
+        current_filter = str(filter_name)
+        for btn_id in ["filter-all", "filter-active", "filter-p0", "filter-done"]:
+            el = document.getElementById(btn_id)
+            if el:
+                el.classList.remove("active")
+        active_el = document.getElementById(f"filter-{current_filter}")
+        if active_el:
+            active_el.classList.add("active")
+        render()
+
+    def clear_completed():
+        global tasks
+        tasks = [t for t in tasks if not t.get("done")]
+        save()
+
+    window.toggle_task = create_proxy(toggle_task)
+    window.delete_task = create_proxy(delete_task)
+    window.set_filter = create_proxy(set_filter)
+    window.clear_completed = create_proxy(clear_completed)
+
+    document.getElementById("taskForm").addEventListener("submit", create_proxy(add_task))
+    render()
+  </script>
+</body>
+</html>

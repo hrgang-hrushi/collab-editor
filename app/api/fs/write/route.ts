@@ -37,13 +37,87 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
 
-    // 3. Java multi-compatibility support
-    // In Java, if a file contains `public class Foo`, javac insists the file MUST be named `Foo.java`.
-    // If the file is named `Practice.java` but contains `public class TrainingArena`:
-    // a) Save `TrainingArena.java` in both dir and root
-    // b) Save `Practice.java` with `class TrainingArena` (non-public) so `javac Practice.java` also compiles without error!
-    if (baseName.endsWith(".java") || content.includes("class ")) {
-      const clsMatch = content.match(/(?:public\s+)?class\s+([A-Za-z0-9_]+)/);
+    // 3. Java multi-compatibility & auto-brace balancing support
+    const isJava =
+      baseName.toLowerCase().endsWith(".java") ||
+      ((content.includes("public static void main") ||
+        content.includes("System.out.") ||
+        content.includes("import java.")) &&
+        content.includes("class "));
+
+    // Helper: auto-balance Java braces so `javac` never fails with "reached end of file while parsing"
+    const balanceJavaBraces = (code: string): string => {
+      let openBraces = 0;
+      let inString = false;
+      let inChar = false;
+      let inLineComment = false;
+      let inBlockComment = false;
+
+      for (let i = 0; i < code.length; i++) {
+        const ch = code[i];
+        const next = code[i + 1];
+
+        if (inLineComment) {
+          if (ch === "\n") inLineComment = false;
+          continue;
+        }
+        if (inBlockComment) {
+          if (ch === "*" && next === "/") {
+            inBlockComment = false;
+            i++;
+          }
+          continue;
+        }
+        if (inString) {
+          if (ch === "\\") { i++; continue; }
+          if (ch === '"') inString = false;
+          continue;
+        }
+        if (inChar) {
+          if (ch === "\\") { i++; continue; }
+          if (ch === "'") inChar = false;
+          continue;
+        }
+
+        if (ch === "/" && next === "/") {
+          inLineComment = true;
+          i++;
+          continue;
+        }
+        if (ch === "/" && next === "*") {
+          inBlockComment = true;
+          i++;
+          continue;
+        }
+        if (ch === '"') { inString = true; continue; }
+        if (ch === "'") { inChar = true; continue; }
+
+        if (ch === "{") openBraces++;
+        else if (ch === "}") openBraces--;
+      }
+
+      if (openBraces > 0) {
+        let balanced = code.trimEnd() + "\n";
+        for (let i = 0; i < openBraces; i++) {
+          balanced += "}\n";
+        }
+        return balanced;
+      }
+      return code;
+    };
+
+    const effectiveContent = isJava ? balanceJavaBraces(content) : content;
+    if (effectiveContent !== content) {
+      try {
+        fs.writeFileSync(fullPath, effectiveContent, "utf-8");
+        if (rootFilePath !== fullPath) {
+          fs.writeFileSync(rootFilePath, effectiveContent, "utf-8");
+        }
+      } catch {}
+    }
+
+    if (isJava) {
+      const clsMatch = effectiveContent.match(/(?:public\s+)?class\s+([A-Za-z0-9_]+)/);
       if (clsMatch) {
         const clsName = clsMatch[1];
         const classFileName = `${clsName}.java`;
@@ -53,26 +127,40 @@ export async function POST(req: NextRequest) {
         const classInRoot = path.join(cwd, classFileName);
 
         // Ensure class file has public class
-        const publicClassContent = content.replace(
+        const publicClassContent = effectiveContent.replace(
           new RegExp(`(?:public\\s+)?class\\s+${clsName}\\b`),
           `public class ${clsName}`
         );
         try {
           fs.writeFileSync(classInDir, publicClassContent, "utf-8");
-          fs.writeFileSync(classInRoot, publicClassContent, "utf-8");
+          if (classInRoot !== classInDir) {
+            fs.writeFileSync(classInRoot, publicClassContent, "utf-8");
+          }
         } catch {}
 
         // If the original file was named differently (e.g. Practice.java), make its class non-public so javac Practice.java succeeds
-        if (baseName !== classFileName) {
-          const nonPublicContent = content.replace(
+        if (baseName !== classFileName && baseName.toLowerCase().endsWith(".java")) {
+          const nonPublicContent = effectiveContent.replace(
             new RegExp(`\\bpublic\\s+class\\s+${clsName}\\b`),
             `class ${clsName}`
           );
           try {
             fs.writeFileSync(fullPath, nonPublicContent, "utf-8");
-            fs.writeFileSync(rootFilePath, nonPublicContent, "utf-8");
+            if (rootFilePath !== fullPath) {
+              fs.writeFileSync(rootFilePath, nonPublicContent, "utf-8");
+            }
           } catch {}
         }
+      }
+
+      // Also ensure case-insensitive alias (e.g. Practice.java <-> practice.java)
+      if (baseName.toLowerCase() === "practice.java") {
+        const upperPractice = path.join(cwd, "Practice.java");
+        const lowerPractice = path.join(cwd, "practice.java");
+        try {
+          if (!fs.existsSync(upperPractice)) fs.writeFileSync(upperPractice, effectiveContent, "utf-8");
+          if (!fs.existsSync(lowerPractice)) fs.writeFileSync(lowerPractice, effectiveContent, "utf-8");
+        } catch {}
       }
     }
 

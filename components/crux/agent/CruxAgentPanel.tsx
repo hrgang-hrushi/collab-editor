@@ -11,7 +11,6 @@ import {
   X,
   FileCode,
   CheckCircle2,
-  Loader2,
   Zap,
   ShieldCheck,
   FilePlus2,
@@ -356,44 +355,18 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
             </motion.div>
           ))}
 
-          {/* Dynamic Thinking & Reasoning Steps */}
+          {/* One thinking animation with a concise task status. */}
           {isThinking && (
             <motion.div
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-3 rounded-none bg-[#0A0A0A] border border-[#222222] space-y-2 text-xs"
+              className="p-3 rounded-none bg-[#0A0A0A] border border-[#222222] text-xs"
             >
               <div className="flex items-center gap-2 text-white font-medium">
-                <ThinkingOrb state="searching" size={20} theme="dark" />
-                <span>CruxAI Synthesizing Patch...</span>
-              </div>
-
-              <div className="space-y-1.5 pt-0.5 font-mono">
-                {currentSteps.map((step) => (
-                  <div
-                    key={step.id}
-                    className="flex items-center gap-2 text-xs text-[#888888]"
-                  >
-                    {step.status === "done" ? (
-                      <Check className="w-3.5 h-3.5 text-white" />
-                    ) : step.status === "running" ? (
-                      <Loader2 className="w-3.5 h-3.5 text-[#FF453A] animate-spin" />
-                    ) : (
-                      <span className="w-3 h-3 rounded-none border border-[#222222] inline-block" />
-                    )}
-                    <span
-                      className={
-                        step.status === "running"
-                          ? "text-white font-medium"
-                          : step.status === "done"
-                          ? "text-[#888888]"
-                          : "text-[#555555]"
-                      }
-                    >
-                      {step.label}
-                    </span>
-                  </div>
-                ))}
+                <ThinkingOrb state="composing" size={20} theme="dark" aria-hidden="true" />
+                <span className="font-mono text-[11px] uppercase tracking-wider" role="status" aria-live="polite">
+                  {currentSteps.some((step) => step.status === "running") ? "Processing Task" : currentSteps.length > 0 ? "Finishing" : "Starting Task"}
+                </span>
               </div>
             </motion.div>
           )}

@@ -4,6 +4,27 @@
  * multi-turn intent memory, and rich code/app generation (Expense Tracker, Todo, Dashboard, Utilities).
  */
 
+import {
+  hasExplicitLanguage,
+  detectTargetLanguage,
+  generateTaskManagerPyScript,
+  generateTaskManagerJava,
+  generateExpenseTrackerJava,
+  generateCalculatorJava,
+  generateGenericJavaCode,
+  generateTaskManagerPython,
+  generateGenericPythonCode,
+  generateTaskManagerRust,
+  generateGenericRustCode,
+  generateTaskManagerCpp,
+  generateGenericCppCode,
+  generateTaskManagerGo,
+  generateGenericGoCode,
+  generateTaskManagerTs,
+  SupportedLanguage,
+  PolyglotResult,
+} from "./polyglotGenerators";
+
 export interface ConversationContext {
   prompt: string;
   provider: string;
@@ -68,8 +89,12 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
       ? "Cursor"
       : provider === "codec" || provider === "github-copilot"
       ? "Sol 5.6 Medium / Codex"
+      : provider === "opencode"
+      ? "OpenCode"
       : provider === "openclaw"
       ? "OpenClaw"
+      : provider === "ollama"
+      ? "Ollama Local"
       : "CruxAI";
 
   const effectiveModel =
@@ -78,6 +103,10 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
       ? "sol-5.6-medium"
       : provider === "agy"
       ? "gemini-3.8-flash"
+      : provider === "ollama"
+      ? "codellama"
+      : provider === "opencode"
+      ? "opencode-v1"
       : "crux-core-v1");
 
   // 1. Try real external API if token is provided or present in process.env
@@ -327,6 +356,36 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
   ) {
     sessionMemory.lastTopic = "expense_tracker";
     sessionMemory.lastPrompt = lowerPrompt;
+
+    const explicitLang = hasExplicitLanguage(rawPrompt) || (context?.file?.endsWith(".java") ? "java" : null);
+
+    if (explicitLang === "java") {
+      const res = generateExpenseTrackerJava();
+      return {
+        text: [
+          `Here is a complete, self-contained **Expense Tracker** in Java with transaction ledger and category analytics:`,
+          ``,
+          `\`\`\`java`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Features:`,
+          `• **Balance & Cashflow Analytics**: Real-time Total Balance, Income, and Expense calculations.`,
+          `• **Category Breakdown**: Food, Housing, Utilities, Transport, Entertainment, and Salary.`,
+          `• **Zero Dependencies**: Pure Java Standard Library (\`java.util.*\`, \`java.time.*\`).`,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
     const code = generateExpenseTrackerHtml();
 
     return {
@@ -373,6 +432,180 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
     const isTaskManager = isTaskManagerIntent;
     sessionMemory.lastTopic = isTaskManager ? "task_manager" : "todo";
     sessionMemory.lastPrompt = lowerPrompt;
+
+    const explicitLang = hasExplicitLanguage(rawPrompt) || (context?.file?.endsWith(".java") ? "java" : null);
+
+    if (explicitLang === "pyscript" || lowerPrompt.includes("pyscript") || lowerPrompt.includes("py-script")) {
+      const res = generateTaskManagerPyScript();
+      return {
+        text: [
+          `Here is the complete, self-contained **HTML + PyScript Task Manager** web application ready to run locally:`,
+          ``,
+          `\`\`\`html`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Architecture & PyScript Highlights:`,
+          `• **Client-Side Python Engine**: Executes Python directly in browser WebAssembly via PyScript 2024 & Pyodide.`,
+          `• **Python Task Manager Kernel**: Real Python functions for adding, toggling, filtering, and deleting tasks.`,
+          `• **Hardware Brutalism UI**: Monochrome \`#000000\` / \`#FFFFFF\`, 0px border radius, instant tactile switches.`,
+          `• **LocalStorage Persistence**: Auto-saves state in browser storage (\`crux_pyscript_tasks\`) using Python's \`json\` module.`,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[SAVE & AUTO-SYNC ↵]** to write to disk, and **[RUN IN TERMINAL ↵]** to launch the local server.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "java") {
+      const res = generateTaskManagerJava();
+      return {
+        text: [
+          `Here is a complete, self-contained **Task Manager** in Java with clean object-oriented architecture and CLI telemetry:`,
+          ``,
+          `\`\`\`java`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Key Features:`,
+          `• **Object-Oriented Domain Model**: Strongly-typed \`Task\`, \`Priority\` (P0/P1/P2), and \`Status\` (TODO/IN_PROGRESS/DONE).`,
+          `• **Interactive CLI & Filtering**: In-memory task management with category tagging and status filtering.`,
+          `• **System Telemetry**: Real-time metrics tracking total, todo, in-progress, and completed counts.`,
+          `• **Standard Library Only**: Compiles cleanly with zero external dependencies (\`java.util.*\`, \`java.time.*\`).`,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and launch.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "python") {
+      const res = generateTaskManagerPython();
+      return {
+        text: [
+          `Here is a complete, self-contained **Task Manager** in Python with CLI telemetry and formatted tables:`,
+          ``,
+          `\`\`\`python`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Key Features:`,
+          `• **Priority Matrix**: P0 (CRITICAL), P1 (HIGH), P2 (NORMAL) priority classification.`,
+          `• **Rich Table Output**: Clean monospaced table view with real-time stats and filters.`,
+          `• **Zero Dependencies**: Pure Python 3 standard library.`,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to execute.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "rust") {
+      const res = generateTaskManagerRust();
+      return {
+        text: [
+          `Here is a complete, high-performance **Task Manager** in Rust:`,
+          ``,
+          `\`\`\`rust`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "cpp" || explicitLang === "c") {
+      const res = generateTaskManagerCpp();
+      return {
+        text: [
+          `Here is a complete, modern **Task Manager** in C++ (C++17):`,
+          ``,
+          `\`\`\`cpp`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "go") {
+      const res = generateTaskManagerGo();
+      return {
+        text: [
+          `Here is a complete, concurrent **Task Manager** in Go:`,
+          ``,
+          `\`\`\`go`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "typescript") {
+      const res = generateTaskManagerTs();
+      return {
+        text: [
+          `Here is a complete, type-safe **Task Manager** in TypeScript:`,
+          ``,
+          `\`\`\`typescript`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
     const code = isTaskManager ? generateTaskManagerHtml() : generateTodoAppHtml();
     const filename = isTaskManager ? "task_manager.html" : "todo.html";
     const appTitle = isTaskManager ? "Task Manager" : "Todo Application";
@@ -406,6 +639,33 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
   if (lowerPrompt.includes("calculator") || lowerPrompt.includes("calc app")) {
     sessionMemory.lastTopic = "calculator";
     sessionMemory.lastPrompt = lowerPrompt;
+
+    const explicitLang = hasExplicitLanguage(rawPrompt) || (context?.file?.endsWith(".java") ? "java" : null);
+
+    if (explicitLang === "java") {
+      const res = generateCalculatorJava();
+      return {
+        text: [
+          `Here is a complete **Digital Calculator** in Java with arithmetic evaluation and interactive REPL:`,
+          ``,
+          `\`\`\`java`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `Supports addition, subtraction, multiplication, division, modulo, and chained expressions.`,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
     const code = generateCalculatorHtml();
 
     return {
@@ -611,6 +871,133 @@ export async function processAiPrompt(req: ConversationContext): Promise<Convers
         provider,
         model: effectiveModel,
         command: "npm test",
+      };
+    }
+
+    const explicitLang = hasExplicitLanguage(rawPrompt) || (context?.file ? detectTargetLanguage("", context.file) : null);
+
+    if (explicitLang === "java") {
+      const res = generateGenericJavaCode(rawPrompt, targetFile);
+      return {
+        text: [
+          `Here is the Java implementation for your request:`,
+          ``,
+          `\`\`\`java`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Summary:`,
+          res.summary,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "python") {
+      const res = generateGenericPythonCode(rawPrompt, targetFile);
+      return {
+        text: [
+          `Here is the Python implementation for your request:`,
+          ``,
+          `\`\`\`python`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Summary:`,
+          res.summary,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "rust") {
+      const res = generateGenericRustCode(rawPrompt, targetFile);
+      return {
+        text: [
+          `Here is the Rust implementation for your request:`,
+          ``,
+          `\`\`\`rust`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Summary:`,
+          res.summary,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "cpp" || explicitLang === "c") {
+      const res = generateGenericCppCode(rawPrompt, targetFile);
+      return {
+        text: [
+          `Here is the C++ implementation for your request:`,
+          ``,
+          `\`\`\`cpp`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Summary:`,
+          res.summary,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to compile and run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
+      };
+    }
+
+    if (explicitLang === "go") {
+      const res = generateGenericGoCode(rawPrompt, targetFile);
+      return {
+        text: [
+          `Here is the Go implementation for your request:`,
+          ``,
+          `\`\`\`go`,
+          res.code,
+          `\`\`\``,
+          ``,
+          `### Summary:`,
+          res.summary,
+          ``,
+          `Saved to \`${res.filename}\`. Click **[RUN IN TERMINAL ↵]** to run.`,
+        ].join("\n"),
+        provider,
+        model: effectiveModel,
+        command: res.command,
+        fileAction: {
+          filename: res.filename,
+          content: res.code,
+        },
       };
     }
 

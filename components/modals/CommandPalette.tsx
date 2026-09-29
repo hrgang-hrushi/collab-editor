@@ -29,6 +29,12 @@ import {
   SplitSquareVertical,
   Contrast,
   GitCommit,
+  Settings,
+  Key,
+  CreditCard,
+  Shield,
+  Users,
+  Activity,
 } from "lucide-react";
 import { exportWorkspaceAsZip } from "@/lib/fileUtils";
 
@@ -57,6 +63,7 @@ export default function CommandPalette() {
   const setZeroStateOpen = useWorkspaceStore((state) => state.setZeroStateOpen);
   const setOnboarded = useWorkspaceStore((state) => state.setOnboarded);
   const setHistoryDrawerOpen = useWorkspaceStore((state) => state.setHistoryDrawerOpen);
+  const setSettingsModalOpen = useWorkspaceStore((state) => state.setSettingsModalOpen);
   const createManualCheckpoint = useWorkspaceStore((state) => state.createManualCheckpoint);
   const activeFileId = useWorkspaceStore((state) => state.activeFileId);
 
@@ -155,6 +162,48 @@ export default function CommandPalette() {
       category: "Canvas",
       icon: <RotateCcw className="w-4 h-4 text-[#858585]" />,
       action: () => resetView(),
+    },
+    {
+      id: "cmd-settings",
+      title: "Open Preferences & Core Settings (Cmd+,)",
+      category: "Settings",
+      icon: <Settings className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "settings"),
+    },
+    {
+      id: "cmd-settings-apikeys",
+      title: "Manage Scoped API Keys & Secrets",
+      category: "Settings",
+      icon: <Key className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "apikeys"),
+    },
+    {
+      id: "cmd-settings-billing",
+      title: "View Invoices & Billing Tier",
+      category: "Settings",
+      icon: <CreditCard className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "billing"),
+    },
+    {
+      id: "cmd-settings-admin",
+      title: "Admin Panel & Enterprise SSO Governance",
+      category: "Settings",
+      icon: <Shield className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "admin"),
+    },
+    {
+      id: "cmd-settings-users",
+      title: "User Management & Seat Allocation",
+      category: "Settings",
+      icon: <Users className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "users"),
+    },
+    {
+      id: "cmd-settings-analytics",
+      title: "Open Engine Analytics & WebGPU Telemetry",
+      category: "Settings",
+      icon: <Activity className="w-4 h-4 text-[#858585]" />,
+      action: () => setSettingsModalOpen(true, "analytics"),
     },
     ...(suggestions.some((s) => s.status === "pending")
       ? [

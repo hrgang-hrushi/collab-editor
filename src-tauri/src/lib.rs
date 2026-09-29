@@ -169,11 +169,16 @@ pub mod terminal;
 pub use terminal::{pty_spawn, pty_write, pty_resize, pty_kill, terminal_spawn, terminal_input, terminal_kill, git_command};
 pub mod cli_discovery;
 pub use cli_discovery::scan_system_clis;
+mod signaling;
 
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_log::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
+        .setup(|_| {
+            signaling::start_local_relay();
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             commands::execute_code,
             migration::scan_existing_ides,

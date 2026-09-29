@@ -9,7 +9,8 @@ interface TauriExecutionResult {
 }
 
 /**
- * Executes code using native Tauri IPC to spawn native OS subprocesses in Rust.
+ * Executes code using native Tauri IPC (when in desktop app), or the backend /api/terminal
+ * execution engine (when in web app), with browser V8 fallback.
  */
 export async function executeCode(
   code: string,
@@ -44,82 +45,101 @@ export async function executeCode(
     currentLang = "typescript";
   }
 
-  // 1. Primary execution route: Native Tauri Rust IPC subprocess
+  // 1. Primary execution route: Native Tauri Rust IPC subprocess (when in desktop shell)
+  const isTauri = typeof window !== "undefined" && Boolean((window as any).__TAURI_INTERNALS__ || (window as any).__TAURI__);
+  if (isTauri) {
+    try {
+      const raw = await invoke<TauriExecutionResult>("execute_code", {
+        language: currentLang,
+        sourceCode: editorContent,
+      });
+
+      const stdoutLines = raw.stdout
+        ? raw.stdout.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
+        : [];
+      const stderrLines = raw.stderr
+        ? raw.stderr.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
+        : [];
+
+      return {
+        stdout: stdoutLines,
+        stderr: stderrLines,
+        durationMs: Number(raw.execution_time_ms) || (Date.now() - startTime),
+        success: raw.exit_code === 0,
+        timestamp: Date.now(),
+        fileName: filename,
+      };
+    } catch (ipcErr: any) {
+      console.warn("[Crux IPC] Tauri command execution failed, trying server API runner:", ipcErr?.message || ipcErr);
+    }
+  }
+
+  // 2. Server-side API execution (works for web app and server-backed desktop)
   try {
-    const raw = await invoke<TauriExecutionResult>("execute_code", {
-      language: currentLang,
-      sourceCode: editorContent,
+    // Save file to disk first
+    await fetch("/api/fs/write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileName: filename,
+        filePath: filename,
+        content: editorContent,
+      }),
     });
 
-    const stdoutLines = raw.stdout
-      ? raw.stdout.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
-      : [];
-    const stderrLines = raw.stderr
-      ? raw.stderr.split("\n").filter((l, i, arr) => i < arr.length - 1 || l.trim() !== "")
-      : [];
-
-    return {
-      stdout: stdoutLines,
-      stderr: stderrLines,
-      durationMs: Number(raw.execution_time_ms) || (Date.now() - startTime),
-      success: raw.exit_code === 0,
-      timestamp: Date.now(),
-      fileName: filename,
-    };
-  } catch (ipcErr: any) {
-    const errMsg = ipcErr?.message || String(ipcErr);
-    // If not in Tauri desktop shell (e.g. browser environment), fall back gracefully
-    if (
-      errMsg.includes("__TAURI_INTERNALS__") ||
-      errMsg.includes("window.__TAURI__") ||
-      errMsg.includes("IPC") ||
-      typeof window === "undefined" ||
-      !(window as any).__TAURI_INTERNALS__
-    ) {
-      console.warn("[Crux IPC] Tauri runtime unavailable in browser context, using client fallback:", errMsg);
+    let runCmd = "";
+    if (filename.endsWith(".java") || currentLang === "java") {
+      const clsMatch =
+        editorContent.match(/public\s+class\s+([A-Za-z0-9_]+)/) ||
+        editorContent.match(/class\s+([A-Za-z0-9_]+)/);
+      const cls = clsMatch ? clsMatch[1] : (filename.replace(/\.java$/, "") || "Main");
+      runCmd = `javac ${filename} && java ${cls}`;
+    } else if (filename.endsWith(".py") || currentLang === "python") {
+      runCmd = `python3 ${filename}`;
+    } else if (filename.endsWith(".rs") || currentLang === "rust") {
+      const binName = filename.replace(/\.rs$/, "");
+      runCmd = `rustc ${filename} && ./${binName}`;
+    } else if (filename.endsWith(".cpp") || currentLang === "cpp") {
+      runCmd = `clang++ ${filename} -o crux_cpp_bin && ./crux_cpp_bin`;
+    } else if (filename.endsWith(".c") || currentLang === "c") {
+      runCmd = `clang ${filename} -o crux_c_bin && ./crux_c_bin`;
+    } else if (filename.endsWith(".swift") || currentLang === "swift") {
+      runCmd = `swiftc ${filename} -o crux_swift_bin && ./crux_swift_bin`;
+    } else if (filename.endsWith(".ts") || filename.endsWith(".tsx") || currentLang === "typescript") {
+      runCmd = `bun run ${filename}`;
     } else {
-      console.error("[Crux IPC] Tauri command execution failed:", errMsg);
+      runCmd = `node ${filename}`;
+    }
+
+    const termRes = await fetch("/api/terminal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command: runCmd }),
+    });
+
+    if (termRes.ok) {
+      const data = await termRes.json();
+      const stdoutLines = data.stdout
+        ? data.stdout.split("\n").filter((l: string, i: number, arr: string[]) => i < arr.length - 1 || l.trim() !== "")
+        : [];
+      const stderrLines = data.stderr
+        ? data.stderr.split("\n").filter((l: string, i: number, arr: string[]) => i < arr.length - 1 || l.trim() !== "")
+        : [];
+
       return {
-        stdout: [],
-        stderr: [`[Crux Rust IPC Error] ${errMsg}`],
+        stdout: stdoutLines,
+        stderr: stderrLines,
         durationMs: Date.now() - startTime,
-        success: false,
+        success: data.exitCode === 0,
         timestamp: Date.now(),
         fileName: filename,
       };
     }
+  } catch (serverErr) {
+    console.warn("[Crux Runner] Server API execution failed, falling back to client evaluation:", serverErr);
   }
 
-  // Non-JS fallback when outside Tauri runtime
-  if (filename.endsWith(".java") || currentLang === "java") {
-    return {
-      stdout: [],
-      stderr: [
-        "[Crux Desktop Runner] Native Java execution requires the Crex Tauri desktop app.",
-        "Please run inside the Tauri desktop shell to invoke native javac / java subprocesses.",
-      ],
-      durationMs: Date.now() - startTime,
-      success: false,
-      timestamp: Date.now(),
-      fileName: filename,
-    };
-  }
-
-  if (filename.endsWith(".py") || currentLang === "python") {
-    return {
-      stdout: [],
-      stderr: [
-        "[Crux Desktop Runner] Native Python execution requires the Crex Tauri desktop app.",
-        "Please run inside the Tauri desktop shell to invoke native python3 subprocesses.",
-      ],
-      durationMs: Date.now() - startTime,
-      success: false,
-      timestamp: Date.now(),
-      fileName: filename,
-    };
-  }
-
-  // Client-side fallback for simple JavaScript execution in pure browser
+  // 3. Client-side fallback for simple JavaScript execution in pure browser
   const stdout: string[] = [];
   const stderr: string[] = [];
 

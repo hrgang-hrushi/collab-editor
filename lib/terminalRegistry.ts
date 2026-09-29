@@ -16,6 +16,21 @@ if (!globalProcesses._cruxStdinHandlers) {
   globalProcesses._cruxStdinHandlers = new Map();
 }
 
+const globalAi = globalThis as unknown as {
+  _cruxActiveAiTool?: string;
+};
+if (!globalAi._cruxActiveAiTool) {
+  globalAi._cruxActiveAiTool = "auto";
+}
+
+export function setActiveAiTool(tool: string) {
+  globalAi._cruxActiveAiTool = tool;
+}
+
+export function getActiveAiTool(): string {
+  return globalAi._cruxActiveAiTool || "auto";
+}
+
 export const terminalProcesses = globalProcesses._cruxTerminalProcesses;
 export const terminalStdinHandlers = globalProcesses._cruxStdinHandlers;
 

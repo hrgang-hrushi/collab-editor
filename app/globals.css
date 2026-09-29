@@ -523,4 +523,14 @@ kbd {
 
 
 
+@keyframes crux-ai-progress-flow {
+  to { stroke-dashoffset: -24; }
+}
 
+.crux-ai-progress-trace {
+  animation: crux-ai-progress-flow 0.8s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crux-ai-progress-trace { animation: none; }
+}

@@ -7,6 +7,7 @@ export const CURRENT_USER: User = {
   uid: "CRX-7447-HG",
   role: "Principal Engineer",
   avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80",
+  avatarType: "mech",
   color: "#007AFF", // Crux Blue (Accent 1)
   isSelf: true,
   accessLevel: "full",
@@ -20,6 +21,7 @@ export const MOCK_USERS: User[] = [
     uid: "CRX-9941-SL",
     role: "Staff Infrastructure",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80",
+    avatarType: "flower",
     color: "#38b6ff", // Canva Blue (3.svg)
     accessLevel: "full",
   },
@@ -30,6 +32,7 @@ export const MOCK_USERS: User[] = [
     uid: "CRX-0001-AI",
     role: "Speculative Co-Pilot",
     avatar: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&auto=format&fit=crop&q=80",
+    avatarType: "mech",
     color: "#ff5757", // Canva Coral Crimson (5.svg)
     accessLevel: "full",
   },
@@ -40,6 +43,7 @@ export const MOCK_USERS: User[] = [
     uid: "CRX-5520-MV",
     role: "Systems Architect",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop&q=80",
+    avatarType: "star",
     color: "#ff914d", // Canva Orange (8.svg)
     accessLevel: "limited",
     allowedFiles: ["database.ts"],
@@ -764,5 +768,3 @@ export const INITIAL_REVISIONS: FileRevision[] = [
     diffSummary: { added: 32, removed: 0 },
   },
 ];
-
-

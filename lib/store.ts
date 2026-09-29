@@ -18,6 +18,7 @@ import {
 } from "./types";
 import { executeCode } from "./codeRunner";
 import { detectLanguage, saveFileToDisk } from "./fileUtils";
+import { autoSyncEngine } from "./autoSyncEngine";
 import { appendStreamChunkToLines } from "./ansiParser";
 import {
   INITIAL_FILES,
@@ -71,6 +72,7 @@ interface WorkspaceState {
   // Live Code Execution & Terminal
   isExecuting: boolean;
   lastExecutionResult: ExecutionResult | null;
+  pendingTerminalCommand: string | null;
   terminalHistory: Array<{ cmd: string; output?: string[]; type?: "info" | "ok" | "err" | "warn" }>;
   terminalCwd: string;
   gitCommits: GitCommit[];
@@ -98,6 +100,12 @@ interface WorkspaceState {
   // Onboarding & Identity
   isOnboarded: boolean;
   isIdentityDrawerOpen: boolean;
+
+  // Settings & System Control Hub
+  isSettingsModalOpen: boolean;
+  activeSettingsTab: string;
+  setSettingsModalOpen: (isOpen: boolean, tab?: string) => void;
+  setActiveSettingsTab: (tab: string) => void;
 
   // Workspace Sharing, Access & Permissions
   isShareModalOpen: boolean;
@@ -161,6 +169,8 @@ interface WorkspaceState {
   runActiveFile: () => Promise<ExecutionResult | null>;
   runActiveFileInTerminal: () => Promise<void>;
   runFileById: (fileId: string) => Promise<ExecutionResult | null>;
+  setPendingTerminalCommand: (cmd: string | null) => void;
+  setLastExecutionResult: (result: ExecutionResult | null) => void;
   setTerminalCwd: (cwd: string) => void;
   addTerminalEntry: (entry: { cmd: string; output?: string[]; type?: "info" | "ok" | "err" | "warn" }) => void;
   clearTerminal: () => void;
@@ -263,12 +273,17 @@ interface WorkspaceState {
   uninstallLibrary: (libraryId: string) => void;
   insertLibraryImport: (libraryId: string) => void;
 
-  // Universal Discovery Daemon State
+  // Universal Discovery Daemon State & Orchestration
   discoveredRuntimes: DiscoveredModelRuntime[];
   runProfiles: CrexRunProfile[];
   detectedSdk?: { type: string; version?: string; path?: string };
   isDiscoveryScanning: boolean;
+  activeAiToolId: string;
+  autoPickedAiToolId: string;
+  orchestrationRationale: string;
   fetchDiscoveryReport: () => Promise<void>;
+  rescanAiTools: () => Promise<void>;
+  setAiToolSelection: (toolId: string) => void;
   executeRunProfile: (profileId: string) => void;
 
   // Pure Black & White (Monochrome Brutalist) Aesthetic
@@ -380,6 +395,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   activeSessionId: null,
   isOnboarded: false,
   isIdentityDrawerOpen: false,
+  isSettingsModalOpen: false,
+  activeSettingsTab: "settings",
   isShareModalOpen: false,
   isInboxOpen: false,
   viewerLock: false,
@@ -418,6 +435,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   isExecuting: false,
   lastExecutionResult: null,
+  pendingTerminalCommand: null,
   terminalHistory: [
     {
       cmd: "crux status",
@@ -490,6 +508,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         contributorColor: newColor,
         contributorName: state.currentUser.name || "Developer",
       };
+
+      autoSyncEngine.enqueue(fileName, trimmed, newFile.content, true);
 
       return {
         files: [...state.files, newFile],
@@ -663,7 +683,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     if (
       activeFile.name.endsWith(".java") ||
       activeFile.content.includes("import java.") ||
-      activeFile.content.includes("public class ")
+      activeFile.content.includes("public class ") ||
+      activeFile.content.includes("Scanner ")
     ) {
       cmd = `javac ${activeFile.name} && java ${cls}`;
     } else if (activeFile.name.endsWith(".py") || activeFile.content.includes("def ")) {
@@ -671,16 +692,20 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     } else if (activeFile.name.endsWith(".rs") || activeFile.content.includes("fn main()")) {
       cmd = `rustc ${activeFile.name} && ./${activeFile.name.replace(/\.rs$/, "")}`;
     } else if (activeFile.name.endsWith(".cpp") || activeFile.content.includes("#include <iostream>")) {
-      cmd = `clang++ ${activeFile.name} -o app && ./app`;
+      cmd = `clang++ ${activeFile.name} -o crux_cpp_bin && ./crux_cpp_bin`;
     } else if (activeFile.name.endsWith(".c") || activeFile.content.includes("#include <stdio.h>")) {
-      cmd = `clang ${activeFile.name} -o app && ./app`;
+      cmd = `clang ${activeFile.name} -o crux_c_bin && ./crux_c_bin`;
     } else if (activeFile.name.endsWith(".swift")) {
-      cmd = `swiftc ${activeFile.name} -o app && ./app`;
+      cmd = `swiftc ${activeFile.name} -o crux_swift_bin && ./crux_swift_bin`;
     } else if (activeFile.name.endsWith(".ts") || activeFile.name.endsWith(".tsx")) {
       cmd = `bun run ${activeFile.name}`;
     }
 
-    set({ isTerminalOpen: true, activeTerminalTab: "terminal" });
+    set({
+      isTerminalOpen: true,
+      activeTerminalTab: "terminal",
+      pendingTerminalCommand: null,
+    });
 
     if (typeof window !== "undefined") {
       window.dispatchEvent(
@@ -799,6 +824,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     return result;
   },
 
+  setPendingTerminalCommand: (pendingTerminalCommand) => set({ pendingTerminalCommand }),
+  setLastExecutionResult: (lastExecutionResult) => set({ lastExecutionResult }),
+
   setTerminalCwd: (terminalCwd) => set({ terminalCwd }),
 
   addTerminalEntry: (entry) =>
@@ -854,7 +882,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
 
   createFile: (name, content = "") =>
     set((state) => {
-      const ext = name.split(".").pop() || "ts";
+      const trimmedName = name.trim();
+      const ext = trimmedName.split(".").pop() || "ts";
       let lang: FileNode["language"] = "typescript";
       if (ext === "js" || ext === "jsx") lang = "javascript";
       if (ext === "py") lang = "python";
@@ -865,15 +894,18 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       const palette = ["#007AFF", "#FF453A", "#38b6ff", "#00E5FF", "#ff914d", "#A855F7", "#10B981"];
       const newColor = palette[state.files.length % palette.length];
 
+      const isRootFile = trimmedName === "index.html" || trimmedName === "package.json" || trimmedName === "README.md" || trimmedName.includes("/");
+      const resolvedPath = isRootFile ? trimmedName : `src/${trimmedName}`;
+
       const newId = `file-${Date.now()}`;
       const newFile: FileNode = {
         id: newId,
-        name: name.trim(),
-        path: `src/${name.trim()}`,
+        name: trimmedName,
+        path: resolvedPath,
         language: lang,
         content:
           content ||
-          `// ${name.trim()}\n// Crux zero-latency collaborative buffer\n\nexport function ready() {\n  return true;\n}\n`,
+          `// ${trimmedName}\n// Crux zero-latency collaborative buffer\n\nexport function ready() {\n  return true;\n}\n`,
         x: 200 + Math.random() * 200,
         y: 150 + Math.random() * 150,
         width: 540,
@@ -883,6 +915,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         contributorColor: newColor,
         contributorName: state.currentUser.name || "Developer",
       };
+
+      autoSyncEngine.enqueue(newFile.name, newFile.path, newFile.content, true);
 
       return {
         files: [...state.files, newFile],
@@ -1056,6 +1090,7 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   updateFileContent: (id, content) =>
     set((state) => {
       const targetFile = state.files.find((f) => f.id === id);
+      if (!targetFile || targetFile.content === content) return state;
       const updatedFiles = state.files.map((f) =>
         f.id === id ? { ...f, content, status: "modified" as const, isDirty: true } : f
       );
@@ -1063,6 +1098,10 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
         try {
           localStorage.setItem("crux_workspace_files", JSON.stringify(updatedFiles));
         } catch {}
+      }
+
+      if (targetFile) {
+        autoSyncEngine.enqueue(targetFile.name, targetFile.path, content);
       }
 
       // If the file was emptied (previous non-empty, now empty):
@@ -1738,6 +1777,12 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
   },
 
   setIdentityDrawerOpen: (isIdentityDrawerOpen) => set({ isIdentityDrawerOpen }),
+  setSettingsModalOpen: (isSettingsModalOpen, tab) =>
+    set({
+      isSettingsModalOpen,
+      ...(tab ? { activeSettingsTab: tab } : {}),
+    }),
+  setActiveSettingsTab: (activeSettingsTab) => set({ activeSettingsTab }),
   setShareModalOpen: (isShareModalOpen) => set({ isShareModalOpen }),
   setInboxOpen: (isInboxOpen) => set({ isInboxOpen }),
 
@@ -1850,11 +1895,29 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
     });
   },
 
-  // Universal Discovery Daemon Implementation
+  // Universal Discovery Daemon Implementation & Orchestration
   discoveredRuntimes: [],
   runProfiles: [],
   detectedSdk: undefined,
   isDiscoveryScanning: false,
+  activeAiToolId: "auto",
+  autoPickedAiToolId: "antigravity-agy",
+  orchestrationRationale: "Auto-picked: Anti-Gravity AGY — Host binary verified on PATH // GEMINI.md contract active",
+
+  setAiToolSelection: (toolId: string) => {
+    set({ activeAiToolId: toolId });
+    // Sync with terminal backend if possible
+    fetch("/api/terminal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command: `crux pick ${toolId}` }),
+    }).catch(() => {});
+  },
+
+  rescanAiTools: async () => {
+    const { fetchDiscoveryReport } = get();
+    await fetchDiscoveryReport();
+  },
 
   fetchDiscoveryReport: async () => {
     set({ isDiscoveryScanning: true });
@@ -1870,6 +1933,9 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
             .map((t: any) => ({
               id: t.binary_name,
               name: `${t.name}${t.version ? ` (${t.version})` : ""}`,
+              binaryName: t.binary_name,
+              binaryPath: t.path,
+              version: t.version,
               provider: (t.binary_name === "antigravity" || t.binary_name === "agy" ? "agy" :
                          t.binary_name === "claude" ? "anthropic" :
                          t.binary_name === "codec" || t.binary_name === "codex" ? "codec" :
@@ -1896,10 +1962,13 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
               isDefault: t.binary_name === "bun" || t.binary_name === "node",
             }));
 
+          const autoId = runtimes.find((r) => r.binaryName === "antigravity" || r.binaryName === "agy")?.id || runtimes[0]?.id || "antigravity-agy";
+
           set({
             discoveredRuntimes: runtimes,
             runProfiles: profiles,
             detectedSdk: { type: cliManifest.primary_ai_engine, path: cliManifest.tools[0]?.path },
+            autoPickedAiToolId: autoId,
             isDiscoveryScanning: false,
           });
           return;
@@ -1913,10 +1982,16 @@ export const useWorkspaceStore = create<WorkspaceState>((set, get) => ({
       const res = await fetch("/api/discovery");
       if (res.ok) {
         const data = await res.json();
+        const autoPicked = data.orchestration?.autoPickedId ||
+          (data.runtimes?.find((r: any) => r.isAutoPicked)?.id) ||
+          "antigravity-agy";
+
         set({
           discoveredRuntimes: data.runtimes || [],
           runProfiles: data.profiles || [],
           detectedSdk: data.detectedSdk,
+          autoPickedAiToolId: autoPicked,
+          orchestrationRationale: data.orchestration?.rationale || "",
           isDiscoveryScanning: false,
         });
         return;
