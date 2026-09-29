@@ -678,11 +678,11 @@ export default function AeyeFeatureSection() {
                           <div className="mt-3 flex items-center gap-2 overflow-x-auto">
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#d4d4d8] font-mono shrink-0">
                               <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-                              <span>Alex (Host)</span>
+                              <span>Hrushikesh (Host)</span>
                             </div>
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#141416] border border-[#27272a] text-[11px] text-[#a1a1aa] font-mono shrink-0">
                               <User className="w-3 h-3 text-[#888888]" />
-                              <span>Sarah</span>
+                              <span>Sarah Lin</span>
                             </div>
                             <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/40 text-[11px] text-[#0055FF] font-mono shrink-0 font-bold">
                               <Bot className="w-3 h-3 text-[#0055FF]" />

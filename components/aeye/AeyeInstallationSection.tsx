@@ -49,7 +49,7 @@ export default function AeyeInstallationSection() {
       label: "Real-Time Collaborative Mesh",
       subtitle: "SUB-MILLISECOND PEER PRESENCE",
       desc: "Live multiplayer spatial presence with zero-latency peer cursor vectors, active selection tracking, and conflict-free concurrent editing across teams.",
-      copyText: "Crux Collaborative Multiplayer Engine:\n- Active Peers: Tarika (0.4ms), Pavan (0.6ms)\n- Cursor Transport: Lock-Free WebRTC Mesh\n- Sync Protocol: CRDT Vector Ring Buffer (0-conflict)\n- Presence Precision: Sub-pixel cursor coordinates",
+      copyText: "Crux Collaborative Multiplayer Engine:\n- Active Peers: Sarah Lin (0.28ms), Marcus Vance (0.41ms), @CruxAI\n- Workspace: crux-stream-sync (stream_syncer.ts)\n- Cursor Transport: Lock-Free WebRTC Mesh\n- Sync Protocol: CRDT Vector Ring Buffer (0-conflict)\n- Presence Precision: Sub-pixel 120Hz canvas coordinates",
     },
     {
       id: "silicon" as const,
@@ -187,19 +187,22 @@ export default function AeyeInstallationSection() {
                         {activeTab === "multiplayer" && (
                           <div className="hidden sm:flex items-center gap-2">
                             <div className="flex items-center -space-x-1">
-                              <div className="w-4 h-4 bg-[#0055FF] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-30" title="Host">
-                                OP
+                              <div className="w-4 h-4 bg-[#007AFF] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-30 border border-black" title="Hrushikesh Gangala (Host)">
+                                HG
                               </div>
-                              <div className="w-4 h-4 bg-[#06b6d4] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-20" title="Tarika">
-                                TK
+                              <div className="w-4 h-4 bg-[#38b6ff] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-20 border border-black" title="Sarah Lin (Staff Infrastructure)">
+                                SL
                               </div>
-                              <div className="w-4 h-4 bg-[#f59e0b] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-10" title="Pavan">
-                                PV
+                              <div className="w-4 h-4 bg-[#ff914d] text-[8px] font-bold text-black flex items-center justify-center rounded-none z-10 border border-black" title="Marcus Vance (Systems Architect)">
+                                MV
+                              </div>
+                              <div className="w-4 h-4 bg-[#ff5757] text-[8px] font-bold text-white flex items-center justify-center rounded-none z-0 border border-black" title="CruxAI (Speculative Co-Pilot)">
+                                AI
                               </div>
                             </div>
                             <span className="text-[10px] text-[#22c55e] font-mono flex items-center gap-1">
                               <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-none animate-pulse" />
-                              2 PEERS
+                              3 PEERS IN-SYNC
                             </span>
                           </div>
                         )}
@@ -340,15 +343,15 @@ export default function AeyeInstallationSection() {
                               <div className="space-y-1.5 pt-1 text-[11px]">
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#555555]">[09:54:12.018]</span>
-                                  <span className="text-white font-semibold">peer://tokyo-node</span>
+                                  <span className="text-white font-semibold">peer://sarah-lin</span>
                                   <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">inserts ASTNode::FnDecl("handle_stream")</span>
+                                  <span className="text-[#a1a1aa]">mutates stream_syncer.ts (acquireLock)</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#555555]">[09:54:12.022]</span>
-                                  <span className="text-white font-semibold">peer://sf-node</span>
+                                  <span className="text-white font-semibold">peer://marcus-vance</span>
                                   <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">edits ASTNode::Ident("stream_handler")</span>
+                                  <span className="text-[#a1a1aa]">mutates database.ts (persistStateVector)</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#555555]">[09:54:12.025]</span>
@@ -360,13 +363,13 @@ export default function AeyeInstallationSection() {
                                   <span className="text-[#555555]">[09:54:12.028]</span>
                                   <span className="text-[#0055FF] font-bold">crypto</span>
                                   <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-[#a1a1aa]">SECP256K1 P2P channel handshake verified</span>
+                                  <span className="text-[#a1a1aa]">Ed25519 WebCrypto peer attestation verified</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#555555]">[09:54:12.030]</span>
                                   <span className="text-white font-bold">status</span>
                                   <span className="text-[#0055FF]">&gt;</span>
-                                  <span className="text-white">Vector clock [142, 89, 204] · Converged in 0.8ms</span>
+                                  <span className="text-white">Ring Vector clock [142, 89, 204] · Converged in 0.42ms</span>
                                 </div>
                               </div>
 
@@ -394,25 +397,25 @@ export default function AeyeInstallationSection() {
                                 <div className="flex items-center gap-2 text-[#71717a]">
                                   <span className="text-[#0055FF] font-bold">host@darwin</span>
                                   <span className="text-[#444444]">:</span>
-                                  <span className="text-white">~/workspace</span>
+                                  <span className="text-white">~/crux-stream-sync</span>
                                   <span className="text-[#0055FF] font-bold">%</span>
-                                  <span className="text-white font-medium">@CruxAI refactor ./src/parser.rs --optimize</span>
+                                  <span className="text-white font-medium">@CruxAI refactor ./src/stream_syncer.ts --optimize</span>
                                 </div>
                               </div>
 
                               {/* Output steps */}
                               <div className="space-y-1.5 text-[11px] pl-2 border-l border-[#222222]">
                                 <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Ingested 14 source files in 1.4ms (zero cloud proxy)
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Ingested 5 workspace source files in 0.8ms (zero cloud proxy)
                                 </div>
                                 <div className="text-[#888888]">
-                                  <span className="text-[#0055FF]">[@CruxAI]</span> Applied SIMD token streaming pass (<span className="text-[#22c55e]">+48</span>, <span className="text-[#ef4444]">-12</span> lines)
+                                  <span className="text-[#0055FF]">[@CruxAI]</span> Applied zero-alloc lock ticket caching (<span className="text-[#22c55e]">+12</span>, <span className="text-[#ef4444]">-4</span> lines)
                                 </div>
                                 <div className="text-[#888888]">
                                   <span className="text-[#0055FF]">[@CruxAI]</span> Running background compiler check:
                                 </div>
                                 <div className="pl-3 text-white">
-                                  <span className="text-[#22c55e]">✓</span> cargo check --target=aarch64-apple-darwin: 0 warnings
+                                  <span className="text-[#22c55e]">✓</span> cargo / tsc check --target=aarch64-apple-darwin: 0 errors
                                 </div>
                                 <div className="text-[#888888]">
                                   <span className="text-[#0055FF]">[@CruxAI]</span> Generated atomic AST git commit: <code className="text-white">a9b42e1</code>
@@ -423,7 +426,7 @@ export default function AeyeInstallationSection() {
                               <div className="pt-1 flex items-center gap-2 text-[#71717a]">
                                 <span className="text-[#0055FF] font-bold">host@darwin</span>
                                 <span className="text-[#444444]">:</span>
-                                <span className="text-white">~/workspace</span>
+                                <span className="text-white">~/crux-stream-sync</span>
                                 <span className="text-[#0055FF] font-bold">%</span>
                                 <motion.span
                                   animate={{ opacity: [1, 0, 1] }}
@@ -443,7 +446,7 @@ export default function AeyeInstallationSection() {
                         <Terminal className="w-3.5 h-3.5 text-[#0055FF]" />
                         <span>
                           {activeTab === "multiplayer"
-                            ? "MESH: P2P WEBRTC // TARIKA & PAVAN ACTIVE"
+                            ? "MESH: P2P WEBRTC // SARAH LIN & MARCUS VANCE ACTIVE"
                             : activeTab === "silicon"
                             ? "RUNTIME: BARE-METAL POSIX / SILICON"
                             : activeTab === "crdt"
