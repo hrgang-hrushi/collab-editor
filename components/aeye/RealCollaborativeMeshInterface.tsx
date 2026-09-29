@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FolderOpen,
   Plus,
+  Download,
   Search,
-  Share2,
-  Clock,
+  FolderPlus,
+  FolderDown,
+  ChevronRight,
+  FileCode2,
   GitBranch,
   Terminal,
   Zap,
@@ -16,17 +18,24 @@ import {
   ShieldCheck,
   Bot,
   Activity,
-  Layers,
-  Database,
-  Code2,
   GitMerge,
-  HardDrive,
-  Radio,
-  Network,
+  Code2,
+  Database,
+  History,
   Check,
 } from "lucide-react";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 import CruxPointerCursor from "@/components/crux/CruxPointerCursor";
+import BranchedMenu, { BranchedMenuItem } from "@/components/crux/zenith/BranchedMenu";
+import { BotAvatar } from "bot-avatars";
+import { avatarMotionSeed } from "@/components/crux/avatars/avatarMotion";
+import {
+  Folder01Icon,
+  JavaScriptIcon,
+  CodeIcon,
+  File01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 export type CruxIdeMode =
   | "multiplayer"
@@ -100,7 +109,7 @@ export default function RealCollaborativeMeshInterface({
     return () => clearTimeout(timeout);
   }, [mode]);
 
-  // Mode-specific telemetry / dynamic jitter
+  // Telemetry jitter per mode
   const [fps, setFps] = useState(120.0);
   const [tokRate, setTokRate] = useState(184);
   const [crdtConvergenceTime, setCrdtConvergenceTime] = useState("0.38");
@@ -118,167 +127,289 @@ export default function RealCollaborativeMeshInterface({
     return () => clearInterval(interval);
   }, [mode]);
 
-  // Tab Title
-  const getTabTitle = () => {
+  // Active File and Breadcrumbs based on active mode
+  const fileMeta = useMemo(() => {
     switch (mode) {
       case "silicon":
-        return "SPATIAL_ENGINE.METAL";
+        return {
+          name: "spatial_engine.metal",
+          folder: "kernel",
+          crumb: "metal",
+          secondary: "profiler_dma.rs",
+          isMetal: true,
+          lines: 24,
+        };
       case "crdt":
-        return "AST_CRDT_SYNC.TS";
+        return {
+          name: "ast_crdt_sync.ts",
+          folder: "crdt",
+          crumb: "replication",
+          secondary: "vector_clock.rs",
+          isMetal: false,
+          lines: 32,
+        };
       case "agents":
-        return "STREAM_SYNCER.TS";
+        return {
+          name: "stream_syncer.ts",
+          folder: "agent",
+          crumb: "refactor",
+          secondary: "diff_view.patch",
+          isMetal: false,
+          lines: 18,
+        };
       case "context":
-        return "KERNEL_SIGNALS.TS";
+        return {
+          name: "kernel_signals.ts",
+          folder: "posix",
+          crumb: "buffer",
+          secondary: "inodes.bin",
+          isMetal: false,
+          lines: 48,
+        };
       case "processing":
-        return "CRDT_SYNTHESIS.TS";
+        return {
+          name: "crdt_synthesis.ts",
+          folder: "synthesis",
+          crumb: "transform",
+          secondary: "peer_attest.sec",
+          isMetal: false,
+          lines: 28,
+        };
       case "output":
-        return "COMPILER_OUTPUT.TS";
+        return {
+          name: "compiler_output.ts",
+          folder: "build",
+          crumb: "aarch64",
+          secondary: "macho_arm64.bin",
+          isMetal: false,
+          lines: 36,
+        };
       case "multiplayer":
       default:
-        return "STREAM_SYNCER.TS";
+        return {
+          name: "stream_syncer.ts",
+          folder: "core",
+          crumb: "daemon",
+          secondary: "types.ts",
+          isMetal: false,
+          lines: 15,
+        };
     }
-  };
+  }, [mode]);
 
-  const getSecondaryTabTitle = () => {
-    switch (mode) {
-      case "silicon":
-        return "PROFILER_DMA.RS";
-      case "crdt":
-        return "VECTOR_CLOCK.RS";
-      case "agents":
-        return "DIFF_VIEW.PATCH";
-      case "context":
-        return "INODES.BIN";
-      case "processing":
-        return "PEER_ATTEST.SEC";
-      case "output":
-        return "MACHO_ARM64.BIN";
-      case "multiplayer":
-      default:
-        return "TYPES.TS";
-    }
-  };
-
-  // Status Bar Mode Description
-  const getStatusBarLabel = () => {
-    switch (mode) {
-      case "silicon":
-        return "RUNTIME: BARE-METAL POSIX / SILICON · 120 FPS LOCKED · 0 DOM NODES";
-      case "crdt":
-        return `PROTOCOL: ZERO-LOCK AST-CRDT SYNC · CONVERGED IN ${crdtConvergenceTime}ms`;
-      case "agents":
-        return "KERNEL: @CRUXAI AUTONOMOUS AGENT · LOCAL INFERENCE · 0 ERRORS";
-      case "context":
-        return "POSIX KERNEL STREAM · 64,280 INODES · I/O LATENCY < 0.4ms";
-      case "processing":
-        return `AST SYNTHESIS · 0 SYNTAX COLLISIONS · ⚡ ${tokRate} TOK/S · Ed25519 VERIFIED`;
-      case "output":
-        return "COMPILER TARGET: aarch64-apple-darwin · 120 FPS WEBGPU OUTPUT";
-      case "multiplayer":
-      default:
-        return "PROTOCOL: LOCK-FREE WEBRTC MESH · 2 PEERS ACTIVE · 0.28ms RTT";
-    }
-  };
+  // Actual BranchedMenu Tree Data exactly mirroring ZenithFileTree
+  const branchedMenuItems: BranchedMenuItem[] = useMemo(() => {
+    return [
+      {
+        label: "SRC",
+        value: "src",
+        icon: Folder01Icon,
+        children: [
+          {
+            value: "stream_syncer.ts",
+            label: "stream_syncer.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "types.ts",
+            label: "types.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "database.ts",
+            label: "database.ts",
+            icon: JavaScriptIcon,
+          },
+        ],
+      },
+      {
+        label: "KERNEL",
+        value: "kernel",
+        icon: Folder01Icon,
+        children: [
+          {
+            value: "spatial_engine.metal",
+            label: "spatial_engine.metal",
+            icon: CodeIcon,
+          },
+          {
+            value: "ast_crdt_sync.ts",
+            label: "ast_crdt_sync.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "kernel_signals.ts",
+            label: "kernel_signals.ts",
+            icon: CodeIcon,
+          },
+        ],
+      },
+      {
+        label: "BUILD",
+        value: "build",
+        icon: Folder01Icon,
+        children: [
+          {
+            value: "compiler_output.ts",
+            label: "compiler_output.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "Cargo.toml",
+            label: "Cargo.toml",
+            icon: File01Icon,
+          },
+        ],
+      },
+    ];
+  }, []);
 
   return (
     <div className="w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-hidden font-sans border-0">
-      {/* 1. AUTHENTIC BRUTALIST CRUX HEADER */}
+      {/* 1. EXACT CRUX IDE TOP HEADER (CruxHeader.tsx layout) */}
       {showHeader && (
-        <header className="h-10 border-b border-[#222222] bg-[#000000] flex items-center justify-between px-3 shrink-0 z-20">
-          {/* Left: Brand + Project + Branch */}
+        <header className="w-full h-9 px-3 flex items-center justify-between border-b border-[#222222] bg-[#000000] select-none text-xs font-mono shrink-0 z-20">
+          {/* Left: Brand + Breadcrumbs */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <CruxBrandLogo size={14} className="text-white" />
-              <span className="font-sans font-bold text-xs uppercase tracking-tight text-white hidden sm:inline">
-                CRUX
+              <CruxBrandLogo size={15} withText={true} />
+              <span className="w-1.5 h-1.5 rounded-none bg-white ml-1" />
+              <span className="text-[10px] text-[#888888] hidden sm:inline font-mono">
+                0.08ms
               </span>
             </div>
-            <span className="text-[#333333]">/</span>
-            <div className="flex items-center gap-1.5 font-mono text-[11px] text-[#888888]">
-              <span className="text-white font-medium">crux-stream-sync</span>
-              <span className="text-[#333333]">::</span>
-              <div className="flex items-center gap-1 text-[#71717a]">
-                <GitBranch className="w-3 h-3 text-[#71717a]" />
-                <span className="text-white font-mono text-[10px]">main</span>
+
+            <div className="h-3 w-[1px] bg-[#222222] mx-0.5" />
+
+            {/* File Breadcrumb */}
+            <div className="flex items-center gap-1.5 text-xs text-[#888888]">
+              <span className="text-[#888888]">{fileMeta.folder}</span>
+              <ChevronRight className="w-3 h-3 text-[#333333]" />
+              <span className="text-[#888888]">{fileMeta.crumb}</span>
+              <ChevronRight className="w-3 h-3 text-[#333333]" />
+              <div className="flex items-center gap-1.5 text-white px-1.5 py-0.5 bg-black border border-[#222222]">
+                <FileCode2 className="w-3.5 h-3.5 text-white" />
+                <span>{fileMeta.name}</span>
               </div>
             </div>
           </div>
 
-          {/* Right: Active Collaborators & Mode Badge */}
-          <div className="flex items-center gap-3">
-            {/* Mode Indicator Badge */}
-            <div className="px-2 py-0.5 bg-[#0055FF]/10 border border-[#0055FF]/30 text-[10px] font-mono text-[#0055FF] font-bold uppercase tracking-wider flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
-              <span>
-                {mode === "multiplayer" && "MESH // 2 PEERS"}
-                {mode === "silicon" && "SILICON // 120 FPS"}
-                {mode === "crdt" && "AST-CRDT // CONVERGED"}
-                {mode === "agents" && "@CRUXAI // ACTIVE"}
-                {mode === "context" && "CONTEXT // 64K INODES"}
-                {mode === "processing" && "SYNTHESIS // LIVE"}
-                {mode === "output" && "OUTPUT // ARM64"}
-              </span>
-            </div>
+          {/* Right: Authentic Collaborator Badges with Real BotAvatars + Share */}
+          <div className="flex items-center gap-2">
+            <div
+              role="group"
+              aria-label="Active Collaborators"
+              className="flex items-center border border-[#222222] rounded-none select-none bg-black"
+            >
+              {/* Hrushikesh Gangala (Host) */}
+              <div
+                title="Hrushikesh Gangala (You)"
+                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-white"
+              >
+                <BotAvatar
+                  type="mech"
+                  size={22}
+                  state="default"
+                  seed={avatarMotionSeed("Hrushikesh Gangala")}
+                  interactive={false}
+                  theme="dark"
+                />
+              </div>
 
-            {/* Collaborators Avatar Stack */}
-            <div className="flex items-center gap-1.5 font-mono text-[10px]">
-              <div className="flex items-center gap-1 px-1.5 py-0.5 border border-[#222222] bg-[#0d0d0f] text-white">
-                <span className="w-1.5 h-1.5 bg-[#0055FF]" />
-                <span className="hidden md:inline">Hrushikesh (Host)</span>
-                <span className="md:hidden">HG</span>
+              {/* Muhaymin (Remote Collaborator) */}
+              <div
+                title="Muhaymin (Remote Peer)"
+                className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-[#888888]"
+              >
+                <BotAvatar
+                  type="alien"
+                  size={22}
+                  state="default"
+                  seed={avatarMotionSeed("Muhaymin")}
+                  interactive={false}
+                  theme="dark"
+                />
               </div>
-              <div className="flex items-center gap-1 px-1.5 py-0.5 border border-[#222222] bg-[#0d0d0f] text-[#aaaaaa]">
-                <span className="w-1.5 h-1.5 bg-[#22c55e]" />
-                <span className="hidden md:inline">Muhaymin</span>
-                <span className="md:hidden">M</span>
-              </div>
+
+              {/* @CruxAI (Agent) */}
               {mode === "agents" && (
-                <div className="flex items-center gap-1 px-1.5 py-0.5 border border-[#0055FF]/50 bg-[#0055FF]/20 text-[#0055FF] font-bold">
-                  <Bot className="w-3 h-3 text-[#0055FF]" />
-                  <span>@CruxAI</span>
+                <div
+                  title="@CruxAI (Local Droid)"
+                  className="px-1.5 py-0.5 flex items-center justify-center border-r border-[#222222] rounded-none bg-transparent text-[#0055FF]"
+                >
+                  <BotAvatar
+                    type="droid"
+                    size={22}
+                    state="default"
+                    seed={avatarMotionSeed("@CruxAI")}
+                    interactive={false}
+                    theme="dark"
+                  />
                 </div>
               )}
+
+              {/* Share button */}
+              <div
+                title="Share workspace or invite peers"
+                className="px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider leading-none text-[#888888] hover:text-white transition-none"
+              >
+                + SHARE
+              </div>
+            </div>
+
+            <div className="h-3 w-[1px] bg-[#222222] mx-0.5 hidden sm:block" />
+
+            <div className="px-2 py-0.5 border text-[11px] rounded-none font-mono bg-black text-[#888888] border-[#222222] hidden sm:block">
+              Direct Edit
             </div>
           </div>
         </header>
       )}
 
-      {/* 2. BODY SPLIT: SIDEBAR + MAIN FEATURE CANVAS */}
+      {/* 2. BODY SPLIT: EXACT ZENITH FILE TREE + MAIN EDITOR CANVAS */}
       <div className="flex-1 flex min-h-0 bg-[#000000] overflow-hidden">
-        {/* Left Vertical Explorer / Inode Rail */}
-        <div className="w-44 sm:w-48 bg-[#050507] border-r border-[#222222] flex flex-col shrink-0 select-none hidden sm:flex">
-          {/* Rail Header */}
-          <div className="h-7 px-3 border-b border-[#222222] flex items-center justify-between text-[10px] font-mono text-[#71717a] uppercase tracking-wider">
-            <span>EXPLORER</span>
-            <span className="text-[#444444]">WORKSPACE</span>
-          </div>
-
-          {/* File Tree with Active File highlight */}
-          <div className="flex-1 p-2 font-mono text-[11px] space-y-0.5 text-[#888888] overflow-hidden">
-            <div className="flex items-center gap-1.5 py-1 px-1.5 text-white bg-[#111114] border border-[#222222]">
-              <span className="text-[#0055FF] font-bold">&gt;</span>
-              <span className="truncate font-semibold">{getTabTitle().toLowerCase()}</span>
-            </div>
-            <div className="flex items-center gap-1.5 py-1 px-1.5 hover:text-white">
-              <span className="text-[#444444]">-</span>
-              <span className="truncate">{getSecondaryTabTitle().toLowerCase()}</span>
-            </div>
-            <div className="flex items-center gap-1.5 py-1 px-1.5 hover:text-white">
-              <span className="text-[#444444]">-</span>
-              <span className="truncate">types.ts</span>
-            </div>
-            <div className="flex items-center gap-1.5 py-1 px-1.5 hover:text-white">
-              <span className="text-[#444444]">-</span>
-              <span className="truncate">wal.bin</span>
-            </div>
-            <div className="flex items-center gap-1.5 py-1 px-1.5 hover:text-white">
-              <span className="text-[#444444]">-</span>
-              <span className="truncate">Cargo.toml</span>
+        {/* Left Vertical Explorer: EXACT ZenithFileTree Clone with Real BranchedMenu */}
+        <aside className="w-52 sm:w-56 border-r border-[#222222] bg-[#000000] flex flex-col select-none shrink-0 h-full font-sans hidden sm:flex">
+          {/* Explorer Header matching ZenithFileTree.tsx line 357 */}
+          <div className="px-3 py-2 border-b border-[#222222] text-[10px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between">
+            <span>Explorer</span>
+            <div className="flex items-center gap-1.5 text-[#888888]">
+              <Plus className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
+              <Download className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
+              <Search className="w-3.5 h-3.5 hover:text-white cursor-pointer" />
             </div>
           </div>
 
-          {/* Bottom Sidebar Status */}
-          <div className="p-2 border-t border-[#222222] bg-[#08080a] text-[9px] font-mono space-y-1">
+          {/* Import Folder & Import Files Buttons matching ZenithFileTree.tsx lines 390-409 */}
+          <div className="flex border-b border-[#222222] text-[9px] font-bold tracking-wide">
+            <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 bg-white text-black hover:bg-[#CCCCCC] transition-none cursor-pointer">
+              <FolderPlus className="w-3 h-3" />
+              IMPORT FOLDER
+            </div>
+            <div className="flex-1 flex items-center justify-center gap-1 px-1.5 py-1.5 border-l border-[#222222] bg-black text-white hover:bg-[#111111] transition-none cursor-pointer">
+              <FolderDown className="w-3 h-3" />
+              IMPORT FILES
+            </div>
+          </div>
+
+          {/* Real BranchedMenu: Tree with Connected Branches & Curved Lines */}
+          <div className="flex-1 py-1 font-mono text-xs overflow-y-auto">
+            <BranchedMenu
+              items={branchedMenuItems}
+              defaultOpen={[0, 1]}
+              active={fileMeta.name}
+              width="100%"
+              rowHeight={26}
+              indent={24}
+              fontSize={11}
+              color="#888888"
+              accentColor="#ffffff"
+              lineColor="#222222"
+            />
+          </div>
+
+          {/* Sidebar Footer matching ZenithFileTree.tsx */}
+          <div className="p-2 border-t border-[#222222] bg-[#050507] text-[9px] font-mono space-y-1">
             <div className="flex items-center justify-between text-[#71717a]">
               <span>INODES</span>
               <span className="text-white font-bold">64,280</span>
@@ -288,23 +419,47 @@ export default function RealCollaborativeMeshInterface({
               <span className="text-[#0055FF] font-bold">38.2 MB</span>
             </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Main Feature Display Pane */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#000000] relative overflow-hidden">
-          {/* Tab Strip */}
-          <div className="h-7 bg-[#0a0a0c] border-b border-[#222222] flex items-center justify-between px-2 shrink-0 select-none">
-            <div className="flex items-center h-full">
-              <div className="h-full px-3 bg-[#000000] border-r border-[#222222] text-white flex items-center gap-2 text-[11px] font-mono font-bold uppercase tracking-tight">
-                <span className="w-1.5 h-1.5 bg-[#0055FF]" />
-                <span>{getTabTitle()}</span>
+        {/* Main Editor Pane: ZenithEditorPane clone */}
+        <main className="flex-1 bg-[#000000] flex flex-col relative overflow-hidden font-sans">
+          {/* Tab Strip matching ZenithEditorPane.tsx line 226 */}
+          <div className="flex h-8 border-b border-[#222222] bg-[#111111] items-center justify-between select-none shrink-0 overflow-x-auto">
+            <div className="flex items-center h-full overflow-x-auto">
+              {/* Active Tab */}
+              <div className="px-3 border-r border-[#222222] text-[11px] font-sans uppercase tracking-tight flex items-center gap-2 transition-none shrink-0 h-full bg-[#000000] text-white font-medium">
+                {fileMeta.isMetal ? (
+                  <HugeiconsIcon icon={CodeIcon} size={12} strokeWidth={2} className="text-[#0055FF]" />
+                ) : (
+                  <HugeiconsIcon icon={JavaScriptIcon} size={12} strokeWidth={2} className="text-[#0055FF]" />
+                )}
+                <span>{fileMeta.name}</span>
+                <span className="text-[9px] text-[#444444] font-mono shrink-0 hidden md:inline">
+                  {fileMeta.lines}L
+                </span>
+                <span className="w-1.5 h-1.5 bg-white shrink-0 ml-1" />
+                <span className="text-[#444444] hover:text-white cursor-pointer ml-1">×</span>
               </div>
-              <div className="h-full px-3 text-[#555555] hover:text-white hidden sm:flex items-center gap-2 text-[11px] font-mono uppercase tracking-tight">
-                <span>{getSecondaryTabTitle()}</span>
+
+              {/* Secondary Inactive Tab */}
+              <div className="px-3 border-r border-[#222222] text-[11px] font-sans uppercase tracking-tight flex items-center gap-2 transition-none shrink-0 h-full bg-[#111111] text-[#666666] hover:text-white hidden sm:flex">
+                <span>{fileMeta.secondary}</span>
+                <span className="text-[#444444] hover:text-white cursor-pointer ml-1">×</span>
               </div>
             </div>
-            <div className="text-[10px] font-mono text-[#71717a] pr-2">
-              CRUX_ENGINE_V3
+
+            {/* Right Tab Meta Badge */}
+            <div className="pr-3 text-[10px] font-mono text-[#0055FF] font-bold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
+              <span>
+                {mode === "multiplayer" && "WEBRTC MESH"}
+                {mode === "silicon" && "120 FPS METAL"}
+                {mode === "crdt" && "AST CONVERGED"}
+                {mode === "agents" && "@CRUXAI ACTIVE"}
+                {mode === "context" && "64K INODES"}
+                {mode === "processing" && "SYNTHESIS"}
+                {mode === "output" && "ARM64 READY"}
+              </span>
             </div>
           </div>
 
@@ -317,8 +472,8 @@ export default function RealCollaborativeMeshInterface({
               <motion.div
                 className="absolute pointer-events-none z-30 select-none"
                 animate={{
-                  x: [140, 210, 270, 240, 170, 140],
-                  y: [124, 126, 130, 128, 126, 124],
+                  x: [130, 200, 260, 230, 160, 130],
+                  y: [122, 124, 128, 126, 124, 122],
                 }}
                 transition={{
                   duration: 6.8,
@@ -338,8 +493,8 @@ export default function RealCollaborativeMeshInterface({
               <motion.div
                 className="absolute pointer-events-none z-30 select-none hidden md:block"
                 animate={{
-                  x: [210, 290, 360, 310, 240, 210],
-                  y: [198, 202, 208, 204, 200, 198],
+                  x: [200, 280, 350, 300, 230, 200],
+                  y: [194, 198, 204, 200, 196, 194],
                 }}
                 transition={{
                   duration: 7.4,
@@ -370,32 +525,32 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               </div>
 
-              {/* Code lines */}
+              {/* Editor Buffer with Standard IDE Line Numbers Gutter */}
               <div className="space-y-0.5">
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">1</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">1</span>
                   <span className="text-white">
                     <span className="text-[#0055FF] font-semibold">import</span> &#123; <span className="text-white font-medium">LocalWriteAheadLog</span> &#125; <span className="text-[#0055FF] font-semibold">from</span> <span className="text-[#ff914d]">"@crux/wal"</span>;
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">2</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">2</span>
                   <span className="text-white">
                     <span className="text-[#0055FF] font-semibold">import</span> &#123; <span className="text-white font-medium">SyncVector</span> &#125; <span className="text-[#007AFF] font-semibold">from</span> <span className="text-[#ff914d]">"./types"</span>;
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">3</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">3</span>
                   <span className="text-[#71717a] italic">// Lock-free peer stream syncer</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">4</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">4</span>
                   <span className="text-white">
                     <span className="text-[#0055FF] font-semibold">export const</span> wal = <span className="text-[#0055FF] font-semibold">new</span> LocalWriteAheadLog(&#123;
                   </span>
                 </div>
                 <div className="flex items-center bg-[#ffffff]/5 pl-0.5">
-                  <span className="w-6 text-right text-[10px] text-white font-bold select-none pr-3">5</span>
+                  <span className="w-8 text-right text-[10px] text-white font-bold select-none pr-3">5</span>
                   <span className="text-white pl-3 font-mono">
                     path: <span className="text-[#ff914d]">"/var/crux/wal.bin"</span>,{typedSuffix}
                     <motion.span
@@ -406,37 +561,37 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">6</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">6</span>
                   <span className="text-white pl-3">syncIntervalMs: <span className="text-[#ffbd2e]">16</span>, ringBufferSizeMb: <span className="text-[#ffbd2e]">64</span></span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">7</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">7</span>
                   <span className="text-white">&#125;);</span>
                 </div>
                 <div className={`flex items-center relative pl-0.5 ${muhayminStatus === "selecting" ? "bg-[#0055FF]/20 border-l-2 border-[#0055FF]" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">8</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">8</span>
                   <span className="text-white pl-3">
                     <span className="text-[#0055FF] font-semibold">export async function</span> <span className="text-[#ff914d]">persistStateVector</span>(
                   </span>
                 </div>
                 <div className={`flex items-center relative pl-0.5 ${muhayminStatus === "selecting" ? "bg-[#0055FF]/20 border-l-2 border-[#0055FF]" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">9</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">9</span>
                   <span className="text-white pl-6">docId: <span className="text-[#0055FF]">string</span>, vector: <span className="text-[#0055FF]">SyncVector</span></span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">10</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">10</span>
                   <span className="text-white pl-3">): <span className="text-[#0055FF]">Promise</span>&lt;<span className="text-[#ffbd2e]">number</span>&gt; &#123;</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">11</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">11</span>
                   <span className="text-white pl-6">const monotonicSequence = <span className="text-[#0055FF] font-semibold">await</span> wal.append(&#123; docId, payload: vector.encode() &#125;);</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">12</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">12</span>
                   <span className="text-white pl-6"><span className="text-[#0055FF] font-semibold">return</span> monotonicSequence;</span>
                 </div>
                 <div className="flex items-center">
-                  <span className="w-6 text-right text-[10px] text-[#444444] select-none pr-3">13</span>
+                  <span className="w-8 text-right text-[10px] text-[#444444] select-none pr-3">13</span>
                   <span className="text-white pl-3">&#125;</span>
                 </div>
               </div>
@@ -463,19 +618,16 @@ export default function RealCollaborativeMeshInterface({
 
                 {/* 3 Metric Gauges Grid */}
                 <div className="grid grid-cols-3 gap-2 text-left">
-                  {/* Metric 1 */}
                   <div className="p-2 border border-[#222222] bg-[#0c0c0e]">
                     <div className="text-[9px] text-[#71717a] uppercase">Input-to-Photon</div>
                     <div className="text-base text-white font-bold mt-0.5">4.2 ms</div>
                     <div className="text-[9px] text-[#0055FF] font-semibold mt-1">11.5x vs Electron (48.6ms)</div>
                   </div>
-                  {/* Metric 2 */}
                   <div className="p-2 border border-[#222222] bg-[#0c0c0e]">
                     <div className="text-[9px] text-[#71717a] uppercase">Unified VRAM</div>
                     <div className="text-base text-white font-bold mt-0.5">38.2 MB</div>
                     <div className="text-[9px] text-[#0055FF] font-semibold mt-1">17.8x leaner (vs 680MB)</div>
                   </div>
-                  {/* Metric 3 */}
                   <div className="p-2 border border-[#222222] bg-[#0c0c0e]">
                     <div className="text-[9px] text-[#71717a] uppercase">Draw Calls</div>
                     <div className="text-base text-white font-bold mt-0.5">1 Call</div>
@@ -641,25 +793,21 @@ export default function RealCollaborativeMeshInterface({
                 <div className="text-[9px] text-[#71717a] uppercase font-bold border-b border-[#222222] pb-1">
                   INLINE AGENT DIFF PROPOSAL (+14, -6 LINES)
                 </div>
-                {/* Unmodified line */}
                 <div className="text-[#71717a]">
                   &nbsp;&nbsp;export async function syncPeerDelta(delta: PeerDelta) &#123;
                 </div>
-                {/* Red deleted lines */}
                 <div className="bg-[#ef4444]/15 text-[#ef4444] px-1 line-through border-l-2 border-[#ef4444]">
                   -&nbsp;&nbsp;&nbsp;&nbsp;const mutex = new MutexLock();
                 </div>
                 <div className="bg-[#ef4444]/15 text-[#ef4444] px-1 line-through border-l-2 border-[#ef4444]">
                   -&nbsp;&nbsp;&nbsp;&nbsp;await mutex.acquire();
                 </div>
-                {/* Green inserted lines */}
                 <div className="bg-[#22c55e]/15 text-[#22c55e] px-1 font-semibold border-l-2 border-[#22c55e]">
                   +&nbsp;&nbsp;&nbsp;&nbsp;const lockTicket = atomicBitset.claimTicket();
                 </div>
                 <div className="bg-[#22c55e]/15 text-[#22c55e] px-1 font-semibold border-l-2 border-[#22c55e]">
                   +&nbsp;&nbsp;&nbsp;&nbsp;await wal.commitLockFree(lockTicket);
                 </div>
-                {/* Unmodified line */}
                 <div className="text-[#71717a]">
                   &nbsp;&nbsp;&#125;
                 </div>
@@ -685,7 +833,6 @@ export default function RealCollaborativeMeshInterface({
           {/* ========================================================================= */}
           {mode === "context" && (
             <div className="flex-1 p-3 overflow-hidden flex flex-col justify-between font-mono bg-[#000000]">
-              {/* Header: Kernel Ingest Status */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2">
                   <Database className="w-4 h-4 text-[#0055FF]" />
@@ -696,7 +843,6 @@ export default function RealCollaborativeMeshInterface({
                 </span>
               </div>
 
-              {/* Center: Inode Memory Map Matrix */}
               <div className="border border-[#222222] bg-[#060608] p-3 my-2 space-y-2 flex-1">
                 <div className="text-[9px] text-[#71717a] font-bold uppercase border-b border-[#222222] pb-1 flex items-center justify-between">
                   <span>RAW POSIX BUFFER DESCRIPTORS</span>
@@ -727,7 +873,6 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               </div>
 
-              {/* Bottom Ingest Metrics */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
                 <span className="text-[#71717a]">I/O LATENCY: <strong className="text-white">0.41ms</strong></span>
                 <span className="text-[#71717a]">CACHE HIT RATE: <strong className="text-[#0055FF]">99.8%</strong></span>
@@ -741,7 +886,6 @@ export default function RealCollaborativeMeshInterface({
           {/* ========================================================================= */}
           {mode === "processing" && (
             <div className="flex-1 p-3 overflow-hidden flex flex-col justify-between font-mono bg-[#000000]">
-              {/* Header: Processing Speed */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2">
                   <Activity className="w-4 h-4 text-[#0055FF]" />
@@ -753,7 +897,6 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               </div>
 
-              {/* Attestation Log */}
               <div className="border border-[#222222] bg-[#060608] p-3 my-2 space-y-2 flex-1">
                 <div className="text-[9px] text-[#71717a] font-bold uppercase border-b border-[#222222] pb-1 flex items-center justify-between">
                   <span>Ed25519 CRYPTOGRAPHIC ATTESTATION AUDIT</span>
@@ -779,7 +922,6 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               </div>
 
-              {/* Bottom Peer Status Bar */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#22c55e]" />
@@ -795,7 +937,6 @@ export default function RealCollaborativeMeshInterface({
           {/* ========================================================================= */}
           {mode === "output" && (
             <div className="flex-1 p-3 overflow-hidden flex flex-col justify-between font-mono bg-[#000000]">
-              {/* Header: Native Target */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[11px]">
                 <div className="flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-[#0055FF]" />
@@ -806,9 +947,7 @@ export default function RealCollaborativeMeshInterface({
                 </span>
               </div>
 
-              {/* Two Artifact Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2 flex-1 min-h-0">
-                {/* Artifact 1: Mach-O Host Binary */}
                 <div className="p-2.5 border border-[#222222] bg-[#060608] flex flex-col justify-between text-[10px]">
                   <div>
                     <div className="text-[9px] text-[#71717a] font-bold uppercase pb-1 border-b border-[#222222]">
@@ -826,7 +965,6 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                {/* Artifact 2: WebGPU 120 FPS Output Preview */}
                 <div className="p-2.5 border border-[#222222] bg-[#060608] flex flex-col justify-between text-[10px]">
                   <div>
                     <div className="text-[9px] text-[#71717a] font-bold uppercase pb-1 border-b border-[#222222]">
@@ -836,7 +974,6 @@ export default function RealCollaborativeMeshInterface({
                       <span className="text-white font-semibold">Instanced Quad Pipeline</span>
                       <span className="text-[#0055FF] font-bold">120 FPS</span>
                     </div>
-                    {/* Live Waveform Equalizer */}
                     <div className="flex items-end gap-1 h-5 mt-2 bg-[#000000] p-1 border border-[#222222]">
                       {[0.4, 0.9, 0.5, 1.0, 0.7, 0.9, 0.6].map((h, i) => (
                         <motion.div
@@ -854,7 +991,6 @@ export default function RealCollaborativeMeshInterface({
                 </div>
               </div>
 
-              {/* Bottom Atomic Git Commit Status */}
               <div className="p-2 border border-[#222222] bg-[#08080a] flex items-center justify-between text-[10px]">
                 <div className="flex items-center gap-2">
                   <GitBranch className="w-3 h-3 text-[#0055FF]" />
@@ -864,21 +1000,39 @@ export default function RealCollaborativeMeshInterface({
               </div>
             </div>
           )}
-        </div>
+        </main>
       </div>
 
-      {/* 3. STATUS BAR (Crux Brutalist Footer) */}
+      {/* 3. EXACT CRUX IDE STATUS BAR (CruxEditorView.tsx line 709) */}
       {showStatusBar && (
-        <footer className="h-6 px-3 bg-[#08080a] border-t border-[#222222] flex items-center justify-between text-[10px] font-mono text-[#71717a] shrink-0 z-20">
+        <footer className="h-[22px] px-3 bg-[#000000] border-t border-[#222222] text-[#888888] flex items-center justify-between text-[10px] font-mono select-none shrink-0 z-30">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-white">
-              <span className="w-1.5 h-1.5 bg-[#0055FF]" />
-              <span>{getStatusBarLabel()}</span>
+            <div className="flex items-center gap-1.5 hover:text-white cursor-pointer">
+              <GitBranch className="w-3 h-3 text-[#71717a]" />
+              <span className="text-white">main*</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5 cursor-pointer">
+              <span className="w-1.5 h-1.5 bg-[#00FF66] rounded-none shadow-[0_0_6px_#00FF66]" />
+              <span className="text-[10px] tracking-wider uppercase font-mono text-white">
+                DISK IN-SYNC
+              </span>
+            </div>
+            <span className="text-[10px] text-[#71717a] font-mono">0.08ms</span>
+
+            {/* Revision History Badge */}
+            <div className="hidden md:flex items-center gap-1 px-1.5 py-0.2 border border-[#222222] text-[#CCCCCC] text-[9px]">
+              <History className="w-2.5 h-2.5" />
+              <span className="font-bold uppercase tracking-wider">HISTORY</span>
+              <span className="text-[8px] opacity-70">(14)</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          <div className="flex items-center gap-3 text-[#71717a]">
+            <span>Ln 6, Col {cursorPosCol}</span>
             <span className="hidden sm:inline">UTF-8</span>
-            <span className="text-white font-bold uppercase">{mode === "silicon" ? "METAL" : "TYPESCRIPT"}</span>
+            <span className="uppercase text-white font-medium">
+              {fileMeta.isMetal ? "METAL" : "TypeScript"}
+            </span>
           </div>
         </footer>
       )}
