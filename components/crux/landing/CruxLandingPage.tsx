@@ -21,15 +21,15 @@ import {
 import MacosMenuBar from "./MacosMenuBar";
 import CruxNavbar from "./CruxNavbar";
 import WaitlistModal from "./WaitlistModal";
-import HeroWindow3D from "./HeroWindow3D";
+import CruxCollaborativeDemo from "./CruxCollaborativeDemo";
 import MigrationWidget from "./MigrationWidget";
 import PerformanceVisualizer from "./PerformanceVisualizer";
 import AgenticTerminalSandbox from "./AgenticTerminalSandbox";
 import SpatialRewindSection from "./SpatialRewindSection";
 import EngineeringWall from "./EngineeringWall";
 import PricingAndTrustSection from "./PricingAndTrustSection";
-import AeyeCtaSection from "@/components/aeye/AeyeCtaSection";
-import AeyeFooter from "@/components/aeye/AeyeFooter";
+import CruxCtaSection from "./CruxCtaSection";
+import CruxFooter from "./CruxFooter";
 import CruxBrandLogo from "../CruxBrandLogo";
 
 interface CruxLandingPageProps {
@@ -141,8 +141,11 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
             </button>
           </div>
 
-          {/* Interactive 3D Hero Window Asset */}
-          <HeroWindow3D />
+          {/* Authentic Crux Collaborative Studio Demo */}
+          <CruxCollaborativeDemo
+            onLaunchWebEditor={onLaunchWebEditor}
+            onOpenWaitlist={() => setIsWaitlistOpen(true)}
+          />
         </section>
 
         {/* ========================================================================= */}
@@ -280,10 +283,13 @@ export default function CruxLandingPage({ onLaunchWebEditor }: CruxLandingPagePr
       </main>
 
       {/* Pre-Footer Brutalist Hardware CTA Card */}
-      <AeyeCtaSection />
+      <CruxCtaSection
+        onOpenWaitlist={() => setIsWaitlistOpen(true)}
+        onLaunchWebEditor={onLaunchWebEditor}
+      />
 
       {/* Master Hardware Brutalism Footer & Dispatch */}
-      <AeyeFooter />
+      <CruxFooter />
     </div>
   );
 }

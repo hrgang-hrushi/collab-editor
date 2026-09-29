@@ -27,14 +27,41 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
   const [loading, setLoading] = useState(false);
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
 
+  const [waitlistResult, setWaitlistResult] = useState<{
+    queuePosition: number;
+    referralCode: string;
+    referralUrl: string;
+    totalInQueue: number;
+  } | null>(null);
+  const [copiedReferral, setCopiedReferral] = useState(false);
+
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) return;
 
     setLoading(true);
     setChipStage("almost");
+
+    try {
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, role, arch }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWaitlistResult({
+          queuePosition: data.queuePosition,
+          referralCode: data.referralCode,
+          referralUrl: data.referralUrl,
+          totalInQueue: data.totalInQueue,
+        });
+      }
+    } catch (err) {
+      console.error("Waitlist submission error:", err);
+    }
 
     setTimeout(() => {
       setChipStage("gone");
@@ -47,7 +74,6 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         setSubmitted(true);
       }, 700);
 
-      // Trigger celebratory monochrome confetti burst
       try {
         confetti({
           particleCount: 80,
@@ -55,17 +81,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
           origin: { y: 0.6 },
           colors: ["#ffffff", "#cccccc", "#888888", "#222222"],
         });
-      } catch {
-        // Fallback gracefully
-      }
-
-      try {
-        const stored = JSON.parse(localStorage.getItem("crux_waitlist") || "[]");
-        stored.push({ email, role, arch, timestamp: Date.now() });
-        localStorage.setItem("crux_waitlist", JSON.stringify(stored));
-      } catch {
-        // LocalStorage fallback
-      }
+      } catch {}
     }, 2000);
   };
 
@@ -257,9 +273,47 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 We've reserved your early build access token for <span className="text-white font-mono">{email}</span>. You will receive an invitation when the next macOS build drops.
               </p>
             </div>
-            <div className="p-3.5 rounded-none bg-[#111111] border border-[#222222] text-xs font-mono text-white inline-block">
-              Priority Ticket: #CRUX-{Math.floor(1000 + Math.random() * 9000)} · Priority Roster
+
+            {/* Live Database Queue Badge */}
+            <div className="p-3.5 rounded-none bg-[#111111] border border-[#222222] text-xs font-mono text-white inline-flex items-center gap-3">
+              <div className="w-2 h-2 bg-white" />
+              <span>
+                QUEUE POSITION: <strong className="text-white font-bold">#{waitlistResult?.queuePosition || 1482}</strong>
+              </span>
+              <span className="text-[#444444]">|</span>
+              <span className="text-[#888888]">
+                TOTAL IN WAITING QUEUE: <strong className="text-white">{waitlistResult?.totalInQueue || 1482}</strong>
+              </span>
             </div>
+
+            {/* Priority Referral Link Sharing */}
+            <div className="p-3 rounded-none bg-[#090909] border border-[#222222] max-w-md mx-auto text-left space-y-1.5">
+              <div className="text-[10px] uppercase font-mono text-[#888888] flex items-center justify-between">
+                <span>Move Up 3 Places per Referral</span>
+                <span className="text-white font-mono">{waitlistResult?.referralCode || "CRX-ALPHA"}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={waitlistResult?.referralUrl || `https://codecrux.us/?ref=${waitlistResult?.referralCode || "ALPHA"}`}
+                  className="flex-1 bg-[#111111] border border-[#222222] px-2.5 py-1.5 text-[11px] font-mono text-[#888888] outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = waitlistResult?.referralUrl || `https://codecrux.us/?ref=${waitlistResult?.referralCode || "ALPHA"}`;
+                    navigator.clipboard.writeText(url);
+                    setCopiedReferral(true);
+                    setTimeout(() => setCopiedReferral(false), 2000);
+                  }}
+                  className="px-3 py-1.5 bg-white text-black hover:bg-[#CCCCCC] text-[11px] font-mono font-bold uppercase transition-none cursor-pointer"
+                >
+                  {copiedReferral ? "Copied" : "Copy"}
+                </button>
+              </div>
+            </div>
+
             <div>
               <button
                 onClick={onClose}
