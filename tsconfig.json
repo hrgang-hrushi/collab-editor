@@ -43,6 +43,7 @@
     "auth.ts",
     "src/auth.ts",
     "database.ts",
-    "src/database.ts"
+    "src/database.ts",
+    "cloudflare-env.d.ts"
   ]
 }
