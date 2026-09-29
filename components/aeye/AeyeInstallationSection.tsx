@@ -174,7 +174,7 @@ export default function AeyeInstallationSection() {
                   </div>
 
                   {/* Rock-solid Fixed-Size Box - NEVER resizes between tabs */}
-                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[540px] sm:h-[580px] flex flex-col justify-between">
+                  <div className="border border-[#222222] bg-[#0a0a0c] rounded-none overflow-hidden h-[460px] sm:h-[490px] lg:h-[510px] flex flex-col justify-between">
                     {/* Header bar (only for non-multiplayer tabs, since Crux IDE has its own native header) */}
                     {activeTab !== "multiplayer" && (
                       <div className="h-10 px-4 bg-[#111114] border-b border-[#222222] flex items-center justify-between shrink-0">
