@@ -14,11 +14,16 @@ const INDEXNOW_KEY = "b3c7f8a9e1d24560a8c2f1e4b7d9035a";
 
 const URLS = [
   `https://${HOST}/`,
+  `https://${HOST}/amoeba-coding`,
+  `https://${HOST}/vs-cursor`,
+  `https://${HOST}/vs-claude`,
+  `https://${HOST}/vs-gemini`,
+  `https://${HOST}/vs-chatgpt`,
+  `https://${HOST}/vs-vscode`,
+  `https://${HOST}/vs-zed`,
   `https://${HOST}/benchmarks`,
   `https://${HOST}/ast-crdt`,
   `https://${HOST}/pricing`,
-  `https://${HOST}/vs-zed`,
-  `https://${HOST}/vs-vscode`,
   `https://${HOST}/ide`,
   `https://${HOST}/llms.txt`,
   `https://${HOST}/llms-full.txt`,
