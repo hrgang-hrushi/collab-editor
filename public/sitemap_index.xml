@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://codecrux.us/</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://codecrux.us/og-image.png</image:loc>
+      <image:title>Crux IDE — Bare-Metal Collaborative IDE</image:title>
+      <image:caption>Native Rust &amp; WebGPU Collaborative IDE Architecture</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://codecrux.us/crux-icon.png</image:loc>
+      <image:title>Crux Brand Icon</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://codecrux.us/benchmarks</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://codecrux.us/chart_after_dark.png</image:loc>
+      <image:title>Crux Hardware Benchmark Flamegraphs and Latency Traces</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://codecrux.us/ast-crdt</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/pricing</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/vs-zed</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/vs-vscode</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/ide</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/llms.txt</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://codecrux.us/llms-full.txt</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>
