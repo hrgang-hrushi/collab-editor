@@ -165,8 +165,8 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight and Zoom */}
-                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden aspect-[16/10] min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] flex flex-col justify-between relative">
+                  {/* Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight */}
+                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden h-[460px] sm:h-[480px] flex flex-col justify-between relative">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`tab-${activeTab}`}
@@ -178,10 +178,6 @@ export default function AeyeInstallationSection() {
                       >
                         <RealCollaborativeMeshInterface
                           mode={activeTab === "agent" ? "agents" : activeTab}
-                          autoZoom={true}
-                          showWindowChrome={true}
-                          showHeader={true}
-                          showStatusBar={true}
                         />
                       </motion.div>
                     </AnimatePresence>

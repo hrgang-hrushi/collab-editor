@@ -306,9 +306,9 @@ export default function AeyeFeatureSection() {
                 </div>
               </div>
 
-              {/* Right Column: Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight and Zoom */}
+              {/* Right Column: Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight */}
               <div className="lg:col-span-7 p-3 sm:p-5 lg:p-6 flex items-center justify-center bg-[#050507] overflow-hidden">
-                <div className="w-full aspect-[16/10] min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between relative">
+                <div className="w-full h-[460px] sm:h-[480px] border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between relative">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={`feature-tab-${activeTab}`}
@@ -320,10 +320,6 @@ export default function AeyeFeatureSection() {
                     >
                       <RealCollaborativeMeshInterface
                         mode={activeTab === 0 ? "context" : activeTab === 1 ? "processing" : "output"}
-                        autoZoom={true}
-                        showWindowChrome={true}
-                        showHeader={true}
-                        showStatusBar={true}
                       />
                     </motion.div>
                   </AnimatePresence>
