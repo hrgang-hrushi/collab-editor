@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import RecordedIdePreview from "./RecordedIdePreview";
+import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 // Calculate the (x, y) coordinates of the square dot as it travels along the rectangle perimeter
 function getPerimeterPoint(p: number, w: number, h: number) {
@@ -306,9 +306,9 @@ export default function AeyeFeatureSection() {
                 </div>
               </div>
 
-              {/* Right Column: footage recorded from the Crux IDE */}
-              <div className="lg:col-span-7 p-4 sm:p-6 lg:p-8 flex items-center justify-center bg-[#050507] overflow-hidden">
-                <div className="w-full max-w-[600px] aspect-video border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between">
+              {/* Right Column: Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight and Zoom */}
+              <div className="lg:col-span-7 p-3 sm:p-5 lg:p-6 flex items-center justify-center bg-[#050507] overflow-hidden">
+                <div className="w-full aspect-[16/10] min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between relative">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={`feature-tab-${activeTab}`}
@@ -318,7 +318,13 @@ export default function AeyeFeatureSection() {
                       transition={{ duration: 0.15 }}
                       className="h-full w-full select-none relative"
                     >
-                      <RecordedIdePreview shot={activeTab === 0 ? "editor" : activeTab === 1 ? "collaboration" : "ai"} />
+                      <RealCollaborativeMeshInterface
+                        mode={activeTab === 0 ? "context" : activeTab === 1 ? "processing" : "output"}
+                        autoZoom={true}
+                        showWindowChrome={true}
+                        showHeader={true}
+                        showStatusBar={true}
+                      />
                     </motion.div>
                   </AnimatePresence>
                 </div>

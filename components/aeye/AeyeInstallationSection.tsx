@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
-import RecordedIdePreview from "./RecordedIdePreview";
+import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,8 +165,8 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Fixed-size recording from the Crux IDE */}
-                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden aspect-video flex flex-col justify-between">
+                  {/* Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight and Zoom */}
+                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden aspect-[16/10] min-h-[380px] sm:min-h-[440px] lg:min-h-[480px] flex flex-col justify-between relative">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`tab-${activeTab}`}
@@ -176,7 +176,13 @@ export default function AeyeInstallationSection() {
                         transition={{ duration: 0.15 }}
                         className="h-full w-full select-none relative"
                       >
-                        <RecordedIdePreview shot={activeTab === "silicon" ? "canvas" : activeTab === "agent" ? "ai" : "collaboration"} />
+                        <RealCollaborativeMeshInterface
+                          mode={activeTab === "agent" ? "agents" : activeTab}
+                          autoZoom={true}
+                          showWindowChrome={true}
+                          showHeader={true}
+                          showStatusBar={true}
+                        />
                       </motion.div>
                     </AnimatePresence>
                   </div>
