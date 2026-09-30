@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+with+Claude+Code&subtitle=Native+POSIX+PTY+HyperTerminal+with+Zero-Copy+AST+Streaming&tag=AI+INTEGRATION&m1=0.08ms+IPC&l1=TERMINAL+STREAM&m2=Claude+3.7&l2=MODEL+SUPPORT&m3=120+FPS&l3=WEBGPU+DIFFS",
         width: 1200,
         height: 630,
         alt: "Crux IDE with Claude Code and Anthropic Integration",
@@ -43,7 +43,9 @@ export const metadata: Metadata = {
     title: "Crux with Claude Code (Plot) — Native Bare-Metal IDE for Anthropic",
     description:
       "Run Claude Code inside Crux's native PTY HyperTerminal with 4.2ms latency and direct AST diffing.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+with+Claude+Code&subtitle=Native+POSIX+PTY+HyperTerminal+with+Zero-Copy+AST+Streaming&tag=AI+INTEGRATION&m1=0.08ms+IPC&l1=TERMINAL+STREAM&m2=Claude+3.7&l2=MODEL+SUPPORT&m3=120+FPS&l3=WEBGPU+DIFFS",
+    ],
   },
 };
 

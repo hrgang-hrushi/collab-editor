@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+vs+Zed&subtitle=WebGPU+%26+Metal+Compute+Shaders+vs+GPUI+Retained+Quads&tag=RUST+IDE+COMPARISON&m1=4.2ms+vs+12.4ms&l1=LATENCY&m2=38MB+vs+140MB&l2=IDLE+RAM&m3=P2P+WebRTC&l3=COLLABORATION",
         width: 1200,
         height: 630,
         alt: "Crux IDE vs Zed Comparison",
@@ -41,7 +41,9 @@ export const metadata: Metadata = {
     title: "Crux vs Zed — Architectural Comparison",
     description:
       "WebGPU compute shaders vs GPUI, decentralized P2P AST-CRDT vs centralized server CRDT.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+vs+Zed&subtitle=WebGPU+%26+Metal+Compute+Shaders+vs+GPUI+Retained+Quads&tag=RUST+IDE+COMPARISON&m1=4.2ms+vs+12.4ms&l1=LATENCY&m2=38MB+vs+140MB&l2=IDLE+RAM&m3=P2P+WebRTC&l3=COLLABORATION",
+    ],
   },
 };
 

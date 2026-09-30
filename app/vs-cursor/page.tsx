@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+vs+Cursor&subtitle=Bare-Metal+Rust+%26+WebGPU+vs+Electron+AI+Wrapper&tag=COMPARISON&m1=4.2ms+vs+52ms&l1=INPUT-TO-PHOTON&m2=38MB+vs+840MB&l2=IDLE+RAM&m3=P2P+MESH&l3=COLLABORATION",
         width: 1200,
         height: 630,
         alt: "Crux IDE vs Cursor Comparison",
@@ -43,7 +43,9 @@ export const metadata: Metadata = {
     title: "Crux vs Cursor — Bare-Metal Rust vs Electron AI Wrapper",
     description:
       "4.2ms input-to-photon latency vs 52.1ms in Cursor, 38MB RAM vs 840MB, and decentralized AST-CRDT synchronization.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+vs+Cursor&subtitle=Bare-Metal+Rust+%26+WebGPU+vs+Electron+AI+Wrapper&tag=COMPARISON&m1=4.2ms+vs+52ms&l1=INPUT-TO-PHOTON&m2=38MB+vs+840MB&l2=IDLE+RAM&m3=P2P+MESH&l3=COLLABORATION",
+    ],
   },
 };
 

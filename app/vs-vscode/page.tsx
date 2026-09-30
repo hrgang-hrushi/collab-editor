@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+vs+VS+Code&subtitle=Bare-Metal+Rust+%26+WebGPU+vs+Electron+Chromium+Overhead&tag=BENCHMARK&m1=4.2ms+vs+48.6ms&l1=INPUT-TO-PHOTON&m2=38MB+vs+680MB&l2=IDLE+RAM&m3=120+vs+18+FPS&l3=250K+LOC+SCROLL",
         width: 1200,
         height: 630,
         alt: "Crux vs Visual Studio Code Comparison",
@@ -44,7 +44,9 @@ export const metadata: Metadata = {
     title: "Crux vs Visual Studio Code (VS Code) — Performance Comparison",
     description:
       "4.2ms input-to-photon latency vs 48.6ms in VS Code, 38MB RAM vs 680MB, and WebGPU compute shaders.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+vs+VS+Code&subtitle=Bare-Metal+Rust+%26+WebGPU+vs+Electron+Chromium+Overhead&tag=BENCHMARK&m1=4.2ms+vs+48.6ms&l1=INPUT-TO-PHOTON&m2=38MB+vs+680MB&l2=IDLE+RAM&m3=120+vs+18+FPS&l3=250K+LOC+SCROLL",
+    ],
   },
 };
 

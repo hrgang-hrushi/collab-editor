@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+with+ChatGPT+(JGPT)&subtitle=OpenAI+Codex+%26+o1%2Fo3+Direct+AST+Refactoring+Engine&tag=INTEGRATION&m1=4.2ms&l1=LATENCY&m2=38MB&l2=RAM+USAGE&m3=0+COPY-PASTE&l3=AST+MERGE",
         width: 1200,
         height: 630,
         alt: "Crux IDE with OpenAI ChatGPT and JGPT Integration",
@@ -44,7 +44,9 @@ export const metadata: Metadata = {
     title: "Crux with OpenAI ChatGPT (JGPT) & Codex — Bare-Metal IDE",
     description:
       "Run OpenAI ChatGPT and Codex with 4.2ms input-to-photon latency and zero cloud lock-in inside Crux IDE.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+with+ChatGPT+(JGPT)&subtitle=OpenAI+Codex+%26+o1%2Fo3+Direct+AST+Refactoring+Engine&tag=INTEGRATION&m1=4.2ms&l1=LATENCY&m2=38MB&l2=RAM+USAGE&m3=0+COPY-PASTE&l3=AST+MERGE",
+    ],
   },
 };
 

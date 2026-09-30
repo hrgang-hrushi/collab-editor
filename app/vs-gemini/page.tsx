@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Crux+vs+Gemini&subtitle=Google+Gemini+Code+Assist+vs+Crux+Bare-Metal+Architecture&tag=AI+BENCHMARK&m1=4.2ms+vs+48ms&l1=INPUT+LATENCY&m2=1M%2B+TOKENS&l2=CONTEXT+INGEST&m3=0%25+CLOUD&l3=TELEMETRY",
         width: 1200,
         height: 630,
         alt: "Crux IDE vs Google Gemini Code Assist",
@@ -42,7 +42,9 @@ export const metadata: Metadata = {
     title: "Crux vs Gemini — Bare-Metal Speed & Multimodal AI Architecture",
     description:
       "Crux IDE delivers 4.2ms latency and 38MB memory footprint for high-velocity Google Gemini workflows.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Crux+vs+Gemini&subtitle=Google+Gemini+Code+Assist+vs+Crux+Bare-Metal+Architecture&tag=AI+BENCHMARK&m1=4.2ms+vs+48ms&l1=INPUT+LATENCY&m2=1M%2B+TOKENS&l2=CONTEXT+INGEST&m3=0%25+CLOUD&l3=TELEMETRY",
+    ],
   },
 };
 

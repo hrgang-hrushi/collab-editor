@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: "Crux IDE",
     images: [
       {
-        url: "https://codecrux.us/og-image.png",
+        url: "https://codecrux.us/api/og?title=Amoeba+Coding&subtitle=Autonomous+Multi-Agent+Cellular+Codebases+on+Bare-Metal+AST-CRDT&tag=ARCHITECTURE&m1=16+STREAMS&l1=CONCURRENT+AGENTS&m2=0.4ms&l2=AST+RESOLUTION&m3=120+FPS&l3=WEBGPU+REFRESH",
         width: 1200,
         height: 630,
         alt: "Amoeba Coding Architecture in Crux IDE",
@@ -46,7 +46,9 @@ export const metadata: Metadata = {
     title: "Amoeba Coding & Autonomous Mutation Architecture | Crux IDE",
     description:
       "Amoeba Coding: The paradigm of self-adapting, multi-agent codebases. How Crux IDE's bare-metal Rust and WebGPU kernel eliminates DOM thrashing and syntax crashes.",
-    images: ["https://codecrux.us/og-image.png"],
+    images: [
+      "https://codecrux.us/api/og?title=Amoeba+Coding&subtitle=Autonomous+Multi-Agent+Cellular+Codebases+on+Bare-Metal+AST-CRDT&tag=ARCHITECTURE&m1=16+STREAMS&l1=CONCURRENT+AGENTS&m2=0.4ms&l2=AST+RESOLUTION&m3=120+FPS&l3=WEBGPU+REFRESH",
+    ],
   },
 };
 
