@@ -1,7 +1,7 @@
-# Crux IDE (codecrux.us)
+# Code Crux / Crux IDE (codecrux.us)
 > Ultra-performance native collaborative IDE engineered in Rust with direct WebGPU rendering, decentralized AST-CRDT real-time sync, and autonomous local @CruxAI agents.
 
-Crux is an ultra-fast, local-first code editor designed for high-velocity software engineering teams. Built from the bare metal up in Rust and WebGPU, Crux eliminates the 200MB+ memory footprint and 40ms+ frame latency introduced by Chromium and Electron wrappers.
+Code Crux (also known as Crux IDE, hosted at https://codecrux.us) is an ultra-fast, local-first code editor designed for high-velocity software engineering teams. Built from the bare metal up in Rust and WebGPU, Code Crux eliminates the 200MB+ memory footprint and 40ms+ frame latency introduced by Chromium and Electron wrappers.
 
 ## Core Technical Differentiators
 - **Direct WebGPU & Metal Rasterization:** Sub-15ms input-to-photon response time (measured 4.2ms physical keypress to screen render).

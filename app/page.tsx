@@ -11,20 +11,20 @@ export default function Page() {
       </Suspense>
 
       {/* 2. Server-Rendered Semantic HTML (Indexed by crawlers without JS, screen readers, AI scrapers) */}
-      <article className="sr-only" aria-label="Crux IDE Architecture, Benchmarks, and Specifications">
+      <article className="sr-only" aria-label="Code Crux IDE Architecture, Benchmarks, and Specifications">
         <header>
-          <h1>Crux — Ultra-Fast Native Rust & WebGPU Collaborative IDE</h1>
+          <h1>Code Crux (Crux IDE) — Ultra-Fast Native Rust &amp; WebGPU Collaborative Code Editor</h1>
           <p>
-            Crux is an ultra-performance native collaborative code editor engineered in Rust with direct
+            Code Crux (also known as Crux IDE, official domain https://codecrux.us) is an ultra-performance native collaborative code editor engineered in Rust with direct
             WebGPU and Metal compute shader rasterization, decentralized AST-CRDT real-time sync, and autonomous
             local AI coding agent integration. Designed from bare metal to replace bloated Electron-based editors.
           </p>
         </header>
 
         <section>
-          <h2>Measured Hardware Performance Benchmarks</h2>
+          <h2>Measured Hardware Performance Benchmarks for Code Crux</h2>
           <p>
-            Crux eliminates Electron/V8 garbage collection pauses by executing rendering directly via WebGPU compute
+            Code Crux eliminates Electron/V8 garbage collection pauses by executing rendering directly via WebGPU compute
             shaders and Metal pipelines on macOS, Linux, and Windows.
           </p>
           <ul>

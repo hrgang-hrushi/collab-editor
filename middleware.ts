@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 
 // Markdown representations for machine-readable content negotiation
-const HOMEPAGE_MARKDOWN = `# Crux — A Native Bare-Metal Collaborative IDE
+const HOMEPAGE_MARKDOWN = `# Code Crux (Crux IDE) — A Native Bare-Metal Collaborative IDE
 URL: https://codecrux.us
 
-Crux is an ultra-performance native collaborative code editor engineered in Rust with direct WebGPU and Metal rasterization, decentralized AST-CRDT real-time sync, and autonomous local @CruxAI agents.
+Code Crux (Crux IDE) is an ultra-performance native collaborative code editor engineered in Rust with direct WebGPU and Metal rasterization, decentralized AST-CRDT real-time sync, and autonomous local @CruxAI agents.
 
 ## Core Architectural Specifications
 - **Input-to-Photon Latency:** 4.2ms (11.5x faster than VS Code / Electron).

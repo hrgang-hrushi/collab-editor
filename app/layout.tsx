@@ -16,15 +16,23 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   metadataBase: new URL("https://codecrux.us"),
   title: {
-    default: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
-    template: "%s | Crux IDE",
+    default: "Code Crux (Crux IDE) — Bare-Metal Collaborative Code Editor | Rust & WebGPU Engine",
+    template: "%s | Code Crux (Crux IDE)",
   },
   description:
-    "Crux is the native collaborative IDE engineered for high-velocity engineering. Sub-15ms input-to-photon latency (4.2ms measured), 38MB idle memory, decentralized AST-CRDT real-time P2P sync, and autonomous local @CruxAI HyperTerminal.",
+    "Code Crux (Crux IDE) is the ultra-performance native collaborative code editor engineered for high-velocity software engineering. Sub-15ms input-to-photon latency (4.2ms measured), 38MB idle memory, decentralized AST-CRDT real-time P2P sync, and autonomous local @CruxAI HyperTerminal.",
   keywords: [
+    "Code Crux",
+    "CodeCrux",
+    "code crux",
+    "codecrocs",
+    "code crocs",
     "Crux IDE",
     "Crux",
-    "codecrux",
+    "Crux Code Editor",
+    "codecrux.us",
+    "Crux editor",
+    "code crux ide",
     "native Rust code editor",
     "WebGPU code editor",
     "AST-CRDT",
@@ -42,9 +50,9 @@ export const metadata: Metadata = {
     "AI coding agent IDE",
     "air-gapped IDE",
   ],
-  authors: [{ name: "Crux Systems", url: "https://codecrux.us" }],
-  creator: "Crux Systems",
-  publisher: "Crux Systems",
+  authors: [{ name: "Code Crux Systems", url: "https://codecrux.us" }],
+  creator: "Code Crux Systems",
+  publisher: "Code Crux Systems",
   robots: {
     index: true,
     follow: true,
@@ -60,23 +68,23 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "https://codecrux.us",
-    siteName: "Crux IDE",
-    title: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
+    siteName: "Code Crux (Crux IDE)",
+    title: "Code Crux (Crux IDE) — Bare-Metal Collaborative Code Editor | Rust & WebGPU Engine",
     description:
-      "Sub-15ms latency, 38MB idle RAM, and decentralized AST-CRDT peer mesh synchronization. Engineered from raw silicon for high-velocity engineering.",
+      "Code Crux: Sub-15ms latency, 38MB idle RAM, and decentralized AST-CRDT peer mesh synchronization. Engineered from raw silicon for high-velocity software engineering.",
     images: [
       {
         url: "https://codecrux.us/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Crux IDE — Bare-Metal Collaborative IDE Architecture & Performance",
+        alt: "Code Crux (Crux IDE) — Bare-Metal Collaborative IDE Architecture & Performance",
         type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Crux — Bare-Metal Collaborative IDE",
+    title: "Code Crux (Crux IDE) — Bare-Metal Collaborative Code Editor",
     description:
       "Sub-15ms input-to-photon latency, 38MB RAM, and decentralized AST-CRDT peer mesh synchronization.",
     creator: "@codecrux",
@@ -104,8 +112,9 @@ const jsonLd = {
       "@type": "WebSite",
       "@id": "https://codecrux.us/#website",
       "url": "https://codecrux.us",
-      "name": "Crux IDE",
-      "description": "The Bare-Metal Collaborative IDE engineered with Rust and WebGPU compute shaders.",
+      "name": "Code Crux",
+      "alternateName": ["CodeCrux", "Crux IDE", "Crux", "codecrux.us", "CodeCrocs"],
+      "description": "Code Crux: The Bare-Metal Collaborative IDE engineered with Rust and WebGPU compute shaders.",
       "publisher": {
         "@id": "https://codecrux.us/#organization",
       },
@@ -118,14 +127,26 @@ const jsonLd = {
     {
       "@type": "SoftwareApplication",
       "@id": "https://codecrux.us/#software",
-      "name": "Crux IDE",
-      "alternateName": ["Crux", "Crux Editor", "codecrux"],
+      "name": "Code Crux (Crux IDE)",
+      "alternateName": [
+        "Code Crux",
+        "CodeCrux",
+        "Crux IDE",
+        "Crux",
+        "Crux Editor",
+        "Code Crux IDE",
+        "CodeCrocs",
+        "codecrux.us",
+      ],
       "url": "https://codecrux.us",
       "applicationCategory": "DeveloperApplication",
+      "applicationSubCategory": "IntegratedDevelopmentEnvironment",
       "operatingSystem": "macOS, Windows, Linux",
       "softwareVersion": "0.1.0",
       "description":
-        "Ultra-performance native collaborative IDE built with Rust, direct WebGPU and Metal rasterization, decentralized AST-CRDT peer mesh sync, and autonomous local @CruxAI HyperTerminal agents.",
+        "Code Crux (Crux IDE) is an ultra-performance native collaborative code editor built with Rust, direct WebGPU and Metal rasterization, decentralized AST-CRDT peer mesh sync, and autonomous local @CruxAI HyperTerminal agents.",
+      "disambiguatingDescription":
+        "Code Crux is a developer code editor and software engineering IDE, distinctly separate from footwear brands or Chrome User Experience Report (CrUX).",
       "screenshot": "https://codecrux.us/og-image.png",
       "aggregateRating": {
         "@type": "AggregateRating",
@@ -170,15 +191,38 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": "https://codecrux.us/#organization",
-      "name": "Crux Systems",
+      "name": "Code Crux Systems",
+      "alternateName": ["Crux Systems", "CodeCrux", "Code Crux", "Crux"],
       "url": "https://codecrux.us",
       "logo": "https://codecrux.us/crux-icon.png",
-      "sameAs": ["https://github.com/hrgang-hrushi/collab-editor"],
+      "sameAs": [
+        "https://github.com/hrgang-hrushi/collab-editor",
+        "https://x.com/codecrux",
+        "https://discord.gg/codecrux",
+      ],
     },
     {
       "@type": "FAQPage",
       "@id": "https://codecrux.us/#faq",
       "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is Code Crux (Crux IDE)?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text":
+              "Code Crux (also known as Crux IDE, hosted at https://codecrux.us) is an ultra-fast, bare-metal collaborative code editor engineered in Rust with direct WebGPU and Metal compute shaders. It delivers 4.2ms input-to-photon latency, 38MB idle memory, and decentralized AST-CRDT real-time sync with zero cloud lock-in.",
+          },
+        },
+        {
+          "@type": "Question",
+          "name": "How do I download or access Code Crux?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text":
+              "Engineers can launch the Code Crux web workstation immediately at https://codecrux.us/ide or join the native macOS, Linux, and Windows private alpha at https://codecrux.us/#waitlist.",
+          },
+        },
         {
           "@type": "Question",
           "name": "What's the best native Rust GUI framework for building a high-performance code editor?",
