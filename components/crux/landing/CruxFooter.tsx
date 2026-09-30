@@ -43,18 +43,20 @@ export default function CruxFooter() {
   };
 
   const navCol1 = [
-    { label: "Architecture", href: "#architecture" },
     { label: "Benchmarks", href: "/benchmarks" },
+    { label: "Amoeba Coding", href: "/amoeba-coding" },
     { label: "AST-CRDT Paper", href: "/ast-crdt" },
+    { label: "Versus Cursor", href: "/vs-cursor" },
+    { label: "Versus VS Code", href: "/vs-vscode" },
     { label: "Versus Zed", href: "/vs-zed" },
-    { label: "Migration", href: "#migration" },
   ];
 
   const navCol2 = [
-    { label: "Pricing", href: "#pricing" },
-    { label: "Telemetry Policy", href: "#" },
-    { label: "Security & Air-Gap", href: "#" },
-    { label: "Documentation", href: "#" },
+    { label: "With Claude (Plot)", href: "/vs-claude" },
+    { label: "With Google Gemini", href: "/vs-gemini" },
+    { label: "With ChatGPT (JGPT)", href: "/vs-chatgpt" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Documentation (LLMs)", href: "/llms.txt" },
     { label: "GitHub Releases", href: "https://github.com/hrgang-hrushi/collab-editor", external: true },
   ];
 

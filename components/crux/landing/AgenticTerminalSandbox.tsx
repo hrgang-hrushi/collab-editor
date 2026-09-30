@@ -15,7 +15,7 @@ interface TerminalCommandPreset {
 const PRESETS: TerminalCommandPreset[] = [
   {
     id: "crdt-refactor",
-    title: "Autonomous CRDT Vector Refactor",
+    title: "CRDT Vector",
     command: "crux agent --task='optimize ast vector clocks' --target=src/crdt.rs",
     model: "DeepSeek-Coder-V2 (Local GGUF)",
     logs: [
@@ -32,7 +32,7 @@ const PRESETS: TerminalCommandPreset[] = [
   },
   {
     id: "metal-benchmark",
-    title: "WebGPU Metal Pipeline Profiling",
+    title: "WebGPU Profiler",
     command: "crux metal --profile-drawcalls --inspect-vram",
     model: "Crux Native Profiler",
     logs: [
@@ -46,7 +46,7 @@ const PRESETS: TerminalCommandPreset[] = [
   },
   {
     id: "auto-migration",
-    title: "Workspace Config Ingest",
+    title: "Cursor Migration",
     command: "crux migrate --source=cursor --preserve-rules",
     model: "Universal Migration Engine",
     logs: [
@@ -56,6 +56,47 @@ const PRESETS: TerminalCommandPreset[] = [
       { text: "Extracting .cursorrules & system agent guidelines into Crux Context Hub", type: "agent" },
       { text: "Translating Dark Midnight workbench palette to Metal shader tokens", type: "info" },
       { text: "Complete in 142ms. Zero keystroke muscle memory lost.", type: "success", icon: "check" },
+    ],
+  },
+  {
+    id: "claude-code",
+    title: "Claude (Plot)",
+    command: "claude --task='refactor ast-crdt memory ring' --dangerously-skip-permissions",
+    model: "Anthropic Claude 3.5/3.7 Sonnet",
+    logs: [
+      { text: "$ claude --task='refactor ast-crdt memory ring' --dangerously-skip-permissions", type: "cmd" },
+      { text: "[pty-daemon] Auto-discovered Claude Code CLI on $PATH (/usr/local/bin/claude)", type: "info" },
+      { text: "[claude] Bound to Crux AST socket at unix:///var/run/crux.sock", type: "agent" },
+      { text: "Reading structural diff across 14 workspace modules...", type: "info" },
+      { text: "Injecting zero-copy AST mutation nodes directly into WebGPU compute pipeline", type: "success", icon: "zap" },
+      { text: "Claude Code refactor applied at 120 FPS. 0 bracket collisions detected.", type: "success", icon: "check" },
+    ],
+  },
+  {
+    id: "gemini-audit",
+    title: "Gemini 1M+",
+    command: "crux gemini --audit-repo --context=1000000 --model=gemini-1.5-pro",
+    model: "Google Gemini 1.5 Pro / 2.0 Flash",
+    logs: [
+      { text: "$ crux gemini --audit-repo --context=1000000 --model=gemini-1.5-pro", type: "cmd" },
+      { text: "[gemini-bridge] Tokenizing 250,000 LOC into unified memory buffer (0.12s)", type: "info" },
+      { text: "[@Gemini:multimodal] 842,190 tokens ingested into Gemini 1.5 Pro context window", type: "agent" },
+      { text: "Cross-analyzing architectural boundaries between Rust kernel and WebGPU shaders...", type: "info" },
+      { text: "Identified 3 memory pipeline optimizable barriers in render pass 0", type: "warning" },
+      { text: "Patch proposed with 100% typecheck validation. Zero cloud telemetry leakage.", type: "success", icon: "check" },
+    ],
+  },
+  {
+    id: "openai-codex",
+    title: "OpenAI (JGPT)",
+    command: "crux openai --model=o3-mini --solve-concurrency --auto-apply",
+    model: "OpenAI o3-mini / GPT-4o",
+    logs: [
+      { text: "$ crux openai --model=o3-mini --solve-concurrency --auto-apply", type: "cmd" },
+      { text: "[openai-posix] Direct socket bridge connected with user BYOK credentials", type: "info" },
+      { text: "[@ChatGPT:o3] Streaming multi-file concurrency patch directly into AST buffer", type: "agent" },
+      { text: "Piping compiler diagnostics: `cargo test --lib test_concurrent_mutations`", type: "cmd" },
+      { text: "All 48 test suites passing. Merged without clipboard copy-pasting.", type: "success", icon: "check" },
     ],
   },
 ];
@@ -114,7 +155,7 @@ export default function AgenticTerminalSandbox() {
           </div>
 
           {/* Preset Buttons */}
-          <div className="flex items-center bg-[#000000] border border-[#222222] text-xs font-mono">
+          <div className="flex flex-wrap items-center bg-[#000000] border border-[#222222] text-xs font-mono">
             {PRESETS.map((p, idx) => (
               <button
                 key={p.id}

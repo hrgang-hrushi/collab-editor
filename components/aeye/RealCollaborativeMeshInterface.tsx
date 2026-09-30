@@ -476,7 +476,7 @@ export default function RealCollaborativeMeshInterface({
       {/* ========================================================================= */}
       <div className="flex-1 flex min-h-0 bg-[#000000] overflow-hidden z-20">
         {/* Left Sidebar: EXACT ZenithFileTree Clone with Real BranchedMenu */}
-        <aside className="w-44 sm:w-48 border-r border-[#222222] bg-[#000000] flex flex-col select-none shrink-0 h-full font-sans">
+        <aside className="w-48 sm:w-52 border-r border-[#222222] bg-[#000000] flex flex-col select-none shrink-0 h-full font-sans">
           {/* Explorer Header matching ZenithFileTree.tsx line 357 */}
           <div className="px-3 py-1.5 border-b border-[#222222] text-[10px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between">
             <span>Explorer</span>
@@ -506,25 +506,16 @@ export default function RealCollaborativeMeshInterface({
               defaultOpen={[0, 1]}
               active={fileMeta.name}
               width="100%"
-              rowHeight={22}
-              indent={18}
-              fontSize={10}
+              rowHeight={28}
+              indent={34}
+              trunk={14}
+              radius={6}
+              lineWidth={1.2}
+              fontSize={11}
               color="#888888"
               accentColor="#ffffff"
               lineColor="#222222"
             />
-          </div>
-
-          {/* Sidebar Footer matching ZenithFileTree.tsx */}
-          <div className="p-2 border-t border-[#222222] bg-[#050507] text-[9px] font-mono space-y-0.5">
-            <div className="flex items-center justify-between text-[#71717a]">
-              <span>INODES</span>
-              <span className="text-white font-bold">64,280</span>
-            </div>
-            <div className="flex items-center justify-between text-[#71717a]">
-              <span>MEMORY</span>
-              <span className="text-[#0055FF] font-bold">38.2 MB</span>
-            </div>
           </div>
         </aside>
 

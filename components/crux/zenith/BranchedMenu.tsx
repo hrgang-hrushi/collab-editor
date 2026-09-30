@@ -172,11 +172,11 @@ export default function BranchedMenu({
   };
 
   const r = Math.min(radius, rowHeight / 2 - 2);
-  const endX = indent - 8;
+  const endX = Math.max(trunk + r + 4, indent - 8);
   const rowY = (k: number) => PAD + k * rowHeight + rowHeight / 2;
   const branch = (k: number) => `M ${trunk} ${rowY(k) - r} A ${r} ${r} 0 0 0 ${trunk + r} ${rowY(k)} H ${endX}`;
   const reach = (k: number) => `M ${trunk} 0 V ${rowY(k) - r} A ${r} ${r} 0 0 0 ${trunk + r} ${rowY(k)} H ${endX}`;
-  const length = (k: number) => rowY(k) - r + (Math.PI * r) / 2 + (endX - trunk - r);
+  const length = (k: number) => rowY(k) - r + (Math.PI * r) / 2 + Math.max(0, endX - trunk - r);
 
   return (
     <nav

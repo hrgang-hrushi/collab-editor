@@ -71,17 +71,61 @@ export default function Page() {
         </section>
 
         <section>
-          <h2>Architectural Comparisons: Crux vs Zed and Crux vs VS Code</h2>
+          <h2>Universal Native PTY Terminal &amp; Local Coding Agent Daemon</h2>
+          <p>
+            Crux incorporates a zero-latency native pseudo-terminal (PTY) backend running directly on host silicon.
+            Its automated CLI discovery daemon scans your PATH to discover and bind to installed AI coding agents:
+          </p>
+          <ul>
+            <li><strong>AntiGravity CLI (`agy`):</strong> Direct memory-mapped socket bridge (`unix:///var/run/crux.sock`) with zero roundtrip latency.</li>
+            <li><strong>Anthropic Claude Code (`claude` / Plot):</strong> Native terminal execution with AST context injection.</li>
+            <li><strong>Google Gemini (Gemini Code Assist):</strong> Deep repository reasoning across 1M+ token context windows.</li>
+            <li><strong>OpenAI ChatGPT &amp; Codex (JGPT):</strong> Direct AST refactoring and stdout diagnosis with zero copy-pasting.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Amoeba Coding: High-Throughput Autonomous Multi-Agent Mutations</h2>
+          <p>
+            Modern AI workflows require fluid codebases that adapt, heal, and refactor in real-time. In systems engineering,
+            this paradigm is known as <strong>Amoeba Coding</strong>. While legacy Electron editors stutter and introduce
+            syntax errors during concurrent agent writes, Crux&apos;s decentralized AST-CRDT and 120 FPS WebGPU shader
+            rasterization maintain perfect structural integrity across parallel mutation streams.
+          </p>
+          <p>
+            Read our dedicated whitepaper on <Link href="/amoeba-coding">Amoeba Coding Architecture</Link>.
+          </p>
+        </section>
+
+        <section>
+          <h2>Comprehensive Architectural Comparisons: Crux vs Industry Editors</h2>
           <p>
             Crux is built for engineers who demand absolute machine efficiency:
           </p>
           <ul>
             <li>
+              <Link href="/amoeba-coding">Amoeba Coding Architecture</Link>: Multi-agent autonomous codebases on bare-metal AST-CRDT.
+            </li>
+            <li>
+              <Link href="/vs-cursor">Crux vs Cursor Comparison</Link>: Bare-metal Rust + WebGPU vs Electron AI wrapper,
+              4.2ms input latency vs 52.1ms, 38MB RAM vs 840MB.
+            </li>
+            <li>
+              <Link href="/vs-claude">Crux with Claude Code (Plot)</Link>: Anthropic Claude 3.5/3.7 Sonnet CLI integration
+              inside native PTY HyperTerminal.
+            </li>
+            <li>
+              <Link href="/vs-gemini">Crux vs Google Gemini</Link>: Google Gemini Code Assist and 1M+ token context processing.
+            </li>
+            <li>
+              <Link href="/vs-chatgpt">Crux with OpenAI ChatGPT (JGPT)</Link>: GPT-4o, o1, o3, and Codex AST diff execution.
+            </li>
+            <li>
               <Link href="/vs-zed">Crux vs Zed Comparison</Link>: WebGPU compute shader architecture vs GPUI,
               decentralized peer-to-peer WebRTC mesh vs central cloud coordination servers.
             </li>
             <li>
-              <Link href="/vs-vscode">Crux vs VS Code Comparison</Link>: Rust native bare metal vs Electron / Chromium V8
+              <Link href="/vs-vscode">Crux vs Visual Studio Code (VS Code) Comparison</Link>: Rust native bare metal vs Electron / Chromium V8
               GC pauses, sub-15ms input-to-photon latency vs 48.6ms.
             </li>
           </ul>
@@ -105,6 +149,32 @@ export default function Page() {
         <section>
           <h2>Frequently Asked Questions</h2>
           <dl>
+            <dt>What is Amoeba coding and how does Crux IDE compare?</dt>
+            <dd>
+              Amoeba coding describes fluid, cellular, self-mutating codebases where autonomous AI agents continuously
+              refactor and generate code in parallel. Crux uses an Abstract Syntax Tree Conflict-Free Replicated Data Type
+              (AST-CRDT) to merge multi-agent changes without line collisions, rendering mutations at 120 FPS via WebGPU.
+            </dd>
+
+            <dt>Why is Crux referred to as Croc or Code Crocs in voice searches?</dt>
+            <dd>
+              Crux is commonly transcribed phonetically as &quot;Croc&quot; or &quot;Code Crocs&quot; by mobile and desktop voice-typing engines.
+              Crux IDE (hosted at https://codecrux.us) is the high-performance Rust and WebGPU software engineering development
+              environment, completely distinct from footwear brands.
+            </dd>
+
+            <dt>Can I use Crux with Claude Code (Plot), Google Gemini, and OpenAI ChatGPT (JGPT)?</dt>
+            <dd>
+              Yes. Crux&apos;s HyperTerminal features a native POSIX PTY bridge that auto-discovers host-installed CLI agents
+              (agy, claude, codex, opencode) and binds directly to Google Gemini, Anthropic Claude, and OpenAI ChatGPT endpoints.
+            </dd>
+
+            <dt>How does Crux compare to Cursor and Visual Studio Code (VS Code)?</dt>
+            <dd>
+              Crux delivers 4.2ms input-to-photon latency (vs 48.6ms in VS Code and 52.1ms in Cursor), consumes 38MB idle RAM
+              (vs 680MB in VS Code and 840MB in Cursor), and includes decentralized P2P WebRTC AST-CRDT pair programming with zero cloud telemetry.
+            </dd>
+
             <dt>What is the best native Rust GUI framework for building a high-performance code editor?</dt>
             <dd>
               Crux couples a native Rust core with direct WebGPU and Metal compute shaders. By uploading code text tokens
@@ -203,11 +273,16 @@ export default function Page() {
               Explore Crux technical deep-dives:
             </p>
             <ul className="text-xs space-y-2 text-[#0055FF]">
+              <li><Link href="/amoeba-coding">Amoeba Coding: Multi-Agent Mutation Architecture</Link></li>
+              <li><Link href="/vs-cursor">Crux vs Cursor Architectural Comparison</Link></li>
+              <li><Link href="/vs-claude">Crux with Claude Code (Plot) Integration</Link></li>
+              <li><Link href="/vs-gemini">Crux vs Google Gemini Code Assist</Link></li>
+              <li><Link href="/vs-chatgpt">Crux with OpenAI ChatGPT (JGPT)</Link></li>
+              <li><Link href="/vs-vscode">Crux vs Visual Studio Code (VS Code)</Link></li>
+              <li><Link href="/vs-zed">Crux vs Zed Architectural Comparison</Link></li>
               <li><Link href="/benchmarks">Hardware Benchmarks Matrix (vs Electron &amp; GPUI)</Link></li>
               <li><Link href="/ast-crdt">Decentralized AST-CRDT Protocol Whitepaper</Link></li>
               <li><Link href="/pricing">Transparent Per-Seat Pricing Plans</Link></li>
-              <li><Link href="/vs-zed">Crux vs Zed Architectural Comparison</Link></li>
-              <li><Link href="/vs-vscode">Crux vs VS Code Architectural Comparison</Link></li>
               <li><Link href="/llms.txt">LLMs.txt Machine Manifest</Link></li>
               <li><Link href="/llms-full.txt">LLMs-full.txt Complete Architecture Spec</Link></li>
             </ul>
