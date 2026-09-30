@@ -10,8 +10,8 @@
     "start": "next start",
     "lint": "echo 'ESLint check bypassed'",
     "tauri": "npx tauri build",
-    "preview": "wrangler preview",
-    "deploy": "wrangler deploy",
+    "deploy": "TAURI_BUILD=true node scripts/export-build.mjs && wrangler pages deploy .next-prod --project-name codecrux --branch main",
+    "deploy:worker": "wrangler deploy",
     "upload": "wrangler versions upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
