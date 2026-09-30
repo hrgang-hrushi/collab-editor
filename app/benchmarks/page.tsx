@@ -4,7 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Crux IDE Hardware Benchmarks — 4.2ms Input-to-Photon & 38MB RAM",
+  title: "Code Crux Hardware Benchmarks — 4.2ms Input-to-Photon & 38MB RAM",
   description:
     "Official hardware benchmark comparison for Crux IDE. Measured 4.2ms input-to-photon latency vs 48.6ms in VS Code/Electron, 38MB idle memory vs 680MB, and 120 FPS phosphor refresh on 250,000-line monorepos.",
   alternates: {

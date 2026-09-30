@@ -4,7 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Crux IDE Pricing — Transparent Per-Seat & Self-Hosted Air-Gapped Tiers",
+  title: "Code Crux Pricing — Transparent Per-Seat & Self-Hosted Air-Gapped Tiers",
   description:
     "Crux pricing: Community Edition is $0 forever. Team Alpha is $20/seat/month ($200/mo for a 10-person team). Enterprise Air-Gapped is $45/seat/month with 100% on-premise self-hosted relay and zero cloud telemetry.",
   alternates: {

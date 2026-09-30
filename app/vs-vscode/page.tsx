@@ -4,7 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Crux vs VS Code — Bare-Metal Rust & WebGPU vs Electron Architecture",
+  title: "Code Crux vs VS Code — Bare-Metal Rust vs Electron Performance Comparison",
   description:
     "Factual performance comparison: Crux vs VS Code. 4.2ms input-to-photon latency vs 48.6ms in VS Code, 38MB idle memory vs 680MB, and zero Chromium V8 garbage collection stutter.",
   alternates: {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Crux vs Zed — Architectural Comparison of Native Rust Code Editors",
+  title: "Code Crux vs Zed — Native Rust Code Editor Architectural Comparison",
   description:
     "Technical head-to-head comparison: Crux IDE vs Zed. WebGPU & Metal compute shaders vs GPUI, decentralized P2P WebRTC AST-CRDT vs centralized cloud CRDT, and native PTY HyperTerminal vs chat panels.",
   alternates: {
