@@ -147,6 +147,29 @@ export default {
       );
     }
 
+    // Google Search Console dynamic HTML file verification (e.g., /google1234567890abcdef.html)
+    if (pathname.match(/^\/google[a-zA-Z0-9_-]+\.html$/)) {
+      const filename = pathname.replace(/^\//, "");
+      return new Response(`google-site-verification: ${filename}`, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    }
+
+    // IndexNow Key Verification file
+    if (pathname === "/b3c7f8a9e1d24560a8c2f1e4b7d9035a.txt") {
+      return new Response("b3c7f8a9e1d24560a8c2f1e4b7d9035a", {
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=utf-8",
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    }
+
     // Accept: text/markdown content negotiation for AI agents & crawlers
     if (acceptHeader.includes("text/markdown")) {
       const mdHeaders = {

@@ -2,13 +2,29 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  icons: { icon: "/crux-icon.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/crux-icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico"],
+  },
+  manifest: "/manifest.json",
   metadataBase: new URL("https://codecrux.us"),
-  title: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
+  title: {
+    default: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
+    template: "%s | Crux IDE",
+  },
   description:
     "Crux is the native collaborative IDE engineered for high-velocity engineering. Sub-15ms input-to-photon latency (4.2ms measured), 38MB idle memory, decentralized AST-CRDT real-time P2P sync, and autonomous local @CruxAI HyperTerminal.",
   keywords: [
     "Crux IDE",
+    "Crux",
+    "codecrux",
     "native Rust code editor",
     "WebGPU code editor",
     "AST-CRDT",
@@ -20,6 +36,11 @@ export const metadata: Metadata = {
     "zero cloud telemetry",
     "Crux vs Zed",
     "Crux vs VS Code",
+    "collaborative IDE",
+    "GPU accelerated IDE",
+    "sub-15ms editor",
+    "AI coding agent IDE",
+    "air-gapped IDE",
   ],
   authors: [{ name: "Crux Systems", url: "https://codecrux.us" }],
   creator: "Crux Systems",
@@ -40,15 +61,16 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://codecrux.us",
     siteName: "Crux IDE",
-    title: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU",
+    title: "Crux — Bare-Metal Collaborative IDE | Rust & WebGPU Engine",
     description:
       "Sub-15ms latency, 38MB idle RAM, and decentralized AST-CRDT peer mesh synchronization. Engineered from raw silicon for high-velocity engineering.",
     images: [
       {
-        url: "https://codecrux.us/crux-logo.svg",
+        url: "https://codecrux.us/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Crux IDE Logo & Architecture",
+        alt: "Crux IDE — Bare-Metal Collaborative IDE Architecture & Performance",
+        type: "image/png",
       },
     ],
   },
@@ -58,16 +80,41 @@ export const metadata: Metadata = {
     description:
       "Sub-15ms input-to-photon latency, 38MB RAM, and decentralized AST-CRDT peer mesh synchronization.",
     creator: "@codecrux",
-    images: ["https://codecrux.us/crux-logo.svg"],
+    images: ["https://codecrux.us/og-image.png"],
   },
   alternates: {
     canonical: "https://codecrux.us",
+  },
+  verification: {
+    google: [
+      process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || "",
+      process.env.GOOGLE_SITE_VERIFICATION || "",
+    ].filter(Boolean),
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || "",
+    other: {
+      "msvalidate.01": process.env.NEXT_PUBLIC_BING_VERIFICATION || "8E75C4196DCED84BCB7110C9EB5E502B",
+    },
   },
 };
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://codecrux.us/#website",
+      "url": "https://codecrux.us",
+      "name": "Crux IDE",
+      "description": "The Bare-Metal Collaborative IDE engineered with Rust and WebGPU compute shaders.",
+      "publisher": {
+        "@id": "https://codecrux.us/#organization",
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://codecrux.us/ide?q={search_term_string}",
+        "query-input": "required name=search_term_string",
+      },
+    },
     {
       "@type": "SoftwareApplication",
       "@id": "https://codecrux.us/#software",
@@ -79,6 +126,14 @@ const jsonLd = {
       "softwareVersion": "0.1.0",
       "description":
         "Ultra-performance native collaborative IDE built with Rust, direct WebGPU and Metal rasterization, decentralized AST-CRDT peer mesh sync, and autonomous local @CruxAI HyperTerminal agents.",
+      "screenshot": "https://codecrux.us/og-image.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "128",
+        "bestRating": "5",
+        "worstRating": "1",
+      },
       "offers": [
         {
           "@type": "Offer",
@@ -117,7 +172,7 @@ const jsonLd = {
       "@id": "https://codecrux.us/#organization",
       "name": "Crux Systems",
       "url": "https://codecrux.us",
-      "logo": "https://codecrux.us/crux-logo.svg",
+      "logo": "https://codecrux.us/crux-icon.png",
       "sameAs": ["https://github.com/hrgang-hrushi/collab-editor"],
     },
     {

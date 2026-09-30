@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
-import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
+import RecordedIdePreview from "./RecordedIdePreview";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -165,8 +165,8 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Rock-solid Fixed-Size Box - Authentic Crux IDE Simulation */}
-                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden h-[460px] sm:h-[490px] lg:h-[510px] flex flex-col justify-between">
+                  {/* Fixed-size recording from the Crux IDE */}
+                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden aspect-video flex flex-col justify-between">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`tab-${activeTab}`}
@@ -176,11 +176,7 @@ export default function AeyeInstallationSection() {
                         transition={{ duration: 0.15 }}
                         className="h-full w-full select-none relative"
                       >
-                        <RealCollaborativeMeshInterface
-                          mode={activeTab === "agent" ? "agents" : (activeTab as "multiplayer" | "silicon" | "crdt")}
-                          showHeader={true}
-                          showStatusBar={true}
-                        />
+                        <RecordedIdePreview shot={activeTab === "silicon" ? "canvas" : activeTab === "agent" ? "ai" : "collaboration"} />
                       </motion.div>
                     </AnimatePresence>
                   </div>

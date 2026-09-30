@@ -120,6 +120,29 @@ export function middleware(request: any) {
   const acceptHeader = request.headers.get("accept") || "";
   const pathname = request.nextUrl.pathname;
 
+  // 1. Google Search Console dynamic HTML file verification (e.g., /google1234567890abcdef.html)
+  if (pathname.match(/^\/google[a-zA-Z0-9_-]+\.html$/)) {
+    const filename = pathname.replace(/^\//, "");
+    return new NextResponse(`google-site-verification: ${filename}`, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  }
+
+  // 2. IndexNow Key Verification file
+  if (pathname === "/b3c7f8a9e1d24560a8c2f1e4b7d9035a.txt") {
+    return new NextResponse("b3c7f8a9e1d24560a8c2f1e4b7d9035a", {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  }
+
   // Check if client requested Markdown via content negotiation
   if (acceptHeader.includes("text/markdown")) {
     const mdHeaders = {
@@ -172,8 +195,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - Static asset files ending in .svg, .png, .jpg, .dmg, .mp4, etc.
+     * - Static asset files ending in .svg, .png, .jpg, .dmg, .mp4, .xml, .txt, .json, .webmanifest
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|dmg|mp4|mov|woff|woff2|ttf|eot)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|dmg|mp4|mov|woff|woff2|ttf|eot|xml|txt|json|webmanifest)).*)",
   ],
 };

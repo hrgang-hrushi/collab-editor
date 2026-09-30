@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
+import RecordedIdePreview from "./RecordedIdePreview";
 
 // Calculate the (x, y) coordinates of the square dot as it travels along the rectangle perimeter
 function getPerimeterPoint(p: number, w: number, h: number) {
@@ -306,9 +306,9 @@ export default function AeyeFeatureSection() {
                 </div>
               </div>
 
-              {/* Right Column: Authentic Crux IDE Simulation Canvas */}
+              {/* Right Column: footage recorded from the Crux IDE */}
               <div className="lg:col-span-7 p-4 sm:p-6 lg:p-8 flex items-center justify-center bg-[#050507] overflow-hidden">
-                <div className="w-full max-w-[600px] h-[460px] sm:h-[490px] border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between shadow-2xl">
+                <div className="w-full max-w-[600px] aspect-video border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between">
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={`feature-tab-${activeTab}`}
@@ -318,11 +318,7 @@ export default function AeyeFeatureSection() {
                       transition={{ duration: 0.15 }}
                       className="h-full w-full select-none relative"
                     >
-                      <RealCollaborativeMeshInterface
-                        mode={activeTab === 0 ? "context" : activeTab === 1 ? "processing" : "output"}
-                        showHeader={true}
-                        showStatusBar={true}
-                      />
+                      <RecordedIdePreview shot={activeTab === 0 ? "editor" : activeTab === 1 ? "collaboration" : "ai"} />
                     </motion.div>
                   </AnimatePresence>
                 </div>
