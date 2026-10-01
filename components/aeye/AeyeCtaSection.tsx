@@ -57,37 +57,37 @@ export default function AeyeCtaSection() {
           backgroundPosition: "center center",
         }}
       >
-        {/* 3. CENTER CTA CARD (Pure White, 0px border-radius, 4 Corner Notch Squares) */}
-        <div className="relative w-full max-w-[1140px] mx-auto bg-[#FFFFFF] py-16 sm:py-20 md:py-24 px-6 sm:px-12 text-center">
-          {/* 4 SOLID CORNER NOTCH SQUARES */}
+        {/* 3. CENTER CTA CARD (Inverted: Pure Black, 1px #222222 border, 0px border-radius, 4 Corner Notch Squares in Pure White) */}
+        <div className="relative w-full max-w-[1140px] mx-auto bg-[#000000] border border-[#222222] py-16 sm:py-20 md:py-24 px-6 sm:px-12 text-center">
+          {/* 4 SOLID CORNER NOTCH SQUARES (Pure White) */}
           <div
-            className="absolute top-4 left-4 sm:top-5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#000000] pointer-events-none"
+            className="absolute top-4 left-4 sm:top-5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#FFFFFF] pointer-events-none"
             aria-hidden="true"
           />
           <div
-            className="absolute top-4 right-4 sm:top-5 sm:right-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#000000] pointer-events-none"
+            className="absolute top-4 right-4 sm:top-5 sm:right-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#FFFFFF] pointer-events-none"
             aria-hidden="true"
           />
           <div
-            className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#000000] pointer-events-none"
+            className="absolute bottom-4 left-4 sm:bottom-5 sm:left-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#FFFFFF] pointer-events-none"
             aria-hidden="true"
           />
           <div
-            className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#000000] pointer-events-none"
+            className="absolute bottom-4 right-4 sm:bottom-5 sm:right-5 w-5 h-5 sm:w-6 sm:h-6 bg-[#FFFFFF] pointer-events-none"
             aria-hidden="true"
           />
 
-          {/* TOP TAG / BADGE */}
+          {/* TOP TAG / BADGE (Inverted: Dark background with light text) */}
           <div className="inline-block mb-7 sm:mb-9">
-            <span className="bg-[#EDEDED] text-[#444444] font-mono text-[11px] sm:text-xs tracking-wider uppercase px-3.5 py-1.5 inline-block">
+            <span className="bg-[#111111] border border-[#222222] text-[#888888] font-mono text-[11px] sm:text-xs tracking-wider uppercase px-3.5 py-1.5 inline-block">
               GET STARTED IN SECONDS
             </span>
           </div>
 
-          {/* 3-LINE DISPLAY HEADLINE */}
+          {/* 3-LINE DISPLAY HEADLINE (Inverted: White text, Blue stays Blue) */}
           <div className="flex flex-col items-center justify-center leading-[1.05] tracking-[-0.05em]">
             {/* LINE 1 */}
-            <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#111111] m-0">
+            <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#FFFFFF] m-0">
               Engineering,
             </h2>
 
@@ -101,12 +101,12 @@ export default function AeyeCtaSection() {
             </div>
 
             {/* LINE 3 */}
-            <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#111111] m-0">
+            <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#FFFFFF] m-0">
               Built for raw silicon.
             </h2>
           </div>
 
-          {/* ACTION BUTTON (Exact mechanical switch: pure black container, white square dot, GET ON WAITLIST NOW uppercase text) */}
+          {/* ACTION BUTTON (Inverted: Pure white container, black square dot, black text) */}
           <div className="mt-8 sm:mt-12 flex justify-center">
             <a
               href="#waitlist"
@@ -117,12 +117,12 @@ export default function AeyeCtaSection() {
                   el.scrollIntoView({ behavior: "smooth" });
                 }
               }}
-              className="group inline-flex items-center gap-3.5 bg-[#141414] hover:bg-[#000000] text-white px-8 py-3.5 sm:px-9 sm:py-4 transition-all duration-150 cursor-pointer shadow-none"
+              className="group inline-flex items-center gap-3.5 bg-[#FFFFFF] hover:bg-[#E5E5E5] text-black px-8 py-3.5 sm:px-9 sm:py-4 transition-all duration-150 cursor-pointer shadow-none"
             >
-              {/* Left Solid White Square Dot */}
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white shrink-0 group-hover:scale-95 transition-transform" />
+              {/* Left Solid Black Square Dot */}
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#000000] shrink-0 group-hover:scale-95 transition-transform" />
               {/* Monospace Uppercase Text */}
-              <span className="font-mono font-semibold text-xs sm:text-sm tracking-wider uppercase text-white">
+              <span className="font-mono font-bold text-xs sm:text-sm tracking-wider uppercase text-[#000000]">
                 GET ON WAITLIST NOW
               </span>
             </a>
