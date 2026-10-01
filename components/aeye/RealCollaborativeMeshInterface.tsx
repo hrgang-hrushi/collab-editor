@@ -46,9 +46,7 @@ interface AppleTelemetryHUDProps {
   title: string;
   desc: string;
   metrics: TelemetryMetric[];
-  hexDump: string[];
   accentColor?: string;
-  activeHexIndex?: number;
   className?: string;
 }
 
@@ -56,8 +54,8 @@ interface AppleTelemetryHUDProps {
  * Senior UI/UX Apple-Grade Telemetry Inspector HUD
  * - Xcode / Instruments inspired side-docked inspector
  * - Zero vertical scrolling: fits precisely in view side-by-side with code
- * - Refined Apple radii (8px outer container, 4px inner cells)
- * - Real-time signal oscilloscope and live DMA hex memory stream
+ * - Transparent inner cards with subtle glow and rotating glowing square
+ * - Humanized, purposeful, intuitive metrics and copy
  * - Direct horizontal circuit bus receptor notch aligned with active code token
  */
 function AppleTelemetryHUD({
@@ -66,9 +64,7 @@ function AppleTelemetryHUD({
   title,
   desc,
   metrics,
-  hexDump,
   accentColor = "#0055FF",
-  activeHexIndex = 0,
   className = "",
 }: AppleTelemetryHUDProps) {
   return (
@@ -119,21 +115,36 @@ function AppleTelemetryHUD({
         </div>
       </div>
 
-      {/* 4-Cell Telemetry Metrics Matrix */}
+      {/* 4-Cell Telemetry Metrics Matrix: Transparent, with Glow & Rotating Glowing Square */}
       <div className="grid grid-cols-2 gap-1.5 my-2">
         {metrics.map((m, idx) => (
           <div
             key={idx}
-            className="p-1.5 bg-[#0f1322]/85 border border-white/5 flex flex-col justify-between"
-            style={{ borderRadius: "4px" }}
+            className="p-1.5 bg-transparent border border-white/10 flex flex-col justify-between relative group hover:border-white/20 transition-all"
+            style={{
+              borderRadius: "4px",
+              boxShadow: `0 0 10px ${accentColor}25`,
+            }}
           >
-            <span className="text-[7px] font-mono text-[#86868b] uppercase tracking-wider">
-              {m.label}
-            </span>
-            <span className="text-[10.5px] font-mono font-bold text-white tracking-tight mt-0.5 tabular-nums">
+            <div className="flex items-center justify-between">
+              <span className="text-[7px] font-mono text-[#86868b] uppercase tracking-wider">
+                {m.label}
+              </span>
+              {/* Rotating glowing square glyph */}
+              <div
+                className="w-1.5 h-1.5 border border-current animate-spin"
+                style={{
+                  borderColor: accentColor,
+                  color: accentColor,
+                  boxShadow: `0 0 6px ${accentColor}`,
+                  animationDuration: "4s",
+                }}
+              />
+            </div>
+            <span className="text-[10.5px] font-mono font-bold text-white tracking-tight mt-1 tabular-nums">
               {m.value}
             </span>
-            <span className="text-[6.5px] font-mono text-[#16a34a] mt-0.5">
+            <span className="text-[6.5px] font-mono mt-0.5 font-medium" style={{ color: accentColor }}>
               {m.sub}
             </span>
           </div>
@@ -150,27 +161,13 @@ function AppleTelemetryHUD({
         </p>
       </div>
 
-      {/* Live Hex Stream */}
+      {/* Humanized Telemetry Status Footer */}
       <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between font-mono text-[7.5px] text-[#86868b]">
-        <div className="flex items-center gap-1">
-          <span className="text-[#666666] hidden sm:inline">DMA:</span>
-          <div className="flex items-center gap-0.5">
-            {hexDump.slice(0, 6).map((byte, i) => (
-              <span
-                key={i}
-                className={`px-1 py-0.2 transition-colors ${
-                  i === activeHexIndex
-                    ? "bg-white text-black font-bold shadow-sm"
-                    : "bg-[#141828] text-[#86868b]"
-                }`}
-                style={{ borderRadius: "2px" }}
-              >
-                {byte}
-              </span>
-            ))}
-          </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+          <span className="text-white font-medium">{channel}</span>
         </div>
-        <span className="text-[#16a34a] font-bold">0-COPY</span>
+        <span className="text-[#86868b]">Verified &amp; Live</span>
       </div>
     </div>
   );
@@ -273,15 +270,6 @@ export default function RealCollaborativeMeshInterface({
     () => greenTarget.slice(0, typingStep),
     [greenTarget, typingStep]
   );
-
-  // Cycling active byte for live telemetry
-  const [activeHexIndex, setActiveHexIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveHexIndex((prev) => (prev + 1) % 6);
-    }, 450);
-    return () => clearInterval(interval);
-  }, []);
 
   // Context scanning animation (for mode="context")
   const [scanLine, setScanLine] = useState(2);
@@ -701,18 +689,16 @@ export default function RealCollaborativeMeshInterface({
                 {/* Right: Apple Telemetry Inspector HUD (Zero-Scroll Side Dock) */}
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-01 // AST_INDEX"
+                    channel="Workspace Engine"
                     badge="CONTEXT AWARENESS"
-                    title="Kernel Symbol Indexing"
-                    desc="Memory-mapped AST topology parses buffers in 0.08ms with zero GC."
+                    title="Instant Project Context"
+                    desc="Indexes your workspace in 0.08ms so suggestions understand every import and type."
                     metrics={[
-                      { label: "Parse Latency", value: "0.08ms", sub: "SUB-FRAME JIT" },
-                      { label: "AST Topology", value: "64,280", sub: "NODES INDEXED" },
-                      { label: "Memory Bus", value: "0-Copy", sub: "MMAP RESIDENT" },
-                      { label: "Throughput", value: "1.4 GB/s", sub: "HOST DARWIN" },
+                      { label: "Index Time", value: "0.08ms", sub: "INSTANT" },
+                      { label: "Files Tracked", value: "1,420 files", sub: "WORKSPACE" },
+                      { label: "Memory Usage", value: "12 MB", sub: "ZERO GC" },
+                      { label: "Sync State", value: "100%", sub: "REAL-TIME" },
                     ]}
-                    hexDump={["0x7F", "0xA2", "0x3C", "0x08", "0x91", "0xF0"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#0055FF"
                   />
                 </div>
@@ -771,18 +757,16 @@ export default function RealCollaborativeMeshInterface({
 
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-02 // SYNTHESIS"
+                    channel="AST Engine"
                     badge="INTELLIGENT PROCESSING"
-                    title="Deterministic AST Synthesis"
-                    desc="Structural token reconciliation guarantees tree validity across all concurrent diffs."
+                    title="Smart Code Synthesis"
+                    desc="Merges concurrent edits smoothly without syntax conflicts or code overwrites."
                     metrics={[
-                      { label: "Reconciliation", value: "0.14ms", sub: "ATOMIC JIT" },
-                      { label: "Token Target", value: `0x${resolvedToken.toString(16)}`, sub: "RECONCILED" },
-                      { label: "Syntax Validity", value: "100%", sub: "PARSER VALID" },
-                      { label: "Collision Rate", value: "0.00%", sub: "DETERMINISTIC" },
+                      { label: "Merge Speed", value: "0.14ms", sub: "SMOOTH" },
+                      { label: "Conflicts", value: "0 detected", sub: "CLEAN MERGE" },
+                      { label: "Tree State", value: "Valid AST", sub: "VERIFIED" },
+                      { label: "Frame Rate", value: "60 fps", sub: "RESPONSIVE" },
                     ]}
-                    hexDump={["0x0E", "0x77", "0xAA", "0x51", "0x04", "0x8C"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#0055FF"
                   />
                 </div>
@@ -847,18 +831,16 @@ export default function RealCollaborativeMeshInterface({
 
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-03 // VECTOR"
+                    channel="CRDT Sync Mesh"
                     badge="DECENTRALIZED CRDT"
-                    title="Atomic Vector Clocks"
-                    desc="Lamport vector clocks resolve structural AST patches deterministically with zero collisions."
+                    title="Collision-Free Sync"
+                    desc="Decentralized CRDT ensures every keystroke lands in order across all teammates."
                     metrics={[
-                      { label: "Lamport Epoch", value: `#${crdtEpoch}`, sub: "FETCH_ADD" },
-                      { label: "Vector Clocks", value: "SeqCst", sub: "ATOMIC ORDER" },
-                      { label: "Collision Rate", value: "0.00%", sub: "DETERMINISTIC" },
-                      { label: "Sync Overhead", value: "<0.01ms", sub: "LOCK-FREE RING" },
+                      { label: "Latency", value: "<1ms", sub: "LOCAL MESH" },
+                      { label: "Packet Loss", value: "0.0%", sub: "P2P ENCRYPTED" },
+                      { label: "Clock Epoch", value: `#${crdtEpoch}`, sub: "ORDERED" },
+                      { label: "Peers Online", value: "3 active", sub: "CONNECTED" },
                     ]}
-                    hexDump={["0x2A", "0x4F", "0xC1", "0x90", "0x00", "0x1B"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#0055FF"
                   />
                 </div>
@@ -923,18 +905,16 @@ export default function RealCollaborativeMeshInterface({
 
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-04 // METAL3"
+                    channel="Metal GPU Pipeline"
                     badge="NATIVE SILICON RUNTIME"
-                    title="Direct Metal 3 & WebGPU Compute"
-                    desc="Bypasses DOM layout reflows and V8 pauses. Directly rasterizes glyph quads at 120 FPS."
+                    title="Native GPU Rendering"
+                    desc="Renders text directly on Metal & WebGPU for butter-smooth 120 FPS typing."
                     metrics={[
-                      { label: "Input Latency", value: "4.2ms", sub: "DIRECT HW" },
-                      { label: "Framerate", value: "120 FPS", sub: "LOCKED V-SYNC" },
-                      { label: "GPU Pipeline", value: "Metal 3", sub: "COMPUTE SHADER" },
-                      { label: "DOM Reflows", value: "0 ms", sub: "ZERO BROWSER GC" },
+                      { label: "Input Lag", value: "4.2ms", sub: "INSTANT" },
+                      { label: "Framerate", value: "120 FPS", sub: "PROMOTION" },
+                      { label: "Pipeline", value: "Metal 3", sub: "HARDWARE" },
+                      { label: "Frame Drops", value: "0 frames", sub: "BUTTER SMOOTH" },
                     ]}
-                    hexDump={["0x99", "0x3D", "0x14", "0xEF", "0x7A", "0x55"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#0055FF"
                   />
                 </div>
@@ -999,18 +979,16 @@ export default function RealCollaborativeMeshInterface({
 
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-05 // LLVM"
+                    channel="LLVM Compiler"
                     badge="ACTIONABLE OUTPUT"
-                    title="Native Mach-O ARM64 Emitter"
-                    desc="Emits direct ARM64 host binaries in 140ms with zero cloud build dependencies."
+                    title="Instant Native Binaries"
+                    desc="Compiles native ARM64 binaries locally so you can test changes in real time."
                     metrics={[
-                      { label: "Build Latency", value: "140ms", sub: "LLVM 18 DIRECT" },
-                      { label: "Target Architecture", value: "ARM64", sub: "APPLE SILICON" },
-                      { label: "Format Slice", value: "Mach-O", sub: "0xFEEDFACF" },
-                      { label: "Cloud Overhead", value: "0 ms", sub: "LOCAL EXCLUSIVE" },
+                      { label: "Build Time", value: "140ms", sub: "ULTRA FAST" },
+                      { label: "Architecture", value: "ARM64", sub: "APPLE SILICON" },
+                      { label: "Binary Size", value: "2.4 MB", sub: "OPTIMIZED" },
+                      { label: "Dependencies", value: "0 cloud", sub: "STANDALONE" },
                     ]}
-                    hexDump={["0xCF", "0xFA", "0xED", "0xFE", "0x0C", "0x00"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#0055FF"
                   />
                 </div>
@@ -1098,18 +1076,16 @@ export default function RealCollaborativeMeshInterface({
 
                 <div className="w-full lg:w-[240px] shrink-0">
                   <AppleTelemetryHUD
-                    channel="CH-06 // AGENT"
+                    channel="@CruxAI Agent"
                     badge="AUTONOMOUS AI ENGINE"
-                    title="@CruxAI Local Refactor"
-                    desc="Embedded agent proposes lock-free atomic bitset patch evaluated via local PTY bridge."
+                    title="Context-Aware AI Assistant"
+                    desc="Proposes verified refactors that compile and pass tests before you accept them."
                     metrics={[
-                      { label: "Evaluation", value: "12ms", sub: "LOCAL PTY" },
-                      { label: "Verification", value: "100%", sub: "PASSED TESTS" },
-                      { label: "Architecture", value: "Atomic", sub: "BITSET RING" },
-                      { label: "Deadlock Risk", value: "0.00%", sub: "LOCK-FREE WAL" },
+                      { label: "Analysis Time", value: "0.4s", sub: "STREAMING" },
+                      { label: "Tests Passed", value: "18 / 18", sub: "VERIFIED" },
+                      { label: "Net Changes", value: "+2 lines", sub: "ATOMIC" },
+                      { label: "Confidence", value: "100%", sub: "READY TO APPLY" },
                     ]}
-                    hexDump={["0x00", "0xFF", "0x66", "0x2A", "0x51", "0x90"]}
-                    activeHexIndex={activeHexIndex}
                     accentColor="#16a34a"
                   />
                 </div>
