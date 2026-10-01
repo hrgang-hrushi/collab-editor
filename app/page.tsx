@@ -21,6 +21,42 @@ export default function Page() {
           </p>
         </header>
 
+        <nav aria-label="Code Crux Primary Directories &amp; Sitelinks">
+          <h2>Primary Navigation &amp; Site Sections</h2>
+          <ul>
+            <li>
+              <Link href="/about">About Code Crux</Link> — Mission, Systems Architecture &amp; Founding Story.
+            </li>
+            <li>
+              <Link href="/pricing">Pricing &amp; Licensing</Link> — $0 Community, $20 Team, $45 Air-Gapped Enterprise.
+            </li>
+            <li>
+              <Link href="/blog">Engineering Blog &amp; Research</Link> — AST-CRDT, WebGPU compute shaders, and Amoeba coding whitepapers.
+            </li>
+            <li>
+              <Link href="/services">Enterprise Services</Link> — Sovereign on-premise air-gapped deployments, private relays, and custom LSP.
+            </li>
+            <li>
+              <Link href="/docs">Developer Documentation</Link> — Quickstart guide, mechanical keybindings, P2P rooms, and AI terminal bridge.
+            </li>
+            <li>
+              <Link href="/benchmarks">Hardware Benchmarks Matrix</Link> — 4.2ms input latency, 38MB memory footprint vs VS Code and Cursor.
+            </li>
+            <li>
+              <Link href="/ast-crdt">AST-CRDT Protocol Whitepaper</Link> — Decentralized real-time peer-to-peer sync protocol over WebRTC.
+            </li>
+            <li>
+              <Link href="/amoeba-coding">Amoeba Coding Architecture</Link> — Autonomous multi-agent mutations at 120 FPS on WebGPU.
+            </li>
+            <li>
+              <Link href="/vs-cursor">Crux vs Cursor</Link> — Bare-metal Rust engine vs Electron AI wrapper architectural breakdown.
+            </li>
+            <li>
+              <Link href="/ide">Launch Web Workstation</Link> — Instant zero-install browser IDE powered by WebAssembly &amp; WebGPU.
+            </li>
+          </ul>
+        </nav>
+
         <section>
           <h2>Measured Hardware Performance Benchmarks for Code Crux</h2>
           <p>

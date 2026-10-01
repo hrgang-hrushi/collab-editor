@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 
 const CRUX_URLS = [
   "https://codecrux.us/",
+  "https://codecrux.us/about",
+  "https://codecrux.us/pricing",
+  "https://codecrux.us/blog",
+  "https://codecrux.us/services",
+  "https://codecrux.us/docs",
   "https://codecrux.us/amoeba-coding",
   "https://codecrux.us/vs-cursor",
   "https://codecrux.us/vs-claude",
@@ -11,7 +16,6 @@ const CRUX_URLS = [
   "https://codecrux.us/vs-zed",
   "https://codecrux.us/benchmarks",
   "https://codecrux.us/ast-crdt",
-  "https://codecrux.us/pricing",
   "https://codecrux.us/ide",
   "https://codecrux.us/llms.txt",
   "https://codecrux.us/llms-full.txt",

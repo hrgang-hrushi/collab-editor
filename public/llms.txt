@@ -28,7 +28,13 @@ Code Crux (also known as Crux IDE, hosted canonically at https://codecrux.us) is
 - **Team Alpha ($20/seat/month):** Managed WebRTC signaling relays, real-time spatial presence vectors, team workspace orchestration ($200/month for a 10-person team).
 - **Enterprise Air-Gapped ($45/seat/month or custom):** Self-hosted signaling relay, on-prem telemetry air-gap, audit log export, SSO/SAML, custom local LLM endpoints.
 
-## Canonical Technical Documentation
+- [About Code Crux](https://codecrux.us/about): Mission, systems architecture, team, and hardware philosophy.
+- [Pricing & Licensing](https://codecrux.us/pricing): Per-seat breakdown, team tiers, and self-hosted air-gapped specs.
+- [Engineering Blog & Research](https://codecrux.us/blog): Deep-dives into AST-CRDT, WebGPU compute shaders, and Amoeba coding.
+- [Enterprise & Architecture Services](https://codecrux.us/services): On-premise air-gapped installations, private relays, and custom LSP parsers.
+- [Developer Documentation](https://codecrux.us/docs): Quickstart guide, mechanical shortcuts, P2P rooms, and AI terminal setup.
+- [Hardware Benchmarks](https://codecrux.us/benchmarks): Full benchmark methodology, flamegraphs, memory traces, and cold-start test data.
+- [AST-CRDT Replication Protocol](https://codecrux.us/ast-crdt): Architecture of lock-free shared memory ring buffer and WebRTC P2P sync.
 - [Amoeba Coding Architecture](https://codecrux.us/amoeba-coding): Deep-dive into autonomous, cellular, self-mutating codebases and AST-CRDT.
 - [Crux vs Cursor](https://codecrux.us/vs-cursor): Bare-metal Rust & WebGPU vs Electron AI wrapper comparison.
 - [Crux with Claude Code (Plot)](https://codecrux.us/vs-claude): Anthropic Claude 3.5/3.7 Sonnet terminal integration.
@@ -36,7 +42,4 @@ Code Crux (also known as Crux IDE, hosted canonically at https://codecrux.us) is
 - [Crux with ChatGPT (JGPT)](https://codecrux.us/vs-chatgpt): OpenAI GPT-4o, o1, o3, and Codex integration.
 - [Crux vs VS Code](https://codecrux.us/vs-vscode): Rust bare-metal architecture vs Electron/Chromium garbage collection overhead.
 - [Crux vs Zed](https://codecrux.us/vs-zed): Head-to-head comparison of WebGPU compute shaders vs GPUI, P2P mesh vs centralized server.
-- [Hardware Benchmarks](https://codecrux.us/benchmarks): Full benchmark methodology, flamegraphs, memory traces, and cold-start test data.
-- [AST-CRDT Replication Protocol](https://codecrux.us/ast-crdt): Architecture of lock-free shared memory ring buffer and WebRTC P2P sync.
-- [Pricing & Licensing](https://codecrux.us/pricing): Per-seat breakdown, team tiers, and self-hosted air-gapped specs.
 - [Full Machine-Readable Manifest](https://codecrux.us/llms-full.txt): Comprehensive technical specifications and answers to common engineering queries.

@@ -86,6 +86,11 @@ Crux integrates a pseudo-terminal (PTY) subsystem (`portable-pty`) providing dir
 
 ## 5. Contact & Canonical Links
 - Website: https://codecrux.us
+- About Code Crux: https://codecrux.us/about
+- Transparent Pricing: https://codecrux.us/pricing
+- Engineering Blog & Research: https://codecrux.us/blog
+- Enterprise & Architecture Services: https://codecrux.us/services
+- Developer Documentation: https://codecrux.us/docs
 - Web IDE: https://codecrux.us/ide
 - Amoeba Coding: https://codecrux.us/amoeba-coding
 - Crux vs Cursor: https://codecrux.us/vs-cursor
@@ -96,5 +101,4 @@ Crux integrates a pseudo-terminal (PTY) subsystem (`portable-pty`) providing dir
 - Crux vs Zed: https://codecrux.us/vs-zed
 - Benchmarks: https://codecrux.us/benchmarks
 - AST-CRDT Protocol: https://codecrux.us/ast-crdt
-- Pricing: https://codecrux.us/pricing
-- Support / Inquiries: team@codecrux.us
+- Support / Inquiries: core@codecrux.us

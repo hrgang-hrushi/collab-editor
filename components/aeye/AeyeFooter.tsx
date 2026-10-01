@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import CallChip from "@/components/ui/CallChip";
@@ -60,21 +61,21 @@ export default function AeyeFooter() {
   };
 
   const pagesCol1 = [
-    { label: "Home", href: "#hero" },
-    { label: "Docs", href: "#document" },
-    { label: "Blog", href: "#blog" },
-    { label: "Waitlist", href: "#waitlist" },
-    { label: "Changelog", href: "#changelog" },
-    { label: "Terms", href: "#terms" },
+    { label: "Home", href: "/" },
+    { label: "About", href: "/about" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Blog", href: "/blog" },
+    { label: "Services", href: "/services" },
+    { label: "Docs", href: "/docs" },
   ];
 
   const pagesCol2 = [
-    { label: "About", href: "#benefit" },
-    { label: "Pricing", href: "#pricing" },
-    { label: "Careers (4)", href: "#careers" },
-    { label: "Contact", href: "#dispatch" },
-    { label: "Architecture", href: "#performance" },
-    { label: "Privacy", href: "#privacy" },
+    { label: "Benchmarks", href: "/benchmarks" },
+    { label: "AST-CRDT", href: "/ast-crdt" },
+    { label: "Amoeba Coding", href: "/amoeba-coding" },
+    { label: "Crux vs Cursor", href: "/vs-cursor" },
+    { label: "Launch IDE", href: "/ide" },
+    { label: "Join Waitlist", href: "#waitlist" },
   ];
 
   const social = [
@@ -228,24 +229,42 @@ export default function AeyeFooter() {
                   <div className="space-y-3">
                     {pagesCol1.map((p, idx) => (
                       <div key={idx}>
-                        <a
-                          href={p.href}
-                          className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
-                        >
-                          {p.label}
-                        </a>
+                        {p.href.startsWith("/") ? (
+                          <Link
+                            href={p.href}
+                            className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
+                          >
+                            {p.label}
+                          </Link>
+                        ) : (
+                          <a
+                            href={p.href}
+                            className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
+                          >
+                            {p.label}
+                          </a>
+                        )}
                       </div>
                     ))}
                   </div>
                   <div className="space-y-3">
                     {pagesCol2.map((p, idx) => (
                       <div key={idx}>
-                        <a
-                          href={p.href}
-                          className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
-                        >
-                          {p.label}
-                        </a>
+                        {p.href.startsWith("/") ? (
+                          <Link
+                            href={p.href}
+                            className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
+                          >
+                            {p.label}
+                          </Link>
+                        ) : (
+                          <a
+                            href={p.href}
+                            className="text-xs font-sans text-[#888888] hover:text-[#0055FF] transition-none no-underline block"
+                          >
+                            {p.label}
+                          </a>
+                        )}
                       </div>
                     ))}
                   </div>

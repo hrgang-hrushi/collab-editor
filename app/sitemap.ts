@@ -66,10 +66,34 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/about`,
+      lastModified: currentDate,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
       url: `${baseUrl}/pricing`,
       lastModified: currentDate,
       changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: currentDate,
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/services`,
+      lastModified: currentDate,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/docs`,
+      lastModified: currentDate,
+      changeFrequency: "weekly",
+      priority: 0.95,
     },
     {
       url: `${baseUrl}/ide`,
