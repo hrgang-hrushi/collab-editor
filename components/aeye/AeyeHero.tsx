@@ -111,8 +111,10 @@ export default function AeyeHero() {
           setDisplayedText(currentWord.slice(0, displayedText.length - 1));
         }, 50);
       } else {
-        setIsDeleting(false);
-        setCurrentWordIndex((prev) => (prev + 1) % TYPEWRITER_WORDS.length);
+        timeout = setTimeout(() => {
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % TYPEWRITER_WORDS.length);
+        }, 300);
       }
     }
 
@@ -181,12 +183,12 @@ export default function AeyeHero() {
                   A Native Bare-Metal
                 </motion.div>
 
-                <div className="inline-flex items-center gap-1 min-h-[48px] sm:min-h-[82px] font-mono text-[#0055FF] tracking-tight">
-                  <span className="text-[#0055FF]">{displayedText}</span>
+                <div className="flex items-center gap-1 h-[48px] sm:h-[72px] lg:h-[84px] font-mono text-[#0055FF] tracking-tight whitespace-nowrap text-3xl sm:text-5xl md:text-6xl lg:text-[68px] leading-none overflow-hidden my-0.5 sm:my-1">
+                  <span className="text-[#0055FF] whitespace-nowrap inline-block">{displayedText}</span>
                   <motion.span
                     animate={{ opacity: [1, 0, 1] }}
                     transition={{ repeat: Infinity, duration: 0.5 }}
-                    className="inline-block w-[18px] sm:w-[26px] h-[34px] sm:h-[48px] bg-[#0055FF] ml-1 align-baseline"
+                    className="inline-block w-[16px] sm:w-[22px] lg:w-[26px] h-[28px] sm:h-[40px] lg:h-[48px] bg-[#0055FF] ml-1 align-baseline shrink-0"
                   />
                 </div>
 

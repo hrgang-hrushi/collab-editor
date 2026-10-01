@@ -92,10 +92,10 @@ export default function AeyeCtaSection() {
             </h2>
 
             {/* LINE 2: [word] in Geist Pixel Square with solid blue block cursor */}
-            <div className="font-pixel text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#0055FF] flex items-center justify-center my-0.5 sm:my-1">
-              <span>[{currentDisplay}{isCompleteWord ? "]" : ""}</span>
+            <div className="font-pixel text-4xl sm:text-6xl md:text-7xl lg:text-[84px] font-normal text-[#0055FF] flex items-center justify-center my-0.5 sm:my-1 whitespace-nowrap h-[1.15em] leading-none overflow-hidden">
+              <span className="whitespace-nowrap">[{currentDisplay}{isCompleteWord ? "]" : ""}</span>
               <span
-                className="inline-block bg-[#0055FF] w-[0.38em] h-[0.84em] ml-1.5 align-baseline"
+                className="inline-block bg-[#0055FF] w-[0.38em] h-[0.84em] ml-1.5 align-baseline shrink-0"
                 aria-hidden="true"
               />
             </div>

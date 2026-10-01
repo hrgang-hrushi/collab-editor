@@ -119,9 +119,9 @@ export default function CruxCtaSection({
             Engineering,
           </h2>
 
-          <div className="text-3xl sm:text-5xl md:text-6xl font-mono font-bold text-black flex items-center justify-center my-3 tracking-tight">
-            <span>[{currentDisplay}]</span>
-            <span className="inline-block bg-black w-[16px] sm:w-[22px] h-[30px] sm:h-[42px] ml-1.5 align-baseline animate-pulse" />
+          <div className="text-3xl sm:text-5xl md:text-6xl font-mono font-bold text-black flex items-center justify-center my-3 tracking-tight whitespace-nowrap h-[1.25em] leading-none overflow-hidden">
+            <span className="whitespace-nowrap">[{currentDisplay}]</span>
+            <span className="inline-block bg-black w-[16px] sm:w-[22px] h-[30px] sm:h-[42px] ml-1.5 align-baseline animate-pulse shrink-0" />
           </div>
 
           <p className="mt-6 text-sm sm:text-base text-[#444444] max-w-xl mx-auto font-sans leading-relaxed">

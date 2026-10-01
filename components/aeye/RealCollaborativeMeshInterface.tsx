@@ -532,27 +532,27 @@ export default function RealCollaborativeMeshInterface({
             {/* =================================================================== */}
             {mode === "multiplayer" && (
               <div className="space-y-1 relative">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">1</span>
                   <span>
                     <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">LocalDaemonClient</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/daemon&quot;</span>;
                   </span>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">2</span>
                   <span>
                     <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
                   </span>
                 </div>
 
                 {/* Line 3: Erik (Pink - no avatar while typing, just name) */}
-                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">3</span>
-                  <span className="pl-4">
-                    <span className="text-[#9cdcfe]">timeout</span> ={" "}
-                    <span className="relative inline-flex items-center bg-[#ff70a6]/15 border border-[#ff70a6] rounded-[4px] px-2 py-0.5 text-white mx-1">
-                      <span>{pinkText || "timeout = 2500; // fast"}</span>
-                      <span className="inline-block w-1.5 h-3.5 bg-[#ff70a6] ml-1 rounded-[1px] align-middle animate-pulse" />
+                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px] whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none shrink-0">3</span>
+                  <span className="pl-4 inline-flex items-center whitespace-nowrap">
+                    <span className="text-[#9cdcfe]">timeout</span>&nbsp;=&nbsp;
+                    <span className="relative inline-flex items-center h-[22px] bg-[#ff70a6]/15 border border-[#ff70a6] rounded-[4px] px-2 py-0.5 text-white mx-1">
+                      <span className="inline-block min-w-[2px]">{pinkText}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#ff70a6] ml-1 rounded-[1px] align-middle animate-pulse shrink-0" />
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
@@ -566,21 +566,21 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
 
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span className="pl-4">
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">4</span>
+                  <span className="pl-4 whitespace-nowrap">
                     <span className="text-[#9cdcfe]">daemon</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">LocalDaemonClient</span>(&#123; <span className="text-[#9cdcfe]">port</span>: <span className="text-[#b5cea8]">7447</span> &#125;);
                   </span>
                 </div>
 
                 {/* Line 5: Hrushi (Blue - no avatar while typing, just name) */}
-                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">5</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">async</span> <span className="text-[#dcdcaa]">acquireLock</span>(
-                    <span className="relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white mx-1">
-                      <span>{blueText || '"stream-mesh";'}</span>
-                      <span className="inline-block w-1.5 h-3.5 bg-[#0055FF] ml-1 rounded-[1px] align-middle animate-pulse" />
+                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px] whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none shrink-0">5</span>
+                  <span className="pl-4 inline-flex items-center whitespace-nowrap">
+                    <span className="text-[#569cd6]">async</span>&nbsp;<span className="text-[#dcdcaa]">acquireLock</span>(
+                    <span className="relative inline-flex items-center h-[22px] bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white mx-1">
+                      <span className="inline-block min-w-[2px]">{blueText}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#0055FF] ml-1 rounded-[1px] align-middle animate-pulse shrink-0" />
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
@@ -591,25 +591,25 @@ export default function RealCollaborativeMeshInterface({
                         />
                       </span>
                     </span>
-                    ) &#123;
+                    )&nbsp;&#123;
                   </span>
                 </div>
 
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
-                  <span className="pl-8">
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">6</span>
+                  <span className="pl-8 whitespace-nowrap">
                     <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ticket</span> = <span className="text-[#569cd6]">await</span> <span className="text-[#569cd6]">this</span>.<span className="text-[#9cdcfe]">daemon</span>.<span className="text-[#dcdcaa]">acquireLock</span>(channel);
                   </span>
                 </div>
 
                 {/* Line 7: Muhaymin (Green - no avatar while typing, just name) */}
-                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">7</span>
-                  <span className="pl-8">
-                    <span className="text-[#569cd6]">return</span>{" "}
-                    <span className="relative inline-flex items-center bg-[#16a34a]/15 border border-[#16a34a] rounded-[4px] px-2 py-0.5 text-white mx-1">
-                      <span>{greenText || 'ticket.id + ":OK"; // 0ms'}</span>
-                      <span className="inline-block w-1.5 h-3.5 bg-[#16a34a] ml-1 rounded-[1px] align-middle animate-pulse" />
+                <div className="flex items-baseline bg-white/5 py-1 rounded-[4px] whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none shrink-0">7</span>
+                  <span className="pl-8 inline-flex items-center whitespace-nowrap">
+                    <span className="text-[#569cd6]">return</span>&nbsp;
+                    <span className="relative inline-flex items-center h-[22px] bg-[#16a34a]/15 border border-[#16a34a] rounded-[4px] px-2 py-0.5 text-white mx-1">
+                      <span className="inline-block min-w-[2px]">{greenText}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#16a34a] ml-1 rounded-[1px] align-middle animate-pulse shrink-0" />
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
@@ -623,12 +623,12 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
 
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">8</span>
                   <span className="pl-4">&#125;</span>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
+                <div className="flex items-baseline whitespace-nowrap">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">9</span>
                   <span>&#125;</span>
                 </div>
               </div>
