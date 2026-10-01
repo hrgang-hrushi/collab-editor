@@ -213,7 +213,7 @@ export default function AeyeFeatureSection() {
                   </svg>
                   {/* Square Dot at the leading tip of the blue tail */}
                   <div
-                    className="absolute w-2.5 h-2.5 bg-[#0055FF] border border-white z-30 pointer-events-none shadow-[0_0_10px_#0055FF]"
+                    className="absolute w-2.5 h-2.5 bg-[#0055FF] border border-white z-30 pointer-events-none shadow-[0_0_15px_#0055FF,0_0_30px_#0055FF,0_0_45px_#0055FF]"
                     style={{
                       left: `${dotPos.x}px`,
                       top: `${dotPos.y}px`,
@@ -279,10 +279,10 @@ export default function AeyeFeatureSection() {
                               transition={{ duration: 0.2 }}
                               className="overflow-hidden"
                             >
-                              <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed pl-4.5 border-l border-white">
+                              <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
                                 {tab.desc}
                               </p>
-                              <div className="mt-2 text-[10px] font-mono text-white pl-4.5 uppercase">
+                              <div className="mt-2 text-[10px] font-mono text-[#0055FF] uppercase font-semibold">
                                 // CRUX SYSTEM: {tab.systemTitle}
                               </div>
                             </motion.div>

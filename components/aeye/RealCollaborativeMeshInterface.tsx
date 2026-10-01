@@ -35,6 +35,73 @@ interface RealCollaborativeMeshInterfaceProps {
   className?: string;
 }
 
+interface TechnicalCalloutProps {
+  badge: string;
+  title: string;
+  desc: string;
+  telemetry: string;
+  accentColor?: string;
+  className?: string;
+}
+
+function TechnicalCalloutBubble({
+  badge,
+  title,
+  desc,
+  telemetry,
+  accentColor = "#0055FF",
+  className = "",
+}: TechnicalCalloutProps) {
+  return (
+    <div
+      className={`relative border border-dashed bg-[#060914]/95 text-left p-3 sm:p-3.5 transition-all select-none shadow-[0_0_25px_rgba(0,85,255,0.12)] ${className}`}
+      style={{
+        borderColor: accentColor,
+        borderRadius: "8px", // Subtle cloud/capsule soft contour with dashed border
+      }}
+    >
+      {/* Corner Blueprint Plus Markers */}
+      <span className="absolute -top-1.5 -left-1.5 font-mono text-[9px] leading-none select-none font-bold" style={{ color: accentColor }}>
+        +
+      </span>
+      <span className="absolute -top-1.5 -right-1.5 font-mono text-[9px] leading-none select-none font-bold" style={{ color: accentColor }}>
+        +
+      </span>
+      <span className="absolute -bottom-1.5 -left-1.5 font-mono text-[9px] leading-none select-none font-bold" style={{ color: accentColor }}>
+        +
+      </span>
+      <span className="absolute -bottom-1.5 -right-1.5 font-mono text-[9px] leading-none select-none font-bold" style={{ color: accentColor }}>
+        +
+      </span>
+
+      {/* Top Header Row with Pulsing LED */}
+      <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-[#222222]/80">
+        <div className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider font-bold" style={{ color: accentColor }}>
+          <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: accentColor }} />
+          <span>{badge}</span>
+        </div>
+        <span className="text-[8px] font-mono text-[#555555]">CRUX KERNEL</span>
+      </div>
+
+      {/* Title */}
+      <h4 className="mt-2 text-[12px] font-medium text-white font-sans tracking-tight">
+        {title}
+      </h4>
+
+      {/* Description */}
+      <p className="mt-1 text-[10.5px] font-sans text-[#888888] leading-relaxed">
+        {desc}
+      </p>
+
+      {/* Telemetry Footer */}
+      <div className="mt-2.5 pt-2 border-t border-[#1a1a24] flex items-center justify-between font-mono text-[8.5px] text-[#666666]">
+        <span className="text-[#888888]">{telemetry}</span>
+        <span className="text-[#00FF66] font-bold">LIVE ●</span>
+      </div>
+    </div>
+  );
+}
+
 export default function RealCollaborativeMeshInterface({
   mode = "multiplayer",
   className = "",
@@ -73,57 +140,7 @@ export default function RealCollaborativeMeshInterface({
   const [marcusText, setMarcusText] = useState("");
   const [alexText, setAlexText] = useState("");
 
-  // Three rapid dynamic cursor positions for multiplayer
-  const [c1Pos, setC1Pos] = useState({ x: 210, y: 160 });
-  const [c2Pos, setC2Pos] = useState({ x: 155, y: 92 });
-  const [c3Pos, setC3Pos] = useState({ x: 260, y: 228 });
-
-  // Rapid natural cursor motion loop for multiplayer (2 to 3 fast-moving cursors)
-  useEffect(() => {
-    if (mode !== "multiplayer") return;
-
-    let step = 0;
-    const interval = setInterval(() => {
-      step = (step + 1) % 6;
-
-      // Sarah Lin cursor quick moves
-      const sPositions = [
-        { x: 190, y: 160 },
-        { x: 265, y: 160 },
-        { x: 310, y: 160 },
-        { x: 240, y: 160 },
-        { x: 175, y: 184 },
-        { x: 220, y: 160 },
-      ];
-      setC1Pos(sPositions[step]);
-
-      // Marcus Vance cursor quick moves
-      const mPositions = [
-        { x: 145, y: 92 },
-        { x: 200, y: 92 },
-        { x: 235, y: 116 },
-        { x: 170, y: 116 },
-        { x: 130, y: 92 },
-        { x: 185, y: 92 },
-      ];
-      setC2Pos(mPositions[step]);
-
-      // Alex Chen cursor quick moves
-      const aPositions = [
-        { x: 250, y: 228 },
-        { x: 320, y: 228 },
-        { x: 280, y: 252 },
-        { x: 210, y: 252 },
-        { x: 180, y: 228 },
-        { x: 275, y: 228 },
-      ];
-      setC3Pos(aPositions[step]);
-    }, 650);
-
-    return () => clearInterval(interval);
-  }, [mode]);
-
-  // Typing simulation for multiplayer cursors
+  // Phased natural typing simulation for multiplayer cursors
   useEffect(() => {
     if (mode !== "multiplayer") return;
 
@@ -134,24 +151,42 @@ export default function RealCollaborativeMeshInterface({
     let sIdx = 0;
     let mIdx = 0;
     let aIdx = 0;
-    let forward = true;
+    let phase = 0; // 0: typing, 1: pause, 2: deleting, 3: restart pause
+    let pauseCounter = 0;
 
     const timer = setInterval(() => {
-      if (forward) {
+      if (phase === 0) {
         if (sIdx < sTarget.length) sIdx++;
         if (mIdx < mTarget.length) mIdx++;
         if (aIdx < aTarget.length) aIdx++;
-        if (sIdx >= sTarget.length) forward = false;
-      } else {
+        if (sIdx >= sTarget.length && mIdx >= mTarget.length && aIdx >= aTarget.length) {
+          phase = 1;
+          pauseCounter = 0;
+        }
+      } else if (phase === 1) {
+        pauseCounter++;
+        if (pauseCounter > 16) {
+          phase = 2;
+        }
+      } else if (phase === 2) {
         if (sIdx > 0) sIdx--;
         if (mIdx > 0) mIdx--;
         if (aIdx > 0) aIdx--;
-        if (sIdx === 0) forward = true;
+        if (sIdx === 0 && mIdx === 0 && aIdx === 0) {
+          phase = 3;
+          pauseCounter = 0;
+        }
+      } else if (phase === 3) {
+        pauseCounter++;
+        if (pauseCounter > 4) {
+          phase = 0;
+        }
       }
+
       setSarahText(sTarget.slice(0, sIdx));
       setMarcusText(mTarget.slice(0, mIdx));
       setAlexText(aTarget.slice(0, aIdx));
-    }, 120);
+    }, 85);
 
     return () => clearInterval(timer);
   }, [mode]);
@@ -388,55 +423,10 @@ export default function RealCollaborativeMeshInterface({
           {/* Code Canvas Area */}
           <div className="flex-1 p-3 sm:p-4 overflow-auto font-mono text-[12px] sm:text-[12.5px] leading-[1.7] bg-[#000000] relative">
             {/* =================================================================== */}
-            {/* DEMO 1: REAL-TIME COLLABORATIVE MESH (3 Quick Cursors with Motion)  */}
+            {/* DEMO 1: REAL-TIME COLLABORATIVE MESH (3 Cursors Exact Typing Motion)*/}
             {/* =================================================================== */}
             {mode === "multiplayer" && (
-              <div className="relative space-y-0.5">
-                {/* Peer Cursor 1: Sarah Lin (Fast moving, editing line 8) */}
-                <div
-                  className="absolute pointer-events-none z-30 select-none transition-all duration-300 ease-out"
-                  style={{
-                    transform: `translate3d(${c1Pos.x}px, ${c1Pos.y}px, 0)`,
-                  }}
-                >
-                  <CruxPointerCursor
-                    name="Sarah Lin"
-                    uid="SARAH-L"
-                    color="#38b6ff"
-                    status="typing"
-                  />
-                </div>
-
-                {/* Peer Cursor 2: Marcus Vance (Fast moving, editing line 5) */}
-                <div
-                  className="absolute pointer-events-none z-30 select-none transition-all duration-300 ease-out"
-                  style={{
-                    transform: `translate3d(${c2Pos.x}px, ${c2Pos.y}px, 0)`,
-                  }}
-                >
-                  <CruxPointerCursor
-                    name="Marcus Vance"
-                    uid="MARCUS-V"
-                    color="#ff70a6"
-                    status="editing"
-                  />
-                </div>
-
-                {/* Peer Cursor 3: Alex Chen (Fast moving, editing line 11) */}
-                <div
-                  className="absolute pointer-events-none z-30 select-none transition-all duration-300 ease-out hidden sm:block"
-                  style={{
-                    transform: `translate3d(${c3Pos.x}px, ${c3Pos.y}px, 0)`,
-                  }}
-                >
-                  <CruxPointerCursor
-                    name="Alex Chen"
-                    uid="ALEX-C"
-                    color="#22c55e"
-                    status="sync"
-                  />
-                </div>
-
+              <div className="space-y-0.5 relative">
                 {/* Code Buffer */}
                 <div className="flex items-baseline">
                   <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
@@ -460,11 +450,23 @@ export default function RealCollaborativeMeshInterface({
                     <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
                   </span>
                 </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
+                {/* Marcus Vance typing on Line 5 */}
+                <div className="flex items-baseline bg-[#ffffff]/5 py-0.5">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">5</span>
                   <span className="pl-4">
-                    <span className="text-[#9cdcfe]">timeout</span> = <span className="text-[#b5cea8]">{marcusText || "5000;"}</span>
-                    <span className="inline-block w-1.5 h-3.5 bg-[#ff70a6] ml-1 align-middle animate-pulse" />
+                    <span className="text-[#9cdcfe]">timeout</span> ={" "}
+                    <span className="relative inline-flex items-center text-[#b5cea8]">
+                      <span>{marcusText || "2500;"}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#ff70a6] ml-0.5 align-middle animate-pulse" />
+                      <span className="absolute -top-7 left-full -ml-1 pointer-events-none z-30 select-none">
+                        <CruxPointerCursor
+                          name="Marcus Vance"
+                          uid="MARCUS-V"
+                          color="#ff70a6"
+                          status="editing"
+                        />
+                      </span>
+                    </span>
                   </span>
                 </div>
                 <div className="flex items-baseline">
@@ -477,11 +479,23 @@ export default function RealCollaborativeMeshInterface({
                   <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
                   <span></span>
                 </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
+                {/* Sarah Lin typing on Line 8 */}
+                <div className="flex items-baseline bg-[#ffffff]/5 py-0.5">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">8</span>
                   <span className="pl-4">
-                    <span className="text-[#569cd6]">async</span> <span className="text-[#dcdcaa]">acquireLock</span>({sarahText}
-                    <span className="inline-block w-1.5 h-3.5 bg-[#38b6ff] ml-0.5 align-middle animate-pulse" />
+                    <span className="text-[#569cd6]">async</span> <span className="text-[#dcdcaa]">acquireLock</span>(
+                    <span className="relative inline-flex items-center text-[#ce9178]">
+                      <span>{sarahText || '"stream-mesh"'}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#38b6ff] ml-0.5 align-middle animate-pulse" />
+                      <span className="absolute -top-7 left-full -ml-1 pointer-events-none z-30 select-none">
+                        <CruxPointerCursor
+                          name="Sarah Lin"
+                          uid="SARAH-L"
+                          color="#38b6ff"
+                          status="typing"
+                        />
+                      </span>
+                    </span>
                     ) &#123;
                   </span>
                 </div>
@@ -497,11 +511,23 @@ export default function RealCollaborativeMeshInterface({
                     <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ticket</span> = <span className="text-[#569cd6]">await</span> <span className="text-[#569cd6]">this</span>.<span className="text-[#9cdcfe]">daemon</span>.<span className="text-[#dcdcaa]">acquireLock</span>(channel);
                   </span>
                 </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
+                {/* Alex Chen typing on Line 11 */}
+                <div className="flex items-baseline bg-[#ffffff]/5 py-0.5">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">11</span>
                   <span className="pl-8">
-                    <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">{alexText || "ticket;"}</span>
-                    <span className="inline-block w-1.5 h-3.5 bg-[#22c55e] ml-1 align-middle animate-pulse" />
+                    <span className="text-[#569cd6]">return</span>{" "}
+                    <span className="relative inline-flex items-center text-[#9cdcfe]">
+                      <span>{alexText || 'ticket.id + ":OK";'}</span>
+                      <span className="inline-block w-1.5 h-3.5 bg-[#22c55e] ml-0.5 align-middle animate-pulse" />
+                      <span className="absolute -top-7 left-full -ml-1 pointer-events-none z-30 select-none hidden sm:block">
+                        <CruxPointerCursor
+                          name="Alex Chen"
+                          uid="ALEX-C"
+                          color="#22c55e"
+                          status="sync"
+                        />
+                      </span>
+                    </span>
                   </span>
                 </div>
                 <div className="flex items-baseline">
@@ -518,61 +544,80 @@ export default function RealCollaborativeMeshInterface({
             {/* =================================================================== */}
             {/* DEMO 2: CONTEXT AWARENESS (AST Ingestion & Symbol Indexing Scanning) */}
             {/* =================================================================== */}
+            {/* =================================================================== */}
+            {/* DEMO 2: CONTEXT AWARENESS (AST Ingestion & Symbol Indexing Scanning) */}
+            {/* =================================================================== */}
             {mode === "context" && (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span>
-                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">TokenStream</span>, <span className="text-[#4ec9b0]">ASTBuffer</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/kernel&quot;</span>;
-                  </span>
-                </div>
-                <div className={`flex items-baseline ${scanLine === 2 ? "bg-white/10" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">indexWorkspace</span>(<span className="text-[#9cdcfe]">paths</span>: <span className="text-[#4ec9b0]">string</span>[]) &#123;
-                  </span>
-                  {scanLine === 2 && (
-                    <span className="ml-2 text-[9px] bg-white text-black px-1.5 font-bold">[PARSING]</span>
-                  )}
-                </div>
-                <div className={`flex items-baseline ${scanLine === 3 ? "bg-white/10" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">stream</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">TokenStream</span>(&#123; <span className="text-[#9cdcfe]">bufferDirect</span>: <span className="text-[#569cd6]">true</span> &#125;);
-                  </span>
-                </div>
-                <div className={`flex items-baseline ${scanLine === 4 ? "bg-white/10" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ast</span> = <span className="text-[#9cdcfe]">stream</span>.<span className="text-[#dcdcaa]">parseAll</span>(<span className="text-[#9cdcfe]">paths</span>);
-                  </span>
-                </div>
-                <div className={`flex items-baseline ${scanLine === 5 ? "bg-white/10" : ""}`}>
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ast</span>.<span className="text-[#dcdcaa]">buildSymbolIndex</span>();
-                  </span>
-                  {scanLine === 5 && (
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span>
+                      <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">TokenStream</span>, <span className="text-[#4ec9b0]">ASTBuffer</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/kernel&quot;</span>;
+                    </span>
+                  </div>
+                  <div className={`flex items-baseline ${scanLine === 2 ? "bg-white/10" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">indexWorkspace</span>(<span className="text-[#9cdcfe]">paths</span>: <span className="text-[#4ec9b0]">string</span>[]) &#123;
+                    </span>
+                    {scanLine === 2 && (
+                      <span className="ml-2 text-[9px] bg-white text-black px-1.5 font-bold">[PARSING]</span>
+                    )}
+                  </div>
+                  <div className={`flex items-baseline ${scanLine === 3 ? "bg-white/10" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">stream</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">TokenStream</span>(&#123; <span className="text-[#9cdcfe]">bufferDirect</span>: <span className="text-[#569cd6]">true</span> &#125;);
+                    </span>
+                  </div>
+                  <div className={`flex items-baseline ${scanLine === 4 ? "bg-white/10" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ast</span> = <span className="text-[#9cdcfe]">stream</span>.<span className="text-[#dcdcaa]">parseAll</span>(<span className="text-[#9cdcfe]">paths</span>);
+                    </span>
+                  </div>
+                  <div className={`flex items-baseline bg-[#ffffff]/5 ${scanLine === 5 ? "bg-white/15" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-3 select-none">5</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ast</span>.<span className="text-[#dcdcaa]">buildSymbolIndex</span>();
+                    </span>
                     <span className="ml-2 text-[9px] bg-white text-black px-1.5 font-bold">[64,280 NODES]</span>
-                  )}
+                    {/* Dotted leader line extending into free space */}
+                    <span className="hidden xl:inline-flex items-center ml-2">
+                      <span className="border-b border-dashed border-[#0055FF] w-6" />
+                      <span className="text-[#0055FF] text-[8px] -ml-0.5">▶</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
+                    <span>&#125;</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                    <span></span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                    <span className="text-[#6a9955] italic">// 0.08ms memory-mapped AST kernel buffer</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
+                    <span>
+                      <span className="text-[#569cd6]">export const</span> <span className="text-[#9cdcfe]">workspaceIndex</span> = <span className="text-[#dcdcaa]">indexWorkspace</span>([<span className="text-[#ce9178]">&quot;src/**/*.rs&quot;</span>, <span className="text-[#ce9178]">&quot;src/**/*.ts&quot;</span>]);
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
-                  <span>&#125;</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
-                  <span></span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
-                  <span className="text-[#6a9955] italic">// 0.08ms memory-mapped AST kernel buffer</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
-                  <span>
-                    <span className="text-[#569cd6]">export const</span> <span className="text-[#9cdcfe]">workspaceIndex</span> = <span className="text-[#dcdcaa]">indexWorkspace</span>([<span className="text-[#ce9178]">&quot;src/**/*.rs&quot;</span>, <span className="text-[#ce9178]">&quot;src/**/*.ts&quot;</span>]);
-                  </span>
+
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="CONTEXT AWARENESS"
+                    title="Kernel Symbol Indexing"
+                    desc="Memory-mapped AST topology parses workspace buffers in 0.08ms. Zero-latency context retrieval for agents."
+                    telemetry="64,280 NODES · 0.08ms"
+                    accentColor="#0055FF"
+                  />
                 </div>
               </div>
             )}
@@ -581,51 +626,69 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 3: INTELLIGENT PROCESSING (Active AST Synthesis & Delta Merge) */}
             {/* =================================================================== */}
             {mode === "processing" && (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span>
-                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">ASTMutation</span>, <span className="text-[#4ec9b0]">SynthesizedTree</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/crdt&quot;</span>;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(<span className="text-[#9cdcfe]">delta</span>: <span className="text-[#4ec9b0]">ASTMutation</span>) &#123;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">tree</span> = <span className="text-[#4ec9b0]">SynthesizedTree</span>.<span className="text-[#dcdcaa]">resolve</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">targetId</span>);
-                  </span>
-                </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">4</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">tree</span>.<span className="text-[#dcdcaa]">transformDeterministic</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">patch</span>, <span className="text-[#b5cea8]">0x{resolvedToken.toString(16)}</span>);
-                    <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
-                      [TOKEN CONVERGED]
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span>
+                      <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">ASTMutation</span>, <span className="text-[#4ec9b0]">SynthesizedTree</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/crdt&quot;</span>;
                     </span>
-                  </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(<span className="text-[#9cdcfe]">delta</span>: <span className="text-[#4ec9b0]">ASTMutation</span>) &#123;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">tree</span> = <span className="text-[#4ec9b0]">SynthesizedTree</span>.<span className="text-[#dcdcaa]">resolve</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">targetId</span>);
+                    </span>
+                  </div>
+                  <div className="flex items-baseline bg-[#ffffff]/5">
+                    <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-3 select-none">4</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">tree</span>.<span className="text-[#dcdcaa]">transformDeterministic</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">patch</span>, <span className="text-[#b5cea8]">0x{resolvedToken.toString(16)}</span>);
+                      <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
+                        [TOKEN CONVERGED]
+                      </span>
+                    </span>
+                    {/* Dotted leader line */}
+                    <span className="hidden xl:inline-flex items-center ml-2">
+                      <span className="border-b border-dashed border-[#0055FF] w-6" />
+                      <span className="text-[#0055FF] text-[8px] -ml-0.5">▶</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                    <span>&#125;</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
+                    <span></span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                    <span className="text-[#6a9955] italic">// Structural AST convergence without text collision storms</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                    <span>
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">convergedNode</span> = <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(&#123; <span className="text-[#9cdcfe]">targetId</span>: <span className="text-[#b5cea8]">{resolvedToken}</span> &#125;);
+                    </span>
+                  </div>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
-                  <span>&#125;</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
-                  <span></span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
-                  <span className="text-[#6a9955] italic">// Structural AST convergence without text collision storms</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
-                  <span>
-                    <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">convergedNode</span> = <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(&#123; <span className="text-[#9cdcfe]">targetId</span>: <span className="text-[#b5cea8]">{resolvedToken}</span> &#125;);
-                  </span>
+
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="INTELLIGENT PROCESSING"
+                    title="Deterministic AST Synthesis"
+                    desc="Structural token reconciliation maintains syntax tree validity through multi-pass JIT compiler verification."
+                    telemetry={`TOKEN: 0x${resolvedToken.toString(16)} · JIT: VALID`}
+                    accentColor="#0055FF"
+                  />
                 </div>
               </div>
             )}
@@ -634,61 +697,79 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 4: DECENTRALIZED AST-CRDT (Rust Structural Vector Merge)       */}
             {/* =================================================================== */}
             {mode === "crdt" && (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span className="text-[#6a9955] italic">// Decentralized AST-CRDT Vector Synchronization</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">use</span> crux_crdt::&#123;<span className="text-[#4ec9b0]">ASTVectorTree</span>, <span className="text-[#4ec9b0]">NodeId</span>, <span className="text-[#4ec9b0]">ASTPatch</span>&#125;;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span></span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span>
-                    <span className="text-[#569cd6]">impl</span> <span className="text-[#4ec9b0]">ASTVectorTree</span> &#123;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">pub fn</span> <span className="text-[#dcdcaa]">merge_deterministic</span>(&amp;<span className="text-[#569cd6]">mut self</span>, <span className="text-[#9cdcfe]">patch</span>: &amp;<span className="text-[#4ec9b0]">ASTPatch</span>, <span className="text-[#9cdcfe]">node</span>: <span className="text-[#4ec9b0]">NodeId</span>) -&gt; <span className="text-[#4ec9b0]">Result</span>&lt;<span className="text-[#569cd6]">u64</span>&gt; &#123;
-                  </span>
-                </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">6</span>
-                  <span className="pl-8">
-                    <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">epoch</span> = <span className="text-[#569cd6]">self</span>.<span className="text-[#9cdcfe]">vector_clock</span>.<span className="text-[#dcdcaa]">fetch_add</span>(<span className="text-[#b5cea8]">1</span>, <span className="text-[#4ec9b0]">Ordering</span>::<span className="text-[#4ec9b0]">SeqCst</span>);
-                    <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
-                      [EPOCH: #{crdtEpoch}]
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span className="text-[#6a9955] italic">// Decentralized AST-CRDT Vector Synchronization</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">use</span> crux_crdt::&#123;<span className="text-[#4ec9b0]">ASTVectorTree</span>, <span className="text-[#4ec9b0]">NodeId</span>, <span className="text-[#4ec9b0]">ASTPatch</span>&#125;;
                     </span>
-                  </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span></span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                    <span>
+                      <span className="text-[#569cd6]">impl</span> <span className="text-[#4ec9b0]">ASTVectorTree</span> &#123;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">pub fn</span> <span className="text-[#dcdcaa]">merge_deterministic</span>(&amp;<span className="text-[#569cd6]">mut self</span>, <span className="text-[#9cdcfe]">patch</span>: &amp;<span className="text-[#4ec9b0]">ASTPatch</span>, <span className="text-[#9cdcfe]">node</span>: <span className="text-[#4ec9b0]">NodeId</span>) -&gt; <span className="text-[#4ec9b0]">Result</span>&lt;<span className="text-[#569cd6]">u64</span>&gt; &#123;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline bg-[#ffffff]/5">
+                    <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-3 select-none">6</span>
+                    <span className="pl-8">
+                      <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">epoch</span> = <span className="text-[#569cd6]">self</span>.<span className="text-[#9cdcfe]">vector_clock</span>.<span className="text-[#dcdcaa]">fetch_add</span>(<span className="text-[#b5cea8]">1</span>, <span className="text-[#4ec9b0]">Ordering</span>::<span className="text-[#4ec9b0]">SeqCst</span>);
+                      <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
+                        [EPOCH: #{crdtEpoch}]
+                      </span>
+                    </span>
+                    {/* Dotted leader line */}
+                    <span className="hidden xl:inline-flex items-center ml-2">
+                      <span className="border-b border-dashed border-[#0055FF] w-6" />
+                      <span className="text-[#0055FF] text-[8px] -ml-0.5">▶</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                    <span className="pl-8">
+                      <span className="text-[#569cd6]">self</span>.<span className="text-[#dcdcaa]">apply_atomic_token</span>(<span className="text-[#9cdcfe]">patch</span>.<span className="text-[#dcdcaa]">token</span>(), <span className="text-[#9cdcfe]">epoch</span>);
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                    <span className="pl-8">
+                      <span className="text-[#4ec9b0]">Ok</span>(<span className="text-[#9cdcfe]">epoch</span>)
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
+                    <span className="pl-4">&#125;</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
+                    <span>&#125;</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
-                  <span className="pl-8">
-                    <span className="text-[#569cd6]">self</span>.<span className="text-[#dcdcaa]">apply_atomic_token</span>(<span className="text-[#9cdcfe]">patch</span>.<span className="text-[#dcdcaa]">token</span>(), <span className="text-[#9cdcfe]">epoch</span>);
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
-                  <span className="pl-8">
-                    <span className="text-[#4ec9b0]">Ok</span>(<span className="text-[#9cdcfe]">epoch</span>)
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
-                  <span className="pl-4">&#125;</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
-                  <span>&#125;</span>
+
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="DECENTRALIZED CRDT"
+                    title="Atomic Vector Convergence"
+                    desc="Lamport vector clocks resolve structural AST patches deterministically. Zero collision storms across concurrent edits."
+                    telemetry={`EPOCH: #${crdtEpoch} · COLLISION: 0.00%`}
+                    accentColor="#0055FF"
+                  />
                 </div>
               </div>
             )}
@@ -697,67 +778,85 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 5: NATIVE SILICON RUNTIME (Metal WebGPU Direct Phosphor 120 FPS)*/}
             {/* =================================================================== */}
             {mode === "silicon" && (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span className="text-[#6a9955] italic">// Direct Metal &amp; WebGPU Compute Shader · 4.2ms Input Latency</span>
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span className="text-[#6a9955] italic">// Direct Metal &amp; WebGPU Compute Shader · 4.2ms Input Latency</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">#include</span> <span className="text-[#ce9178]">&lt;metal_stdlib&gt;</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span>
+                      <span className="text-[#569cd6]">using namespace</span> metal;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                    <span></span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                    <span>
+                      <span className="text-[#569cd6]">kernel void</span> <span className="text-[#dcdcaa]">rasterize_glyph_quads</span>(
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
+                    <span className="pl-4">
+                      device <span className="text-[#569cd6]">const</span> <span className="text-[#4ec9b0]">GlyphVertex</span>* <span className="text-[#9cdcfe]">vertices</span> [[buffer(0)]],
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                    <span className="pl-4">
+                      <span className="text-[#4ec9b0]">texture2d</span>&lt;<span className="text-[#569cd6]">float</span>, access::sample&gt; <span className="text-[#9cdcfe]">atlas</span> [[texture(0)]],
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">uint2</span> <span className="text-[#9cdcfe]">gid</span> [[thread_position_in_grid]]
+                    </span>
+                  </div>
+                  <div className="flex items-baseline bg-[#ffffff]/5">
+                    <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-3 select-none">9</span>
+                    <span>) &#123;</span>
+                    <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
+                      [120 FPS // METAL 3]
+                    </span>
+                    {/* Dotted leader line */}
+                    <span className="hidden xl:inline-flex items-center ml-2">
+                      <span className="border-b border-dashed border-[#0055FF] w-6" />
+                      <span className="text-[#0055FF] text-[8px] -ml-0.5">▶</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
+                    <span className="pl-4">
+                      <span className="text-[#9cdcfe]">surface</span>.<span className="text-[#dcdcaa]">write</span>(<span className="text-[#dcdcaa]">sample_glyph</span>(<span className="text-[#9cdcfe]">atlas</span>, <span className="text-[#9cdcfe]">vertices</span>[<span className="text-[#9cdcfe]">gid</span>.<span className="text-[#9cdcfe]">x</span>]), <span className="text-[#9cdcfe]">gid</span>);
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">11</span>
+                    <span>&#125;</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">#include</span> <span className="text-[#ce9178]">&lt;metal_stdlib&gt;</span>
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span>
-                    <span className="text-[#569cd6]">using namespace</span> metal;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span></span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
-                  <span>
-                    <span className="text-[#569cd6]">kernel void</span> <span className="text-[#dcdcaa]">rasterize_glyph_quads</span>(
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
-                  <span className="pl-4">
-                    device <span className="text-[#569cd6]">const</span> <span className="text-[#4ec9b0]">GlyphVertex</span>* <span className="text-[#9cdcfe]">vertices</span> [[buffer(0)]],
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
-                  <span className="pl-4">
-                    <span className="text-[#4ec9b0]">texture2d</span>&lt;<span className="text-[#569cd6]">float</span>, access::sample&gt; <span className="text-[#9cdcfe]">atlas</span> [[texture(0)]],
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">uint2</span> <span className="text-[#9cdcfe]">gid</span> [[thread_position_in_grid]]
-                  </span>
-                </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">9</span>
-                  <span>) &#123;</span>
-                  <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
-                    [120 FPS // METAL 3]
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
-                  <span className="pl-4">
-                    <span className="text-[#9cdcfe]">surface</span>.<span className="text-[#dcdcaa]">write</span>(<span className="text-[#dcdcaa]">sample_glyph</span>(<span className="text-[#9cdcfe]">atlas</span>, <span className="text-[#9cdcfe]">vertices</span>[<span className="text-[#9cdcfe]">gid</span>.<span className="text-[#9cdcfe]">x</span>]), <span className="text-[#9cdcfe]">gid</span>);
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">11</span>
-                  <span>&#125;</span>
+
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="NATIVE SILICON PIPELINE"
+                    title="Direct Metal 3 & WebGPU"
+                    desc="Bypasses DOM layout reflows and V8 GC pauses. Rasterizes glyph quads directly via GPU compute at locked 120 FPS."
+                    telemetry="LATENCY: 4.2ms · 120 FPS"
+                    accentColor="#0055FF"
+                  />
                 </div>
               </div>
             )}
@@ -766,51 +865,69 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 6: ACTIONABLE OUTPUT (Mach-O ARM64 Compiler Output Artifact)   */}
             {/* =================================================================== */}
             {mode === "output" && (
-              <div className="space-y-0.5">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span className="text-[#6a9955] italic">// Native LLVM Mach-O Binary Compilation Pipeline</span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">use</span> crux_build::&#123;<span className="text-[#4ec9b0]">LLVMBackend</span>, <span className="text-[#4ec9b0]">TargetTriple</span>, <span className="text-[#4ec9b0]">MachOBinary</span>&#125;;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span></span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span>
-                    <span className="text-[#569cd6]">pub fn</span> <span className="text-[#dcdcaa]">emit_native_binary</span>(<span className="text-[#9cdcfe]">target</span>: <span className="text-[#4ec9b0]">TargetTriple</span>) -&gt; <span className="text-[#4ec9b0]">Result</span>&lt;<span className="text-[#4ec9b0]">MachOBinary</span>&gt; &#123;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">codegen</span> = <span className="text-[#4ec9b0]">LLVMBackend</span>::<span className="text-[#dcdcaa]">new</span>(<span className="text-[#9cdcfe]">target</span>)?;
-                  </span>
-                </div>
-                <div className="flex items-baseline bg-[#ffffff]/5">
-                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">6</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">artifact</span> = <span className="text-[#9cdcfe]">codegen</span>.<span className="text-[#dcdcaa]">emit_arm64_slice</span>(<span className="text-[#ce9178]">&quot;aarch64-apple-darwin&quot;</span>)?;
-                    <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
-                      [ARM64 READY // 140ms]
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-0.5 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span className="text-[#6a9955] italic">// Native LLVM Mach-O Binary Compilation Pipeline</span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">use</span> crux_build::&#123;<span className="text-[#4ec9b0]">LLVMBackend</span>, <span className="text-[#4ec9b0]">TargetTriple</span>, <span className="text-[#4ec9b0]">MachOBinary</span>&#125;;
                     </span>
-                  </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span></span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                    <span>
+                      <span className="text-[#569cd6]">pub fn</span> <span className="text-[#dcdcaa]">emit_native_binary</span>(<span className="text-[#9cdcfe]">target</span>: <span className="text-[#4ec9b0]">TargetTriple</span>) -&gt; <span className="text-[#4ec9b0]">Result</span>&lt;<span className="text-[#4ec9b0]">MachOBinary</span>&gt; &#123;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">codegen</span> = <span className="text-[#4ec9b0]">LLVMBackend</span>::<span className="text-[#dcdcaa]">new</span>(<span className="text-[#9cdcfe]">target</span>)?;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline bg-[#ffffff]/5">
+                    <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-3 select-none">6</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">artifact</span> = <span className="text-[#9cdcfe]">codegen</span>.<span className="text-[#dcdcaa]">emit_arm64_slice</span>(<span className="text-[#ce9178]">&quot;aarch64-apple-darwin&quot;</span>)?;
+                      <span className="ml-2 text-[9px] bg-white text-black font-bold px-1.5 py-0.2">
+                        [ARM64 READY // 140ms]
+                      </span>
+                    </span>
+                    {/* Dotted leader line */}
+                    <span className="hidden xl:inline-flex items-center ml-2">
+                      <span className="border-b border-dashed border-[#0055FF] w-6" />
+                      <span className="text-[#0055FF] text-[8px] -ml-0.5">▶</span>
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                    <span className="pl-4">
+                      <span className="text-[#4ec9b0]">Ok</span>(<span className="text-[#9cdcfe]">artifact</span>)
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                    <span>&#125;</span>
+                  </div>
                 </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
-                  <span className="pl-4">
-                    <span className="text-[#4ec9b0]">Ok</span>(<span className="text-[#9cdcfe]">artifact</span>)
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
-                  <span>&#125;</span>
+
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="ACTIONABLE OUTPUT"
+                    title="Native Mach-O Binary Emitter"
+                    desc="Emits direct ARM64 host binaries in 140ms. Instant execution artifacts with zero cloud build overhead."
+                    telemetry="TARGET: ARM64-DARWIN · 140ms"
+                    accentColor="#0055FF"
+                  />
                 </div>
               </div>
             )}
@@ -819,80 +936,98 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 7: AUTONOMOUS @CRUXAI AGENTS (Suggestion Review Diff)          */}
             {/* =================================================================== */}
             {mode === "agents" && (
-              <div className="space-y-1">
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
-                  <span>
-                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">LocalDaemonClient</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/daemon&quot;</span>;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
-                  <span>
-                    <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
-                  </span>
-                </div>
-
-                {/* Inline Diff Box */}
-                <div className="my-2 border border-[#222222] bg-[#0a0a0a]">
-                  <div className="flex justify-between items-center px-3 py-1 border-b border-[#222222] bg-[#111111]">
-                    <span className="text-[10px] font-mono text-white flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-[#00FF66]" />
-                      <span>@CruxAI suggests an atomic refactor</span>
-                      {diffState === "accepted" && (
-                        <span className="ml-2 px-1.5 py-0.2 text-[9px] bg-black border border-[#222222] text-[#00FF66] font-mono">
-                          [APPLIED ✓]
-                        </span>
-                      )}
+              <div className="flex flex-col xl:flex-row xl:items-start justify-between gap-3 relative">
+                <div className="space-y-1 flex-1 min-w-0">
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                    <span>
+                      <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">LocalDaemonClient</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/daemon&quot;</span>;
                     </span>
-                    <div className="flex items-center gap-1.5">
-                      {diffState === "pending" ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => setDiffState("accepted")}
-                            className="px-2 py-0.5 bg-white text-black font-mono text-[9px] uppercase font-bold hover:bg-[#CCCCCC] transition-none cursor-pointer"
-                          >
-                            Accept
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDiffState("rejected")}
-                            className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] font-mono text-[9px] uppercase hover:text-white transition-none cursor-pointer"
-                          >
-                            Reject
-                          </button>
-                        </>
-                      ) : (
-                        <span className="text-[9px] font-mono text-[#00FF66] font-bold">
-                          APPLIED
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
+                    </span>
+                  </div>
+
+                  {/* Inline Diff Box */}
+                  <div className="my-2 border border-[#222222] bg-[#0a0a0a]">
+                    <div className="flex justify-between items-center px-3 py-1 border-b border-[#222222] bg-[#111111]">
+                      <span className="text-[10px] font-mono text-white flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-[#00FF66]" />
+                        <span>@CruxAI suggests an atomic refactor</span>
+                        {diffState === "accepted" && (
+                          <span className="ml-2 px-1.5 py-0.2 text-[9px] bg-black border border-[#222222] text-[#00FF66] font-mono">
+                            [APPLIED ✓]
+                          </span>
+                        )}
+                        {/* Dotted leader line from suggestion badge */}
+                        <span className="hidden xl:inline-flex items-center ml-2">
+                          <span className="border-b border-dashed border-[#00FF66] w-6" />
+                          <span className="text-[#00FF66] text-[8px] -ml-0.5">▶</span>
                         </span>
-                      )}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {diffState === "pending" ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setDiffState("accepted")}
+                              className="px-2 py-0.5 bg-white text-black font-mono text-[9px] uppercase font-bold hover:bg-[#CCCCCC] transition-none cursor-pointer"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDiffState("rejected")}
+                              className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] font-mono text-[9px] uppercase hover:text-white transition-none cursor-pointer"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[9px] font-mono text-[#00FF66] font-bold">
+                            APPLIED
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-2 text-[11px] leading-relaxed font-mono">
+                      <div className="bg-[#FF453A]/10 text-[#FF453A] px-2 py-0.5 border-l-2 border-[#FF453A] line-through">
+                        - const lock = await this.daemon.acquireLock(channel);
+                      </div>
+                      <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
+                        + const ticket = await atomicBitset.claimTicket();
+                      </div>
+                      <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
+                        + await wal.commitLockFree(ticket);
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-2 text-[11px] leading-relaxed font-mono">
-                    <div className="bg-[#FF453A]/10 text-[#FF453A] px-2 py-0.5 border-l-2 border-[#FF453A] line-through">
-                      - const lock = await this.daemon.acquireLock(channel);
-                    </div>
-                    <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
-                      + const ticket = await atomicBitset.claimTicket();
-                    </div>
-                    <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
-                      + await wal.commitLockFree(ticket);
-                    </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                    <span className="pl-4">
+                      <span className="text-[#569cd6]">return</span> ticket;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                    <span>&#125;</span>
                   </div>
                 </div>
 
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
-                  <span className="pl-4">
-                    <span className="text-[#569cd6]">return</span> ticket;
-                  </span>
-                </div>
-                <div className="flex items-baseline">
-                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
-                  <span>&#125;</span>
+                {/* Technical Callout Bubble */}
+                <div className="xl:w-[210px] 2xl:w-[230px] shrink-0 mt-3 xl:mt-1">
+                  <TechnicalCalloutBubble
+                    badge="AUTONOMOUS AI ENGINE"
+                    title="@CruxAI Local Refactor"
+                    desc="Embedded agent proposes lock-free atomic bitset patch. Deterministically evaluated via local PTY bridge."
+                    telemetry="STATUS: VERIFIED · 100% PASS"
+                    accentColor="#00FF66"
+                  />
                 </div>
               </div>
             )}

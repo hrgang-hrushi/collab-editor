@@ -417,8 +417,22 @@ export default function AeyePricingSection() {
                   const Icon = p.icon;
                   return (
                     <div key={idx} className="flex items-start gap-4">
-                      <div className="w-8 h-8 border border-[#222222] bg-[#0c0c0e] flex items-center justify-center shrink-0 text-[#0055FF]">
-                        <Icon className="w-4 h-4" />
+                      <div className="relative w-8 h-8 border border-[#0055FF]/40 bg-[#050b18] flex items-center justify-center shrink-0 overflow-hidden">
+                        {/* Bluish Grid Background */}
+                        <div
+                          className="absolute inset-0 opacity-40 pointer-events-none"
+                          style={{
+                            backgroundImage: `
+                              linear-gradient(to right, rgba(0, 85, 255, 0.45) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(0, 85, 255, 0.45) 1px, transparent 1px)
+                            `,
+                            backgroundSize: "6px 6px",
+                          }}
+                        />
+                        {/* White Icon */}
+                        <Icon className="w-4 h-4 text-white relative z-10" />
+                        {/* Blue overlay with a slight shade and lower opacity than the icon */}
+                        <div className="absolute inset-0 bg-[#0055FF]/20 mix-blend-screen pointer-events-none z-20" />
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-white font-sans">

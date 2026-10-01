@@ -339,12 +339,20 @@ export default function AeyeHowItWorkSection() {
                     <div className="my-5 relative">
                       <div className="w-full h-1 bg-[#141418] relative overflow-hidden">
                         <motion.div
-                          className="h-full bg-[#0055FF]"
+                          className="h-full bg-[#0055FF] shadow-[0_0_12px_#0055FF,0_0_24px_#0055FF,0_0_36px_#0055FF]"
                           style={{ width: fillMotionValue }}
                         />
                       </div>
-                      {/* Dotted indicator pattern below bar */}
-                      <div className="w-full h-1 mt-1 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:4px_4px]" />
+                      {/* Dotted indicator pattern below bar that lights up to blue as progress fills */}
+                      <div className="relative w-full h-1 mt-1 overflow-hidden">
+                        {/* Gray dotted base */}
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:4px_4px]" />
+                        {/* Glowing Blue dotted fill syncing directly with fillMotionValue */}
+                        <motion.div
+                          className="absolute inset-y-0 left-0 bg-[radial-gradient(#0055FF_1.5px,transparent_1.5px)] [background-size:4px_4px] filter drop-shadow-[0_0_6px_#0055FF]"
+                          style={{ width: fillMotionValue }}
+                        />
+                      </div>
                     </div>
 
                     {/* Bottom Section: Title + Graphic */}
