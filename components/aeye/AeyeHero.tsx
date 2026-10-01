@@ -17,6 +17,7 @@ import {
 } from "./AeyeIcons";
 import InteractivePixelGrid from "./InteractivePixelGrid";
 import CallChip from "@/components/ui/CallChip";
+import { BorderBeam } from "border-beam";
 
 const TYPEWRITER_WORDS = ["[Collaborative IDE]", "[Bare-Metal Kernel]", "[WebGPU Engine]"];
 
@@ -283,14 +284,23 @@ export default function AeyeHero() {
                 >
                   {/* Left: Email input with the exact underline border style as Watch Demo */}
                   <div className="relative">
-                    <input
-                      type="email"
-                      required
-                      value={preCruxEmail}
-                      onChange={(e) => setPreCruxEmail(e.target.value)}
-                      placeholder="Get on Pre-Crux"
-                      className="w-full sm:w-[240px] md:w-[280px] bg-transparent text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border-0 border-b border-white focus:border-[#0055FF] focus:outline-none px-2 py-3 transition-none rounded-none"
-                    />
+                    <BorderBeam
+                      size="pulse-outside"
+                      colorVariant="ocean"
+                      strength={0.8}
+                      theme="dark"
+                      borderRadius={0}
+                      className="w-full sm:w-[240px] md:w-[280px] relative"
+                    >
+                      <input
+                        type="email"
+                        required
+                        value={preCruxEmail}
+                        onChange={(e) => setPreCruxEmail(e.target.value)}
+                        placeholder="Get on Pre-Crux"
+                        className="w-full bg-[#0c0c0e] text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border border-[#222222] focus:border-white focus:outline-none px-3 py-3 transition-none rounded-none block"
+                      />
+                    </BorderBeam>
                   </div>
 
                   {/* Right: Lets Crux it Action Button */}

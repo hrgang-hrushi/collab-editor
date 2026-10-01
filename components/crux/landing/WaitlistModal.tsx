@@ -6,6 +6,7 @@ import { X, Check, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 import confetti from "canvas-confetti";
 import CruxBrandLogo from "../CruxBrandLogo";
 import CallChip from "@/components/ui/CallChip";
+import { BorderBeam } from "border-beam";
 
 interface WaitlistModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
   const [arch, setArch] = useState<"apple_silicon" | "intel" | "linux">("apple_silicon");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
 
   const [waitlistResult, setWaitlistResult] = useState<{
@@ -32,6 +34,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     referralCode: string;
     referralUrl: string;
     totalInQueue: number;
+    emailSent: boolean;
   } | null>(null);
   const [copiedReferral, setCopiedReferral] = useState(false);
 
@@ -42,6 +45,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
     if (!email || !email.includes("@")) return;
 
     setLoading(true);
+    setError("");
     setChipStage("almost");
 
     try {
@@ -51,16 +55,19 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
         body: JSON.stringify({ email, role, arch }),
       });
       const data = await res.json();
-      if (data.success) {
-        setWaitlistResult({
-          queuePosition: data.queuePosition,
-          referralCode: data.referralCode,
-          referralUrl: data.referralUrl,
-          totalInQueue: data.totalInQueue,
-        });
-      }
+      if (!res.ok || !data.success) throw new Error(data.error || "Could not save your place. Please try again.");
+      setWaitlistResult({
+        queuePosition: data.queuePosition,
+        referralCode: data.referralCode,
+        referralUrl: data.referralUrl,
+        totalInQueue: data.totalCount,
+        emailSent: Boolean(data.emailSent),
+      });
     } catch (err) {
-      console.error("Waitlist submission error:", err);
+      setError(err instanceof Error ? err.message : "Could not save your place. Please try again.");
+      setLoading(false);
+      setChipStage("idle");
+      return;
     }
 
     setTimeout(() => {
@@ -125,14 +132,25 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#888888] font-mono">
                 Work or GitHub Email
               </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="developer@company.com"
-                className="w-full px-4 py-3 rounded-none bg-[#111111] border border-[#222222] text-white placeholder-[#444444] text-xs font-mono focus:outline-none focus:border-white transition-none"
-              />
+              <div className="relative">
+                <BorderBeam
+                  size="pulse-outside"
+                  colorVariant="ocean"
+                  strength={0.85}
+                  theme="dark"
+                  borderRadius={0}
+                  className="w-full relative"
+                >
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="developer@company.com"
+                    className="w-full px-4 py-3 rounded-none bg-[#111111] border border-[#222222] text-white placeholder-[#444444] text-xs font-mono focus:outline-none focus:border-white transition-none block"
+                  />
+                </BorderBeam>
+              </div>
             </div>
 
             {/* Developer Role Selection */}
@@ -184,6 +202,8 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
                 ))}
               </div>
             </div>
+
+            {error && <p role="alert" className="text-xs text-[#FF9C9C]">{error}</p>}
 
             {/* Submit CTA or CallChip */}
             {chipStage !== "idle" && !submitted ? (
@@ -270,7 +290,7 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <div className="space-y-2">
               <h4 className="text-xl font-bold text-white font-sans">You're on the Crux Priority Roster</h4>
               <p className="text-xs text-[#888888] max-w-sm mx-auto leading-relaxed font-sans">
-                We've reserved your early build access token for <span className="text-white font-mono">{email}</span>. You will receive an invitation when the next macOS build drops.
+                Your place is saved for <span className="text-white font-mono">{email}</span>. {waitlistResult?.emailSent ? "Check your inbox for confirmation." : "Your confirmation email is pending."}
               </p>
             </div>
 
@@ -278,31 +298,31 @@ export default function WaitlistModal({ isOpen, onClose }: WaitlistModalProps) {
             <div className="p-3.5 rounded-none bg-[#111111] border border-[#222222] text-xs font-mono text-white inline-flex items-center gap-3">
               <div className="w-2 h-2 bg-white" />
               <span>
-                QUEUE POSITION: <strong className="text-white font-bold">#{waitlistResult?.queuePosition || 1482}</strong>
+                QUEUE POSITION: <strong className="text-white font-bold">#{waitlistResult?.queuePosition}</strong>
               </span>
               <span className="text-[#444444]">|</span>
               <span className="text-[#888888]">
-                TOTAL IN WAITING QUEUE: <strong className="text-white">{waitlistResult?.totalInQueue || 1482}</strong>
+                TOTAL IN WAITING QUEUE: <strong className="text-white">{waitlistResult?.totalInQueue}</strong>
               </span>
             </div>
 
             {/* Priority Referral Link Sharing */}
             <div className="p-3 rounded-none bg-[#090909] border border-[#222222] max-w-md mx-auto text-left space-y-1.5">
               <div className="text-[10px] uppercase font-mono text-[#888888] flex items-center justify-between">
-                <span>Move Up 3 Places per Referral</span>
-                <span className="text-white font-mono">{waitlistResult?.referralCode || "CRX-ALPHA"}</span>
+                <span>Your personal share link</span>
+                <span className="text-white font-mono">{waitlistResult?.referralCode}</span>
               </div>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
                   readOnly
-                  value={waitlistResult?.referralUrl || `https://codecrux.us/?ref=${waitlistResult?.referralCode || "ALPHA"}`}
+                  value={waitlistResult?.referralUrl || ""}
                   className="flex-1 bg-[#111111] border border-[#222222] px-2.5 py-1.5 text-[11px] font-mono text-[#888888] outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => {
-                    const url = waitlistResult?.referralUrl || `https://codecrux.us/?ref=${waitlistResult?.referralCode || "ALPHA"}`;
+                    const url = waitlistResult?.referralUrl || "";
                     navigator.clipboard.writeText(url);
                     setCopiedReferral(true);
                     setTimeout(() => setCopiedReferral(false), 2000);

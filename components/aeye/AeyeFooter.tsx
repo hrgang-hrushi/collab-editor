@@ -5,9 +5,11 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import CallChip from "@/components/ui/CallChip";
+import { BorderBeam } from "border-beam";
 
 export default function AeyeFooter() {
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
   const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
 
@@ -29,24 +31,26 @@ export default function AeyeFooter() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (email && email.includes("@")) {
       try {
         localStorage.setItem("crux_dispatch_email", email);
       } catch (_) {}
 
-      // Fire asynchronous registration to waitlist database
+      setError("");
       try {
-        fetch("/api/waitlist", {
+        const response = await fetch("/api/waitlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            role: "Crux Insider Dispatch / Newsletter",
-          }),
-        }).catch((err) => console.warn("[Dispatch] Sync warn:", err));
-      } catch (_) {}
+          body: JSON.stringify({ email, role: "Crux Insider Dispatch", newsletterOptIn: true }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Unable to subscribe right now.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Unable to subscribe right now.");
+        return;
+      }
 
       setChipStage("almost");
 
@@ -175,28 +179,38 @@ export default function AeyeFooter() {
                     </div>
                   </motion.div>
                 ) : (
-                  <form
-                    onSubmit={handleSubmit}
-                    className="bg-[#111111] border border-[#222222] p-1.5 flex items-center justify-between gap-2 w-full rounded-none group focus-within:border-white transition-none"
+                  <BorderBeam
+                    size="pulse-outside"
+                    colorVariant="ocean"
+                    strength={0.75}
+                    theme="dark"
+                    borderRadius={0}
+                    className="w-full relative"
                   >
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@company.com"
-                      className="w-full bg-transparent text-white placeholder-[#555555] font-sans text-xs px-3 py-2 focus:outline-none rounded-none"
-                    />
-
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium shrink-0 group/btn"
+                    <form
+                      onSubmit={handleSubmit}
+                      className="bg-[#111111] border border-[#222222] p-1.5 flex items-center justify-between gap-2 w-full rounded-none group focus-within:border-white transition-none"
                     >
-                      <span className="w-1.5 h-1.5 bg-white group-hover/btn:bg-black inline-block transition-none" />
-                      <span>Join</span>
-                    </button>
-                  </form>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="your.email@company.com"
+                        className="w-full bg-transparent text-white placeholder-[#555555] font-sans text-xs px-3 py-2 focus:outline-none rounded-none"
+                      />
+
+                      <button
+                        type="submit"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0e0e11] border border-[#333333] hover:border-white text-white font-sans text-xs tracking-wider uppercase hover:bg-white hover:text-black transition-none cursor-pointer rounded-none font-medium shrink-0 group/btn"
+                      >
+                        <span className="w-1.5 h-1.5 bg-white group-hover/btn:bg-black inline-block transition-none" />
+                        <span>Join</span>
+                      </button>
+                    </form>
+                  </BorderBeam>
                 )}
+                {error && <p role="alert" className="mt-2 text-xs text-[#FF9C9C]">{error}</p>}
               </div>
             </div>
 

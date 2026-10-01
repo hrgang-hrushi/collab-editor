@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThinkingOrb } from "thinking-orbs";
+import { BorderBeam } from "border-beam";
 import {
   Bot,
   Sparkles,
@@ -384,29 +385,41 @@ export default function CruxAgentPanel({ isOpen, onClose }: CruxAgentPanelProps)
           className="relative flex flex-col gap-2"
         >
           <div className="relative">
-            <textarea
-              rows={2}
-              value={inputVal}
-              onChange={(e) => {
-                setInputVal(e.target.value);
-                triggerHaptic("type");
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder="Ask CruxAI or prompt e.g. 'optimize this buffer'..."
-              className="w-full bg-black border border-[#222222] focus:border-[#FF453A] rounded-none text-xs text-white placeholder-[#888888] p-2.5 pr-8 resize-none focus:outline-none transition-colors font-mono"
-            />
-            <button
-              type="submit"
-              disabled={!inputVal.trim() || isThinking}
-              className="absolute right-2 bottom-2.5 p-1.5 rounded-none bg-[#FF453A] hover:bg-[#e03e34] disabled:opacity-30 text-white transition-colors cursor-pointer"
+            <BorderBeam
+              size="md"
+              colorVariant="ocean"
+              strength={0.85}
+              theme="dark"
+              active={true}
+              borderRadius={0}
+              className="w-full relative"
             >
-              <Send className="w-3.5 h-3.5" />
-            </button>
+              <div className="relative w-full">
+                <textarea
+                  rows={2}
+                  value={inputVal}
+                  onChange={(e) => {
+                    setInputVal(e.target.value);
+                    triggerHaptic("type");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Ask CruxAI or prompt e.g. 'optimize this buffer'..."
+                  className="w-full bg-black border border-[#222222] focus:border-[#0055FF] rounded-none text-xs text-white placeholder-[#888888] p-2.5 pr-8 resize-none focus:outline-none transition-colors font-mono block"
+                />
+                <button
+                  type="submit"
+                  disabled={!inputVal.trim() || isThinking}
+                  className="absolute right-2 bottom-2.5 p-1.5 rounded-none bg-[#0055FF] hover:bg-[#0044cc] disabled:opacity-30 text-white transition-colors cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </BorderBeam>
           </div>
 
           <div className="flex items-center justify-between text-[10px] text-[#888888] font-mono">

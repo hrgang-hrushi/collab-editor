@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, ShieldCheck, Terminal, Cpu, Zap, Mail, Phone, Building } from "lucide-react";
 import CallChip from "@/components/ui/CallChip";
+import { BorderBeam } from "border-beam";
 
 export default function AeyePricingSection() {
   const [email, setEmail] = useState("");
@@ -44,7 +45,7 @@ export default function AeyePricingSection() {
     }
 
     setError("");
-    // Generate deterministic brutalist ticket ID fallback
+    // Generate a display token only after storage confirms the request
     const randomHex = Math.random().toString(16).substring(2, 8).toUpperCase();
     let generatedId = `CRUX-ALPHA-${randomHex}`;
     setTicketId(generatedId);
@@ -64,15 +65,14 @@ export default function AeyePricingSection() {
           role: company ? `${company} (${teamSize})` : teamSize,
         }),
       });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.referralCode) {
-          generatedId = data.referralCode;
-          setTicketId(generatedId);
-        }
-      }
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Unable to save your place. Please try again.");
+      generatedId = data.referralCode;
+      setTicketId(generatedId);
     } catch (err) {
-      console.warn("[Waitlist] Network sync failed, falling back to local ID:", err);
+      setError(err instanceof Error ? err.message : "Unable to save your place. Please try again.");
+      setChipStage("idle");
+      return;
     }
 
     setTimeout(() => {
@@ -176,7 +176,7 @@ export default function AeyePricingSection() {
                       <span className="w-2 h-2 bg-[#0055FF]" />
                       ALPHA APPLICATION CONSOLE
                     </span>
-                    <span>SLOTS REMAINING: 42</span>
+                    <span>ROLLING ACCESS</span>
                   </div>
 
                   {error && (
@@ -191,14 +191,23 @@ export default function AeyePricingSection() {
                       [01] Work Email <span className="text-[#0055FF]">*</span>
                     </label>
                     <div className="relative">
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="engineer@company.com"
-                        className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none"
-                      />
+                      <BorderBeam
+                        size="pulse-outside"
+                        colorVariant="ocean"
+                        strength={0.85}
+                        theme="dark"
+                        borderRadius={0}
+                        className="w-full relative"
+                      >
+                        <input
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="engineer@company.com"
+                          className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none block"
+                        />
+                      </BorderBeam>
                     </div>
                   </div>
 
@@ -208,14 +217,23 @@ export default function AeyePricingSection() {
                       [02] Contact / Phone Number <span className="text-[#0055FF]">*</span>
                     </label>
                     <div className="relative">
-                      <input
-                        type="tel"
-                        required
-                        value={contact}
-                        onChange={(e) => setContact(e.target.value)}
-                        placeholder="+1 (555) 019-2834"
-                        className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none"
-                      />
+                      <BorderBeam
+                        size="pulse-outside"
+                        colorVariant="ocean"
+                        strength={0.8}
+                        theme="dark"
+                        borderRadius={0}
+                        className="w-full relative"
+                      >
+                        <input
+                          type="tel"
+                          required
+                          value={contact}
+                          onChange={(e) => setContact(e.target.value)}
+                          placeholder="+1 (555) 019-2834"
+                          className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none block"
+                        />
+                      </BorderBeam>
                     </div>
                   </div>
 
@@ -225,27 +243,49 @@ export default function AeyePricingSection() {
                       <label className="block text-xs font-mono text-[#888888] mb-2 uppercase">
                         [03] Company / Org
                       </label>
-                      <input
-                        type="text"
-                        value={company}
-                        onChange={(e) => setCompany(e.target.value)}
-                        placeholder="Acme Systems / Solo"
-                        className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none"
-                      />
+                      <div className="relative">
+                        <BorderBeam
+                          size="pulse-outside"
+                          colorVariant="ocean"
+                          strength={0.75}
+                          theme="dark"
+                          borderRadius={0}
+                          className="w-full relative"
+                        >
+                          <input
+                            type="text"
+                            value={company}
+                            onChange={(e) => setCompany(e.target.value)}
+                            placeholder="Acme Systems / Solo"
+                            className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-sm text-white placeholder-[#444444] focus:border-white focus:outline-none transition-none rounded-none block"
+                          />
+                        </BorderBeam>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-[#888888] mb-2 uppercase">
                         [04] Team Configuration
                       </label>
-                      <select
-                        value={teamSize}
-                        onChange={(e) => setTeamSize(e.target.value)}
-                        className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-xs text-white focus:border-white focus:outline-none transition-none rounded-none appearance-none"
-                      >
-                        <option value="Individual">Solo Engineer (1 seat)</option>
-                        <option value="Small Team">Engineering Team (2-10 seats)</option>
-                        <option value="Enterprise">Enterprise / Scale (10+ seats)</option>
-                      </select>
+                      <div className="relative">
+                        <BorderBeam
+                          size="pulse-outside"
+                          colorVariant="ocean"
+                          strength={0.75}
+                          theme="dark"
+                          borderRadius={0}
+                          className="w-full relative"
+                        >
+                          <select
+                            value={teamSize}
+                            onChange={(e) => setTeamSize(e.target.value)}
+                            className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-xs text-white focus:border-white focus:outline-none transition-none rounded-none appearance-none block"
+                          >
+                            <option value="Individual">Solo Engineer (1 seat)</option>
+                            <option value="Small Team">Engineering Team (2-10 seats)</option>
+                            <option value="Enterprise">Enterprise / Scale (10+ seats)</option>
+                          </select>
+                        </BorderBeam>
+                      </div>
                     </div>
                   </div>
 

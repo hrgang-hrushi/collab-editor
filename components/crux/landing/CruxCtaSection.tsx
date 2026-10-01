@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRight, Terminal, Check, ShieldCheck } from "lucide-react";
 import confetti from "canvas-confetti";
+import { BorderBeam } from "border-beam";
 
 interface CruxCtaSectionProps {
   onOpenWaitlist?: () => void;
@@ -23,6 +24,7 @@ export default function CruxCtaSection({
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
 
   useEffect(() => {
@@ -59,6 +61,7 @@ export default function CruxCtaSection({
     if (!email || !email.includes("@")) return;
 
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
@@ -66,6 +69,7 @@ export default function CruxCtaSection({
         body: JSON.stringify({ email, role: "systems", arch: "apple_silicon" }),
       });
       const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Unable to join right now.");
       if (data.success) {
         setQueuePosition(data.queuePosition);
         setSubmitted(true);
@@ -79,8 +83,7 @@ export default function CruxCtaSection({
         } catch {}
       }
     } catch (err) {
-      console.error(err);
-      setSubmitted(true);
+      setError(err instanceof Error ? err.message : "Unable to join right now.");
     } finally {
       setLoading(false);
     }
@@ -129,14 +132,23 @@ export default function CruxCtaSection({
           <div className="mt-8 max-w-md mx-auto">
             {!submitted ? (
               <form onSubmit={handleQuickSubmit} className="flex flex-col sm:flex-row items-stretch gap-2">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email to reserve seat..."
-                  className="flex-1 px-4 py-3 bg-[#000000] text-white placeholder-[#888888] font-mono text-xs outline-none rounded-none border border-black focus:border-[#444444]"
-                />
+                <BorderBeam
+                  size="pulse-outside"
+                  colorVariant="ocean"
+                  strength={0.8}
+                  theme="dark"
+                  borderRadius={0}
+                  className="flex-1 relative"
+                >
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email to reserve seat..."
+                    className="w-full px-4 py-3 bg-[#000000] text-white placeholder-[#888888] font-mono text-xs outline-none rounded-none border border-[#222222] focus:border-white block"
+                  />
+                </BorderBeam>
                 <button
                   type="submit"
                   disabled={loading}
@@ -145,12 +157,13 @@ export default function CruxCtaSection({
                   <span>{loading ? "Registering..." : "Join Waitlist"}</span>
                   <ArrowRight className="w-3.5 h-3.5 text-white" />
                 </button>
+                {error && <p role="alert" className="text-xs text-[#A00000]">{error}</p>}
               </form>
             ) : (
               <div className="p-3 bg-black text-white font-mono text-xs flex items-center justify-center gap-3">
                 <Check className="w-4 h-4 text-white stroke-[3]" />
                 <span>
-                  RESERVED: SPOT <strong>#{queuePosition || 1482}</strong> CONFIRMED
+                  RESERVED: SPOT <strong>#{queuePosition}</strong> CONFIRMED
                 </span>
               </div>
             )}

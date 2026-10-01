@@ -11,6 +11,7 @@ import CruxAiModelDropdown from "./CruxAiModelDropdown";
 import CruxAffinityMatrixModal from "../modals/CruxAffinityMatrixModal";
 import { autoSyncEngine, SyncStatus } from "@/lib/autoSyncEngine";
 import CruxAiProgress from "./CruxAiProgress";
+import { BorderBeam } from "border-beam";
 import {
   Bot,
   Send,
@@ -731,28 +732,38 @@ export default function CruxDualStateHud({
 
         {/* Input Bar */}
         <div className="p-2 bg-[#050505] border-t border-[#222222] flex items-center gap-2">
-          <input
-            ref={droneInputRef}
-            type="text"
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSubmit();
-              if (e.key === "Escape") {
-                if (isThinking) {
-                  e.preventDefault();
-                  handleStopPrompt();
-                } else if (hasActions) {
-                  e.preventDefault();
-                  handleRemoveActions();
-                } else {
-                  setIsDroneOpen(false);
+          <BorderBeam
+            size="md"
+            colorVariant="ocean"
+            strength={0.85}
+            theme="dark"
+            active={true}
+            borderRadius={0}
+            className="flex-1 relative"
+          >
+            <input
+              ref={droneInputRef}
+              type="text"
+              value={inputVal}
+              onChange={(e) => setInputVal(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSubmit();
+                if (e.key === "Escape") {
+                  if (isThinking) {
+                    e.preventDefault();
+                    handleStopPrompt();
+                  } else if (hasActions) {
+                    e.preventDefault();
+                    handleRemoveActions();
+                  } else {
+                    setIsDroneOpen(false);
+                  }
                 }
-              }
-            }}
-            placeholder={`Ask AI or configure '> route add [provider] [token]'...`}
-            className="flex-1 bg-void border border-[#222222] px-2 py-1.5 text-xs text-white placeholder:text-[#555555] font-mono focus:border-white focus:outline-none rounded-none transition-none"
-          />
+              }}
+              placeholder={`Ask AI or configure '> route add [provider] [token]'...`}
+              className="w-full bg-void border border-[#222222] px-2 py-1.5 text-xs text-white placeholder:text-[#555555] font-mono focus:border-white focus:outline-none rounded-none transition-none block"
+            />
+          </BorderBeam>
           {isThinking ? (
             <button
               type="button"
@@ -1038,26 +1049,36 @@ export default function CruxDualStateHud({
         {/* Input Dock */}
         <div className="p-3 bg-[#0A0A0A] border-t border-[#222222] space-y-2">
           <div className="flex items-center gap-2">
-            <input
-              ref={anchorInputRef}
-              type="text"
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleSubmit();
-                if (e.key === "Escape") {
-                  if (isThinking) {
-                    e.preventDefault();
-                    handleStopPrompt();
-                  } else if (hasActions) {
-                    e.preventDefault();
-                    handleRemoveActions();
+            <BorderBeam
+              size="md"
+              colorVariant="ocean"
+              strength={0.85}
+              theme="dark"
+              active={true}
+              borderRadius={0}
+              className="flex-1 relative"
+            >
+              <input
+                ref={anchorInputRef}
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSubmit();
+                  if (e.key === "Escape") {
+                    if (isThinking) {
+                      e.preventDefault();
+                      handleStopPrompt();
+                    } else if (hasActions) {
+                      e.preventDefault();
+                      handleRemoveActions();
+                    }
                   }
-                }
-              }}
-              placeholder="Prompt AI or enter '> route add [provider] [token]'..."
-              className="flex-1 bg-void border border-[#222222] px-3 py-2 text-xs text-white placeholder:text-[#555555] font-mono focus:border-white focus:outline-none rounded-none transition-none"
-            />
+                }}
+                placeholder="Prompt AI or enter '> route add [provider] [token]'..."
+                className="w-full bg-void border border-[#222222] px-3 py-2 text-xs text-white placeholder:text-[#555555] font-mono focus:border-white focus:outline-none rounded-none transition-none block"
+              />
+            </BorderBeam>
             {isThinking ? (
               <button
                 type="button"
