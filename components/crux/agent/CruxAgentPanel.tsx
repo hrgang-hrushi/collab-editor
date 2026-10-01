@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThinkingOrb } from "thinking-orbs";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 import {
   Bot,
   Sparkles,

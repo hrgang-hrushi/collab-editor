@@ -6,7 +6,7 @@ import { X, Check, ArrowRight, ShieldCheck, Terminal } from "lucide-react";
 import confetti from "canvas-confetti";
 import CruxBrandLogo from "../CruxBrandLogo";
 import CallChip from "@/components/ui/CallChip";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 interface WaitlistModalProps {
   isOpen: boolean;

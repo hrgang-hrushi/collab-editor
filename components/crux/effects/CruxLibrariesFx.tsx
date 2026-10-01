@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { ThinkingOrb } from "thinking-orbs";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 import { Liquid } from "liquid-gooey";
 import { MetalFx, MetalText, MetalBadge, useMetalBend } from "metal-fx";
 import { Rise, Morph } from "cube-motion/react";

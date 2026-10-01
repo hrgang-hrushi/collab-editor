@@ -17,7 +17,7 @@ import {
 } from "./AeyeIcons";
 import InteractivePixelGrid from "./InteractivePixelGrid";
 import CallChip from "@/components/ui/CallChip";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 const TYPEWRITER_WORDS = ["[Collaborative IDE]", "[Bare-Metal Kernel]", "[WebGPU Engine]"];
 
@@ -37,6 +37,7 @@ export default function AeyeHero() {
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
   const [preCruxEmail, setPreCruxEmail] = useState("");
+  const [waitlistError, setWaitlistError] = useState("");
   const [preCruxSubmitted, setPreCruxSubmitted] = useState(false);
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
   const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
@@ -59,24 +60,23 @@ export default function AeyeHero() {
     return () => clearInterval(interval);
   }, []);
 
-  const handlePreCruxSubmit = (e: React.FormEvent) => {
+  const handlePreCruxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (preCruxEmail && preCruxEmail.includes("@")) {
+      setWaitlistError("");
       try {
-        localStorage.setItem("pre_crux_email", preCruxEmail);
-      } catch (_) {}
-
-      // Fire asynchronous waitlist registration to persistent database
-      try {
-        fetch("/api/waitlist", {
+        const response = await fetch("/api/waitlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: preCruxEmail,
-            role: "Hero Pre-Crux Quick Access",
-          }),
-        }).catch((err) => console.warn("[Hero Waitlist] Sync warn:", err));
-      } catch (_) {}
+          body: JSON.stringify({ email: preCruxEmail, role: "Hero Pre-Crux Quick Access" }),
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) throw new Error(data.error || "Unable to join right now.");
+        localStorage.setItem("pre_crux_email", preCruxEmail);
+      } catch (err) {
+        setWaitlistError(err instanceof Error ? err.message : "Unable to join right now.");
+        return;
+      }
 
       setChipStage("almost");
 
@@ -313,6 +313,7 @@ export default function AeyeHero() {
                   </button>
                 </form>
               )}
+              {waitlistError && <p role="alert" className="mt-2 text-xs text-[#FF9C9C]">{waitlistError}</p>}
             </motion.div>
           </div>
 

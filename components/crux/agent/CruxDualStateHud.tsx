@@ -11,7 +11,7 @@ import CruxAiModelDropdown from "./CruxAiModelDropdown";
 import CruxAffinityMatrixModal from "../modals/CruxAffinityMatrixModal";
 import { autoSyncEngine, SyncStatus } from "@/lib/autoSyncEngine";
 import CruxAiProgress from "./CruxAiProgress";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 import {
   Bot,
   Send,

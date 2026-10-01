@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, ShieldCheck, Terminal, Cpu, Zap, Mail, Phone, Building } from "lucide-react";
 import CallChip from "@/components/ui/CallChip";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 export default function AeyePricingSection() {
   const [email, setEmail] = useState("");

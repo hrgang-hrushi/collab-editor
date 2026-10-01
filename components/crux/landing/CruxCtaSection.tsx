@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowRight, Terminal, Check, ShieldCheck } from "lucide-react";
 import confetti from "canvas-confetti";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 interface CruxCtaSectionProps {
   onOpenWaitlist?: () => void;

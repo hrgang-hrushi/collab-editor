@@ -5,7 +5,7 @@ import { useWorkspaceStore } from "@/lib/store";
 import { triggerHaptic } from "@/lib/haptics";
 import { auth, googleProvider, githubProvider } from "@/lib/firebase";
 import { signInWithPopup, sendSignInLinkToEmail } from "firebase/auth";
-import { BorderBeam } from "border-beam";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 interface CruxAuthGateProps {
   onSuccess?: () => void;
