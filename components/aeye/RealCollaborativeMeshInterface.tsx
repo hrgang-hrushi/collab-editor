@@ -19,6 +19,7 @@ import {
   CodeIcon,
   File01Icon,
 } from "@hugeicons/core-free-icons";
+import { BorderBeam } from "@/components/ui/BorderBeam";
 
 export type CruxIdeMode =
   | "multiplayer"
@@ -34,141 +35,75 @@ interface RealCollaborativeMeshInterfaceProps {
   className?: string;
 }
 
-interface TelemetryMetric {
-  label: string;
-  value: string;
-  sub: string;
-}
-
-interface AppleTelemetryHUDProps {
-  channel: string;
-  badge: string;
+interface CleanCalloutCardProps {
+  category: string;
   title: string;
-  desc: string;
-  metrics: TelemetryMetric[];
+  description: string;
+  pill?: string;
   accentColor?: string;
   className?: string;
 }
 
 /**
- * Senior UI/UX Apple-Grade Telemetry Inspector HUD
- * - Xcode / Instruments inspired side-docked inspector
- * - Zero vertical scrolling: fits precisely in view side-by-side with code
- * - Transparent inner cards with subtle glow and rotating glowing square
- * - Humanized, purposeful, intuitive metrics and copy
- * - Direct horizontal circuit bus receptor notch aligned with active code token
+ * Super straightforward, modern Callout Card with BorderBeam effect
+ * Inspired by high-end design case-studies:
+ * - Pure, minimal, frosted dark glass
+ * - Crisp uppercase category header
+ * - Concise, human-readable feature explanation
+ * - Animated #0055FF border beam perimeter
  */
-function AppleTelemetryHUD({
-  channel,
-  badge,
+function CleanCalloutCard({
+  category,
   title,
-  desc,
-  metrics,
+  description,
+  pill,
   accentColor = "#0055FF",
   className = "",
-}: AppleTelemetryHUDProps) {
+}: CleanCalloutCardProps) {
   return (
-    <div
-      className={`relative bg-[#070913]/95 backdrop-blur-md border text-left p-3 select-none shadow-[0_8px_32px_rgba(0,0,0,0.65)] ${className}`}
-      style={{
-        borderColor: `${accentColor}50`,
-        borderRadius: "8px",
-      }}
-    >
-      {/* Physical Left Socket Notch: Aligned directly with horizontal circuit trace */}
-      <div
-        className="absolute -left-[6px] top-6 w-3 h-3 flex items-center justify-center rounded-[2px] shadow-sm z-10"
-        style={{
-          backgroundColor: accentColor,
-        }}
+    <div className={`relative ${className}`}>
+      <BorderBeam
+        size="md"
+        colorVariant="ocean"
+        strength={0.85}
+        theme="dark"
+        borderRadius={14}
+        className="w-full relative"
       >
-        <span className="w-1.5 h-1.5 bg-black rounded-[1px]" />
-      </div>
-
-      {/* Top Header Row: Badge + Live Waveform */}
-      <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
         <div
-          className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wider font-bold"
-          style={{ color: accentColor }}
+          className="relative bg-[#07080f]/90 backdrop-blur-xl border border-white/10 p-4 sm:p-5 text-left select-none overflow-hidden"
+          style={{ borderRadius: "14px" }}
         >
-          <span
-            className="w-1.5 h-1.5 rounded-full animate-ping"
-            style={{ backgroundColor: accentColor }}
-          />
-          <span>{badge}</span>
-        </div>
-
-        {/* Live SVG Signal Waveform */}
-        <div className="flex items-center gap-1.5">
-          <svg className="w-12 h-3" viewBox="0 0 50 12" fill="none">
-            <path
-              d="M 0 6 Q 6 6, 9 2 T 15 10 T 21 6 T 29 6 Q 34 6, 37 1 T 42 11 T 47 6 H 50"
-              stroke={accentColor}
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              className="opacity-80"
-            />
-          </svg>
-          <span className="text-[7.5px] font-mono text-[#16a34a] font-bold">
-            ● 120Hz
-          </span>
-        </div>
-      </div>
-
-      {/* 4-Cell Telemetry Metrics Matrix: Transparent, with Glow & Rotating Glowing Square */}
-      <div className="grid grid-cols-2 gap-1.5 my-2">
-        {metrics.map((m, idx) => (
-          <div
-            key={idx}
-            className="p-1.5 bg-transparent border border-white/10 flex flex-col justify-between relative group hover:border-white/20 transition-all"
-            style={{
-              borderRadius: "4px",
-              boxShadow: `0 0 10px ${accentColor}25`,
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-[7px] font-mono text-[#86868b] uppercase tracking-wider">
-                {m.label}
-              </span>
-              {/* Rotating glowing square glyph */}
-              <div
-                className="w-1.5 h-1.5 border border-current animate-spin"
+          {/* Header Row: Category + Pill */}
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-xs sm:text-[13px] font-bold uppercase tracking-wider font-sans text-white">
+              {category}
+            </h3>
+            {pill && (
+              <span
+                className="px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider font-semibold rounded-full border"
                 style={{
-                  borderColor: accentColor,
+                  backgroundColor: `${accentColor}15`,
                   color: accentColor,
-                  boxShadow: `0 0 6px ${accentColor}`,
-                  animationDuration: "4s",
+                  borderColor: `${accentColor}40`,
                 }}
-              />
-            </div>
-            <span className="text-[10.5px] font-mono font-bold text-white tracking-tight mt-1 tabular-nums">
-              {m.value}
-            </span>
-            <span className="text-[6.5px] font-mono mt-0.5 font-medium" style={{ color: accentColor }}>
-              {m.sub}
-            </span>
+              >
+                {pill}
+              </span>
+            )}
           </div>
-        ))}
-      </div>
 
-      {/* Architectural Description */}
-      <div className="mt-1">
-        <h4 className="text-[11px] font-medium text-white font-sans tracking-tight">
-          {title}
-        </h4>
-        <p className="mt-0.5 text-[9.5px] font-sans text-[#86868b] leading-relaxed">
-          {desc}
-        </p>
-      </div>
+          {/* Title */}
+          <h4 className="mt-2 text-xs sm:text-[13px] font-medium text-white/90 font-sans tracking-tight">
+            {title}
+          </h4>
 
-      {/* Humanized Telemetry Status Footer */}
-      <div className="mt-2 pt-1.5 border-t border-white/10 flex items-center justify-between font-mono text-[7.5px] text-[#86868b]">
-        <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
-          <span className="text-white font-medium">{channel}</span>
+          {/* Description */}
+          <p className="mt-1.5 text-xs sm:text-[12px] font-sans text-[#a1a1aa] leading-relaxed">
+            {description}
+          </p>
         </div>
-        <span className="text-[#86868b]">Verified &amp; Live</span>
-      </div>
+      </BorderBeam>
     </div>
   );
 }
@@ -667,16 +602,10 @@ export default function RealCollaborativeMeshInterface({
                       <span className="pl-4">
                         <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ast</span>.<span className="text-[#dcdcaa]">buildSymbolIndex</span>();
                       </span>
-                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px] shadow-[0_0_12px_rgba(0,85,255,0.4)]">
+                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse mr-1" />
                         <span>64,280 NODES</span>
                       </span>
-                    </div>
-
-                    {/* Direct Horizontal Circuit Bridge into Inspector HUD */}
-                    <div className="hidden lg:flex flex-1 items-center min-w-[16px] max-w-[48px] mx-2">
-                      <div className="w-full h-0 border-b border-dashed border-[#0055FF]" />
-                      <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-[#0055FF] -ml-0.5" />
                     </div>
                   </div>
 
@@ -686,19 +615,13 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                {/* Right: Apple Telemetry Inspector HUD (Zero-Scroll Side Dock) */}
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="Workspace Engine"
-                    badge="CONTEXT AWARENESS"
+                {/* Right: Clean Callout Card with BorderBeam */}
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="CONTEXT AWARENESS"
                     title="Instant Project Context"
-                    desc="Indexes your workspace in 0.08ms so suggestions understand every import and type."
-                    metrics={[
-                      { label: "Index Time", value: "0.08ms", sub: "INSTANT" },
-                      { label: "Files Tracked", value: "1,420 files", sub: "WORKSPACE" },
-                      { label: "Memory Usage", value: "12 MB", sub: "ZERO GC" },
-                      { label: "Sync State", value: "100%", sub: "REAL-TIME" },
-                    ]}
+                    description="Indexes your entire workspace in 0.08ms so code suggestions understand every import, symbol, and type across your repo."
+                    pill="0.08ms"
                     accentColor="#0055FF"
                   />
                 </div>
@@ -737,15 +660,10 @@ export default function RealCollaborativeMeshInterface({
                       <span className="pl-4">
                         <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">tree</span>.<span className="text-[#dcdcaa]">transformDeterministic</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">patch</span>, <span className="text-[#b5cea8]">0x{resolvedToken.toString(16)}</span>);
                       </span>
-                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px] shadow-[0_0_12px_rgba(0,85,255,0.4)]">
+                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse mr-1" />
                         <span>TOKEN CONVERGED</span>
                       </span>
-                    </div>
-
-                    <div className="hidden lg:flex flex-1 items-center min-w-[16px] max-w-[48px] mx-2">
-                      <div className="w-full h-0 border-b border-dashed border-[#0055FF]" />
-                      <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-[#0055FF] -ml-0.5" />
                     </div>
                   </div>
 
@@ -755,18 +673,12 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="AST Engine"
-                    badge="INTELLIGENT PROCESSING"
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="INTELLIGENT PROCESSING"
                     title="Smart Code Synthesis"
-                    desc="Merges concurrent edits smoothly without syntax conflicts or code overwrites."
-                    metrics={[
-                      { label: "Merge Speed", value: "0.14ms", sub: "SMOOTH" },
-                      { label: "Conflicts", value: "0 detected", sub: "CLEAN MERGE" },
-                      { label: "Tree State", value: "Valid AST", sub: "VERIFIED" },
-                      { label: "Frame Rate", value: "60 fps", sub: "RESPONSIVE" },
-                    ]}
+                    description="Synthesizes concurrent edits smoothly into deterministic AST mutations without syntax conflicts or code collisions."
+                    pill="CRDT V4"
                     accentColor="#0055FF"
                   />
                 </div>
@@ -805,15 +717,10 @@ export default function RealCollaborativeMeshInterface({
                       <span className="pl-8">
                         <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">epoch</span> = <span className="text-[#569cd6]">self</span>.<span className="text-[#9cdcfe]">vector_clock</span>.<span className="text-[#dcdcaa]">fetch_add</span>(<span className="text-[#b5cea8]">1</span>, <span className="text-[#4ec9b0]">Ordering</span>::<span className="text-[#4ec9b0]">SeqCst</span>);
                       </span>
-                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px] shadow-[0_0_12px_rgba(0,85,255,0.4)]">
+                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse mr-1" />
                         <span>EPOCH: #{crdtEpoch}</span>
                       </span>
-                    </div>
-
-                    <div className="hidden lg:flex flex-1 items-center min-w-[16px] max-w-[48px] mx-2">
-                      <div className="w-full h-0 border-b border-dashed border-[#0055FF]" />
-                      <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-[#0055FF] -ml-0.5" />
                     </div>
                   </div>
 
@@ -829,18 +736,12 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="CRDT Sync Mesh"
-                    badge="DECENTRALIZED CRDT"
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="DECENTRALIZED CRDT"
                     title="Collision-Free Sync"
-                    desc="Decentralized CRDT ensures every keystroke lands in order across all teammates."
-                    metrics={[
-                      { label: "Latency", value: "<1ms", sub: "LOCAL MESH" },
-                      { label: "Packet Loss", value: "0.0%", sub: "P2P ENCRYPTED" },
-                      { label: "Clock Epoch", value: `#${crdtEpoch}`, sub: "ORDERED" },
-                      { label: "Peers Online", value: "3 active", sub: "CONNECTED" },
-                    ]}
+                    description="Decentralized CRDT ensures every keystroke lands in deterministic order across all team members."
+                    pill="< 1ms"
                     accentColor="#0055FF"
                   />
                 </div>
@@ -879,15 +780,10 @@ export default function RealCollaborativeMeshInterface({
                       <span className="pl-4">
                         <span className="text-[#4ec9b0]">texture2d</span>&lt;<span className="text-[#569cd6]">float</span>&gt; <span className="text-[#9cdcfe]">atlas</span> [[texture(0)]]
                       </span>
-                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px] shadow-[0_0_12px_rgba(0,85,255,0.4)]">
+                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse mr-1" />
                         <span>120 FPS // METAL 3</span>
                       </span>
-                    </div>
-
-                    <div className="hidden lg:flex flex-1 items-center min-w-[16px] max-w-[48px] mx-2">
-                      <div className="w-full h-0 border-b border-dashed border-[#0055FF]" />
-                      <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-[#0055FF] -ml-0.5" />
                     </div>
                   </div>
 
@@ -903,18 +799,12 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="Metal GPU Pipeline"
-                    badge="NATIVE SILICON RUNTIME"
-                    title="Native GPU Rendering"
-                    desc="Renders text directly on Metal & WebGPU for butter-smooth 120 FPS typing."
-                    metrics={[
-                      { label: "Input Lag", value: "4.2ms", sub: "INSTANT" },
-                      { label: "Framerate", value: "120 FPS", sub: "PROMOTION" },
-                      { label: "Pipeline", value: "Metal 3", sub: "HARDWARE" },
-                      { label: "Frame Drops", value: "0 frames", sub: "BUTTER SMOOTH" },
-                    ]}
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="NATIVE SILICON RUNTIME"
+                    title="Native GPU Rasterization"
+                    description="Renders text directly via Metal & WebGPU compute shaders for butter-smooth 120 FPS input-to-photon latency."
+                    pill="120 FPS"
                     accentColor="#0055FF"
                   />
                 </div>
@@ -953,15 +843,10 @@ export default function RealCollaborativeMeshInterface({
                       <span className="pl-4">
                         <span className="text-[#569cd6]">let</span> <span className="text-[#9cdcfe]">bin</span> = <span className="text-[#9cdcfe]">codegen</span>.<span className="text-[#dcdcaa]">emit_arm64_slice</span>(<span className="text-[#ce9178]">&quot;aarch64-apple-darwin&quot;</span>)?;
                       </span>
-                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px] shadow-[0_0_12px_rgba(0,85,255,0.4)]">
+                      <span className="ml-2 relative inline-flex items-center bg-[#0055FF]/15 border border-[#0055FF] rounded-[4px] px-2 py-0.5 text-white font-mono text-[9px]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse mr-1" />
                         <span>ARM64 READY // 140ms</span>
                       </span>
-                    </div>
-
-                    <div className="hidden lg:flex flex-1 items-center min-w-[16px] max-w-[48px] mx-2">
-                      <div className="w-full h-0 border-b border-dashed border-[#0055FF]" />
-                      <div className="w-0 h-0 border-y-[4px] border-y-transparent border-l-[6px] border-l-[#0055FF] -ml-0.5" />
                     </div>
                   </div>
 
@@ -977,18 +862,12 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="LLVM Compiler"
-                    badge="ACTIONABLE OUTPUT"
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="ACTIONABLE OUTPUT"
                     title="Instant Native Binaries"
-                    desc="Compiles native ARM64 binaries locally so you can test changes in real time."
-                    metrics={[
-                      { label: "Build Time", value: "140ms", sub: "ULTRA FAST" },
-                      { label: "Architecture", value: "ARM64", sub: "APPLE SILICON" },
-                      { label: "Binary Size", value: "2.4 MB", sub: "OPTIMIZED" },
-                      { label: "Dependencies", value: "0 cloud", sub: "STANDALONE" },
-                    ]}
+                    description="Compiles native ARM64 machine binaries locally on host hardware so you can test changes in real time."
+                    pill="140ms"
                     accentColor="#0055FF"
                   />
                 </div>
@@ -1074,18 +953,12 @@ export default function RealCollaborativeMeshInterface({
                   </div>
                 </div>
 
-                <div className="w-full lg:w-[240px] shrink-0">
-                  <AppleTelemetryHUD
-                    channel="@CruxAI Agent"
-                    badge="AUTONOMOUS AI ENGINE"
+                <div className="w-full lg:w-[250px] shrink-0">
+                  <CleanCalloutCard
+                    category="AUTONOMOUS @CRUXAI"
                     title="Context-Aware AI Assistant"
-                    desc="Proposes verified refactors that compile and pass tests before you accept them."
-                    metrics={[
-                      { label: "Analysis Time", value: "0.4s", sub: "STREAMING" },
-                      { label: "Tests Passed", value: "18 / 18", sub: "VERIFIED" },
-                      { label: "Net Changes", value: "+2 lines", sub: "ATOMIC" },
-                      { label: "Confidence", value: "100%", sub: "READY TO APPLY" },
-                    ]}
+                    description="Proposes verified multi-file refactors and atomic git diffs that compile locally before you accept them."
+                    pill="POSIX"
                     accentColor="#16a34a"
                   />
                 </div>
