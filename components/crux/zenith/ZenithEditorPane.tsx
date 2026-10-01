@@ -23,7 +23,8 @@ import {
 import { Rise, Morph } from "cube-motion/react";
 import { CrexWebGpuCanvas } from "../webgpu/CrexWebGpuCanvas";
 import { triggerHaptic } from "@/lib/haptics";
-import { markCrexSessionAsHost } from "@/lib/crdt/yjsProvider";
+import { markCrexSessionAsHost, getActiveCrexCRDTSession } from "@/lib/crdt/yjsProvider";
+import { startCrexCollabSimulation, stopCrexCollabSimulation, isCrexCollabSimulationActive } from "@/lib/crdt/codemirrorCursorPlugin";
 import { getBrowserShareBaseUrl } from "@/lib/crdt/shareUrl";
 
 export default function ZenithEditorPane() {
@@ -52,8 +53,28 @@ export default function ZenithEditorPane() {
   const [findQuery, setFindQuery] = useState("");
   const [findMatchCount, setFindMatchCount] = useState(0);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [isSimulating, setIsSimulating] = useState(false);
 
   const activeFile = files.find((f) => f.id === activeFileId) || files[0];
+
+  useEffect(() => {
+    return () => {
+      stopCrexCollabSimulation();
+    };
+  }, []);
+
+  const handleToggleSimulation = () => {
+    triggerHaptic("click");
+    const session = getActiveCrexCRDTSession(activeFile?.id || "");
+    if (!session) return;
+    if (isSimulating) {
+      stopCrexCollabSimulation(session.awareness);
+      setIsSimulating(false);
+    } else {
+      startCrexCollabSimulation(session.awareness, session.ydoc, session.ytext);
+      setIsSimulating(true);
+    }
+  };
 
   useEffect(() => {
     if (files.length === 0) {
@@ -311,6 +332,23 @@ syncer.acquireLock().then((ticket) => {
             className="p-1 border border-grid bg-void text-muted hover:text-signal disabled:opacity-30 transition-colors"
           >
             {savedFeedback ? <Check className="w-3.5 h-3.5 text-[#00FF00]" /> : <Save className="w-3.5 h-3.5" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleToggleSimulation}
+            title={isSimulating ? "Stop Collaborative Peer Simulation" : "Simulate Live Peers (Erik & Muhaymin)"}
+            className={`px-2 py-0.5 text-[10px] font-mono border transition-none flex items-center gap-1.5 uppercase ${
+              isSimulating
+                ? "bg-white text-black border-white font-bold"
+                : "bg-[#000000] text-[#FFFFFF] border-[#222222] hover:bg-white hover:text-black"
+            }`}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: isSimulating ? "#16a34a" : "#ff70a6" }}
+            />
+            <span>{isSimulating ? "PEERS ACTIVE" : "SIMULATE PEERS"}</span>
           </button>
 
           <button

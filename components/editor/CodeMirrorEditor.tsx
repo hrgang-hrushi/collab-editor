@@ -102,21 +102,22 @@ const cruxEditorTheme = EditorView.theme({
   ".cm-content": {
     fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
     padding: "12px 0",
-    caretColor: "#FFFFFF",
+    caretColor: "#007AFF",
     lineHeight: "1.6",
   },
   ".cm-cursor": {
-    borderLeftColor: "#FFFFFF !important",
-    borderLeftWidth: "2px !important",
+    borderLeftColor: "#007AFF !important",
+    borderLeftWidth: "2.5px !important",
+    borderRadius: "1px !important",
   },
   "&.cm-focused .cm-cursor": {
-    borderLeftColor: "#FFFFFF !important",
+    borderLeftColor: "#007AFF !important",
   },
   "&.cm-focused .cm-selectionBackground, ::selection, .cm-selectionLayer .cm-selectionBackground": {
-    backgroundColor: "#222222 !important",
+    backgroundColor: "transparent !important",
   },
   ".cm-activeLine": {
-    backgroundColor: "#0A0A0A !important",
+    backgroundColor: "transparent !important",
   },
   ".cm-gutters": {
     backgroundColor: "#000000 !important",
@@ -670,7 +671,12 @@ export default function CodeMirrorEditor({ file, readOnly = false }: CodeMirrorE
       extensions: [
         ySyncFacet.of(syncConfig),
         ySync,
-        createCrexBrutalistCursorExtension(session.awareness),
+        createCrexBrutalistCursorExtension(session.awareness, {
+          name: currentUser.name || "Hrushi",
+          color: currentUser.color || "#0055FF",
+          uid: currentUser.uid || "CRX-7447-HG",
+          avatarType: currentUser.avatarType || "mech",
+        }),
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),
