@@ -422,31 +422,31 @@ export default function RealCollaborativeMeshInterface({
         {/* Right: Three Avatars from Codebase matching Colors + Actions */}
         <div className="flex items-center gap-2">
           {mode === "multiplayer" ? (
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-[#111115] border border-[#222226] rounded-[6px]">
-              <div className="flex items-center -space-x-1">
-                {/* Avatar 1: Blue Mech */}
+            <div className="flex items-center gap-2 px-2 py-0.5 border border-[#222226] rounded-[6px] bg-transparent">
+              <div className="flex items-center -space-x-1.5">
+                {/* Avatar 1: Blue Mech - no background, color matches editing blue */}
                 <div
-                  className="w-5 h-5 rounded-[4px] bg-[#0055FF]/20 border border-[#0055FF] flex items-center justify-center overflow-hidden"
-                  title="Blue Peer"
+                  className="w-5 h-5 flex items-center justify-center bg-transparent"
+                  title="Hrushi"
                 >
-                  <BotAvatar type="mech" size={14} state="default" interactive={false} theme="dark" />
+                  <BotAvatar type="mech" color="#0055FF" size={19} state="default" interactive={false} theme="dark" />
                 </div>
-                {/* Avatar 2: Pink Flower */}
+                {/* Avatar 2: Pink Flower - no background, color matches editing pink */}
                 <div
-                  className="w-5 h-5 rounded-[4px] bg-[#ff70a6]/20 border border-[#ff70a6] flex items-center justify-center overflow-hidden"
-                  title="Pink Peer"
+                  className="w-5 h-5 flex items-center justify-center bg-transparent"
+                  title="Erik"
                 >
-                  <BotAvatar type="flower" size={14} state="default" interactive={false} theme="dark" />
+                  <BotAvatar type="flower" color="#ff70a6" size={19} state="default" interactive={false} theme="dark" />
                 </div>
-                {/* Avatar 3: Green Clover (Deep emerald for optimal white text contrast) */}
+                {/* Avatar 3: Green Clover - no background, color matches editing green */}
                 <div
-                  className="w-5 h-5 rounded-[4px] bg-[#16a34a]/20 border border-[#16a34a] flex items-center justify-center overflow-hidden"
-                  title="Green Peer"
+                  className="w-5 h-5 flex items-center justify-center bg-transparent"
+                  title="Muhaymin"
                 >
-                  <BotAvatar type="clover" size={14} state="default" interactive={false} theme="dark" />
+                  <BotAvatar type="clover" color="#16a34a" size={19} state="default" interactive={false} theme="dark" />
                 </div>
               </div>
-              <span className="text-[10px] font-mono text-white font-medium pl-1 hidden sm:inline">
+              <span className="text-[10px] font-mono text-white font-medium pl-0.5 hidden sm:inline">
                 3 Active
               </span>
             </div>
@@ -539,8 +539,8 @@ export default function RealCollaborativeMeshInterface({
           <div className="flex-1 p-3 sm:p-4 overflow-hidden font-mono text-[11.5px] sm:text-[12px] leading-[1.65] bg-[#000000] relative flex flex-col justify-center">
             {/* =================================================================== */}
             {/* DEMO 1: REAL-TIME COLLABORATIVE MESH                                */}
-            {/* 3 Avatars: Blue Mech, Pink Flower, Green Clover                     */}
-            {/* Rounded edges (4px), Cursors under changes, High contrast green     */}
+            {/* 3 Peers typing with their names: Erik, Hrushi, Muhaymin             */}
+            {/* No avatars while typing, just names; Rounded edges (4px)            */}
             {/* =================================================================== */}
             {mode === "multiplayer" && (
               <div className="space-y-1 relative">
@@ -557,7 +557,7 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
 
-                {/* Line 3: Avatar 2 (Pink Flower) */}
+                {/* Line 3: Erik (Pink - no avatar while typing, just name) */}
                 <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">3</span>
                   <span className="pl-4">
@@ -568,8 +568,8 @@ export default function RealCollaborativeMeshInterface({
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
+                          name="Erik"
                           color="#ff70a6"
-                          avatarType="flower"
                           borderRadius="4px"
                           status="editing"
                         />
@@ -585,7 +585,7 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
 
-                {/* Line 5: Avatar 1 (Blue Mech) */}
+                {/* Line 5: Hrushi (Blue - no avatar while typing, just name) */}
                 <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">5</span>
                   <span className="pl-4">
@@ -596,8 +596,8 @@ export default function RealCollaborativeMeshInterface({
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
+                          name="Hrushi"
                           color="#0055FF"
-                          avatarType="mech"
                           borderRadius="4px"
                           status="typing"
                         />
@@ -614,7 +614,7 @@ export default function RealCollaborativeMeshInterface({
                   </span>
                 </div>
 
-                {/* Line 7: Avatar 3 (Green Clover with #16a34a deep emerald for white contrast) */}
+                {/* Line 7: Muhaymin (Green - no avatar while typing, just name) */}
                 <div className="flex items-baseline bg-white/5 py-1 rounded-[4px]">
                   <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">7</span>
                   <span className="pl-8">
@@ -625,8 +625,8 @@ export default function RealCollaborativeMeshInterface({
                       {/* Cursor placed on right side UNDER the actual change */}
                       <span className="absolute top-full right-0 mt-1.5 pointer-events-none z-30 select-none">
                         <CruxPointerCursor
+                          name="Muhaymin"
                           color="#16a34a"
-                          avatarType="clover"
                           borderRadius="4px"
                           status="sync"
                         />
