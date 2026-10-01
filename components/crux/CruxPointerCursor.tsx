@@ -1,12 +1,16 @@
 "use client";
 
 import React from "react";
+import { BotAvatar, type BotAvatarType } from "bot-avatars";
 
 interface CruxPointerCursorProps {
-  name: string;
+  name?: string;
   uid?: string;
   color?: string;
   status?: string;
+  avatarType?: BotAvatarType;
+  avatarNode?: React.ReactNode;
+  borderRadius?: string;
   x?: number;
   y?: number;
 }
@@ -28,26 +32,28 @@ function isLightColor(hex?: string): boolean {
 
 /**
  * Crux Pointer Cursor
- * - Precision Canva Vector Dart Geometry
- * - Uniform, ultra-crisp 1.4px pure white stroke outline (zero blur / zero glow)
- * - Seamlessly tucked collaborator badge with matching 1.2px white border
- * - Smooth 3px corner radius with flush top-left anchor to the arrow notch
+ * - Precision Dart Geometry
+ * - Uniform, ultra-crisp 1.4px pure white stroke outline
+ * - Seamlessly tucked collaborator badge with matching border
+ * - Smooth Apple-grade corner radius on rectangle edges
+ * - Supports bot-avatars integration matching collaborator colors
  */
 export default function CruxPointerCursor({
-  name = "Peer",
+  name,
   uid,
   color = "#38b6ff",
   status,
+  avatarType,
+  avatarNode,
+  borderRadius = "4px",
   x,
   y,
 }: CruxPointerCursorProps) {
   const resolvedUid =
     uid ||
-    (name.toLowerCase().includes("ai") || name.toLowerCase().includes("copilot")
+    (name && (name.toLowerCase().includes("ai") || name.toLowerCase().includes("copilot"))
       ? "CRX-0001-AI"
-      : name.toLowerCase().includes("marcus")
-      ? "CRX-5520-MV"
-      : "CRX-PEER");
+      : undefined);
   const textColor = isLightColor(color) ? "#000000" : "#FFFFFF";
 
   return (
@@ -78,29 +84,54 @@ export default function CruxPointerCursor({
           />
         </svg>
 
-        {/* Seamless Collaborator Pill Tag with Matching Pointer Color Outline & Corner Curve Radius */}
+        {/* Seamless Collaborator Pill Tag with Matching Color, Apple Radius & Avatar */}
         <div
-          className="absolute left-[11px] top-[11px] z-0 px-2 py-[2.5px] text-[10px] font-sans font-semibold leading-tight select-none whitespace-nowrap border rounded-none flex items-center gap-1.5"
+          className="absolute left-[11px] top-[11px] z-0 px-2 py-[2.5px] text-[10px] font-sans font-semibold leading-tight select-none whitespace-nowrap border flex items-center gap-1.5 shadow-sm"
           style={{
             backgroundColor: color,
             color: textColor,
             borderColor: color,
+            borderRadius,
           }}
         >
-          <span>{name}</span>
+          {/* Avatar Icon */}
+          {avatarNode ? (
+            <span className="shrink-0 flex items-center justify-center">{avatarNode}</span>
+          ) : avatarType ? (
+            <span className="shrink-0 flex items-center justify-center">
+              <BotAvatar
+                type={avatarType}
+                size={14}
+                state="default"
+                interactive={false}
+                theme="dark"
+              />
+            </span>
+          ) : null}
+
+          {name && <span>{name}</span>}
+
           {status === "typing" ? (
             <span className="inline-flex items-center gap-0.5 text-[9px] font-normal lowercase opacity-95">
               <span>typing</span>
               <span className="inline-flex gap-0.5 ml-0.5">
-                <span className="w-1 h-1 rounded-none bg-current animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1 h-1 rounded-none bg-current animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1 h-1 rounded-none bg-current animate-bounce" />
+                <span className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1 h-1 bg-current rounded-full animate-bounce" />
               </span>
             </span>
           ) : (
             <>
-              {resolvedUid && <span className="opacity-75 text-[8.5px] font-mono font-normal tracking-tight">[{resolvedUid}]</span>}
-              {status && <span className="opacity-80 text-[8.5px] uppercase tracking-wider">({status})</span>}
+              {resolvedUid && (
+                <span className="opacity-75 text-[8.5px] font-mono font-normal tracking-tight">
+                  [{resolvedUid}]
+                </span>
+              )}
+              {status && (
+                <span className="opacity-80 text-[8.5px] uppercase tracking-wider">
+                  ({status})
+                </span>
+              )}
             </>
           )}
         </div>
