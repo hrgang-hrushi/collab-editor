@@ -8,6 +8,7 @@ export default function CruxFooter() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
   const [realtimeLatency, setRealtimeLatency] = useState<string>("0.08ms");
 
@@ -24,19 +25,21 @@ export default function CruxFooter() {
     if (!email || !email.includes("@")) return;
 
     setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, role: "systems", arch: "apple_silicon" }),
+        body: JSON.stringify({ email, role: "Crux Kernel Notes", arch: "apple_silicon", newsletterOptIn: true }),
       });
       const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Unable to subscribe right now.");
       if (data.success) {
         setQueuePosition(data.queuePosition);
         setSubmitted(true);
       }
-    } catch {
-      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to subscribe right now.");
     } finally {
       setLoading(false);
     }
@@ -126,11 +129,12 @@ export default function CruxFooter() {
                       {loading ? "..." : "Subscribe"}
                     </button>
                   </div>
+                  {error && <p role="alert" className="text-xs text-[#FF9C9C]">{error}</p>}
                 </form>
               ) : (
                 <div className="p-3 bg-[#111111] border border-[#222222] text-xs font-mono text-white flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
-                  <span>Subscribed. Priority Token #{queuePosition || 1482} linked.</span>
+                  <span>Subscribed. Priority Token #{queuePosition} linked.</span>
                 </div>
               )}
             </div>

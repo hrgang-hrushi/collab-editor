@@ -122,6 +122,7 @@ export function BorderBeam({
   size = "md",
   colorVariant = "ocean",
   staticColors = true,
+  duration = 8.5,
   css: customCss,
   ...props
 }: BorderBeamProps) {
@@ -149,6 +150,7 @@ export function BorderBeam({
       size={size}
       colorVariant={colorVariant}
       staticColors={staticColors}
+      duration={duration}
       css={combinedCss}
       {...props}
     >
