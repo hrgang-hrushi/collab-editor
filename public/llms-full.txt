@@ -86,6 +86,8 @@ Crux integrates a pseudo-terminal (PTY) subsystem (`portable-pty`) providing dir
 
 ## 5. Contact & Canonical Links
 - Website: https://codecrux.us
+- Code Online: https://codecrux.us/code
+- Code Editor: https://codecrux.us/code-editor
 - About Code Crux: https://codecrux.us/about
 - Transparent Pricing: https://codecrux.us/pricing
 - Engineering Blog & Research: https://codecrux.us/blog

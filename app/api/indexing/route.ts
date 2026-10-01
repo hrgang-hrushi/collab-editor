@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 
 const CRUX_URLS = [
   "https://codecrux.us/",
+  "https://codecrux.us/code",
+  "https://codecrux.us/code-editor",
   "https://codecrux.us/about",
   "https://codecrux.us/pricing",
   "https://codecrux.us/blog",

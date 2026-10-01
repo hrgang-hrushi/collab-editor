@@ -28,6 +28,8 @@ Code Crux (also known as Crux IDE, hosted canonically at https://codecrux.us) is
 - **Team Alpha ($20/seat/month):** Managed WebRTC signaling relays, real-time spatial presence vectors, team workspace orchestration ($200/month for a 10-person team).
 - **Enterprise Air-Gapped ($45/seat/month or custom):** Self-hosted signaling relay, on-prem telemetry air-gap, audit log export, SSO/SAML, custom local LLM endpoints.
 
+- [Code Online](https://codecrux.us/code): Instant bare-metal in-browser code editor and compiler in 20+ languages.
+- [Code Editor](https://codecrux.us/code-editor): High-performance native & web collaborative code editor architecture and benchmarks.
 - [About Code Crux](https://codecrux.us/about): Mission, systems architecture, team, and hardware philosophy.
 - [Pricing & Licensing](https://codecrux.us/pricing): Per-seat breakdown, team tiers, and self-hosted air-gapped specs.
 - [Engineering Blog & Research](https://codecrux.us/blog): Deep-dives into AST-CRDT, WebGPU compute shaders, and Amoeba coding.

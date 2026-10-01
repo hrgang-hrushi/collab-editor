@@ -25,6 +25,12 @@ export default function Page() {
           <h2>Primary Navigation &amp; Site Sections</h2>
           <ul>
             <li>
+              <Link href="/code">Code Online</Link> — Free in-browser code editor and runtime with 4.2ms latency in 20+ programming languages.
+            </li>
+            <li>
+              <Link href="/code-editor">Code Editor</Link> — Ultra-performance native and web collaborative code editor powered by Rust and WebGPU.
+            </li>
+            <li>
               <Link href="/about">About Code Crux</Link> — Mission, Systems Architecture &amp; Founding Story.
             </li>
             <li>
@@ -56,6 +62,18 @@ export default function Page() {
             </li>
           </ul>
         </nav>
+
+        <section>
+          <h2>Write, Run, and Collaborate on Code at Bare-Metal Speed</h2>
+          <p>
+            Code Crux is engineered for software engineers who want to write, edit, and compile code without 50ms of input delay or gigabytes of memory bloat.
+            Whether you code in Rust, Python, TypeScript, C++, Go, or JavaScript, Code Crux provides immediate syntax parsing, zero V8 garbage collection stutter,
+            and peer-to-peer real-time synchronization.
+          </p>
+          <p>
+            Experience instant coding: <Link href="/code">Code Online Now</Link> or learn more about the <Link href="/code-editor">Bare-Metal Code Editor Architecture</Link>.
+          </p>
+        </section>
 
         <section>
           <h2>Measured Hardware Performance Benchmarks for Code Crux</h2>

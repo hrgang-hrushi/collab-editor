@@ -17,6 +17,26 @@
     </image:image>
   </url>
   <url>
+    <loc>https://codecrux.us/code</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://codecrux.us/og-image.png</image:loc>
+      <image:title>Code Online — Instant Bare-Metal Code Editor</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://codecrux.us/code-editor</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.95</priority>
+    <image:image>
+      <image:loc>https://codecrux.us/og-image.png</image:loc>
+      <image:title>Code Editor — High Performance Native &amp; Web Collaborative Editor</image:title>
+    </image:image>
+  </url>
+  <url>
     <loc>https://codecrux.us/amoeba-coding</loc>
     <lastmod>2026-09-30</lastmod>
     <changefreq>daily</changefreq>
