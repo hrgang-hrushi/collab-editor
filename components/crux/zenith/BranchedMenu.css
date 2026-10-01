@@ -129,7 +129,9 @@
 }
 
 .branched-menu__reach {
-  display: none;
+  stroke: var(--bm-accent, #ffffff);
+  stroke-width: var(--bm-line-w, 1.5);
+  transition: stroke-dashoffset var(--bm-draw) var(--bm-ease-out);
 }
 
 .branched-menu__item {
