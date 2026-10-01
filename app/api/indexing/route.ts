@@ -24,6 +24,10 @@ const CRUX_URLS = [
 const INDEXNOW_KEY = "b3c7f8a9e1d24560a8c2f1e4b7d9035a";
 const HOST = "codecrux.us";
 
+export async function GET() {
+  return POST();
+}
+
 export async function POST() {
   const results: Record<string, any> = {};
 
