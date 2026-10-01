@@ -98,7 +98,3 @@ export async function POST() {
     results,
   });
 }
-
-export async function GET() {
-  return POST();
-}

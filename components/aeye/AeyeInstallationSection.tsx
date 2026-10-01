@@ -119,7 +119,7 @@ export default function AeyeInstallationSection() {
             {/* Section Header Meta with Live Step Tracking */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#222222] text-xs font-mono">
               <div className="flex items-center gap-2">
-                <span className="text-[#0055FF] font-bold">[N.05/11]</span>
+                <span className="text-white font-bold">[N.05/11]</span>
                 <span className="text-[#888888]">— &gt;</span>
                 <span className="text-[#888888] uppercase">WHY CRUX?</span>
               </div>
@@ -134,13 +134,13 @@ export default function AeyeInstallationSection() {
                       type="button"
                       onClick={() => handleStepClick(idx)}
                       className={`h-1.5 transition-none rounded-none ${
-                        activeTab === tab.id ? "w-7 bg-[#0055FF]" : "w-2.5 bg-[#222222] hover:bg-[#444444]"
+                        activeTab === tab.id ? "w-7 bg-white" : "w-2.5 bg-[#222222] hover:bg-[#444444]"
                       }`}
                       aria-label={`Jump to ${tab.label}`}
                     />
                   ))}
                 </div>
-                <span className="text-xs font-mono text-[#0055FF] font-bold">
+                <span className="text-xs font-mono text-white font-bold">
                   [ 0{activeIndex + 1} / 04 ]
                 </span>
               </div>
@@ -150,7 +150,7 @@ export default function AeyeInstallationSection() {
             <div className="pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
               {/* Left Column: Fixed-Height Interactive Engineering Display (Zero Height Jumping) */}
               <div className="lg:col-span-7">
-                <div className="relative p-5 sm:p-6 border border-[#222222] bg-[#050507]">
+                <div className="relative p-5 sm:p-6 border border-[#222222] bg-[#000000]">
                   {/* Corner Double-Dot Accents */}
                   <div className="absolute top-2 left-2 flex gap-1 font-mono text-[9px] text-[#444444] select-none">
                     ■ ■
@@ -165,7 +165,7 @@ export default function AeyeInstallationSection() {
                     ■ ■
                   </div>
 
-                  {/* Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight */}
+                  {/* Authentic 110% Real Crux IDE Workbench */}
                   <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden h-[460px] sm:h-[480px] flex flex-col justify-between relative">
                     <AnimatePresence mode="wait">
                       <motion.div
@@ -202,7 +202,7 @@ export default function AeyeInstallationSection() {
                       GET STARTED
                     </Link>
                     <div className="text-[11px] font-mono text-[#71717a] hidden sm:flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-[#0055FF] animate-pulse" />
+                      <span className="w-1.5 h-1.5 bg-white animate-pulse" />
                       <span>SCROLL TO ADVANCE // 0{activeIndex + 1} OF 04</span>
                     </div>
                   </div>
@@ -213,10 +213,10 @@ export default function AeyeInstallationSection() {
                   {/* Background Track Rail */}
                   <div className="absolute left-[8px] top-3 bottom-5 w-[2px] bg-[#1a1a1e]" />
 
-                  {/* Continuous Smooth Electric Blue Fill */}
+                  {/* Continuous Smooth Pure White Fill */}
                   <div className="absolute left-[8px] top-3 bottom-5 w-[2px] overflow-hidden">
                     <motion.div
-                      className="w-full bg-[#0055FF]"
+                      className="w-full bg-white"
                       style={{ height: verticalRailHeight }}
                     />
                   </div>
@@ -235,7 +235,7 @@ export default function AeyeInstallationSection() {
                           <div
                             className={`absolute -left-[28px] top-1.5 w-2.5 h-2.5 transition-none z-10 ${
                               isActive
-                                ? "bg-[#0055FF] border border-white shadow-[0_0_8px_#0055FF]"
+                                ? "bg-white border border-white"
                                 : "bg-[#222222] border border-[#333333] group-hover:bg-[#444444]"
                             }`}
                           />
@@ -243,14 +243,14 @@ export default function AeyeInstallationSection() {
                           <div className="flex items-center gap-2">
                             <span
                               className={`text-[10px] font-mono font-semibold transition-none ${
-                                isActive ? "text-[#0055FF]" : "text-[#555555]"
+                                isActive ? "text-white font-bold" : "text-[#555555]"
                               }`}
                             >
                               {tab.serial}
                             </span>
                             <h3
                               className={`text-lg sm:text-xl font-medium font-sans transition-none ${
-                                isActive ? "text-[#0055FF] font-semibold" : "text-[#71717a] group-hover:text-white"
+                                isActive ? "text-white font-semibold" : "text-[#71717a] group-hover:text-white"
                               }`}
                             >
                               {tab.label}

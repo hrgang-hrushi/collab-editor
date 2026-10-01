@@ -162,9 +162,9 @@ export default function AeyeFeatureSection() {
             {/* Section Header Meta */}
             <div className="flex items-center justify-between pb-6 text-xs font-mono">
               <div className="flex items-center gap-3">
-                <span className="text-[#0055FF] font-semibold tracking-wider">[N.03/11]</span>
+                <span className="text-white font-bold tracking-wider">[N.03/11]</span>
                 <span className="w-8 h-[1px] bg-[#222222]" />
-                <span className="text-[#0055FF] font-bold">&gt;</span>
+                <span className="text-white font-bold">&gt;</span>
                 <span className="text-[#888888] uppercase tracking-wider font-semibold">CORE CAPABILITIES</span>
               </div>
 
@@ -180,40 +180,40 @@ export default function AeyeFeatureSection() {
                       type="button"
                       onClick={() => handleTabClick(step)}
                       className={`h-1.5 transition-all duration-300 rounded-none ${
-                        activeTab === step ? "w-8 bg-[#0055FF]" : "w-3 bg-[#222222] hover:bg-[#444444]"
+                        activeTab === step ? "w-8 bg-white" : "w-3 bg-[#222222] hover:bg-[#444444]"
                       }`}
                       aria-label={`Go to Layer 0${step + 1}`}
                     />
                   ))}
                 </div>
-                <span className="text-xs font-mono text-[#0055FF] font-bold ml-1">
+                <span className="text-xs font-mono text-white font-bold ml-1">
                   [ 0{activeTab + 1} / 03 ]
                 </span>
               </div>
             </div>
 
-            {/* Main Split Architecture with Traveling Dot & Blue Tail Outline */}
+            {/* Main Split Architecture with Traveling Dot & Monochrome Trace Outline */}
             <div
               ref={cardRef}
               className="relative grid grid-cols-1 lg:grid-cols-12 border border-[#222222] bg-[#000000]"
             >
-              {/* Traveling Square Dot with Blue Tail turning the Gray Outline to Blue */}
+              {/* Traveling Square Dot with White Trace turning the Gray Outline to White */}
               {rectSize.width > 0 && rectSize.height > 0 && (
                 <>
                   <svg className="absolute inset-0 w-full h-full pointer-events-none z-20 overflow-visible">
                     <motion.path
                       d={`M 0 0 L 0 ${rectSize.height} L ${rectSize.width} ${rectSize.height} L ${rectSize.width} 0 Z`}
-                      stroke="#0055FF"
-                      strokeWidth={2}
+                      stroke="#FFFFFF"
+                      strokeWidth={1.5}
                       fill="none"
                       style={{
                         pathLength: scrollYProgress,
                       }}
                     />
                   </svg>
-                  {/* Square Dot at the leading tip of the blue tail */}
+                  {/* Square Dot at the leading tip of the trace */}
                   <div
-                    className="absolute w-2.5 h-2.5 bg-[#0055FF] border border-white z-30 pointer-events-none shadow-[0_0_10px_#0055FF]"
+                    className="absolute w-2 h-2 bg-white border border-black z-30 pointer-events-none"
                     style={{
                       left: `${dotPos.x}px`,
                       top: `${dotPos.y}px`,
@@ -242,7 +242,7 @@ export default function AeyeFeatureSection() {
                               key={bidx}
                               className={`px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-none transition-none ${
                                 isActive
-                                  ? "bg-[#0055FF] text-white font-bold"
+                                  ? "bg-white text-black font-bold"
                                   : "bg-[#111111] text-[#71717a] border border-[#222222]"
                               }`}
                             >
@@ -256,15 +256,15 @@ export default function AeyeFeatureSection() {
                           <div className="flex items-center gap-2.5">
                             <span
                               className={`w-2 h-2 rounded-none transition-none ${
-                                isActive ? "bg-[#0055FF]" : "bg-transparent border border-[#333333]"
+                                isActive ? "bg-white" : "bg-transparent border border-[#333333]"
                               }`}
                             />
-                            <span className={isActive ? "text-[#0055FF] font-semibold" : "text-[#71717a] group-hover:text-white"}>
+                            <span className={isActive ? "text-white font-bold" : "text-[#71717a] group-hover:text-white"}>
                               {tab.title}
                             </span>
                           </div>
                           <div className="flex-1 border-b border-dotted border-[#222222] mx-2 hidden sm:block" />
-                          <span className="text-xs font-mono text-[#0055FF] font-bold flex-shrink-0">
+                          <span className="text-xs font-mono text-white font-bold flex-shrink-0">
                             {tab.serial}
                           </span>
                         </div>
@@ -300,14 +300,14 @@ export default function AeyeFeatureSection() {
                     <span className="text-[#888888]">One seamless system.</span>
                   </h2>
                   <div className="mt-4 flex items-center gap-2 text-[10px] font-mono text-[#71717a] tracking-wider uppercase">
-                    <span className="w-2 h-2 rounded-none bg-[#0055FF] animate-pulse" />
+                    <span className="w-2 h-2 rounded-none bg-white animate-pulse" />
                     <span>SCROLL TO ADVANCE // LAYER 0{activeTab + 1} OF 03</span>
                   </div>
                 </div>
               </div>
 
-              {/* Right Column: Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight */}
-              <div className="lg:col-span-7 p-3 sm:p-5 lg:p-6 flex items-center justify-center bg-[#050507] overflow-hidden">
+              {/* Right Column: Authentic 110% Real Crux IDE Workbench */}
+              <div className="lg:col-span-7 p-3 sm:p-5 lg:p-6 flex items-center justify-center bg-[#000000] overflow-hidden">
                 <div className="w-full h-[460px] sm:h-[480px] border border-[#222222] bg-[#000000] rounded-none overflow-hidden flex flex-col justify-between relative">
                   <AnimatePresence mode="wait">
                     <motion.div
