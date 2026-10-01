@@ -107,16 +107,16 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
                     !isFirst ? "border-l-0" : ""
                   } ${
                     isActive
-                      ? "bg-white text-black border-white font-bold"
+                      ? "bg-[#000000] text-[#0055FF] border-[#0055FF] font-bold"
                       : "bg-[#000000] text-[#888888] hover:text-white hover:border-[#444444]"
                   }`}
                 >
                   <span>
                     {isActive ? (
                       <>
-                        <span className="text-black">&lt;</span>
-                        <span className="text-black">{link.label}</span>
-                        <span className="text-black">&gt;</span>
+                        <span className="text-[#0055FF]">&lt;</span>
+                        <span className="text-[#0055FF]">{link.label}</span>
+                        <span className="text-[#0055FF]">&gt;</span>
                       </>
                     ) : (
                       link.label
@@ -140,7 +140,7 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }
             }}
-            className="h-[40px] px-5 bg-white hover:bg-[#CCCCCC] border border-white text-black transition-none flex items-center gap-2 text-[12px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
+            className="h-[40px] px-5 bg-[#0055FF] hover:bg-[#0044CC] border border-[#0055FF] text-white transition-none flex items-center gap-2 text-[12px] font-mono font-bold tracking-tight uppercase no-underline cursor-pointer rounded-none group"
           >
             <span>JOIN WAITLIST</span>
           </a>

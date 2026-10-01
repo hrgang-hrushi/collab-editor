@@ -1,24 +1,24 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
-  Terminal,
-  Play,
-  Share2,
-  FolderPlus,
-  FolderDown,
   Search,
   Plus,
   Download,
-  FileCode2,
+  Play,
+  Share2,
   Check,
-  Zap,
-  Cpu,
-  Layers,
-  Sparkles,
-  GitBranch,
+  CheckCircle2,
 } from "lucide-react";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
+import CruxPointerCursor from "@/components/crux/CruxPointerCursor";
+import BranchedMenu, { BranchedMenuItem } from "@/components/crux/zenith/BranchedMenu";
+import {
+  Folder01Icon,
+  JavaScriptIcon,
+  CodeIcon,
+  File01Icon,
+} from "@hugeicons/core-free-icons";
 
 export type CruxIdeMode =
   | "multiplayer"
@@ -34,538 +34,462 @@ interface RealCollaborativeMeshInterfaceProps {
   className?: string;
 }
 
-interface CodeLine {
-  num: number;
-  text: string;
-  tag?: "comment" | "keyword" | "code" | "active" | "peer";
-}
-
-const FILES_DATA: Record<string, { lang: string; lines: CodeLine[] }> = {
-  "main.rs": {
-    lang: "Rust",
-    lines: [
-      { num: 1, text: "// Crux Bare-Metal Silicon Engine · Native Mach-O Runtime", tag: "comment" },
-      { num: 2, text: "use crux_core::crdt::{ASTVectorTree, ConflictFreeResolver, NodeId};", tag: "code" },
-      { num: 3, text: "use crux_gpu::metal::{CAMetalDrawable, QuadShaderPipeline};", tag: "code" },
-      { num: 4, text: "", tag: "code" },
-      { num: 5, text: "#[inline(always)]", tag: "comment" },
-      { num: 6, text: "pub async fn synchronize_collaborative_ring(", tag: "keyword" },
-      { num: 7, text: "    local_tree: &mut ASTVectorTree,", tag: "code" },
-      { num: 8, text: "    remote_delta: &[u8],", tag: "code" },
-      { num: 9, text: "    peer_token: NodeId,", tag: "code" },
-      { num: 10, text: ") -> Result<CRDTSyncMetrics, KernelPanic> {", tag: "keyword" },
-      { num: 11, text: "    // Zero-copy deserialization directly from POSIX shm ring", tag: "comment" },
-      { num: 12, text: "    let mutation = ConflictFreeResolver::parse_ast_patch(remote_delta)?;", tag: "peer" },
-      { num: 13, text: "    let convergence_instant = std::time::Instant::now();", tag: "code" },
-      { num: 14, text: "    let commit_hash = local_tree.merge_deterministic(&mutation, peer_token)?;", tag: "active" },
-      { num: 15, text: "    crux_gpu::invalidate_dirty_quads(local_tree.dirty_range());", tag: "code" },
-      { num: 16, text: "    Ok(CRDTSyncMetrics { latency_us: 42, conflicts: 0 })", tag: "code" },
-      { num: 17, text: "}", tag: "code" },
-    ],
-  },
-  "crdt.rs": {
-    lang: "Rust",
-    lines: [
-      { num: 1, text: "// AST-CRDT Structural Convergence Engine", tag: "comment" },
-      { num: 2, text: "pub struct ASTVectorTree {", tag: "keyword" },
-      { num: 3, text: "    nodes: BTreeMap<NodeId, ASTNode>,", tag: "code" },
-      { num: 4, text: "    vector_clock: AtomicU64,", tag: "code" },
-      { num: 5, text: "}", tag: "code" },
-      { num: 6, text: "", tag: "code" },
-      { num: 7, text: "impl ASTVectorTree {", tag: "keyword" },
-      { num: 8, text: "    pub fn merge_deterministic(&mut self, patch: &ASTPatch, node: NodeId) -> Result<u64> {", tag: "keyword" },
-      { num: 9, text: "        let lamport_epoch = self.vector_clock.fetch_add(1, Ordering::SeqCst);", tag: "peer" },
-      { num: 10, text: "        self.apply_atomic_token(patch.target_token(), lamport_epoch);", tag: "active" },
-      { num: 11, text: "        Ok(lamport_epoch)", tag: "code" },
-      { num: 12, text: "    }", tag: "code" },
-      { num: 13, text: "}", tag: "code" },
-    ],
-  },
-  "shader.wgsl": {
-    lang: "WGSL",
-    lines: [
-      { num: 1, text: "// WebGPU Direct Phosphor Compute Shader · 120 FPS", tag: "comment" },
-      { num: 2, text: "@group(0) @binding(0) var<storage, read> glyph_quads: array<GlyphQuad>;", tag: "code" },
-      { num: 3, text: "@group(0) @binding(1) var font_atlas: texture_2d<f32>;", tag: "code" },
-      { num: 4, text: "", tag: "code" },
-      { num: 5, text: "@compute @workgroup_size(64)", tag: "comment" },
-      { num: 6, text: "fn rasterize_text_matrix(@builtin(global_invocation_id) id: vec3<u32>) {", tag: "keyword" },
-      { num: 7, text: "    let glyph = glyph_quads[id.x];", tag: "peer" },
-      { num: 8, text: "    let uv_coords = glyph.uv_bounds.xy + glyph.texel_step;", tag: "active" },
-      { num: 9, text: "    textureStore(target_surface, id.xy, sample_atlas(uv_coords));", tag: "code" },
-      { num: 10, text: "}", tag: "code" },
-    ],
-  },
-};
-
 export default function RealCollaborativeMeshInterface({
   mode = "multiplayer",
   className = "",
 }: RealCollaborativeMeshInterfaceProps) {
   // Determine active file based on mode
   const initialFile = useMemo(() => {
-    if (mode === "silicon" || mode === "output") return "shader.wgsl";
-    if (mode === "crdt" || mode === "processing") return "crdt.rs";
-    return "main.rs";
+    if (mode === "silicon" || mode === "output") return "spatial_engine.metal";
+    if (mode === "crdt" || mode === "context") return "ast_crdt_sync.ts";
+    return "stream_syncer.ts";
   }, [mode]);
 
   const [activeFile, setActiveFile] = useState(initialFile);
-  const [activeTerminalTab, setActiveTerminalTab] = useState<"stdout" | "agent" | "metrics">("stdout");
-  const [isRunning, setIsRunning] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
+  const [diffState, setDiffState] = useState<"pending" | "accepted" | "rejected">("pending");
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [typedSuffix, setTypedSuffix] = useState("");
 
-  // Sync activeFile when mode changes externally
   useEffect(() => {
     setActiveFile(initialFile);
   }, [initialFile]);
 
-  // Peer typing cursor state
-  const [peerTypingText, setPeerTypingText] = useState("");
-  const [cursorBlink, setCursorBlink] = useState(true);
-
-  // Terminal log stream
-  const [terminalLogs, setTerminalLogs] = useState<string[]>(() => {
-    switch (mode) {
-      case "context":
-        return [
-          "crux-sh:~/crux-core$ crux index --buffer-direct",
-          "[@CruxAI] Ingested 64,280 AST tokens across 32 source trees in 0.08ms.",
-          "[@CruxAI] Zero-copy memory map mapped to 0x7fff5fbff820 (NVMe direct).",
-          "[@CruxAI] Workspace context ready. 0 index errors.",
-        ];
-      case "processing":
-      case "crdt":
-        return [
-          "crux-sh:~/crux-core$ crux sync --topology=ast-mesh",
-          "[@CruxAI] Active peers connected: Tokyo Node [SARAH L.], SF Edge [MARCUS V.].",
-          "[@CruxAI] Concurrent AST mutation received: target_token=NodeId(42).",
-          "[@CruxAI] Deterministic merge completed in 0.04ms (0 syntax collisions).",
-        ];
-      case "output":
-      case "silicon":
-        return [
-          "crux-sh:~/crux-core$ cargo build --release --target=aarch64-darwin",
-          "[@CruxAI] WebGPU text quad batch coalesced: 12,400 glyphs -> 1 draw call.",
-          "[@CruxAI] CAMetalLayer phosphor pipeline locked at 120 FPS (8.33ms vsync).",
-          "[@CruxAI] Finished release [optimized] in 140ms. 0 warnings.",
-        ];
-      case "agents":
-        return [
-          "crux-sh:~/crux-core$ @CruxAI refactor --optimize-atomic-locks",
-          "[@CruxAI] Analyzing mutable references in src/crdt.rs...",
-          "[@CruxAI] Suggested atomic bitset lock-free queue replacing mutex lock.",
-          "[@CruxAI] Verification check passed: cargo check 0 warnings (110ms).",
-        ];
-      case "multiplayer":
-      default:
-        return [
-          "crux-sh:~/crux-core$ bun run stream_syncer.ts",
-          "[StreamSyncer] Mesh channel ready on origin: unix:///var/run/crux.sock",
-          "[@CruxAI] Initialized AST-CRDT lock-free ring buffer (3 peers connected).",
-          "[SARAH L.] Joined collaborative session (RTT: 0.28ms).",
-        ];
-    }
-  });
-
-  // Collaborative peer typing loop
+  // Collaborative live typing animation by peer Sarah Lin
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    const targetString = " // [LIVE AST MUTATION VERIFIED]";
-    let idx = 0;
-    let forward = true;
+    const targetText = 'channel = "stream-primary"';
+    let index = 0;
+    let isTyping = true;
 
-    const tick = () => {
-      if (forward) {
-        if (idx < targetString.length) {
-          idx += 1;
-          setPeerTypingText(targetString.slice(0, idx));
-          timeout = setTimeout(tick, 140);
+    const runLoop = () => {
+      if (isTyping) {
+        if (index < targetText.length) {
+          index += 1;
+          setTypedSuffix(targetText.slice(0, index));
+          timeout = setTimeout(runLoop, 150);
         } else {
-          forward = false;
-          timeout = setTimeout(tick, 2400);
+          isTyping = false;
+          timeout = setTimeout(runLoop, 2500);
         }
       } else {
-        if (idx > 0) {
-          idx -= 1;
-          setPeerTypingText(targetString.slice(0, idx));
-          timeout = setTimeout(tick, 70);
+        if (index > 0) {
+          index -= 1;
+          setTypedSuffix(targetText.slice(0, index));
+          timeout = setTimeout(runLoop, 80);
         } else {
-          forward = true;
-          timeout = setTimeout(tick, 1200);
+          isTyping = true;
+          timeout = setTimeout(runLoop, 1200);
         }
       }
     };
 
-    timeout = setTimeout(tick, 600);
+    timeout = setTimeout(runLoop, 600);
     return () => clearTimeout(timeout);
-  }, [mode, activeFile]);
+  }, [activeFile]);
 
-  // Blink interval for brutalist solid cursor
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCursorBlink((v) => !v);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleRunCode = () => {
-    setIsRunning(true);
-    setTerminalLogs((prev) => [
-      ...prev.slice(-6),
-      `crux-sh:~/crux-core$ cargo test --release --lib ${activeFile}`,
-      "[@CruxAI] Executing AST-CRDT peer verification pass...",
-      "[@CruxAI] CAMetalLayer text quad cache: 100% HIT RATE",
-      `test ${activeFile.replace('.', '_')}::test_sync ... ok (0.04ms)`,
-      "test result: ok. 1 passed; 0 failed; 0 ignored; finished in 0.08s",
-    ]);
-    setTimeout(() => {
-      setIsRunning(false);
-    }, 700);
-  };
-
-  const handleCopyLink = () => {
+  const handleCopy = () => {
     if (typeof window !== "undefined") {
-      navigator.clipboard?.writeText("https://codecrux.us/?session=mesh-p2p");
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 1800);
+      navigator.clipboard?.writeText(window.location.href);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
     }
   };
 
-  const currentFile = FILES_DATA[activeFile] || FILES_DATA["main.rs"];
+  // BranchedMenu Tree Data matching ZenithFileTree.tsx exactly
+  const branchedMenuItems: BranchedMenuItem[] = useMemo(() => {
+    return [
+      {
+        label: "src",
+        value: "src",
+        icon: Folder01Icon,
+        children: [
+          {
+            value: "stream_syncer.ts",
+            label: "stream_syncer.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "types.ts",
+            label: "types.ts",
+            icon: JavaScriptIcon,
+          },
+          {
+            value: "database.ts",
+            label: "database.ts",
+            icon: JavaScriptIcon,
+          },
+        ],
+      },
+      {
+        label: "kernel",
+        value: "kernel",
+        icon: Folder01Icon,
+        children: [
+          {
+            value: "spatial_engine.metal",
+            label: "spatial_engine.metal",
+            icon: CodeIcon,
+          },
+          {
+            value: "ast_crdt_sync.ts",
+            label: "ast_crdt_sync.ts",
+            icon: JavaScriptIcon,
+          },
+        ],
+      },
+      {
+        value: "Cargo.toml",
+        label: "Cargo.toml",
+        icon: File01Icon,
+      },
+    ];
+  }, []);
+
+  const isMetal = activeFile.endsWith(".metal");
+  const isAgentDiff = mode === "agents";
 
   return (
     <div
-      className={`relative w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-hidden border-0 ${className}`}
+      className={`relative w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-hidden ${className}`}
       style={{
         fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
       }}
     >
       {/* ========================================================================= */}
-      {/* 1. TOP WINDOW BAR (Exact Crux Header Blueprint)                            */}
+      {/* 1. TOP WINDOW BAR (Matches CruxEditorView.tsx)                             */}
       {/* ========================================================================= */}
-      <header className="h-8 px-3 border-b border-[#222222] bg-[#0c0c0c] flex items-center justify-between shrink-0 select-none z-20">
-        {/* Left: Brand Wordmark + Live Telemetry Indicator */}
-        <div className="flex items-center gap-2.5">
-          <CruxBrandLogo size={15} withText={true} />
-          <span className="text-[#333333]">|</span>
-          <div className="flex items-center gap-1.5 font-mono text-[10px] text-[#888888]">
-            <span className="w-1.5 h-1.5 bg-white rounded-none" />
-            <span>0.08ms</span>
-            <span className="text-[#444444] hidden sm:inline">· 120 FPS</span>
+      <header className="h-9 px-3 border-b border-[#222222] bg-[#0c0c0c] flex items-center justify-between shrink-0 select-none z-20">
+        {/* Left: Brand + Search */}
+        <div className="flex items-center gap-3">
+          <CruxBrandLogo size={16} withText={true} />
+          <div className="hidden sm:flex items-center gap-2 px-2 py-0.5 bg-[#000000] border border-[#222222] text-[#888888] text-[10px]">
+            <Search className="w-3 h-3 text-[#71717a]" />
+            <span className="font-mono text-[#888888]">{activeFile}</span>
+            <kbd className="text-[9px] bg-[#111111] text-[#71717a] px-1 border border-[#222222] font-mono">⌘P</kbd>
           </div>
         </div>
 
-        {/* Center: Segmented Control: Editor vs Terminal */}
-        <div className="flex items-center border border-[#222222] bg-[#000000]">
-          <span className="px-2.5 py-0.5 text-[9px] font-mono uppercase tracking-wider bg-white text-black font-bold">
-            EDITOR
+        {/* Center: Editor / Canvas Toggle */}
+        <div className="flex items-center bg-[#000000] border border-[#222222] p-0.5">
+          <span className="px-2.5 py-0.5 text-[10px] font-mono uppercase bg-[#222222] text-white font-bold">
+            Editor
           </span>
-          <span className="px-2.5 py-0.5 text-[9px] font-mono uppercase tracking-wider text-[#71717a] hidden sm:inline">
-            CANVAS
+          <span className="px-2.5 py-0.5 text-[10px] font-mono uppercase text-[#71717a] hidden sm:inline">
+            Canvas
           </span>
         </div>
 
-        {/* Right: Multiplayer Live Presence & Tactile Actions */}
+        {/* Right: Collaborators & Actions */}
         <div className="flex items-center gap-2">
-          {/* Peer Tag Roster */}
-          <div className="hidden sm:flex items-center gap-1 border border-[#222222] bg-[#000000] px-2 py-0.5 font-mono text-[9px]">
-            <span className="text-white font-bold">[YOU]</span>
-            <span className="text-[#333333]">/</span>
-            <span className="text-white font-bold flex items-center gap-1">
-              <span className="w-1 h-1 bg-white animate-pulse" />
-              [SARAH L.]
-            </span>
-            <span className="text-[#333333]">/</span>
-            <span className="text-[#888888]">[@CruxAI]</span>
+          {/* Collaborator Badge */}
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-[#111111] border border-[#222222] text-[10px] font-mono text-white">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#38b6ff] animate-pulse" />
+            <span>Sarah Lin</span>
           </div>
 
-          {/* Run Code Action Button */}
           <button
             type="button"
-            onClick={handleRunCode}
-            disabled={isRunning}
-            className="px-2 py-0.5 border border-[#222222] hover:border-white bg-[#000000] hover:bg-white hover:text-black text-white font-mono text-[9px] uppercase tracking-wider transition-none cursor-pointer flex items-center gap-1 font-bold"
+            className="px-2 py-0.5 border border-[#222222] hover:border-white bg-[#000000] hover:bg-white hover:text-black text-white font-mono text-[10px] uppercase transition-none cursor-pointer flex items-center gap-1"
           >
-            <Play className="w-2.5 h-2.5 fill-current" />
-            <span>{isRunning ? "RUNNING..." : "RUN ↵"}</span>
+            <Play className="w-2.5 h-2.5 fill-current text-white" />
+            <span>Run ↵</span>
           </button>
 
-          {/* Share Link Action Button */}
           <button
             type="button"
-            onClick={handleCopyLink}
-            className="px-2 py-0.5 border border-[#222222] hover:border-white bg-[#000000] hover:bg-white hover:text-black text-white font-mono text-[9px] uppercase tracking-wider transition-none cursor-pointer hidden md:flex items-center gap-1"
+            onClick={handleCopy}
+            className="px-2 py-0.5 border border-[#222222] hover:border-white bg-[#000000] hover:bg-white hover:text-black text-white font-mono text-[10px] uppercase transition-none cursor-pointer hidden sm:flex items-center gap-1"
           >
-            {isCopied ? <Check className="w-2.5 h-2.5" /> : <Share2 className="w-2.5 h-2.5" />}
-            <span>{isCopied ? "COPIED" : "SHARE"}</span>
+            {copiedLink ? <Check className="w-2.5 h-2.5" /> : <Share2 className="w-2.5 h-2.5" />}
+            <span>{copiedLink ? "Copied" : "Share"}</span>
           </button>
         </div>
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. BREADCRUMB BAR                                                         */}
-      {/* ========================================================================= */}
-      <div className="h-6 px-3 border-b border-[#222222] bg-[#050505] flex items-center justify-between text-[10px] font-mono text-[#555555] shrink-0 select-none">
-        <div className="flex items-center gap-1">
-          <span className="text-[#444444]">WORKSPACE</span>
-          <span className="text-[#333333]">/</span>
-          <span className="text-[#666666]">crux-core</span>
-          <span className="text-[#333333]">/</span>
-          <span className="text-[#888888]">src</span>
-          <span className="text-[#333333]">/</span>
-          <span className="text-white font-semibold">{activeFile}</span>
-        </div>
-        <div className="hidden sm:flex items-center gap-3 text-[9px] text-[#71717a]">
-          <span>LOCK-FREE RING BUFFER</span>
-          <span className="text-[#444444]">|</span>
-          <span className="text-white">0.00% COLLISION</span>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 3. MAIN WORKBENCH: FILE TREE + REAL EDITOR PANE                            */}
+      {/* 2. MAIN LAYOUT: FILE TREE (BranchedMenu) + CODE EDITOR                      */}
       {/* ========================================================================= */}
       <div className="flex-1 flex min-h-0 bg-[#000000] overflow-hidden">
-        {/* Left Sidebar: Minimalist Explorer & Peer Mesh Drawer */}
-        <aside className="w-40 sm:w-44 border-r border-[#222222] bg-[#000000] flex flex-col justify-between shrink-0 select-none">
-          {/* Top: Explorer Files */}
-          <div>
-            <div className="px-2.5 py-1.5 border-b border-[#222222] text-[9px] font-mono font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between">
-              <span>EXPLORER</span>
-              <div className="flex items-center gap-1.5 text-[#555555]">
-                <Plus className="w-2.5 h-2.5 hover:text-white cursor-pointer" />
-                <Download className="w-2.5 h-2.5 hover:text-white cursor-pointer" />
-              </div>
-            </div>
-
-            {/* File List */}
-            <div className="p-1 space-y-0.5 text-[10px] font-mono">
-              <div className="text-[9px] text-[#555555] px-1.5 py-0.5 uppercase tracking-wider">
-                ▼ src/
-              </div>
-              {Object.keys(FILES_DATA).map((fileName) => {
-                const isActive = activeFile === fileName;
-                return (
-                  <div
-                    key={fileName}
-                    onClick={() => setActiveFile(fileName)}
-                    className={`px-2 py-1 flex items-center justify-between transition-none cursor-pointer rounded-none ${
-                      isActive
-                        ? "bg-[#111111] text-white border border-[#222222] font-semibold"
-                        : "text-[#888888] hover:text-white border border-transparent hover:border-[#222222]"
-                    }`}
-                  >
-                    <div className="flex items-center gap-1.5 truncate">
-                      <FileCode2 className={`w-3 h-3 ${isActive ? "text-white" : "text-[#444444]"}`} />
-                      <span className="truncate">{fileName}</span>
-                    </div>
-                    {isActive && <span className="w-1 h-1 bg-white" />}
-                  </div>
-                );
-              })}
-              <div className="px-2 py-1 text-[#555555] flex items-center gap-1.5">
-                <FileCode2 className="w-3 h-3 text-[#333333]" />
-                <span>Cargo.toml</span>
-              </div>
+        {/* Left Sidebar: Exact BranchedMenu Tree Branch */}
+        <aside className="w-44 sm:w-48 border-r border-[#222222] bg-[#000000] flex flex-col shrink-0 select-none">
+          <div className="px-3 py-1.5 border-b border-[#222222] text-[10px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between font-mono">
+            <span>Explorer</span>
+            <div className="flex items-center gap-1.5 text-[#666666]">
+              <Plus className="w-3 h-3 hover:text-white cursor-pointer" />
+              <Download className="w-3 h-3 hover:text-white cursor-pointer" />
             </div>
           </div>
 
-          {/* Bottom: Active Mesh Peers Telemetry */}
-          <div className="p-2 border-t border-[#222222] bg-[#050505] text-[9px] font-mono space-y-1">
-            <div className="text-[#555555] font-bold uppercase tracking-wider flex items-center justify-between pb-1 border-b border-[#1a1a1a]">
-              <span>PEER MESH</span>
-              <span className="text-white">[3 LIVE]</span>
-            </div>
-            <div className="flex items-center justify-between text-[#888888]">
-              <span className="text-white">[YOU] Host</span>
-              <span>0.00ms</span>
-            </div>
-            <div className="flex items-center justify-between text-[#888888]">
-              <span className="text-white">[SARAH L.]</span>
-              <span>0.28ms</span>
-            </div>
-            <div className="flex items-center justify-between text-[#888888]">
-              <span className="text-[#666666]">[@CruxAI]</span>
-              <span>POSIX</span>
-            </div>
+          {/* Real BranchedMenu with SVG Curved Branches */}
+          <div className="flex-1 py-1 font-mono text-xs overflow-y-auto">
+            <BranchedMenu
+              items={branchedMenuItems}
+              defaultOpen={[0, 1]}
+              active={activeFile}
+              onSelect={(val) => {
+                if (val && !val.includes("/")) {
+                  setActiveFile(val);
+                }
+              }}
+              width="100%"
+              rowHeight={28}
+              indent={28}
+              trunk={12}
+              radius={6}
+              lineWidth={1.2}
+              fontSize={11}
+              color="#888888"
+              accentColor="#ffffff"
+              lineColor="#222222"
+            />
           </div>
         </aside>
 
-        {/* Right: Code Editor Canvas with Line Numbers & Real Code */}
+        {/* Right Main Editor Pane */}
         <main className="flex-1 bg-[#000000] flex flex-col min-w-0 overflow-hidden relative">
           {/* Tab Strip */}
-          <div className="h-7 border-b border-[#222222] bg-[#0a0a0a] flex items-center justify-between px-2 shrink-0 select-none">
+          <div className="flex h-7 border-b border-[#222222] bg-[#111111] items-center justify-between select-none shrink-0 px-1">
             <div className="flex items-center h-full">
-              {Object.keys(FILES_DATA).map((fileName) => {
-                const isActive = activeFile === fileName;
-                return (
-                  <button
-                    key={fileName}
-                    type="button"
-                    onClick={() => setActiveFile(fileName)}
-                    className={`h-full px-3 text-[10px] font-mono uppercase tracking-wider flex items-center gap-1.5 transition-none cursor-pointer border-r border-[#222222] rounded-none ${
-                      isActive
-                        ? "bg-[#000000] text-white font-bold border-b border-b-white"
-                        : "bg-[#0a0a0a] text-[#666666] hover:text-white"
-                    }`}
-                  >
-                    <span>{fileName}</span>
-                    {isActive && <span className="w-1 h-1 bg-white inline-block" />}
-                  </button>
-                );
-              })}
-            </div>
-            <div className="text-[9px] font-mono text-[#555555] hidden sm:block">
-              {currentFile.lang.toUpperCase()} // WEBGPU DIRECT
+              <div className="px-3 border-r border-[#222222] text-[10px] font-mono uppercase tracking-tight flex items-center gap-1.5 h-full bg-[#000000] text-white font-medium">
+                <span>{activeFile}</span>
+                <span className="text-[#444444] hover:text-white cursor-pointer ml-1">×</span>
+              </div>
+              <div className="px-3 border-r border-[#222222] text-[10px] font-mono uppercase tracking-tight flex items-center gap-1.5 h-full bg-[#111111] text-[#666666] hover:text-white hidden sm:flex">
+                <span>types.ts</span>
+                <span className="text-[#444444] hover:text-white cursor-pointer ml-1">×</span>
+              </div>
             </div>
           </div>
 
-          {/* Editor Lines Buffer */}
-          <div className="flex-1 p-2 sm:p-3 overflow-y-auto font-mono text-[11px] leading-[1.65] bg-[#000000] text-white select-text">
-            {currentFile.lines.map((line) => {
-              const isPeerLine = line.tag === "peer";
-              const isActiveLine = line.tag === "active";
+          {/* Code Canvas Area */}
+          <div className="flex-1 p-3 sm:p-4 overflow-auto font-mono text-[12px] sm:text-[12.5px] leading-[1.7] bg-[#000000] relative">
+            {/* Live Multiplayer Cursor */}
+            {!isAgentDiff && (
+              <div className="absolute top-[148px] sm:top-[156px] left-[175px] sm:left-[215px] pointer-events-none z-30">
+                <CruxPointerCursor
+                  name="Sarah Lin"
+                  uid="SARAH-L"
+                  color="#38b6ff"
+                  status="typing"
+                />
+              </div>
+            )}
 
-              return (
-                <div
-                  key={line.num}
-                  className={`flex items-baseline group hover:bg-[#111111] transition-none px-1 relative ${
-                    isPeerLine ? "bg-[#111111]" : ""
-                  }`}
-                >
-                  {/* Line Number Gutter */}
-                  <span className="w-7 text-right text-[10px] text-[#444444] select-none pr-3 shrink-0 font-mono">
-                    {line.num}
-                  </span>
-
-                  {/* Code Line Content */}
-                  <span className="flex-1 whitespace-pre font-mono">
-                    {line.tag === "comment" ? (
-                      <span className="text-[#555555] italic">{line.text}</span>
-                    ) : line.tag === "keyword" ? (
-                      <span className="text-white font-bold">{line.text}</span>
-                    ) : (
-                      <span className="text-[#E0E0E0]">{line.text}</span>
-                    )}
-
-                    {/* Active User Cursor */}
-                    {isActiveLine && (
-                      <span
-                        className={`inline-block w-1.5 h-3.5 bg-white ml-0.5 align-middle ${
-                          cursorBlink ? "opacity-100" : "opacity-0"
-                        }`}
-                      />
-                    )}
-
-                    {/* Remote Peer Typing Cursor on Sarah's Line */}
-                    {isPeerLine && (
-                      <span className="relative inline-block ml-1">
-                        <span className="text-white font-mono">{peerTypingText}</span>
-                        <span className="inline-block px-1 py-0 bg-white text-black text-[8px] font-mono uppercase font-bold ml-1 align-middle select-none">
-                          [SARAH L.]
-                        </span>
-                        <span className="inline-block w-1 h-3 bg-white ml-0.5 align-middle animate-pulse" />
-                      </span>
-                    )}
+            {/* Mode: Agent Inline Suggestion Diff */}
+            {isAgentDiff ? (
+              <div className="space-y-1">
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                  <span>
+                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">LocalDaemonClient</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/daemon&quot;</span>;
                   </span>
                 </div>
-              );
-            })}
-          </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                  <span>
+                    <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
+                  </span>
+                </div>
 
-          {/* ===================================================================== */}
-          {/* 4. HYPERTERMINAL BOTTOM PANE (Pure POSIX Terminal Blueprint)           */}
-          {/* ===================================================================== */}
-          <div className="h-28 border-t border-[#222222] bg-[#050505] flex flex-col shrink-0">
-            {/* Terminal Header */}
-            <div className="h-6 px-3 bg-[#0c0c0c] border-b border-[#222222] flex items-center justify-between text-[9px] font-mono text-[#71717a] select-none">
-              <div className="flex items-center gap-3">
-                <span className="text-white font-bold flex items-center gap-1.5">
-                  <Terminal className="w-2.5 h-2.5" />
-                  <span>TERMINAL // POSIX PTY HOST</span>
-                </span>
-                <span className="text-[#333333]">|</span>
-                <button
-                  type="button"
-                  onClick={() => setActiveTerminalTab("stdout")}
-                  className={`uppercase transition-none cursor-pointer ${
-                    activeTerminalTab === "stdout" ? "text-white font-bold" : "hover:text-white"
-                  }`}
-                >
-                  STDOUT
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTerminalTab("agent")}
-                  className={`uppercase transition-none cursor-pointer ${
-                    activeTerminalTab === "agent" ? "text-white font-bold" : "hover:text-white"
-                  }`}
-                >
-                  @CRUXAI
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTerminalTab("metrics")}
-                  className={`uppercase transition-none cursor-pointer ${
-                    activeTerminalTab === "metrics" ? "text-white font-bold" : "hover:text-white"
-                  }`}
-                >
-                  TELEMETRY
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span>IPC: 0.08ms</span>
-                <span className="w-1.5 h-1.5 bg-white" />
-              </div>
-            </div>
-
-            {/* Terminal Content Buffer */}
-            <div className="flex-1 p-2 overflow-y-auto font-mono text-[10px] leading-relaxed text-[#888888] space-y-0.5 select-text bg-[#000000]">
-              {terminalLogs.map((log, idx) => {
-                const isCommand = log.startsWith("crux-sh:");
-                const isAgent = log.includes("[@CruxAI]");
-                return (
-                  <div key={idx} className="flex items-baseline gap-1.5">
-                    {isCommand ? (
-                      <span className="text-white font-bold">{log}</span>
-                    ) : isAgent ? (
-                      <span>
-                        <span className="text-white font-bold">[@CruxAI]</span>
-                        <span className="text-[#CCCCCC]">{log.replace("[@CruxAI]", "")}</span>
-                      </span>
-                    ) : (
-                      <span className="text-[#888888]">{log}</span>
-                    )}
+                {/* Inline Diff Box */}
+                <div className="my-2 border border-[#222222] bg-[#0a0a0a]">
+                  <div className="flex justify-between items-center px-3 py-1 border-b border-[#222222] bg-[#111111]">
+                    <span className="text-[10px] font-mono text-white flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-[#38b6ff]" />
+                      <span>Sarah Lin suggests an update</span>
+                      {diffState === "accepted" && (
+                        <span className="ml-2 px-1.5 py-0.2 text-[9px] bg-black border border-[#222222] text-[#00FF66] font-mono">
+                          [ACCEPTED ✓]
+                        </span>
+                      )}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {diffState === "pending" ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setDiffState("accepted")}
+                            className="px-2 py-0.5 bg-white text-black font-mono text-[9px] uppercase font-bold hover:bg-[#CCCCCC] transition-none cursor-pointer"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDiffState("rejected")}
+                            className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] font-mono text-[9px] uppercase hover:text-white transition-none cursor-pointer"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : (
+                        <span className="text-[9px] font-mono text-[#00FF66] font-bold">
+                          APPLIED
+                        </span>
+                      )}
+                    </div>
                   </div>
-                );
-              })}
-            </div>
+
+                  <div className="p-2 text-[11px] leading-relaxed font-mono">
+                    <div className="bg-[#FF453A]/10 text-[#FF453A] px-2 py-0.5 border-l-2 border-[#FF453A] line-through">
+                      - const lock = await this.daemon.acquireLock(channel);
+                    </div>
+                    <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
+                      + const ticket = await atomicBitset.claimTicket();
+                    </div>
+                    <div className="bg-[#00FF66]/10 text-[#00FF66] px-2 py-0.5 border-l-2 border-[#00FF66] font-semibold">
+                      + await wal.commitLockFree(ticket);
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                  <span className="pl-4">
+                    <span className="text-[#569cd6]">return</span> ticket;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                  <span>&#125;</span>
+                </div>
+              </div>
+            ) : isMetal ? (
+              /* Mode: Metal Shader */
+              <div className="space-y-0.5">
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                  <span className="text-[#6a9955] italic">// WebGPU & Metal Compute Shader Pipeline</span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                  <span>
+                    <span className="text-[#569cd6]">#include</span> <span className="text-[#ce9178]">&lt;metal_stdlib&gt;</span>
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                  <span>
+                    <span className="text-[#569cd6]">using namespace</span> metal;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                  <span></span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                  <span>
+                    <span className="text-[#569cd6]">kernel void</span> <span className="text-[#dcdcaa]">rasterize_glyph_quads</span>(
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
+                  <span className="pl-4">
+                    device <span className="text-[#569cd6]">const</span> <span className="text-[#4ec9b0]">GlyphVertex</span>* <span className="text-[#9cdcfe]">vertices</span> [[buffer(0)]],
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                  <span className="pl-4">
+                    <span className="text-[#4ec9b0]">texture2d</span>&lt;<span className="text-[#569cd6]">float</span>, access::sample&gt; <span className="text-[#9cdcfe]">atlas</span> [[texture(0)]]
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">8</span>
+                  <span>) &#123;</span>
+                </div>
+                <div className="flex items-baseline bg-[#ffffff]/5">
+                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">9</span>
+                  <span className="pl-4">
+                    <span className="text-[#6a9955] italic">// Phosphor rasterization in 4.2ms</span>
+                    <span className="inline-block w-1.5 h-3.5 bg-white ml-1 align-middle animate-pulse" />
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
+                  <span>&#125;</span>
+                </div>
+              </div>
+            ) : (
+              /* Mode: TypeScript Standard (stream_syncer.ts / ast_crdt_sync.ts) */
+              <div className="space-y-0.5">
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">1</span>
+                  <span>
+                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">LocalDaemonClient</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/daemon&quot;</span>;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">2</span>
+                  <span>
+                    <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">SyncVector</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;./types&quot;</span>;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">3</span>
+                  <span className="text-[#6a9955] italic">// Peer stream syncer</span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">4</span>
+                  <span>
+                    <span className="text-[#569cd6]">export class</span> <span className="text-[#4ec9b0]">StreamSyncer</span> &#123;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">5</span>
+                  <span className="pl-4">
+                    <span className="text-[#9cdcfe]">timeout</span> = <span className="text-[#b5cea8]">5000</span>;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">6</span>
+                  <span className="pl-4">
+                    <span className="text-[#9cdcfe]">daemon</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">LocalDaemonClient</span>(&#123; <span className="text-[#9cdcfe]">port</span>: <span className="text-[#b5cea8]">7447</span> &#125;);
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">7</span>
+                  <span></span>
+                </div>
+                <div className="flex items-baseline bg-[#ffffff]/5">
+                  <span className="w-6 text-right text-[10px] text-white font-bold pr-3 select-none">8</span>
+                  <span className="pl-4">
+                    <span className="text-[#569cd6]">async</span> <span className="text-[#dcdcaa]">acquireLock</span>({typedSuffix}
+                    <span className="inline-block w-1.5 h-3.5 bg-white ml-0.5 align-middle animate-pulse" />
+                    ) &#123;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">9</span>
+                  <span className="pl-8">
+                    <span className="text-[#9cdcfe]">console</span>.<span className="text-[#dcdcaa]">log</span>(<span className="text-[#ce9178]">&quot;[StreamSyncer] Requesting mutual exclusion lock...&quot;</span>);
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">10</span>
+                  <span className="pl-8">
+                    <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ticket</span> = <span className="text-[#569cd6]">await</span> <span className="text-[#569cd6]">this</span>.<span className="text-[#9cdcfe]">daemon</span>.<span className="text-[#dcdcaa]">acquireLock</span>(channel);
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">11</span>
+                  <span className="pl-8">
+                    <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ticket</span>;
+                  </span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">12</span>
+                  <span className="pl-4">&#125;</span>
+                </div>
+                <div className="flex items-baseline">
+                  <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none">13</span>
+                  <span>&#125;</span>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
-
-      {/* ========================================================================= */}
-      {/* 5. FOOTER STATUS BAR (Exact Crux Status Bar Blueprint)                     */}
-      {/* ========================================================================= */}
-      <footer className="h-5 px-3 bg-[#000000] border-t border-[#222222] text-[#666666] flex items-center justify-between text-[9px] font-mono select-none shrink-0 z-20">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-white">
-            <GitBranch className="w-2.5 h-2.5" />
-            <span>main*</span>
-          </div>
-          <span className="text-[#333333]">|</span>
-          <span className="text-white uppercase font-bold">DISK IN-SYNC</span>
-          <span className="text-[#444444] hidden sm:inline">0.08ms SHM</span>
-        </div>
-
-        <div className="flex items-center gap-3 text-[#666666]">
-          <span>Ln 14, Col 28</span>
-          <span className="hidden sm:inline">UTF-8</span>
-          <span className="uppercase text-white font-bold">{currentFile.lang}</span>
-          <span className="text-white font-bold">120 FPS</span>
-        </div>
-      </footer>
     </div>
   );
 }

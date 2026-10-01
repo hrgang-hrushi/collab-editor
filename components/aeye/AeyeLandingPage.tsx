@@ -27,9 +27,9 @@ export default function AeyeLandingPage() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-white selection:text-black antialiased">
+    <div className="min-h-screen w-full bg-[#000000] text-white font-sans selection:bg-[#0055FF]/40 selection:text-white antialiased">
       {/* 0. Entrance Pixel Grid Reveal Animation */}
-      <PixelGridTransition color="#FFFFFF" columns={12} rowMultiplier={3} squareDuration={0.5} maxDelay={0.6} />
+      <PixelGridTransition color="#0055FF" columns={12} rowMultiplier={3} squareDuration={0.5} maxDelay={0.6} />
 
       {/* 1. Header & Navigation */}
       <AeyeNavbar onNavigate={scrollTo} />

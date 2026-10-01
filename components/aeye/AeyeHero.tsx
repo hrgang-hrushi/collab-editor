@@ -140,7 +140,7 @@ export default function AeyeHero() {
             <a href="#" className="hover:opacity-90 transition-none no-underline">
               <CruxBrandLogo size={28} />
             </a>
-            <div className="px-2.5 py-0.5 border border-[#222222] bg-[#111111] text-[11px] font-mono text-white uppercase tracking-wider select-none rounded-none font-semibold">
+            <div className="px-2.5 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[11px] font-mono text-[#0055FF] uppercase tracking-wider select-none rounded-none font-semibold">
               v0.1.0 // RUST + WEBGPU
             </div>
           </div>
@@ -148,14 +148,14 @@ export default function AeyeHero() {
           {/* Scroll Text with Bouncing Arrow */}
           <a
             href="#benefit"
-            className="flex items-center gap-2 text-[11px] font-mono text-[#888888] hover:text-white transition-none cursor-pointer no-underline pointer-events-auto group"
+            className="flex items-center gap-2 text-[11px] font-mono text-[#888888] hover:text-[#0055FF] transition-none cursor-pointer no-underline pointer-events-auto group"
           >
             <span className="tracking-widest">SCROLL FOR ARCHITECTURE</span>
             <motion.div
               animate={{ y: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
             >
-              <ArrowDown className="w-3.5 h-3.5 text-[#888888] group-hover:text-white transition-none" />
+              <ArrowDown className="w-3.5 h-3.5 text-[#888888] group-hover:text-[#0055FF] transition-none" />
             </motion.div>
           </a>
         </div>
@@ -180,12 +180,12 @@ export default function AeyeHero() {
                   A Native Bare-Metal
                 </motion.div>
 
-                <div className="inline-flex items-center gap-1 min-h-[48px] sm:min-h-[82px] font-mono text-white tracking-tight">
-                  <span className="text-white">{displayedText}</span>
+                <div className="inline-flex items-center gap-1 min-h-[48px] sm:min-h-[82px] font-mono text-[#0055FF] tracking-tight">
+                  <span className="text-[#0055FF]">{displayedText}</span>
                   <motion.span
                     animate={{ opacity: [1, 0, 1] }}
                     transition={{ repeat: Infinity, duration: 0.5 }}
-                    className="inline-block w-[18px] sm:w-[26px] h-[34px] sm:h-[48px] bg-white ml-1 align-baseline"
+                    className="inline-block w-[18px] sm:w-[26px] h-[34px] sm:h-[48px] bg-[#0055FF] ml-1 align-baseline"
                   />
                 </div>
 
@@ -208,7 +208,7 @@ export default function AeyeHero() {
             >
               {/* Verifiable Hardware Telemetry & Architecture Badges */}
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-mono">
-                <div className="px-2 py-0.5 border border-[#222222] bg-[#111111] text-white text-[11px] font-bold uppercase tracking-wider">
+                <div className="px-2 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[#0055FF] text-[11px] font-bold uppercase tracking-wider">
                   4.2ms RENDER
                 </div>
                 <div className="w-[1px] h-3.5 bg-[#333333]" />
@@ -216,8 +216,8 @@ export default function AeyeHero() {
                   38MB RAM <span className="text-[#71717a] font-normal">(vs 680MB Electron)</span>
                 </div>
                 <div className="w-[1px] h-3.5 bg-[#333333]" />
-                <div className="text-white font-semibold text-[11px] flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-none bg-white animate-pulse" />
+                <div className="text-[#22c55e] font-semibold text-[11px] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-none bg-[#22c55e] animate-pulse" />
                   <span>100% AIR-GAPPED READY</span>
                 </div>
               </div>
@@ -267,7 +267,7 @@ export default function AeyeHero() {
                     <span className="flex items-center gap-1.5 text-white font-medium">
                       <span
                         className={`w-1.5 h-1.5 ${
-                          chipStage === "done" ? "bg-white" : "bg-white animate-pulse"
+                          chipStage === "done" ? "bg-[#22c55e]" : "bg-[#0055FF] animate-pulse"
                         }`}
                       />
                       {chipStage === "done" ? "CONFIRMED" : "DISPATCH"}
@@ -289,7 +289,7 @@ export default function AeyeHero() {
                       value={preCruxEmail}
                       onChange={(e) => setPreCruxEmail(e.target.value)}
                       placeholder="Get on Pre-Crux"
-                      className="w-full sm:w-[240px] md:w-[280px] bg-transparent text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border-0 border-b border-white focus:border-white focus:outline-none px-2 py-3 transition-none rounded-none"
+                      className="w-full sm:w-[240px] md:w-[280px] bg-transparent text-white placeholder-[#888888] font-sans text-xs sm:text-sm tracking-wider border-0 border-b border-white focus:border-[#0055FF] focus:outline-none px-2 py-3 transition-none rounded-none"
                     />
                   </div>
 
