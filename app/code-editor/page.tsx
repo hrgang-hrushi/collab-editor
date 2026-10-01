@@ -4,7 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Code Editor — Free Native & Online Collaborative Code Editor | Code Crux",
+  title: "Code Editor — Free Native & Online Collaborative Workspace",
   description:
     "Looking for a code editor? Code Crux is the ultra-fast bare-metal code editor built in Rust with direct WebGPU hardware acceleration, 4.2ms input-to-photon latency, 38MB idle memory, and decentralized AST-CRDT real-time sync. Run code online or on macOS, Linux, and Windows.",
   keywords: [
