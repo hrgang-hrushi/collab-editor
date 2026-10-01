@@ -166,7 +166,7 @@ export default function AeyeInstallationSection() {
                   </div>
 
                   {/* Authentic 110% Real Crux IDE Workbench with Amoeba Spotlight */}
-                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-hidden h-[460px] sm:h-[480px] flex flex-col justify-between relative">
+                  <div className="border border-[#222222] bg-[#000000] rounded-none overflow-visible h-[490px] sm:h-[510px] flex flex-col justify-between relative">
                     <AnimatePresence mode="wait">
                       <motion.div
                         key={`tab-${activeTab}`}
@@ -174,7 +174,7 @@ export default function AeyeInstallationSection() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.15 }}
-                        className="h-full w-full select-none relative"
+                        className="h-full w-full select-none relative overflow-visible"
                       >
                         <RealCollaborativeMeshInterface
                           mode={activeTab === "agent" ? "agents" : activeTab}

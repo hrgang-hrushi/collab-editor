@@ -68,38 +68,39 @@ function CleanCalloutCard({
 }: CleanCalloutCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+      initial={{ opacity: 0, y: 10, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.98 }}
-      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
       className={`relative ${className}`}
     >
       <BorderBeam
         size="md"
         colorVariant="ocean"
-        strength={0.88}
-        duration={9.5}
+        strength={0.92}
+        duration={12.0}
         theme="dark"
-        borderRadius={14}
-        className="w-full relative shadow-[0_16px_40px_rgba(0,0,0,0.85)]"
+        borderRadius={8}
+        className="w-full relative shadow-[0_25px_60px_rgba(0,0,0,0.95)]"
       >
         <div
-          className="relative bg-[#07080f]/92 backdrop-blur-xl border border-white/12 p-3.5 sm:p-4 text-left select-none overflow-hidden"
-          style={{ borderRadius: "14px" }}
+          className="relative bg-[#05060b]/96 backdrop-blur-2xl border border-[#222222] p-3.5 sm:p-4 text-left select-none overflow-hidden"
+          style={{ borderRadius: "8px" }}
         >
-          {/* Header Row: Category + Pill */}
+          {/* Top Decorative Micro-Accent */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[#0055FF]/40 to-transparent" />
+
+          {/* Header Row: Category Tag + Pill */}
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-xs sm:text-[12.5px] font-bold uppercase tracking-wider font-sans text-white">
-              {category}
-            </h3>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+              <h3 className="text-[10px] font-mono font-bold uppercase tracking-[0.16em] text-[#a1a1aa]">
+                {category}
+              </h3>
+            </div>
             {pill && (
               <span
-                className="px-2 py-0.5 text-[8.5px] font-mono uppercase tracking-wider font-semibold rounded-full border shrink-0"
-                style={{
-                  backgroundColor: `${accentColor}18`,
-                  color: accentColor,
-                  borderColor: `${accentColor}40`,
-                }}
+                className="px-2 py-0.5 text-[8.5px] font-mono uppercase tracking-wider font-semibold rounded-[4px] border shrink-0 bg-[#0055FF]/10 text-[#0055FF] border-[#0055FF]/30"
               >
                 {pill}
               </span>
@@ -107,12 +108,12 @@ function CleanCalloutCard({
           </div>
 
           {/* Title */}
-          <h4 className="mt-1.5 text-xs sm:text-[12.5px] font-medium text-white/95 font-sans tracking-tight">
+          <h4 className="mt-1.5 text-[12.5px] sm:text-[13px] font-semibold text-white tracking-tight leading-snug">
             {title}
           </h4>
 
           {/* Description */}
-          <p className="mt-1 text-xs sm:text-[11.5px] font-sans text-[#a1a1aa] leading-relaxed">
+          <p className="mt-1 text-[11px] sm:text-[11.5px] text-[#888888] leading-[1.55]">
             {description}
           </p>
         </div>
@@ -326,7 +327,7 @@ export default function RealCollaborativeMeshInterface({
 
   return (
     <div
-      className={`relative w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-hidden ${className}`}
+      className={`relative w-full h-full bg-[#000000] text-white flex flex-col select-none overflow-visible ${className}`}
       style={{
         fontFamily: '"Arial MT", "ArialMT", Arial, "Arial MT Pro", Helvetica, sans-serif',
       }}
@@ -420,7 +421,7 @@ export default function RealCollaborativeMeshInterface({
       {/* ========================================================================= */}
       {/* 2. MAIN WORKBENCH: ZERO-SCROLL SPLIT CANVAS                                */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex min-h-0 bg-[#000000] overflow-hidden">
+      <div className="flex-1 flex min-h-0 bg-[#000000] overflow-visible">
         {/* Left Sidebar: Compact Explorer */}
         <aside className="w-36 sm:w-44 border-r border-[#222222] bg-[#000000] flex flex-col shrink-0 select-none">
           <div className="px-3 py-1.5 border-b border-[#222222] text-[9.5px] font-bold tracking-widest text-[#888888] uppercase flex items-center justify-between font-mono">
@@ -456,7 +457,7 @@ export default function RealCollaborativeMeshInterface({
         </aside>
 
         {/* Right Main Editor Pane */}
-        <main className="flex-1 bg-[#000000] flex flex-col min-w-0 overflow-hidden relative">
+        <main className="flex-1 bg-[#000000] flex flex-col min-w-0 overflow-visible relative">
           {/* Tab Strip */}
           <div className="flex h-7 border-b border-[#222222] bg-[#111111] items-center justify-between select-none shrink-0 px-1">
             <div className="flex items-center h-full">
@@ -471,8 +472,8 @@ export default function RealCollaborativeMeshInterface({
             </div>
           </div>
 
-          {/* Code Canvas Area: overflow-hidden ensures ZERO vertical scrolling */}
-          <div className="flex-1 p-3 sm:p-4 overflow-hidden font-mono text-[11.5px] sm:text-[12px] leading-[1.65] bg-[#000000] relative flex flex-col justify-center">
+          {/* Code Canvas Area: overflow-visible ensures floating card renders cleanly */}
+          <div className="flex-1 p-3 sm:p-4 overflow-visible font-mono text-[11.5px] sm:text-[12px] leading-[1.65] bg-[#000000] relative flex flex-col justify-center">
             {/* =================================================================== */}
             {/* DEMO 1: REAL-TIME COLLABORATIVE MESH                                */}
             {/* 3 Peers typing with their names: Erik, Hrushi, Muhaymin             */}
@@ -586,22 +587,22 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 2: CONTEXT AWARENESS (Layer 01 Architecture & Signal Pipeline) */}
             {/* =================================================================== */}
             {mode === "context" && (
-              <div className="w-full h-full flex flex-col justify-between relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="CONTEXT AWARENESS"
                   title="Instant Project Context"
                   description="Ingests raw filesystem buffers, keystrokes, and AST tokens to index 64,280 workspace symbols in 0.08ms with zero cloud latency."
                   pill="0.08ms"
                   accentColor="#0055FF"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                {/* Top Architectural Telemetry & Ingestion Pipeline */}
-                <div className="space-y-2 max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                {/* Top Architectural Telemetry & Ingestion Pipeline (Full Width) */}
+                <div className="space-y-2 w-full">
                   {/* Telemetry pill row */}
-                  <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono">
-                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[9px] font-mono">
+                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
                       SIGNAL INGESTION ACTIVE
                     </span>
@@ -609,93 +610,81 @@ export default function RealCollaborativeMeshInterface({
                       kqueue/inotify: 1,420 files
                     </span>
                     <span className="px-2 py-0.5 bg-[#111111] border border-[#222222] text-[#888888] rounded-[3px]">
-                      Lookup: 0.08ms
+                      Lookup: 0.08ms (O(1))
                     </span>
                   </div>
 
-                  {/* 3-Stage Signal Ingestion Mesh Pipeline */}
-                  <div className="grid grid-cols-3 gap-1.5 text-[10px] font-mono">
+                  {/* 3-Stage Signal Ingestion Mesh Pipeline (Spacious 3 columns) */}
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
                     <div className="p-2 bg-[#0c0d14] border border-[#222222] rounded-[4px]">
                       <div className="text-[8.5px] text-[#71717a] uppercase tracking-wider font-semibold">Tier 1 · POSIX Daemon</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">kqueue / inotify</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">kqueue / inotify</div>
                       <div className="text-[8.5px] text-[#0055FF]">120Hz Event Bus</div>
                     </div>
                     <div className="p-2 bg-[#0c0d14] border border-[#222222] rounded-[4px]">
                       <div className="text-[8.5px] text-[#71717a] uppercase tracking-wider font-semibold">Tier 2 · Tokenizer</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">TokenStream Lexer</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">TokenStream Lexer</div>
                       <div className="text-[8.5px] text-[#0055FF]">Zero-Copy Parser</div>
                     </div>
                     <div className="p-2 bg-[#0c0d14] border border-[#0055FF]/40 bg-[#0055FF]/5 rounded-[4px]">
                       <div className="text-[8.5px] text-[#0055FF] uppercase tracking-wider font-semibold">Tier 3 · Symbol Graph</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">64,280 Nodes</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">64,280 Nodes</div>
                       <div className="text-[8.5px] text-[#16a34a]">2.1 MB In-Memory</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Center / Lower: Code Canvas + Real-Time Symbol Dependency Inspector */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-2 mt-2 pt-2 border-t border-[#1c1c1f] items-start flex-1 min-h-0">
-                  {/* Code Editor (7 cols) */}
-                  <div className="md:col-span-7 space-y-1 font-mono text-[11px] sm:text-[11.5px] leading-relaxed">
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">1</span>
-                      <span>
-                        <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">TokenStream</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/kernel&quot;</span>;
-                      </span>
-                    </div>
-                    <div className={`flex items-baseline whitespace-nowrap rounded-[3px] ${scanLine === 2 ? "bg-white/10" : ""}`}>
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">2</span>
-                      <span>
-                        <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">indexWorkspace</span>(<span className="text-[#9cdcfe]">paths</span>: <span className="text-[#4ec9b0]">string</span>[]) &#123;
-                      </span>
-                    </div>
-                    <div className={`flex items-baseline whitespace-nowrap rounded-[3px] ${scanLine === 3 ? "bg-white/10" : ""}`}>
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">3</span>
-                      <span className="pl-3">
-                        <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ast</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">TokenStream</span>().<span className="text-[#dcdcaa]">parseAll</span>(<span className="text-[#9cdcfe]">paths</span>);
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between bg-[#0055FF]/15 border border-[#0055FF]/40 px-1.5 py-0.5 rounded-[4px] whitespace-nowrap">
-                      <div className="flex items-baseline whitespace-nowrap">
-                        <span className="w-5 text-right text-[10px] text-[#0055FF] font-bold pr-2 select-none shrink-0">4</span>
-                        <span className="pl-3">
-                          <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ast</span>.<span className="text-[#dcdcaa]">buildSymbolIndex</span>();
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-mono text-[#0055FF] font-bold ml-2">
-                        RESOLVED 0.08ms
-                      </span>
-                    </div>
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">5</span>
-                      <span>&#125;</span>
-                    </div>
+                {/* Center Code Canvas (Full Width) */}
+                <div className="my-2 py-2 border-y border-[#1c1c1f] space-y-1 font-mono text-[11px] sm:text-[11.5px] leading-relaxed w-full">
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">1</span>
+                    <span>
+                      <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">TokenStream</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/kernel&quot;</span>;
+                    </span>
                   </div>
+                  <div className={`flex items-baseline whitespace-nowrap rounded-[3px] ${scanLine === 2 ? "bg-white/10" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">indexWorkspace</span>(<span className="text-[#9cdcfe]">paths</span>: <span className="text-[#4ec9b0]">string</span>[]) &#123;
+                    </span>
+                  </div>
+                  <div className={`flex items-baseline whitespace-nowrap rounded-[3px] ${scanLine === 3 ? "bg-white/10" : ""}`}>
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">3</span>
+                    <span className="pl-3">
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">ast</span> = <span className="text-[#569cd6]">new</span> <span className="text-[#4ec9b0]">TokenStream</span>().<span className="text-[#dcdcaa]">parseAll</span>(<span className="text-[#9cdcfe]">paths</span>);
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between bg-[#0055FF]/15 border border-[#0055FF]/40 px-2 py-0.5 rounded-[4px] whitespace-nowrap">
+                    <div className="flex items-baseline whitespace-nowrap">
+                      <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-2 select-none shrink-0">4</span>
+                      <span className="pl-3">
+                        <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">ast</span>.<span className="text-[#dcdcaa]">buildSymbolIndex</span>();
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono text-[#0055FF] font-bold ml-2">
+                      RESOLVED 0.08ms
+                    </span>
+                  </div>
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">5</span>
+                    <span>&#125;</span>
+                  </div>
+                </div>
 
-                  {/* Live Symbol Graph Telemetry Inspector (5 cols) */}
-                  <div className="md:col-span-5 p-2 bg-[#090a10] border border-[#222222] rounded-[4px] space-y-1 font-mono text-[9px]">
-                    <div className="flex items-center justify-between text-[#888888] pb-1 border-b border-[#1c1c1f]">
-                      <span className="uppercase tracking-wider font-semibold text-[#a1a1aa]">Symbol Inspector</span>
-                      <span className="text-[#0055FF] font-bold">LIVE DOCK</span>
+                {/* Bottom Docked Live Symbol Inspector Bar (Full Width) */}
+                <div className="p-2 bg-[#090a10] border border-[#222222] rounded-[4px] font-mono text-[9px] w-full">
+                  <div className="flex items-center justify-between text-[#888888] pb-1 border-b border-[#1c1c1f]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+                      <span className="uppercase tracking-wider font-semibold text-[#a1a1aa]">Symbol Graph Inspector</span>
                     </div>
-                    <div className="space-y-0.5">
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Symbol Target:</span>
-                        <span className="text-white font-medium">buildSymbolIndex()</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Source Def:</span>
-                        <span className="text-[#ce9178]">kernel/symbol_index.rs:94</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">References:</span>
-                        <span className="text-white">1,420 files linked</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Lookup Latency:</span>
-                        <span className="text-[#16a34a] font-bold">0.08 ms (O(1))</span>
-                      </div>
-                    </div>
+                    <span className="text-[#0055FF] font-bold">LIVE DOCK · 0.08ms</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1 text-[#888888]">
+                    <div>Target: <span className="text-white font-medium">buildSymbolIndex()</span></div>
+                    <div>Def: <span className="text-[#ce9178]">kernel/symbol_index.rs:94</span></div>
+                    <div>Refs: <span className="text-white">1,420 files</span></div>
+                    <div>Latency: <span className="text-[#16a34a] font-bold">0.08ms O(1)</span></div>
                   </div>
                 </div>
               </div>
@@ -705,22 +694,22 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 3: INTELLIGENT PROCESSING (Layer 02 AST-CRDT Pipeline)         */}
             {/* =================================================================== */}
             {mode === "processing" && (
-              <div className="w-full h-full flex flex-col justify-between relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="INTELLIGENT PROCESSING"
                   title="Deterministic AST Synthesis"
                   description="Synthesizes concurrent peer mutations directly at the AST node level, eliminating text merge conflicts and broken syntax."
                   pill="CRDT V4"
                   accentColor="#0055FF"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                {/* Top Architectural Telemetry & AST Convergence Flow */}
-                <div className="space-y-2 max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                {/* Top Architectural Telemetry & AST Convergence Flow (Full Width) */}
+                <div className="space-y-2 w-full">
                   {/* Telemetry pill row */}
-                  <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono">
-                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[9px] font-mono">
+                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
                       AST-CRDT CONVERGENCE
                     </span>
@@ -732,14 +721,14 @@ export default function RealCollaborativeMeshInterface({
                     </span>
                   </div>
 
-                  {/* Concurrent Mutation Stream Orchestration */}
-                  <div className="grid grid-cols-2 gap-1.5 text-[10px] font-mono">
+                  {/* Concurrent Mutation Stream Orchestration (3 columns full width) */}
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
                     <div className="p-2 bg-[#0c0d14] border border-[#222222] rounded-[4px]">
                       <div className="flex items-center justify-between text-[8.5px] text-[#71717a]">
                         <span>PEER A · SF (0x7F2A)</span>
                         <span className="text-[#0055FF]">SEQ #14</span>
                       </div>
-                      <div className="mt-0.5 text-white font-mono text-[9.5px] truncate">
+                      <div className="mt-0.5 text-white font-mono text-[10px] truncate">
                         + INSERT Statement(LockGuard)
                       </div>
                       <div className="text-[8.5px] text-[#16a34a]">Deterministic Transform</div>
@@ -749,77 +738,75 @@ export default function RealCollaborativeMeshInterface({
                         <span>PEER B · TOKYO (0x19B4)</span>
                         <span className="text-[#0055FF]">SEQ #29</span>
                       </div>
-                      <div className="mt-0.5 text-white font-mono text-[9.5px] truncate">
+                      <div className="mt-0.5 text-white font-mono text-[10px] truncate">
                         + REPLACE Ident(ticket)
                       </div>
                       <div className="text-[8.5px] text-[#16a34a]">Sub-10ms Mesh Sync</div>
                     </div>
+                    <div className="p-2 bg-[#0c0d14] border border-[#0055FF]/40 bg-[#0055FF]/5 rounded-[4px]">
+                      <div className="flex items-center justify-between text-[8.5px] text-[#0055FF]">
+                        <span>ENGINE · AST VECTOR</span>
+                        <span className="text-[#16a34a]">SYNC</span>
+                      </div>
+                      <div className="mt-0.5 text-white font-mono text-[10px] truncate">
+                        Resolved: 0x9e3f_c12a
+                      </div>
+                      <div className="text-[8.5px] text-[#0055FF]">Zero Merge Conflicts</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Center / Lower: Code Canvas + AST Tree Node Convergence Inspector */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-2 mt-2 pt-2 border-t border-[#1c1c1f] items-start flex-1 min-h-0">
-                  {/* Code Editor (7 cols) */}
-                  <div className="md:col-span-7 space-y-1 font-mono text-[11px] sm:text-[11.5px] leading-relaxed">
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">1</span>
-                      <span>
-                        <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">SynthesizedTree</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/crdt&quot;</span>;
-                      </span>
-                    </div>
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">2</span>
-                      <span>
-                        <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(<span className="text-[#9cdcfe]">delta</span>: <span className="text-[#4ec9b0]">ASTMutation</span>) &#123;
-                      </span>
-                    </div>
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">3</span>
-                      <span className="pl-3">
-                        <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">tree</span> = <span className="text-[#4ec9b0]">SynthesizedTree</span>.<span className="text-[#dcdcaa]">resolve</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">targetId</span>);
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between bg-[#0055FF]/15 border border-[#0055FF]/40 px-1.5 py-0.5 rounded-[4px] whitespace-nowrap">
-                      <div className="flex items-baseline whitespace-nowrap">
-                        <span className="w-5 text-right text-[10px] text-[#0055FF] font-bold pr-2 select-none shrink-0">4</span>
-                        <span className="pl-3">
-                          <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">tree</span>.<span className="text-[#dcdcaa]">transformDeterministic</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">patch</span>, <span className="text-[#b5cea8]">0x{resolvedToken.toString(16)}</span>);
-                        </span>
-                      </div>
-                      <span className="text-[9px] font-mono text-[#0055FF] font-bold ml-2">
-                        AST VALIDATED
-                      </span>
-                    </div>
-                    <div className="flex items-baseline whitespace-nowrap">
-                      <span className="w-5 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">5</span>
-                      <span>&#125;</span>
-                    </div>
+                {/* Center Code Canvas (Full Width) */}
+                <div className="my-2 py-2 border-y border-[#1c1c1f] space-y-1 font-mono text-[11px] sm:text-[11.5px] leading-relaxed w-full">
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">1</span>
+                    <span>
+                      <span className="text-[#569cd6]">import</span> &#123; <span className="text-[#4ec9b0]">SynthesizedTree</span> &#125; <span className="text-[#569cd6]">from</span> <span className="text-[#ce9178]">&quot;@crux/crdt&quot;</span>;
+                    </span>
                   </div>
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">2</span>
+                    <span>
+                      <span className="text-[#569cd6]">export function</span> <span className="text-[#dcdcaa]">synthesizeASTDelta</span>(<span className="text-[#9cdcfe]">delta</span>: <span className="text-[#4ec9b0]">ASTMutation</span>) &#123;
+                    </span>
+                  </div>
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">3</span>
+                    <span className="pl-3">
+                      <span className="text-[#569cd6]">const</span> <span className="text-[#9cdcfe]">tree</span> = <span className="text-[#4ec9b0]">SynthesizedTree</span>.<span className="text-[#dcdcaa]">resolve</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">targetId</span>);
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between bg-[#0055FF]/15 border border-[#0055FF]/40 px-2 py-0.5 rounded-[4px] whitespace-nowrap">
+                    <div className="flex items-baseline whitespace-nowrap">
+                      <span className="w-6 text-right text-[10px] text-[#0055FF] font-bold pr-2 select-none shrink-0">4</span>
+                      <span className="pl-3">
+                        <span className="text-[#569cd6]">return</span> <span className="text-[#9cdcfe]">tree</span>.<span className="text-[#dcdcaa]">transformDeterministic</span>(<span className="text-[#9cdcfe]">delta</span>.<span className="text-[#9cdcfe]">patch</span>, <span className="text-[#b5cea8]">0x{resolvedToken.toString(16)}</span>);
+                      </span>
+                    </div>
+                    <span className="text-[9px] font-mono text-[#0055FF] font-bold ml-2">
+                      AST CONVERGED
+                    </span>
+                  </div>
+                  <div className="flex items-baseline whitespace-nowrap">
+                    <span className="w-6 text-right text-[10px] text-[#444444] pr-2 select-none shrink-0">5</span>
+                    <span>&#125;</span>
+                  </div>
+                </div>
 
-                  {/* AST Convergence Telemetry Inspector (5 cols) */}
-                  <div className="md:col-span-5 p-2 bg-[#090a10] border border-[#222222] rounded-[4px] space-y-1 font-mono text-[9px]">
-                    <div className="flex items-center justify-between text-[#888888] pb-1 border-b border-[#1c1c1f]">
-                      <span className="uppercase tracking-wider font-semibold text-[#a1a1aa]">AST Tree State</span>
-                      <span className="text-[#16a34a] font-bold">CONVERGED</span>
+                {/* Bottom Docked AST State Inspector Bar (Full Width) */}
+                <div className="p-2 bg-[#090a10] border border-[#222222] rounded-[4px] font-mono text-[9px] w-full">
+                  <div className="flex items-center justify-between text-[#888888] pb-1 border-b border-[#1c1c1f]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+                      <span className="uppercase tracking-wider font-semibold text-[#a1a1aa]">AST Vector State</span>
                     </div>
-                    <div className="space-y-0.5">
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Syntax State:</span>
-                        <span className="text-[#16a34a] font-medium">Valid AST (0 breaks)</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Root Tree Hash:</span>
-                        <span className="text-white font-mono">0x9e3f_c12a</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Conflict Rate:</span>
-                        <span className="text-[#16a34a] font-bold">0.000% (CRDT AST)</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-[#71717a]">Peer Latency:</span>
-                        <span className="text-white">8.4ms encrypted P2P</span>
-                      </div>
-                    </div>
+                    <span className="text-[#16a34a] font-bold">CONVERGED · 0 CONFLICTS</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-1 text-[#888888]">
+                    <div>Syntax: <span className="text-[#16a34a] font-medium">Valid AST</span></div>
+                    <div>Root Hash: <span className="text-white font-mono">0x9e3f_c12a</span></div>
+                    <div>Conflict Rate: <span className="text-[#16a34a] font-bold">0.000%</span></div>
+                    <div>Sync Latency: <span className="text-white">8.4ms P2P</span></div>
                   </div>
                 </div>
               </div>
@@ -829,22 +816,22 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 4: ACTIONABLE OUTPUT (Layer 03 LLVM Pipeline & POSIX Sandbox) */}
             {/* =================================================================== */}
             {mode === "output" && (
-              <div className="w-full h-full flex flex-col justify-between relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="ACTIONABLE OUTPUT"
                   title="Instant Native Binaries"
                   description="Compiles verified ARM64 machine binaries and verifies atomic git diffs locally inside an isolated POSIX namespace in 140ms."
                   pill="140ms"
                   accentColor="#0055FF"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                {/* Top Architectural 3-Stage LLVM Compilation Pipeline */}
-                <div className="space-y-2 max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                {/* Top Architectural 3-Stage LLVM Compilation Pipeline (Full Width) */}
+                <div className="space-y-2 w-full">
                   {/* Telemetry pill row */}
-                  <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-mono">
-                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[9px] font-mono">
+                    <span className="px-2 py-0.5 bg-[#0055FF]/15 border border-[#0055FF]/40 text-[#0055FF] font-bold rounded-[3px] flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
                       LLVM NATIVE BACKEND
                     </span>
@@ -856,29 +843,29 @@ export default function RealCollaborativeMeshInterface({
                     </span>
                   </div>
 
-                  {/* 3-Stage Native Pipeline */}
-                  <div className="grid grid-cols-3 gap-1.5 text-[10px] font-mono">
+                  {/* 3-Stage Native Pipeline (Full Width 3 Columns) */}
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
                     <div className="p-2 bg-[#0c0d14] border border-[#222222] rounded-[4px]">
                       <div className="text-[8.5px] text-[#71717a] uppercase tracking-wider font-semibold">Stage 1 · Semantic Pass</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">AST Validation</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">AST Validation</div>
                       <div className="text-[8.5px] text-[#16a34a]">PASS · 12ms</div>
                     </div>
                     <div className="p-2 bg-[#0c0d14] border border-[#222222] rounded-[4px]">
                       <div className="text-[8.5px] text-[#71717a] uppercase tracking-wider font-semibold">Stage 2 · Optimizer</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">LLVM IR (O3 SIMD)</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">LLVM IR (O3 SIMD)</div>
                       <div className="text-[8.5px] text-[#16a34a]">PASS · 48ms</div>
                     </div>
                     <div className="p-2 bg-[#0c0d14] border border-[#0055FF]/40 bg-[#0055FF]/5 rounded-[4px]">
                       <div className="text-[8.5px] text-[#0055FF] uppercase tracking-wider font-semibold">Stage 3 · Code Emitter</div>
-                      <div className="mt-0.5 text-white font-medium text-[10px]">Mach-O ARM64</div>
+                      <div className="mt-0.5 text-white font-medium text-[10.5px]">Mach-O ARM64</div>
                       <div className="text-[8.5px] text-[#0055FF]">READY · 80ms</div>
                     </div>
                   </div>
                 </div>
 
-                {/* Center / Lower: Isolated POSIX Terminal & Atomic Patch Sandbox */}
-                <div className="mt-2 pt-2 border-t border-[#1c1c1f] flex flex-col flex-1 min-h-0">
-                  <div className="bg-[#07080d] border border-[#222222] rounded-[4px] p-2.5 font-mono text-[9.5px] sm:text-[10px] space-y-1 overflow-hidden flex-1 flex flex-col justify-center">
+                {/* Center / Lower: Isolated POSIX Terminal & Atomic Patch Sandbox (Full Width) */}
+                <div className="mt-2 pt-2 border-t border-[#1c1c1f] flex flex-col flex-1 min-h-0 w-full">
+                  <div className="bg-[#07080d] border border-[#222222] rounded-[4px] p-2.5 font-mono text-[10px] space-y-1.5 overflow-hidden flex-1 flex flex-col justify-center">
                     <div className="flex items-center justify-between text-[#71717a] pb-1 border-b border-[#1c1c1f] text-[8.5px]">
                       <span className="flex items-center gap-1.5 text-[#a1a1aa]">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
@@ -889,7 +876,7 @@ export default function RealCollaborativeMeshInterface({
                     <div className="text-[#888888] whitespace-nowrap">
                       <span className="text-[#569cd6]">$</span> crux build --target aarch64-apple-darwin --release
                     </div>
-                    <div className="text-[#4ec9b0] pl-2 whitespace-nowrap">
+                    <div className="text-[#4ec9b0] pl-2 whitespace-nowrap font-medium">
                       ✓ Emitted native binary <span className="text-white font-semibold">target/release/crux-core</span> (2.4 MB Mach-O) in 140ms
                     </div>
                     <div className="text-[#888888] whitespace-nowrap">
@@ -913,18 +900,18 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 5: DECENTRALIZED AST-CRDT                                      */}
             {/* =================================================================== */}
             {mode === "crdt" && (
-              <div className="w-full h-full flex flex-col justify-center relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="DECENTRALIZED CRDT"
                   title="Collision-Free Sync"
                   description="Decentralized CRDT ensures every keystroke lands in deterministic order across all team members."
                   pill="< 1ms"
                   accentColor="#0055FF"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                <div className="space-y-1 w-full max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                <div className="space-y-1 w-full font-mono text-[11px] sm:text-[11.5px] leading-relaxed">
                   <div className="flex items-baseline whitespace-nowrap">
                     <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">1</span>
                     <span>
@@ -969,6 +956,17 @@ export default function RealCollaborativeMeshInterface({
                     <span className="pl-4">&#125;</span>
                   </div>
                 </div>
+
+                {/* Bottom CRDT Vector Inspector */}
+                <div className="p-2 bg-[#090a10] border border-[#222222] rounded-[4px] font-mono text-[9px] w-full">
+                  <div className="flex items-center justify-between text-[#888888]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+                      <span className="text-white font-medium">Vector Tree Clock: V[{crdtEpoch}, 14, 02]</span>
+                    </div>
+                    <span className="text-[#16a34a] font-bold">STATE CONVERGED</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -976,18 +974,18 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 6: NATIVE SILICON RUNTIME                                      */}
             {/* =================================================================== */}
             {mode === "silicon" && (
-              <div className="w-full h-full flex flex-col justify-center relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="NATIVE SILICON RUNTIME"
                   title="Native GPU Rasterization"
                   description="Renders text directly via Metal & WebGPU compute shaders for butter-smooth 120 FPS input-to-photon latency."
                   pill="120 FPS"
                   accentColor="#0055FF"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                <div className="space-y-1 w-full max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                <div className="space-y-1 w-full font-mono text-[11px] sm:text-[11.5px] leading-relaxed">
                   <div className="flex items-baseline whitespace-nowrap">
                     <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">1</span>
                     <span>
@@ -1032,6 +1030,17 @@ export default function RealCollaborativeMeshInterface({
                     <span>&#125;</span>
                   </div>
                 </div>
+
+                {/* Bottom GPU Telemetry Inspector */}
+                <div className="p-2 bg-[#090a10] border border-[#222222] rounded-[4px] font-mono text-[9px] w-full">
+                  <div className="flex items-center justify-between text-[#888888]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#0055FF] animate-pulse" />
+                      <span className="text-white font-medium">Apple Silicon GPU · Metal Compute Pipeline</span>
+                    </div>
+                    <span className="text-[#16a34a] font-bold">120 FPS · 0.4ms FRAME TIME</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1039,18 +1048,19 @@ export default function RealCollaborativeMeshInterface({
             {/* DEMO 7: AUTONOMOUS @CRUXAI AGENTS                                   */}
             {/* =================================================================== */}
             {mode === "agents" && (
-              <div className="w-full h-full flex flex-col justify-center relative overflow-hidden py-1">
-                {/* Floating CleanCalloutCard - Non-interrupting overlay */}
+              <div className="w-full h-full flex flex-col justify-between relative py-0.5">
+                {/* CleanCalloutCard - Floating gracefully over bottom-right corner */}
                 <CleanCalloutCard
                   category="AUTONOMOUS @CRUXAI"
                   title="Context-Aware AI Assistant"
                   description="Proposes verified multi-file refactors and atomic git diffs that compile locally before you accept them."
                   pill="POSIX"
                   accentColor="#16a34a"
-                  className="absolute top-0 right-0 z-30 w-[240px] sm:w-[260px] pointer-events-auto"
+                  className="absolute bottom-2 right-2 sm:-bottom-5 sm:-right-5 z-40 w-[260px] sm:w-[285px] max-w-[calc(100%-16px)] pointer-events-auto"
                 />
 
-                <div className="space-y-1 w-full max-w-[calc(100%-250px)] sm:max-w-[calc(100%-270px)] pr-2">
+                {/* Top Code lines (Full Width) */}
+                <div className="space-y-1 w-full font-mono text-[11px] sm:text-[11.5px] leading-relaxed">
                   <div className="flex items-baseline whitespace-nowrap">
                     <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">1</span>
                     <span>
@@ -1064,12 +1074,12 @@ export default function RealCollaborativeMeshInterface({
                     </span>
                   </div>
 
-                  {/* Inline Diff Box with rounded corners and high contrast green */}
-                  <div className="my-1 border border-[#222222] bg-[#0a0a0a] rounded-[6px] overflow-hidden">
-                    <div className="flex justify-between items-center px-3 py-1 border-b border-[#222222] bg-[#111111]">
+                  {/* Full-width Inline Diff Box */}
+                  <div className="my-2 border border-[#222222] bg-[#0a0a0a] rounded-[6px] overflow-hidden w-full">
+                    <div className="flex justify-between items-center px-3 py-1.5 border-b border-[#222222] bg-[#111111]">
                       <span className="text-[10px] font-mono text-white flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 bg-[#16a34a] rounded-full" />
-                        <span>@CruxAI proposes atomic bitset</span>
+                        <span className="w-1.5 h-1.5 bg-[#16a34a] rounded-full animate-pulse" />
+                        <span className="font-semibold">@CruxAI proposes atomic bitset</span>
                         {diffState === "accepted" && (
                           <span className="ml-2 px-1.5 py-0.2 text-[9px] bg-black border border-[#222222] text-[#16a34a] font-mono rounded-[3px]">
                             [APPLIED ✓]
@@ -1082,14 +1092,14 @@ export default function RealCollaborativeMeshInterface({
                             <button
                               type="button"
                               onClick={() => setDiffState("accepted")}
-                              className="px-2 py-0.5 bg-white text-black font-mono text-[9px] uppercase font-bold hover:bg-[#CCCCCC] transition-none cursor-pointer rounded-[3px]"
+                              className="px-2.5 py-0.5 bg-white text-black font-mono text-[9px] uppercase font-bold hover:bg-[#CCCCCC] transition-none cursor-pointer rounded-[3px]"
                             >
                               Accept
                             </button>
                             <button
                               type="button"
                               onClick={() => setDiffState("rejected")}
-                              className="px-2 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] font-mono text-[9px] uppercase hover:text-white transition-none cursor-pointer rounded-[3px]"
+                              className="px-2.5 py-0.5 border border-[#222222] bg-[#000000] text-[#888888] font-mono text-[9px] uppercase hover:text-white transition-none cursor-pointer rounded-[3px]"
                             >
                               Reject
                             </button>
@@ -1102,11 +1112,11 @@ export default function RealCollaborativeMeshInterface({
                       </div>
                     </div>
 
-                    <div className="p-2 text-[10.5px] leading-relaxed font-mono">
-                      <div className="bg-[#FF453A]/10 text-[#FF453A] px-2 py-0.5 border-l-2 border-[#FF453A] line-through rounded-r-[2px] whitespace-nowrap">
+                    <div className="p-2.5 text-[10.5px] sm:text-[11px] leading-relaxed font-mono space-y-1">
+                      <div className="bg-[#FF453A]/10 text-[#FF453A] px-2 py-1 border-l-2 border-[#FF453A] line-through rounded-r-[2px] whitespace-nowrap">
                         - const lock = await this.daemon.acquireLock(channel);
                       </div>
-                      <div className="bg-[#16a34a]/10 text-[#16a34a] px-2 py-0.5 border-l-2 border-[#16a34a] font-semibold rounded-r-[2px] whitespace-nowrap">
+                      <div className="bg-[#16a34a]/10 text-[#16a34a] px-2 py-1 border-l-2 border-[#16a34a] font-semibold rounded-r-[2px] whitespace-nowrap">
                         + const ticket = await atomicBitset.claimTicket();
                       </div>
                     </div>
@@ -1121,6 +1131,17 @@ export default function RealCollaborativeMeshInterface({
                   <div className="flex items-baseline whitespace-nowrap">
                     <span className="w-6 text-right text-[10px] text-[#444444] pr-3 select-none shrink-0">4</span>
                     <span>&#125;</span>
+                  </div>
+                </div>
+
+                {/* Bottom Agent Telemetry Bar */}
+                <div className="p-2 bg-[#090a10] border border-[#222222] rounded-[4px] font-mono text-[9px] w-full">
+                  <div className="flex items-center justify-between text-[#888888]">
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a] animate-pulse" />
+                      <span className="text-white font-medium">AST Verified &amp; Compiled Locally</span>
+                    </div>
+                    <span className="text-[#16a34a] font-bold">0 SYNTAX ERRORS · 118ms PASS</span>
                   </div>
                 </div>
               </div>
