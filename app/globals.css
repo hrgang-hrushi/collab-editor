@@ -444,8 +444,16 @@ kbd {
    ========================================================================= */
 
 @font-face {
+  font-family: 'Geist';
+  src: url('/fonts/geist/Geist-Variable.woff2') format('woff2');
+  font-display: swap;
+  font-style: normal;
+  font-weight: 100 900;
+}
+
+@font-face {
   font-family: 'Geist Pixel Square';
-  src: url('https://framerusercontent.com/assets/IQXyklzDeInO8OYtOs50tckOE.woff2') format('woff2');
+  src: url('/fonts/geist/GeistPixel-Square.woff2') format('woff2');
   font-display: swap;
   font-style: normal;
   font-weight: 400;

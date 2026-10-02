@@ -15,8 +15,8 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
 
   const navLinks = [
     { label: "CRUX", href: "#hero", sectionId: "hero" },
-    { label: "ARCHITECTURE", href: "#benefit", sectionId: "benefit" },
-    { label: "TELEMETRY", href: "#performance", sectionId: "performance" },
+    { label: "BENEFITS", href: "#benefit", sectionId: "benefit" },
+    { label: "WORKFLOW", href: "#performance", sectionId: "performance" },
     { label: "FEATURES", href: "#features", sectionId: "features" },
     { label: "WHY CRUX", href: "#why-crux", sectionId: "why-crux" },
     { label: "WAITLIST", href: "#waitlist", sectionId: "waitlist" },
@@ -28,8 +28,8 @@ export default function AeyeNavbar({ onNavigate }: AeyeNavbarProps) {
     const sectionIds = ["hero", "benefit", "performance", "features", "why-crux", "installation", "waitlist", "pricing", "dispatch"];
     const labelMap: Record<string, string> = {
       hero: "CRUX",
-      benefit: "ARCHITECTURE",
-      performance: "TELEMETRY",
+      benefit: "BENEFITS",
+      performance: "WORKFLOW",
       features: "FEATURES",
       "why-crux": "WHY CRUX",
       installation: "WHY CRUX",

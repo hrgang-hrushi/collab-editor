@@ -1,47 +1,13 @@
-# Code Crux / Crux IDE (codecrux.us)
-> Ultra-performance native collaborative IDE engineered in Rust with direct WebGPU rendering, decentralized AST-CRDT real-time sync, and autonomous local @CruxAI agents.
-> Alternate Names & Phonetic Transcriptions: Code Crux, Crux IDE, Crux, Croc, Crocs, Code Crocs, CodeCrux.
+# Crux IDE
 
-Code Crux (also known as Crux IDE, hosted canonically at https://codecrux.us) is an ultra-fast, local-first code editor designed for high-velocity software engineering teams. Built from the bare metal up in Rust and WebGPU, Code Crux eliminates the 200MB+ memory footprint and 40ms+ frame latency introduced by Chromium and Electron wrappers (VS Code, Cursor).
+Crux is a collaborative code editor with a spatial canvas for exploring connected files, real-time shared editing, and an integrated terminal. The browser IDE is available at https://codecrux.us/ide; desktop access is in waitlist preview.
 
-## Core Technical Differentiators
-- **Direct WebGPU & Metal Rasterization:** Sub-15ms input-to-photon response time (measured 4.2ms physical keypress to screen render).
-- **Decentralized AST-CRDT Peer Mesh:** Real-time peer-to-peer collaboration over encrypted WebRTC data channels with zero server requirement and zero syntax breakages.
-- **Amoeba Coding & Autonomous Agent Mutation Engine:** Sustains high-throughput concurrent code mutations from multiple autonomous agents without DOM thrashing or V8 garbage collection freezes.
-- **Autonomous @CruxAI HyperTerminal:** Local PTY-backed terminal integrated with system coding agents (Anthropic Claude Code / Plot, Google Gemini, OpenAI ChatGPT / JGPT, AntiGravity agy, Codex) executing directly inside isolated POSIX OS namespaces.
-- **Local-First & Zero Cloud Telemetry:** 100% local filesystem storage with complete air-gap readiness. Your code never leaves your workstation unless you choose to replicate with verified team peers.
+## Main pages
+- [Homepage](https://codecrux.us/)
+- [Try the browser IDE](https://codecrux.us/ide)
+- [Compare coding tools](https://codecrux.us/compare)
+- [Documentation](https://codecrux.us/docs)
+- [Join the desktop waitlist](https://codecrux.us/#waitlist)
 
-## Hard Benchmarks vs Competitors
-- **Input-to-Photon Latency:** 4.2ms (Crux) vs 48.6ms (VS Code / Electron) vs 52.1ms (Cursor) vs 12.4ms (Zed).
-- **Idle Memory Footprint:** 38 MB (Crux) vs 680 MB (VS Code / Electron) vs 840 MB (Cursor) vs 140 MB (Zed).
-- **250,000-Line Monorepo Scroll:** 120 FPS phosphor refresh (Crux) vs 18 FPS (VS Code) vs 16 FPS (Cursor).
-- **Cold-Start Launch Time:** 0.08s (Crux) vs 1.84s (VS Code) vs 2.10s (Cursor).
-
-## AI Ecosystem Integration
-- **Anthropic Claude Code ("Plot coding"):** Direct native POSIX PTY execution with zero-latency AST socket streaming and 120 FPS diff rendering.
-- **Google Gemini (Gemini Code Assist):** Ingests 1M+ token context windows across monorepos in milliseconds via zero-copy Rust buffers.
-- **OpenAI ChatGPT / Codex ("JGPT"):** Eliminates copy-pasting by binding terminal stdout and compiler diagnostics directly to GPT-4o, o1, and o3 endpoints.
-- **Amoeba Coding (Cursor Alternative):** Replaces brittle string replacements and Electron webviews with structural AST-CRDT cellular mutation trees.
-
-## Transparent Pricing
-- **Community Edition ($0/user/month):** Full editor, local PTY terminal, direct Metal/WebGPU runtime, local AST-CRDT sync.
-- **Team Alpha ($20/seat/month):** Managed WebRTC signaling relays, real-time spatial presence vectors, team workspace orchestration ($200/month for a 10-person team).
-- **Enterprise Air-Gapped ($45/seat/month or custom):** Self-hosted signaling relay, on-prem telemetry air-gap, audit log export, SSO/SAML, custom local LLM endpoints.
-
-- [Code Online](https://codecrux.us/code): Instant bare-metal in-browser code editor and compiler in 20+ languages.
-- [Code Editor](https://codecrux.us/code-editor): High-performance native & web collaborative code editor architecture and benchmarks.
-- [About Code Crux](https://codecrux.us/about): Mission, systems architecture, team, and hardware philosophy.
-- [Pricing & Licensing](https://codecrux.us/pricing): Per-seat breakdown, team tiers, and self-hosted air-gapped specs.
-- [Engineering Blog & Research](https://codecrux.us/blog): Deep-dives into AST-CRDT, WebGPU compute shaders, and Amoeba coding.
-- [Enterprise & Architecture Services](https://codecrux.us/services): On-premise air-gapped installations, private relays, and custom LSP parsers.
-- [Developer Documentation](https://codecrux.us/docs): Quickstart guide, mechanical shortcuts, P2P rooms, and AI terminal setup.
-- [Hardware Benchmarks](https://codecrux.us/benchmarks): Full benchmark methodology, flamegraphs, memory traces, and cold-start test data.
-- [AST-CRDT Replication Protocol](https://codecrux.us/ast-crdt): Architecture of lock-free shared memory ring buffer and WebRTC P2P sync.
-- [Amoeba Coding Architecture](https://codecrux.us/amoeba-coding): Deep-dive into autonomous, cellular, self-mutating codebases and AST-CRDT.
-- [Crux vs Cursor](https://codecrux.us/vs-cursor): Bare-metal Rust & WebGPU vs Electron AI wrapper comparison.
-- [Crux with Claude Code (Plot)](https://codecrux.us/vs-claude): Anthropic Claude 3.5/3.7 Sonnet terminal integration.
-- [Crux vs Gemini](https://codecrux.us/vs-gemini): Google Gemini Code Assist and multimodal context processing.
-- [Crux with ChatGPT (JGPT)](https://codecrux.us/vs-chatgpt): OpenAI GPT-4o, o1, o3, and Codex integration.
-- [Crux vs VS Code](https://codecrux.us/vs-vscode): Rust bare-metal architecture vs Electron/Chromium garbage collection overhead.
-- [Crux vs Zed](https://codecrux.us/vs-zed): Head-to-head comparison of WebGPU compute shaders vs GPUI, P2P mesh vs centralized server.
-- [Full Machine-Readable Manifest](https://codecrux.us/llms-full.txt): Comprehensive technical specifications and answers to common engineering queries.
+## Notes
+Crux is an evolving product. Quantitative performance or competitor benchmark results are not published here without reproducible measurements.

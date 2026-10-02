@@ -103,23 +103,23 @@ export default function AeyePricingSection() {
   const perks = [
     {
       icon: Cpu,
-      title: "Bare-Metal Silicon Runtime",
-      desc: "Native Rust kernel executing directly with WebGPU acceleration and 0 Chromium memory overhead.",
+      title: "Spatial Code Canvas",
+      desc: "Arrange and edit related files in one workspace.",
     },
     {
       icon: Zap,
-      title: "Decentralized AST-CRDT Sync",
-      desc: "Sub-15ms peer-to-peer live collaboration mesh over encrypted WebRTC data channels.",
+      title: "Live Collaboration",
+      desc: "Work in shared files with teammate cursor presence.",
     },
     {
       icon: Terminal,
-      title: "Autonomous @CruxAI Kernel",
-      desc: "HyperTerminal agent executing background refactors, AST diffs, and sandboxed test suites.",
+      title: "Integrated Terminal",
+      desc: "Run commands and review output beside your code.",
     },
     {
       icon: ShieldCheck,
-      title: "Zero Cloud Telemetry Lock-In",
-      desc: "Complete local filesystem residency with air-gapped buffer editing and self-hostable relays.",
+      title: "Connected Project Context",
+      desc: "Keep files, collaborators, and tools within one workflow.",
     },
   ];
 
@@ -149,11 +149,11 @@ export default function AeyePricingSection() {
           <h2 className="text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
             Join the private alpha.
             <span className="block text-[#888888]">
-              Bare-metal collaborative speed.
+              A shared space for code.
             </span>
           </h2>
           <p className="mt-4 text-xs sm:text-sm text-[#888888] font-sans max-w-2xl leading-relaxed">
-            We are onboarding developer teams on a rolling basis. Register your work email and direct contact number to receive your cryptographic access token and macOS/Linux installer.
+            We are onboarding developer teams on a rolling basis. Leave your work email and contact number to hear about desktop access.
           </p>
         </div>
 
@@ -489,8 +489,8 @@ export default function AeyePricingSection() {
             </div>
 
             <div className="mt-12 pt-6 border-t border-[#1a1a1e] font-mono text-[11px] text-[#555555] flex items-center justify-between">
-              <span>SECURITY: ED25519 VERIFIED</span>
-              <span>HOST ARCH: APPLE SILICON / X86_64</span>
+              <span>ACCESS: PRIVATE ALPHA</span>
+              <span>WORKSPACE: WEB + DESKTOP</span>
             </div>
           </div>
         </div>

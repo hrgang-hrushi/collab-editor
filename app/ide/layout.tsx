@@ -1,20 +1,21 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Crux Web IDE — Live Native Collaborative Code Editor",
+  title: { absolute: "Crux Browser IDE | Shared Code Editor" },
   description:
-    "Launch Crux IDE directly in your browser. Real-time AST-CRDT pair programming, native WebGPU rendering, multi-file code editing, and integrated AI coding agents.",
+    "Open the Crux browser IDE to explore files on a spatial canvas, edit code with teammates, and use an integrated terminal.",
   alternates: {
     canonical: "https://codecrux.us/ide",
   },
+  robots: { index: false, follow: true },
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://codecrux.us/ide",
     siteName: "Crux IDE",
-    title: "Crux Web IDE — Live Collaborative Workstation",
+    title: "Crux Browser IDE | Shared Code Editor",
     description:
-      "Direct browser workstation powered by Rust & WebGPU. Real-time AST-CRDT collaborative editing with zero cloud latency.",
+      "Open a shared coding workspace with a spatial code canvas, live editing, and an integrated terminal.",
     images: [
       {
         url: "https://codecrux.us/og-image.png",
@@ -26,9 +27,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Crux Web IDE — Live Collaborative Workstation",
+    title: "Crux Browser IDE | Shared Code Editor",
     description:
-      "Direct browser workstation powered by Rust & WebGPU. Real-time AST-CRDT collaborative editing.",
+      "Open a shared coding workspace with a spatial code canvas, live editing, and an integrated terminal.",
     images: ["https://codecrux.us/og-image.png"],
   },
 };

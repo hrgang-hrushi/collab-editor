@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Crux with Claude Code (Plot) — The Native Bare-Metal IDE for Anthropic Agents",
   description:
     "Experience Claude Code & Anthropic Claude 3.5/3.7 Sonnet inside Crux IDE. Native POSIX PTY HyperTerminal, zero-latency AST context injection, 120 FPS streaming render, and voice query (Plot) optimization.",

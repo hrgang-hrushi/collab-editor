@@ -12,66 +12,45 @@ export default function AeyeFaqSection() {
   const faqs = [
     {
       num: "001",
-      question: "What's the best native Rust GUI framework for building a high-performance code editor?",
+      question: "What is Crux IDE?",
       answer:
-        "Crux combines a bare-metal Rust systems kernel with direct WebGPU and Metal compute shaders. Instead of relying on retained 2D canvas libraries like GPUI (Zed), egui, Iced, or Slint, Crux uploads text tokens directly to GPU storage buffers. This delivers 4.2ms input-to-photon latency with zero V8 garbage collection pauses.",
-      tags: ["Rust", "GUI", "WebGPU", "Performance"],
+        "Crux is a collaborative code editor with a spatial canvas for exploring connected files, shared editing, and an integrated terminal. You can try the browser IDE or join the desktop waitlist.",
+      tags: ["Collaborative IDE", "Code Editor"],
     },
     {
       num: "002",
-      question: "Which IDEs are built with native WebGPU rendering for faster editing?",
+      question: "Can teammates edit code together in real time?",
       answer:
-        "Crux is built from the silicon up on a native WebGPU rasterization pipeline with direct Apple Metal and Vulkan acceleration. This allows glyph rasterization, syntax highlighting, and cursor tracking to execute in parallel across GPU execution cores at a persistent 120 FPS, even on 250,000-line monorepos.",
-      tags: ["WebGPU", "Metal", "Rasterization", "120 FPS"],
+        "Yes. Crux shows shared edits and collaborator presence in the workspace so teammates can work on the same codebase together.",
+      tags: ["Real-Time Collaboration", "Pair Programming"],
     },
     {
       num: "003",
-      question: "WebGPU vs native performance — which gives lower latency for a desktop code editor?",
+      question: "What is a spatial code canvas?",
       answer:
-        "Native WebGPU compute passes operate within 2-3% of raw Vulkan and Metal performance because GPU draw calls and token storage buffers are dispatched without JavaScript DOM or browser layout overhead. Crux achieves a 4.2ms input-to-photon latency compared to 48.6ms in Chromium-based editors like VS Code.",
-      tags: ["WebGPU", "Latency", "VS Code"],
+        "It is a visual workspace for arranging files and seeing their relationships while you work. The canvas helps keep related code in view across a multi-file task.",
+      tags: ["Spatial Code Editor", "Codebase Context"],
     },
     {
       num: "004",
-      question: "What tools support Rust bare-metal development with a fast native UI?",
+      question: "How is Crux different from Cursor or VS Code Live Share?",
       answer:
-        "Crux is designed specifically for bare-metal systems and Rust engineers. It boots in under 0.08 seconds, requires only 38MB of idle memory, features a universal local PTY terminal that auto-discovers system CLIs, and provides local POSIX OS sandboxing for real-time cargo check and clang passes with zero cloud dependencies.",
-      tags: ["Bare-Metal", "Rust", "Systems"],
+        "Crux focuses on shared editing and spatial codebase context in one IDE. Cursor focuses on AI-assisted editing, while VS Code Live Share adds collaboration sessions to VS Code. See our comparison page for a workflow-by-workflow guide.",
+      tags: ["Cursor Alternative", "VS Code Live Share Alternative"],
     },
     {
       num: "005",
-      question: "What's the best real-time peer-to-peer pair programming tool with CRDT sync?",
+      question: "Can I use coding agents alongside Crux?",
       answer:
-        "Crux uses a Decentralized AST-CRDT (Abstract Syntax Tree Conflict-Free Replicated Data Type) engine over encrypted P2P WebRTC data channels. By replicating structural syntax tokens rather than raw character offsets, Crux eliminates line collisions, bracket breakages, and central server lock-in.",
-      tags: ["AST-CRDT", "Multiplayer", "P2P", "WebRTC"],
+        "Crux includes a terminal for command-line workflows. Availability of a particular agent depends on its installation and the environment where you run Crux.",
+      tags: ["Coding Agents", "Integrated Terminal"],
     },
     {
       num: "006",
-      question: "Which native UI framework should I pick for a low-latency collaborative editor?",
+      question: "Can I try Crux in my browser?",
       answer:
-        "For low-latency collaborative editing, Crux's architecture couples a lock-free POSIX shared memory ring buffer (0.08ms sync) with a WebGPU compute shader pipeline, allowing concurrent peer vectors to render in sub-10ms without mutex locks.",
-      tags: ["Low-Latency", "Collaboration", "Shared Memory"],
-    },
-    {
-      num: "007",
-      question: "Is there a self-hosted, local-first IDE with zero cloud telemetry I can buy seats for?",
-      answer:
-        "Yes. Crux offers an Enterprise Air-Gapped plan ($45/seat/month) that is 100% self-hosted with zero cloud telemetry. Your source code, active buffer state, and AI agent executions remain strictly inside your local network. A compiled signaling relay binary is provided for internal P2P WebRTC connectivity.",
-      tags: ["Self-Hosted", "Local-First", "Air-Gapped", "Security"],
-    },
-    {
-      num: "008",
-      question: "How much does Crux cost for a 10-person engineering team?",
-      answer:
-        "On the Team Alpha plan, Crux costs $20 per seat per month ($200/month for a 10-person team). This includes managed WebRTC signaling relays, real-time spatial cursor presence vectors, and workspace collaboration. The Community edition is $0 forever for individuals.",
-      tags: ["Pricing", "Teams", "Cost"],
-    },
-    {
-      num: "009",
-      question: "How do I get early access to an AI coding agent IDE for my team or enterprise?",
-      answer:
-        "You can request priority access to the Crux Private Alpha at https://codecrux.us/#waitlist or launch the web workstation directly at https://codecrux.us/ide. Crux integrates host-installed coding agents (AntiGravity agy, Claude Code, OpenAI Codex) through its local PTY bridge with zero cloud proxy requirements.",
-      tags: ["AI Coding Agent", "Alpha Access", "Enterprise"],
+        "Yes. Open the browser IDE at codecrux.us/ide to explore the editor and spatial canvas. You can also join the waitlist for desktop access.",
+      tags: ["Browser IDE", "Online Code Editor"],
     },
   ];
 
@@ -118,8 +97,11 @@ export default function AeyeFaqSection() {
               Frequently Asked Questions.
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans">
-              Concrete architectural answers on Rust WebGPU rendering, AST-CRDT peer mesh, pricing, and self-hosting.
+              Clear answers about collaborative editing, the spatial canvas, and trying Crux.
             </p>
+            <a href="/compare" className="inline-block mt-3 text-sm text-[#74a8ff] underline underline-offset-4">
+              Compare Crux with Cursor, VS Code Live Share, and Zed →
+            </a>
           </div>
 
           {/* Search Input & Expand All Toggle */}

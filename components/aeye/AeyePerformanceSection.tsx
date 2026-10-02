@@ -38,28 +38,16 @@ const CHART_BARS = [
   { low: 25, high: 86 }, { low: 20, high: 84 }, { low: 16, high: 82 }, { low: 12, high: 79 }, { low: 10, high: 75 },
 ];
 
-const DIVIDENDS = [
-  { val: "0", pct: 0 },
-  { val: "100", pct: 12.5 },
-  { val: "200", pct: 25 },
-  { val: "300", pct: 37.5 },
-  { val: "400", pct: 50 },
-  { val: "500", pct: 62.5 },
-  { val: "600", pct: 75 },
-  { val: "700", pct: 87.5 },
-  { val: "800", pct: 100 },
-];
-
 export default function AeyePerformanceSection() {
   const [sliderPos, setSliderPos] = useState<number>(58); // percentage 0 - 100
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const stats = [
-    { value: "4.2ms", label: "Input-to-Photon" },
-    { value: "38 MB", label: "Idle RAM Footprint" },
-    { value: "120 FPS", label: "250k-Line Scroll" },
-    { value: "0.08s", label: "Cold Boot Launch" },
+    { value: "LIVE", label: "Collaborative editing" },
+    { value: "MAP", label: "Spatial file context" },
+    { value: "PTY", label: "Integrated terminal" },
+    { value: "WEB", label: "Browser access" },
   ];
 
   const updatePosition = useCallback((clientX: number) => {
@@ -97,10 +85,10 @@ export default function AeyePerformanceSection() {
           <div className="flex items-center gap-2">
             <span className="text-[#0055FF] font-bold">[N.02/11]</span>
             <span className="text-[#888888]">— &gt;</span>
-            <span className="text-[#888888] uppercase">PERFORMANCE</span>
+            <span className="text-[#888888] uppercase">WORKFLOW</span>
           </div>
           <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
-            HARDWARE-ACCELERATED BENCHMARKS
+            ILLUSTRATIVE PRODUCT VIEW
           </div>
         </div>
 
@@ -109,8 +97,8 @@ export default function AeyePerformanceSection() {
           {/* Left Column: Heading + Action */}
           <div className="lg:col-span-7">
             <h2 className="text-4xl sm:text-5xl lg:text-[56px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.08]">
-              Real-time intelligence.<br />
-              Zero unnecessary work.
+              Code, context, and people.<br />
+              In one workspace.
             </h2>
 
             <div className="mt-5">
@@ -124,7 +112,7 @@ export default function AeyePerformanceSection() {
             </div>
           </div>
 
-          {/* Right Column: 2x2 Metric Grid matching screenshot */}
+          {/* Right Column: Product capability grid */}
           <div className="lg:col-span-5 border border-[#222222] bg-[#000000] grid grid-cols-2 divide-x divide-y divide-[#222222] rounded-none">
             {stats.map((item, idx) => (
               <div key={idx} className="p-5 sm:p-6 flex flex-col justify-between min-h-[100px]">
@@ -139,7 +127,7 @@ export default function AeyePerformanceSection() {
           </div>
         </div>
 
-        {/* Bottom Area: Vector Interactive Benchmark Comparison Visualizer */}
+          {/* Bottom Area: Illustrative workflow comparison */}
         <div className="border border-[#222222] bg-[#000000] relative rounded-none select-none overflow-hidden">
           {/* Chart Viewport */}
           <div
@@ -161,7 +149,7 @@ export default function AeyePerformanceSection() {
                 ))}
               </div>
 
-              {/* Base Layer: WITHOUT CRUX (short, muted gray/dark bars) */}
+              {/* Base Layer: scattered tools, shown illustratively */}
               <div className="absolute inset-0 z-10 pointer-events-none pt-6 pb-3 flex items-end">
                 <svg
                   viewBox="0 0 800 300"
@@ -184,7 +172,7 @@ export default function AeyePerformanceSection() {
                 </svg>
               </div>
 
-              {/* Top Clipped Layer: WITH CRUX (tall, vibrant electric blue bars) */}
+              {/* Top Layer: one workspace, shown illustratively */}
               <div
                 style={{
                   clipPath: `inset(0px 0px 0px ${sliderPos}%)`,
@@ -226,7 +214,7 @@ export default function AeyePerformanceSection() {
               >
                 {/* Left Badge: WITHOUT CRUX < */}
                 <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-[#888888] text-[11px] font-mono uppercase tracking-wider rounded-none">
-                  <span>WITHOUT CRUX</span>
+                  <span>SCATTERED TOOLS</span>
                   <span className="ml-1 text-[#666666]">&lt;</span>
                 </div>
 
@@ -238,31 +226,14 @@ export default function AeyePerformanceSection() {
                 {/* Right Badge: > WITH CRUX */}
                 <div className="px-2.5 py-1 bg-[#0a0a0c] border border-[#222222] text-white text-[11px] font-mono uppercase tracking-wider rounded-none font-medium">
                   <span className="mr-1 text-[#0055FF] font-bold">&gt;</span>
-                  <span>WITH CRUX</span>
+                  <span>ONE WORKSPACE</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom X-Axis Scale (0 to 800) perfectly aligned with grid dividends */}
-          <div className="relative w-full border-t border-[#222222] bg-[#000000] py-3 px-4 sm:px-6 font-mono text-xs text-[#71717a]">
-            <div className="relative w-full h-4">
-              {DIVIDENDS.map(({ val, pct }) => (
-                <div
-                  key={val}
-                  style={{ left: `${pct}%` }}
-                  className={`absolute top-0 whitespace-nowrap select-none font-mono text-xs ${
-                    pct === 0
-                      ? "left-0 translate-x-0 text-left"
-                      : pct === 100
-                      ? "left-full -translate-x-full text-right"
-                      : "-translate-x-1/2 text-center"
-                  }`}
-                >
-                  {val}
-                </div>
-              ))}
-            </div>
+          <div className="border-t border-[#222222] bg-[#000000] py-3 px-4 sm:px-6 font-mono text-xs text-[#71717a]">
+            Concept illustration of a connected workflow. Bars are not performance measurements.
           </div>
         </div>
       </div>

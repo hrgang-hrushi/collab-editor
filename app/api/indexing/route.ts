@@ -23,7 +23,7 @@ const CRUX_URLS = [
   "https://codecrux.us/llms-full.txt",
 ];
 
-const INDEXNOW_KEY = "b3c7f8a9e1d24560a8c2f1e4b7d9035a";
+const INDEXNOW_KEY = "aedba7dbdfe85d0ba7c32d20fa585202";
 const HOST = "codecrux.us";
 
 export async function GET() {

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 export default function AeyeCtaSection() {
-  const words = ["accelerated", "collaborative", "bare-metal", "decentralized", "uncompromised"];
+  const words = ["collaborative", "connected", "spatial", "focused", "creative"];
   const [wordIndex, setWordIndex] = useState(0);
   const [charIndex, setCharIndex] = useState(words[0].length);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -39,7 +39,7 @@ export default function AeyeCtaSection() {
     return () => clearTimeout(timeout);
   }, [charIndex, isDeleting, wordIndex, mounted, words]);
 
-  const currentDisplay = mounted ? words[wordIndex].substring(0, charIndex) : "accelerated";
+  const currentDisplay = mounted ? words[wordIndex].substring(0, charIndex) : "collaborative";
   const isCompleteWord = mounted ? (!isDeleting && charIndex === words[wordIndex].length) : true;
 
   return (
@@ -102,7 +102,7 @@ export default function AeyeCtaSection() {
 
             {/* LINE 3 */}
             <h2 className="font-geist text-5xl sm:text-6xl md:text-7xl lg:text-[86px] font-normal text-[#FFFFFF] m-0">
-              Built for raw silicon.
+              Built for coding together.
             </h2>
           </div>
 

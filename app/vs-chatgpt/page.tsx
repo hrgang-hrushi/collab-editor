@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Crux with OpenAI ChatGPT (JGPT) & Codex — The Bare-Metal Developer IDE",
   description:
     "Integrate OpenAI ChatGPT (JGPT), GPT-4o, and Codex directly into Crux IDE. 4.2ms latency, direct AST diff generation, 38MB idle RAM, and native POSIX PTY terminal integration.",

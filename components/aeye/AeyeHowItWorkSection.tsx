@@ -69,9 +69,9 @@ export default function AeyeHowItWorkSection() {
   const steps = [
     {
       serial: "// 001",
-      badge: "RASTERIZATION",
-      title: "WebGPU Direct Compute",
-      desc: "Code buffers stream directly into GPU storage buffers at 120 FPS, eliminating DOM reflows and V8 garbage collection pauses.",
+      badge: "WORKSPACE",
+      title: "Spatial Code Canvas",
+      desc: "Arrange files across a shared canvas so collaborators can see related code and work in context.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -110,9 +110,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 002",
-      badge: "SYNCHRONIZATION",
-      title: "Decentralized AST-CRDT Mesh",
-      desc: "Keystrokes replicate as structural AST mutations over encrypted WebRTC data channels with sub-10ms peer convergence.",
+      badge: "COLLABORATION",
+      title: "Live Shared Editing",
+      desc: "Edit the same files with teammates and follow their cursors as changes appear in the workspace.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -145,9 +145,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 003",
-      badge: "AGENT KERNEL",
-      title: "Native PTY Terminal Bridge",
-      desc: "Local POSIX pseudo-terminal auto-discovers host coding agents (AntiGravity agy, Claude Code, Codex) over zero-latency IPC sockets.",
+      badge: "TOOLS",
+      title: "Integrated Terminal",
+      desc: "Keep commands, output, and code together while you develop and collaborate.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"
@@ -187,9 +187,9 @@ export default function AeyeHowItWorkSection() {
     },
     {
       serial: "// 004",
-      badge: "SOVEREIGNTY",
-      title: "100% Air-Gapped Zero Telemetry",
-      desc: "Complete local filesystem residency with zero cloud telemetry dependencies and self-hosted private signaling relays.",
+      badge: "WORKFLOW",
+      title: "One Connected Workspace",
+      desc: "Move between the editor, canvas, and terminal without losing your place in the project.",
       renderIcon: (isActive: boolean) => (
         <svg
           viewBox="0 0 64 64"

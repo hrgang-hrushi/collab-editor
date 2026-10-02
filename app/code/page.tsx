@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Code Online — Instant Bare-Metal Code Editor & Compiler",
   description:
     "Write code, run code, and collaborate in real-time. Code Crux is the ultra-fast web and native code editor engineered in Rust with direct WebGPU acceleration, 4.2ms input latency, and zero install required. Code in Rust, Python, TypeScript, C++, Go, and more.",
