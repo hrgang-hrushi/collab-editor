@@ -339,9 +339,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group overflow-hidden min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Works with your workflow
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Connect seamlessly with your existing tools, systems, and data sources.
           </p>
@@ -408,9 +408,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Minimal by default
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Focus only on what matters, no unnecessary complexity.
           </p>
@@ -431,9 +431,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Built to scale
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Handle growing workflows, data, and outputs over time.
           </p>

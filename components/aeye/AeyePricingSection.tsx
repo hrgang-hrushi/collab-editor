@@ -240,7 +240,7 @@ export default function AeyePricingSection() {
                   {/* Optional: Team Role & Company */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-mono text-[#888888] mb-2 uppercase">
+                      <label htmlFor="waitlist-company" className="block text-xs font-mono text-[#888888] mb-2 uppercase">
                         [03] Company / Org
                       </label>
                       <div className="relative">
@@ -253,6 +253,7 @@ export default function AeyePricingSection() {
                           className="w-full relative"
                         >
                           <input
+                            id="waitlist-company"
                             type="text"
                             value={company}
                             onChange={(e) => setCompany(e.target.value)}
@@ -263,7 +264,7 @@ export default function AeyePricingSection() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-mono text-[#888888] mb-2 uppercase">
+                      <label htmlFor="waitlist-team-size" className="block text-xs font-mono text-[#888888] mb-2 uppercase">
                         [04] Team Configuration
                       </label>
                       <div className="relative">
@@ -276,6 +277,7 @@ export default function AeyePricingSection() {
                           className="w-full relative"
                         >
                           <select
+                            id="waitlist-team-size"
                             value={teamSize}
                             onChange={(e) => setTeamSize(e.target.value)}
                             className="w-full h-12 bg-[#0c0c0e] border border-[#222222] px-4 font-mono text-xs text-white focus:border-white focus:outline-none transition-none rounded-none appearance-none block"

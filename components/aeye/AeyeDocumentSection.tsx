@@ -78,9 +78,9 @@ export default function AeyeDocumentSection() {
             </div>
 
             <div className="mt-16 pt-8 border-t border-[#1a1a1e]">
-              <h4 className="text-white font-sans font-medium text-sm">
+              <h3 className="text-white font-sans font-medium text-sm">
                 Everything you need to get started.
-              </h4>
+              </h3>
               <p className="mt-2 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
                 Explore features, and integrate smoothly, without unnecessary complexity.
               </p>
