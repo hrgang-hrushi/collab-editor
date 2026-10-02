@@ -10,10 +10,7 @@ import AeyeFeatureSection from "./AeyeFeatureSection";
 import AeyeHowItWorkSection from "./AeyeHowItWorkSection";
 import AeyeInstallationSection from "./AeyeInstallationSection";
 import AeyeDocumentSection from "./AeyeDocumentSection";
-import AeyeTestimonialSection from "./AeyeTestimonialSection";
 import AeyePricingSection from "./AeyePricingSection";
-import AeyeChangelogSection from "./AeyeChangelogSection";
-import AeyeBlogSection from "./AeyeBlogSection";
 import AeyeFaqSection from "./AeyeFaqSection";
 import AeyeCtaSection from "./AeyeCtaSection";
 import AeyeFooter from "./AeyeFooter";
@@ -55,17 +52,8 @@ export default function AeyeLandingPage() {
       {/* 8. Section 06: [n. 06 / 11 ] > Document */}
       <AeyeDocumentSection />
 
-      {/* 9. Section 07: [n. 07 / 11 ] > Testimonial */}
-      <AeyeTestimonialSection />
-
       {/* 10. Section 08: [n. 08 / 11 ] > Pricing */}
       <AeyePricingSection />
-
-      {/* 11. Section 09: [n. 09 / 11 ] > Changelogs */}
-      <AeyeChangelogSection />
-
-      {/* 12. Section 10: [n. 10 / 11 ] > blog */}
-      <AeyeBlogSection />
 
       {/* 13. Section 11: [n. 11 / 11 ] > FAQs */}
       <AeyeFaqSection />

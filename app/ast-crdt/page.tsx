@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Code Crux Decentralized AST-CRDT — Zero-Conflict P2P Syntax Convergence",
   description:
     "Technical architectural specification of Crux's Decentralized Abstract Syntax Tree Conflict-Free Replicated Data Type (AST-CRDT) running over encrypted WebRTC data channels with zero server requirement.",

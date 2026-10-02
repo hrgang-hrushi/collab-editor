@@ -10,30 +10,30 @@ export default function AeyeBenefitSection() {
   const cards = [
     {
       serial: "// 001",
-      title: "Direct WebGPU Rasterization",
+      title: "Spatial Code Canvas",
       description:
-        "Uploads code text tokens directly to GPU storage buffers. Measured 4.2ms input-to-photon latency with zero V8 GC stutter.",
-      tag: "SUB-15MS PHOSPHOR REFRESH",
+        "Explore connected files in a visual workspace while keeping the code you are editing in context.",
+      tag: "MULTI-FILE CONTEXT",
       badgeIcon: Cpu,
       iconLine: "/icons/card1_line.png",
       iconPixel: "/icons/card1_pixel.png",
     },
     {
       serial: "// 002",
-      title: "Decentralized AST-CRDT Mesh",
+      title: "Real-Time Collaboration",
       description:
-        "Replicates Abstract Syntax Tree mutation nodes over encrypted peer-to-peer WebRTC data channels with zero server requirement.",
-      tag: "ZERO SYNTAX BREAKAGES",
+        "Work in the same codebase with shared edits and live presence across your team.",
+      tag: "SHARED CODE EDITING",
       badgeIcon: Workflow,
       iconLine: "/icons/card2_line.png",
       iconPixel: "/icons/card2_pixel.png",
     },
     {
       serial: "// 003",
-      title: "Host PTY Agent Execution",
+      title: "Integrated Terminal",
       description:
-        "Native POSIX pseudo-terminal binding to AntiGravity, Claude Code, and Codex CLI over 0.08ms memory-mapped IPC sockets.",
-      tag: "100% AIR-GAPPED & ZERO TELEMETRY",
+        "Run commands and use your existing coding tools alongside the editor without losing your place.",
+      tag: "LOCAL TOOLING",
       badgeIcon: Gauge,
       iconLine: "/icons/card3_line.png",
       iconPixel: "/icons/card3_pixel.png",
@@ -68,8 +68,8 @@ export default function AeyeBenefitSection() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
           >
             <h2 className="text-4xl sm:text-5xl lg:text-[56px] font-normal tracking-[-0.05em] text-white font-sans leading-[1.08]">
-              Less manual work.<br />
-              More intelligent execution.
+              See more of your code.<br />
+              Build together.
             </h2>
           </motion.div>
 
@@ -165,6 +165,8 @@ export default function AeyeBenefitSection() {
                   {/* Line illustration (default wireframe, fades completely out when hovered) */}
                   <img
                     src={card.iconLine}
+                    loading="lazy"
+                    decoding="async"
                     alt={card.title}
                     className={`w-48 h-48 object-contain filter invert transition-all duration-200 pointer-events-none ${
                       isHovered ? "opacity-0 scale-95" : "opacity-90 scale-100"
@@ -174,6 +176,8 @@ export default function AeyeBenefitSection() {
                   {/* Full Electric Blue Pixel Art Graphic (Hover State) */}
                   <img
                     src={card.iconPixel}
+                    loading="lazy"
+                    decoding="async"
                     alt={`${card.title} Pixel`}
                     className={`w-48 h-48 object-contain absolute transition-all duration-200 pointer-events-none ${
                       isHovered

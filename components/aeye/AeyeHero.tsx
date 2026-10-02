@@ -8,31 +8,18 @@ import {
   CruxLogo,
   StarPixelIcon,
   ThreeSquaresIcon,
-  PartnerLogo1,
-  PartnerLogo2,
-  PartnerLogo3,
-  PartnerLogo4,
-  PartnerLogo5,
-  PartnerLogo6,
 } from "./AeyeIcons";
 import InteractivePixelGrid from "./InteractivePixelGrid";
 import CallChip from "@/components/ui/CallChip";
 import { BorderBeam } from "@/components/ui/BorderBeam";
 
-const TYPEWRITER_WORDS = ["[Collaborative IDE]", "[Bare-Metal Kernel]", "[WebGPU Engine]"];
+const TYPEWRITER_WORDS = ["[live coding]", "[spatial context]", "[shared work]"];
 
-const PARTNER_ITEMS = [
-  { Component: PartnerLogo1, name: "Javast" },
-  { Component: PartnerLogo2, name: "Urban Tribe" },
-  { Component: PartnerLogo3, name: "LOOO" },
-  { Component: PartnerLogo4, name: "Logoipsum" },
-  { Component: PartnerLogo5, name: "Logoipsum" },
-  { Component: PartnerLogo6, name: "IPSUM" },
-];
+const CAPABILITIES = ["Live editing", "Spatial canvas", "File explorer", "Integrated terminal", "Agent chat", "Browser IDE"];
 
 export default function AeyeHero() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
+  const [displayedText, setDisplayedText] = useState(TYPEWRITER_WORDS[0]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isWatchDemoOpen, setIsWatchDemoOpen] = useState(false);
   const [isPlayingDemo, setIsPlayingDemo] = useState(false);
@@ -40,25 +27,6 @@ export default function AeyeHero() {
   const [waitlistError, setWaitlistError] = useState("");
   const [preCruxSubmitted, setPreCruxSubmitted] = useState(false);
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
-  const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
-
-  useEffect(() => {
-    const measureLatency = () => {
-      if (typeof window === "undefined") return;
-      const t0 = performance.now();
-      if (window.crypto && window.crypto.getRandomValues) {
-        window.crypto.getRandomValues(new Uint32Array(4));
-      }
-      const t1 = performance.now();
-      const raw = t1 - t0;
-      const val = raw > 0.02 ? raw : 0.08 + ((performance.now() * 1000) % 9) * 0.01;
-      setRealtimeLatency(`${val.toFixed(2)}ms`);
-    };
-
-    measureLatency();
-    const interval = setInterval(measureLatency, 350);
-    return () => clearInterval(interval);
-  }, []);
 
   const handlePreCruxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,7 +104,7 @@ export default function AeyeHero() {
           />
         </div>
 
-        {/* Header Content: Crux Official Logo + V0.1.0 // RUST + WEBGPU & SCROLL FOR ARCHITECTURE */}
+        {/* Header Content: Crux Official Logo + V0.1.0 // RUST + WEBGPU & SCROLL FOR BENEFITS */}
         <div className="relative z-10 w-full max-w-[1280px] mx-auto flex items-center justify-between pointer-events-none">
           {/* Logo & Version Pill */}
           <div className="flex items-center gap-3 pointer-events-auto">
@@ -144,7 +112,7 @@ export default function AeyeHero() {
               <CruxBrandLogo size={28} />
             </a>
             <div className="px-2.5 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[11px] font-mono text-[#0055FF] uppercase tracking-wider select-none rounded-none font-semibold">
-              v0.1.0 // RUST + WEBGPU
+              CRUX // COLLABORATIVE IDE
             </div>
           </div>
 
@@ -153,7 +121,7 @@ export default function AeyeHero() {
             href="#benefit"
             className="flex items-center gap-2 text-[11px] font-mono text-[#888888] hover:text-[#0055FF] transition-none cursor-pointer no-underline pointer-events-auto group"
           >
-            <span className="tracking-widest">SCROLL FOR ARCHITECTURE</span>
+            <span className="tracking-widest">SCROLL FOR BENEFITS</span>
             <motion.div
               animate={{ y: [0, 4, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -180,7 +148,7 @@ export default function AeyeHero() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  A Native Bare-Metal
+                  A collaborative IDE for
                 </motion.div>
 
                 <div className="flex items-center gap-1 h-[48px] sm:h-[72px] lg:h-[84px] font-mono text-[#0055FF] tracking-tight whitespace-nowrap text-3xl sm:text-5xl md:text-6xl lg:text-[68px] leading-none overflow-hidden my-0.5 sm:my-1">
@@ -197,37 +165,32 @@ export default function AeyeHero() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
                 >
-                  for High-Velocity Teams.
+                  in one workspace.
                 </motion.div>
               </h1>
             </div>
 
             {/* Right Column: Social Proof, Subtitle Copy, and Actions matching Screenshot */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-              className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4"
-            >
-              {/* Verifiable Hardware Telemetry & Architecture Badges */}
+            <div className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4">
+              {/* Product capabilities */}
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-mono">
                 <div className="px-2 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[#0055FF] text-[11px] font-bold uppercase tracking-wider">
-                  4.2ms RENDER
+                  LIVE CODE EDITING
                 </div>
                 <div className="w-[1px] h-3.5 bg-[#333333]" />
                 <div className="text-white font-medium text-[11px]">
-                  38MB RAM <span className="text-[#71717a] font-normal">(vs 680MB Electron)</span>
+                  SPATIAL CODE CANVAS
                 </div>
                 <div className="w-[1px] h-3.5 bg-[#333333]" />
                 <div className="text-[#22c55e] font-semibold text-[11px] flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-none bg-[#22c55e] animate-pulse" />
-                  <span>100% AIR-GAPPED READY</span>
+                  <span>INTEGRATED TERMINAL</span>
                 </div>
               </div>
 
-              {/* Description Paragraph with Real Product Facts */}
+              {/* Description Paragraph */}
               <p className="mt-5 text-sm sm:text-base text-[#888888] font-sans leading-relaxed max-w-[480px]">
-                Engineered in Rust with direct WebGPU and Metal compute shaders. Decentralized AST-CRDT real-time peer mesh synchronization, sub-15ms input-to-photon latency, and zero Chromium runtime overhead.
+                Explore files together on a spatial canvas, edit code in real time, and keep your terminal and collaborators in view. Try Crux in the browser or join the desktop waitlist.
               </p>
 
               {/* Email Input & Lets Crux it Action Form / CallChip */}
@@ -276,7 +239,7 @@ export default function AeyeHero() {
                       {chipStage === "done" ? "CONFIRMED" : "DISPATCH"}
                     </span>
                     <span className="text-[#333333]">/</span>
-                    <span className="text-white font-mono">{realtimeLatency}</span>
+                    <span className="text-white font-mono">LIVE PREVIEW</span>
                   </div>
                 </motion.div>
               ) : (
@@ -316,31 +279,18 @@ export default function AeyeHero() {
                 </form>
               )}
               {waitlistError && <p role="alert" className="mt-2 text-xs text-[#FF9C9C]">{waitlistError}</p>}
-            </motion.div>
+            </div>
           </div>
 
-          {/* 3. Partner Logos Grid (Exact 6-cell desktop grid + seamless mobile ticker) */}
+          {/* 3. Product capabilities */}
           <div className="border border-[#222222] bg-[#000000] overflow-hidden rounded-none">
-            {/* Desktop View: Exact 6 Column Grid */}
-            <div className="hidden lg:grid grid-cols-6 divide-x divide-[#222222]">
-              {PARTNER_ITEMS.map(({ Component, name }, idx) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+              {CAPABILITIES.map((capability, idx) => (
                 <div
                   key={idx}
-                  className="h-[120px] flex items-center justify-center p-4 hover:bg-[#111111] transition-none group cursor-default"
+                  className="min-h-[90px] flex items-center justify-center p-4 border-r border-b border-[#222222] text-center text-xs font-mono uppercase tracking-wider text-[#888888]"
                 >
-                  <Component className="h-6 w-auto max-w-[120px] transition-none filter brightness-90 group-hover:brightness-100" />
-                </div>
-              ))}
-            </div>
-
-            {/* Mobile & Tablet View: Infinite Marquee Ticker */}
-            <div className="lg:hidden flex w-max animate-aeye-ticker hover:[animation-play-state:paused]">
-              {[...PARTNER_ITEMS, ...PARTNER_ITEMS, ...PARTNER_ITEMS].map(({ Component }, idx) => (
-                <div
-                  key={idx}
-                  className="h-[90px] px-8 flex items-center justify-center border-r border-[#222222] min-w-[150px]"
-                >
-                  <Component className="h-5 w-auto max-w-[100px]" />
+                  {capability}
                 </div>
               ))}
             </div>
@@ -361,7 +311,7 @@ export default function AeyeHero() {
             <span className="text-white font-bold tracking-tight">CRUX</span>
             <ArrowRight className="w-4 h-4 text-white inline-block align-middle mx-1" />
             <span className="text-white font-normal tracking-tight">
-              BARE-METAL COLLABORATIVE IDE FOR
+              A SHARED WORKSPACE FOR
             </span>
             <CruxLogo size={18} className="inline-block align-middle mx-1.5" />
             <span className="text-white font-bold tracking-tight">
@@ -396,7 +346,7 @@ export default function AeyeHero() {
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-white" />
                   <span className="font-mono text-xs font-semibold text-white">
-                    Crux Architecture &amp; WebGPU Demo
+                    Explore the Crux IDE
                   </span>
                 </div>
                 <button

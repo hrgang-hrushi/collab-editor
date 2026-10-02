@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
@@ -11,25 +11,6 @@ export default function AeyeFooter() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [chipStage, setChipStage] = useState<"idle" | "almost" | "gone" | "done">("idle");
-  const [realtimeLatency, setRealtimeLatency] = useState<string>("0.12ms");
-
-  useEffect(() => {
-    const measureLatency = () => {
-      if (typeof window === "undefined") return;
-      const t0 = performance.now();
-      if (window.crypto && window.crypto.getRandomValues) {
-        window.crypto.getRandomValues(new Uint32Array(4));
-      }
-      const t1 = performance.now();
-      const raw = t1 - t0;
-      const val = raw > 0.02 ? raw : 0.08 + ((performance.now() * 1000) % 9) * 0.01;
-      setRealtimeLatency(`${val.toFixed(2)}ms`);
-    };
-
-    measureLatency();
-    const interval = setInterval(measureLatency, 350);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,28 +47,23 @@ export default function AeyeFooter() {
 
   const pagesCol1 = [
     { label: "Home", href: "/" },
-    { label: "About", href: "/about" },
-    { label: "Pricing", href: "/pricing" },
-    { label: "Blog", href: "/blog" },
-    { label: "Services", href: "/services" },
-    { label: "Docs", href: "/docs" },
-  ];
-
-  const pagesCol2 = [
-    { label: "Benchmarks", href: "/benchmarks" },
-    { label: "AST-CRDT", href: "/ast-crdt" },
-    { label: "Amoeba Coding", href: "/amoeba-coding" },
-    { label: "Crux vs Cursor", href: "/vs-cursor" },
-    { label: "Launch IDE", href: "/ide" },
+    { label: "About Crux", href: "/about" },
+    { label: "Collaborative Editor", href: "/code-editor" },
+    { label: "IDE Guide", href: "/docs" },
+    { label: "Compare IDEs", href: "/compare" },
+    { label: "Try Browser IDE", href: "/ide" },
     { label: "Join Waitlist", href: "#waitlist" },
   ];
 
+  const pagesCol2 = [
+    { label: "Spatial Canvas", href: "#features" },
+    { label: "Collaboration", href: "#why-crux" },
+    { label: "Pair Programming", href: "/pair-programming" },
+    { label: "FAQs", href: "#faqs" },
+  ];
+
   const social = [
-    { label: "X Twitter", href: "https://twitter.com" },
     { label: "GitHub", href: "https://github.com/hrgang-hrushi/collab-editor" },
-    { label: "Discord", href: "https://discord.com" },
-    { label: "Facebook", href: "https://facebook.com" },
-    { label: "LinkedIn", href: "https://linkedin.com" },
   ];
 
   return (
@@ -101,7 +77,7 @@ export default function AeyeFooter() {
             <span className="text-[#888888] uppercase">CRUX INSIDER DISPATCH</span>
           </div>
           <div className="text-[11px] text-[#71717a] pt-1 sm:pt-0 font-mono">
-            DIRECT KERNEL NOTES · BI-WEEKLY
+            CRUX PRODUCT UPDATES
           </div>
         </div>
 
@@ -122,10 +98,10 @@ export default function AeyeFooter() {
 
               {/* Sub-copy */}
               <p className="text-sm text-white font-sans leading-relaxed">
-                Get priority builds, alpha features, and architecture release notes.
+                Get Crux product updates and early access news.
               </p>
               <p className="mt-1 text-xs text-[#888888] font-sans">
-                Straight from the kernel engineers. No spam, ever.
+                Updates about the IDE and upcoming releases.
               </p>
 
               {/* Form / CallChip Rail */}
@@ -175,7 +151,7 @@ export default function AeyeFooter() {
                         {chipStage === "done" ? "CONFIRMED" : "DISPATCH"}
                       </span>
                       <span className="text-[#333333]">/</span>
-                      <span className="text-white font-mono">{realtimeLatency}</span>
+                      <span className="text-white font-mono">LIVE PREVIEW</span>
                     </div>
                   </motion.div>
                 ) : (
@@ -321,12 +297,12 @@ export default function AeyeFooter() {
                   </a>
                 </div>
                 <div>
-                  <span className="text-[#444444]">LOC // </span>
-                  <span className="text-[#cccccc]">San Francisco, CA &amp; Global Mesh</span>
+                  <span className="text-[#444444]">WEB // </span>
+                  <span className="text-[#cccccc]">codecrux.us</span>
                 </div>
                 <div>
                   <span className="text-[#444444]">STATUS // </span>
-                  <span className="text-[#0055FF] font-semibold">● KERNEL ONLINE</span>
+                  <span className="text-[#0055FF] font-semibold">● WEBSITE ONLINE</span>
                 </div>
               </div>
             </div>
@@ -336,17 +312,9 @@ export default function AeyeFooter() {
         {/* 3. Bottom Bar: Copyright & Attribution */}
         <div className="pt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[11px] font-mono text-[#555555]">
           <div>
-            © Crux 2026 | Built for High-Velocity Engineering · All rights reserved.
+            © Crux 2026 | Built for coding together · All rights reserved.
           </div>
           <div className="flex items-center gap-4">
-            <a href="#privacy" className="hover:text-[#0055FF] transition-none no-underline">
-              Privacy Policy
-            </a>
-            <span>/</span>
-            <a href="#terms" className="hover:text-[#0055FF] transition-none no-underline">
-              Terms of Service
-            </a>
-            <span>/</span>
             <span>
               Engineered by <strong className="text-[#0055FF]">Crux Team</strong>
             </span>

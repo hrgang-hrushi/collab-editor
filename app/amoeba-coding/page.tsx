@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Amoeba Coding & Autonomous Mutation Architecture | Crux IDE",
   description:
     "Explore Amoeba Coding: The paradigm of autonomous, self-mutating codebases powered by multi-agent AI. Discover why Crux IDE delivers the bare-metal AST-CRDT engine required to sustain concurrent agentic mutations at 120 FPS.",

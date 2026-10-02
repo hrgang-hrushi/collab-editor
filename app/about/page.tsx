@@ -1,259 +1,118 @@
-import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "About Code Crux (Crux IDE) — Mission, Architecture & Engineering Team",
+  title: { absolute: "About Crux IDE | Code Crux" },
   description:
-    "Learn about Code Crux (Crux IDE, https://codecrux.us), our mission to liberate software engineering from Electron memory bloat, our bare-metal Rust and WebGPU compute architecture, and our local-first AI engineering vision.",
-  keywords: [
-    "About Code Crux",
-    "About CodeCrux",
-    "Code Crux",
-    "CodeCrux",
-    "Crux IDE team",
-    "Crux founding story",
-    "bare-metal IDE mission",
-    "codecrux.us about",
-    "Code Crux Systems",
-    "Rust WebGPU IDE",
-  ],
-  alternates: {
-    canonical: "https://codecrux.us/about",
-  },
+    "Learn what Crux IDE is building: a collaborative code editor with a spatial canvas, live shared editing, and a browser workspace you can try today.",
+  alternates: { canonical: "https://codecrux.us/about" },
+  robots: { index: true, follow: true },
   openGraph: {
-    type: "website",
+    title: "About Crux IDE | Code Crux",
+    description: "A shared workspace for code, context, and the people working on it.",
     url: "https://codecrux.us/about",
-    title: "About Code Crux — Bare-Metal Systems Engineering",
-    description:
-      "Code Crux is engineered from raw silicon up to deliver sub-15ms latency, 38MB memory footprint, and decentralized AST-CRDT real-time sync.",
-    siteName: "Code Crux (Crux IDE)",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Crux IDE | Code Crux",
+    description: "A shared workspace for code, context, and the people working on it.",
+    images: ["/og-image.png"],
   },
 };
 
+const principles = [
+  {
+    number: "01 / CONTEXT",
+    title: "Keep related files visible",
+    detail:
+      "Move between Editor and Canvas views. The canvas gives a task more room than a row of tabs, so you can arrange the files you need to understand together.",
+  },
+  {
+    number: "02 / COLLABORATION",
+    title: "Work in the same workspace",
+    detail:
+      "Share a full-edit link with a collaborator or a view-only link for a walkthrough. Shared text and teammate cursor presence help people follow the work.",
+  },
+  {
+    number: "03 / TOOLS",
+    title: "Keep the tools nearby",
+    detail:
+      "Use the file explorer, command palette, and integrated terminal alongside your code. The browser IDE is available to explore without a desktop install.",
+  },
+];
+
 export default function AboutPage() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "AboutPage",
-    "@id": "https://codecrux.us/about#webpage",
-    "url": "https://codecrux.us/about",
-    "name": "About Code Crux (Crux IDE)",
-    "description":
-      "Learn about Code Crux, the bare-metal collaborative code editor engineered in Rust with direct WebGPU and Metal compute shaders.",
-    "mainEntity": {
-      "@type": "Organization",
-      "@id": "https://codecrux.us/#organization",
-      "name": "Code Crux Systems",
-      "alternateName": ["Code Crux", "CodeCrux", "Crux IDE", "Crux Systems"],
-      "url": "https://codecrux.us",
-      "logo": "https://codecrux.us/crux-icon.png",
-      "foundingDate": "2024",
-      "founders": [
-        {
-          "@type": "Person",
-          "name": "Hrushikesh Gangala",
-          "jobTitle": "Chief Architect & Founder",
-        },
-      ],
-      "sameAs": [
-        "https://github.com/hrgang-hrushi/collab-editor",
-        "https://x.com/codecrux",
-        "https://discord.gg/codecrux",
-      ],
-      "contactPoint": {
-        "@type": "ContactPoint",
-        "email": "core@codecrux.us",
-        "contactType": "technical support",
-        "availableLanguage": "English",
-      },
-    },
-    "breadcrumb": {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://codecrux.us",
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "About",
-          "item": "https://codecrux.us/about",
-        },
-      ],
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans antialiased selection:bg-[#0055FF]/30 selection:text-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <main className="min-h-screen bg-[#000000] text-white font-sans">
+      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-20">
+        <nav aria-label="Breadcrumb" className="text-xs font-mono text-[#888888] mb-12">
+          <Link href="/" className="hover:text-white">Crux</Link>
+          <span className="mx-3 text-[#444444]">/</span>
+          <span className="text-[#0055FF]">About</span>
+        </nav>
 
-      {/* Header */}
-      <header className="border-b border-[#222222] bg-[#000000] sticky top-0 z-50">
-        <div className="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between font-mono text-xs">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 no-underline">
-              <CruxBrandLogo size={20} />
-            </Link>
-            <span className="text-[#444444]">/</span>
-            <span className="text-[#0055FF] font-bold">ABOUT // MISSION &amp; ARCHITECTURE</span>
-          </div>
-          <nav className="flex items-center gap-4">
-            <Link href="/pricing" className="text-[#888888] hover:text-white no-underline uppercase">
-              Pricing
-            </Link>
-            <Link href="/blog" className="text-[#888888] hover:text-white no-underline uppercase">
-              Blog
-            </Link>
-            <Link href="/services" className="text-[#888888] hover:text-white no-underline uppercase">
-              Services
-            </Link>
-            <Link href="/benchmarks" className="text-[#888888] hover:text-white no-underline uppercase">
-              Benchmarks
-            </Link>
-            <Link
-              href="/ide"
-              className="px-3 py-1.5 bg-[#0055FF] hover:bg-[#0044CC] text-white font-mono font-bold uppercase no-underline rounded-none"
-            >
-              LAUNCH IDE ↵
-            </Link>
-          </nav>
+        <p className="font-mono text-xs tracking-widest text-[#0055FF] uppercase mb-5">Code Crux · Collaborative IDE</p>
+        <h1 className="max-w-5xl text-4xl sm:text-6xl font-normal tracking-tight leading-tight">About Crux</h1>
+        <p className="max-w-4xl mt-7 text-base sm:text-lg leading-relaxed text-[#aaaaaa]">
+          Crux is a collaborative code editor built around a simple idea: the code, the surrounding files, and the people changing them should be visible in one workspace. The current browser IDE combines live shared editing with a spatial code canvas and an integrated terminal.
+        </p>
+        <div className="mt-9 flex flex-wrap gap-3">
+          <Link href="/ide" className="inline-block px-5 py-3 bg-[#0055FF] border border-[#0055FF] text-white text-sm font-semibold">Try the browser IDE →</Link>
+          <Link href="/#waitlist" className="inline-block px-5 py-3 border border-[#444444] text-white text-sm font-semibold">Join the desktop waitlist</Link>
         </div>
-      </header>
 
-      {/* Hero Section */}
-      <main className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="border-b border-[#222222] pb-10">
-          <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-            [ORIGIN MANIFESTO // BARE-METAL COMPUTING]
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-normal font-sans tracking-tight text-white leading-tight">
-            Engineered from Raw Silicon.
-          </h1>
-          <p className="mt-4 text-base text-[#888888] max-w-3xl leading-relaxed">
-            Code Crux (Crux IDE) was founded to dismantle the era of sluggish Electron text wrappers. We build
-            high-velocity developer tools grounded in Rust, direct WebGPU and Metal compute pipelines, decentralized
-            AST-CRDT synchronization, and autonomous local AI agents.
+        <section className="mt-16 border-t border-[#222222] pt-12">
+          <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Why we are building it</h2>
+          <p className="mt-5 max-w-4xl text-[#aaaaaa] leading-relaxed">
+            Coding with another person often means explaining a change across several files while navigating an editor, a terminal, and a call. Crux brings those parts of a task into a shared view. The goal is to make it easier to keep the project context in sight while people work through the change together.
           </p>
+          <div className="mt-8 grid md:grid-cols-3 border border-[#222222] md:divide-x divide-[#222222]">
+            {principles.map((principle, index) => (
+              <div key={principle.number} className={`p-6 sm:p-8 ${index < 2 ? "border-b md:border-b-0" : ""} border-[#222222]`}>
+                <p className="font-mono text-xs text-[#0055FF] mb-6">{principle.number}</p>
+                <h3 className="text-xl font-medium mb-4">{principle.title}</h3>
+                <p className="text-sm leading-relaxed text-[#aaaaaa]">{principle.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-16 grid md:grid-cols-2 gap-10 items-center border-t border-[#222222] pt-12">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">See the current workspace</h2>
+            <p className="mt-5 text-[#aaaaaa] leading-relaxed">
+              In Canvas mode, you can place related code files together and draw connections between them. Switch back to Editor mode to focus on a file. The browser IDE also has a Share dialog with separate full-edit and view-only links.
+            </p>
+            <p className="mt-4 text-sm text-[#888888] leading-relaxed">
+              Read the <Link href="/docs" className="text-[#74a8ff] underline underline-offset-4">IDE guide</Link> for the current controls, or use the <Link href="/pair-programming" className="text-[#74a8ff] underline underline-offset-4">pair programming guide</Link> to start a shared session.
+            </p>
+          </div>
+          <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux IDE spatial canvas showing several related code files" width="3840" height="2400" className="w-full h-auto border border-[#222222]" />
+        </section>
+
+        <section className="mt-16 border-t border-[#222222] pt-12">
+          <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Available now</h2>
+          <div className="mt-7 grid md:grid-cols-2 gap-6">
+            <div className="border border-[#0055FF] bg-[#071329] p-6 sm:p-8">
+              <h3 className="text-xl font-medium">Browser IDE</h3>
+              <p className="mt-4 text-sm leading-relaxed text-[#cccccc]">Open Crux in your browser to explore the editor, canvas, file explorer, terminal, and sharing controls.</p>
+              <Link href="/ide" className="inline-block mt-6 text-sm text-[#74a8ff] underline underline-offset-4">Open Crux IDE →</Link>
+            </div>
+            <div className="border border-[#222222] bg-[#111111] p-6 sm:p-8">
+              <h3 className="text-xl font-medium">Desktop access</h3>
+              <p className="mt-4 text-sm leading-relaxed text-[#cccccc]">Join the waitlist to hear about desktop access and product updates as the experience develops.</p>
+              <Link href="/#waitlist" className="inline-block mt-6 text-sm text-[#74a8ff] underline underline-offset-4">Join the waitlist →</Link>
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-16 border-t border-[#222222] pt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm">
+          <Link href="/" className="text-[#74a8ff] underline underline-offset-4">Crux homepage</Link>
+          <Link href="/code-editor" className="text-[#74a8ff] underline underline-offset-4">Collaborative editor</Link>
+          <Link href="/compare" className="text-[#74a8ff] underline underline-offset-4">Compare coding tools</Link>
         </div>
-
-        {/* Core Principles Grid */}
-        <section className="py-12 border-b border-[#222222]">
-          <h2 className="text-xs font-mono text-[#888888] uppercase tracking-wider mb-8">
-            01 // CORE AXIOMS OF CODE CRUX
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="border border-[#222222] bg-[#0c0c0e] p-6 rounded-none">
-              <div className="text-xs font-mono text-[#0055FF] mb-2 font-bold">[AXIOM 01]</div>
-              <h3 className="text-lg font-medium text-white mb-3">Sub-15ms Input-to-Photon</h3>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Key presses must never queue behind a V8 garbage collection sweep or DOM reflow pass. By compiling
-                directly to GPU compute storage buffers, keystrokes paint in 4.2ms on modern 120Hz displays.
-              </p>
-            </div>
-
-            <div className="border border-[#222222] bg-[#0c0c0e] p-6 rounded-none">
-              <div className="text-xs font-mono text-[#0055FF] mb-2 font-bold">[AXIOM 02]</div>
-              <h3 className="text-lg font-medium text-white mb-3">Decentralized AST Integrity</h3>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Code is not flat text lines; it is an Abstract Syntax Tree. Our AST-CRDT engine replicates structural
-                AST nodes over encrypted WebRTC peer meshes without central cloud lock-in or character offset drift.
-              </p>
-            </div>
-
-            <div className="border border-[#222222] bg-[#0c0c0e] p-6 rounded-none">
-              <div className="text-xs font-mono text-[#0055FF] mb-2 font-bold">[AXIOM 03]</div>
-              <h3 className="text-lg font-medium text-white mb-3">Air-Gapped Sovereign AI</h3>
-              <p className="text-xs text-[#888888] leading-relaxed">
-                Developer code is proprietary intellectual property. Crux executes AI agent workflows on host
-                silicon and local POSIX sockets with zero non-consensual telemetry sent to centralized servers.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Founding & Architecture Story */}
-        <section className="py-12 border-b border-[#222222] grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-4">
-            <h2 className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-              02 // THE PROBLEM
-            </h2>
-            <div className="text-2xl font-normal text-white">Why We Built Code Crux</div>
-          </div>
-          <div className="lg:col-span-8 text-sm text-[#aaaaaa] space-y-4 leading-relaxed">
-            <p>
-              In 2015, the software engineering industry traded mechanical performance for web convenience. Text editors
-              became Chromium browser instances running JavaScript interpreters. Today, modern IDEs routinely consume
-              800MB to 1.5GB of RAM at idle, stutter when scrolling through 200k-line monorepos, and lock teams into
-              fragile cloud subscription servers.
-            </p>
-            <p>
-              When autonomous coding agents (Claude Code, Google Gemini, OpenAI Codex) emerged, this foundation cracked.
-              Multi-agent swarms streaming thousands of tokens per second overwhelm traditional character-based editors,
-              producing syntax drift, broken bracket pairs, and UI freezing.
-            </p>
-            <p>
-              Code Crux replaces this legacy stack with a native Rust memory model, lock-free ring buffers, and
-              direct WebGPU shader pipelines. The result is an editor that launches in 0.08 seconds, idles at 38MB of
-              RAM, and enables instantaneous peer-to-peer collaboration across global engineering teams.
-            </p>
-          </div>
-        </section>
-
-        {/* Company & Support Information */}
-        <section className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="border border-[#222222] p-8 bg-[#0a0a0c]">
-            <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-              [HEADQUARTERS &amp; OPERATING DETAILS]
-            </div>
-            <h3 className="text-xl font-medium text-white mb-4">Code Crux Systems</h3>
-            <div className="space-y-3 text-xs font-mono text-[#888888]">
-              <div><strong className="text-white">Primary Domain:</strong> https://codecrux.us</div>
-              <div><strong className="text-white">Headquarters:</strong> San Francisco, California &amp; Global Distributed Mesh</div>
-              <div><strong className="text-white">Inquiries:</strong> core@codecrux.us</div>
-              <div><strong className="text-white">Open Source Repo:</strong> github.com/hrgang-hrushi/collab-editor</div>
-              <div><strong className="text-white">License Model:</strong> Dual-licensed (Community Open Engine / Enterprise Air-Gapped)</div>
-            </div>
-          </div>
-
-          <div className="border border-[#222222] p-8 bg-[#0a0a0c]">
-            <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-              [EXPLORE ARCHITECTURAL MODULES]
-            </div>
-            <h3 className="text-xl font-medium text-white mb-4">Deep Technical Documentation</h3>
-            <ul className="space-y-2 text-xs font-mono text-[#0055FF]">
-              <li><Link href="/pricing" className="hover:underline">Transparent Per-Seat &amp; Air-Gapped Pricing →</Link></li>
-              <li><Link href="/blog" className="hover:underline">Code Crux Engineering Blog &amp; Research →</Link></li>
-              <li><Link href="/services" className="hover:underline">Enterprise Air-Gapped &amp; Custom Relay Services →</Link></li>
-              <li><Link href="/benchmarks" className="hover:underline">Measured Hardware Benchmarks Matrix →</Link></li>
-              <li><Link href="/ast-crdt" className="hover:underline">Decentralized AST-CRDT Protocol Whitepaper →</Link></li>
-              <li><Link href="/amoeba-coding" className="hover:underline">Amoeba Coding: Multi-Agent Mutation Architecture →</Link></li>
-              <li><Link href="/vs-cursor" className="hover:underline">Crux vs Cursor: Technical Comparison →</Link></li>
-            </ul>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-[#222222] bg-[#000000] py-8 text-xs font-mono text-[#555555]">
-        <div className="max-w-[1280px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>© Code Crux Systems 2026. Built for high-velocity software engineering.</div>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <Link href="/about" className="hover:text-white text-white">About</Link>
-            <Link href="/pricing" className="hover:text-white">Pricing</Link>
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <Link href="/services" className="hover:text-white">Services</Link>
-            <Link href="/llms.txt" className="hover:text-white">llms.txt</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

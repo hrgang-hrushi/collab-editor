@@ -3,7 +3,6 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
-import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,34 +43,34 @@ export default function AeyeInstallationSection() {
     {
       id: "multiplayer" as const,
       serial: "// 001",
-      label: "Real-Time Collaborative Mesh",
-      subtitle: "SUB-MILLISECOND PEER PRESENCE",
-      desc: "Live multiplayer spatial presence with zero-latency peer cursor vectors, active selection tracking, and conflict-free concurrent editing across teams.",
-      copyText: "Crux Collaborative Multiplayer Engine:\n- Active Peers: Sarah Lin (0.28ms), Marcus Vance (0.41ms), @CruxAI\n- Workspace: crux-stream-sync (stream_syncer.ts)\n- Cursor Transport: Lock-Free WebRTC Mesh\n- Sync Protocol: CRDT Vector Ring Buffer (0-conflict)\n- Presence Precision: Sub-pixel 120Hz canvas coordinates",
+      label: "Real-Time Collaboration",
+      subtitle: "SHARED EDITING",
+      desc: "Edit shared files with teammates and see their cursors in the workspace.",
+      copyText: "Crux collaboration:\n- Open a shared workspace\n- Edit files together\n- See teammate cursors and selections",
     },
     {
       id: "silicon" as const,
       serial: "// 002",
-      label: "Native Silicon Runtime",
-      subtitle: "SUB-15ms INPUT-TO-PHOTON",
-      desc: "Direct Metal and WebGPU rasterization bypassing 200MB Chromium bloat. Keystrokes hit phosphor in 4.2ms vs 48.6ms in Electron.",
-      copyText: "Crux vs Electron Benchmarks:\n- Input-to-Photon: 4.2ms vs 48.6ms (11.5x faster)\n- Idle Memory: 38 MB vs 680 MB (17.8x leaner)\n- Scroll Rate: 120 FPS vs 18 FPS (6.6x smoother)",
+      label: "Spatial Code Canvas",
+      subtitle: "PROJECT CONTEXT",
+      desc: "Arrange multiple files on one canvas to follow the connections across your codebase.",
+      copyText: "Crux spatial canvas:\n- Open multiple files\n- Place related code side by side\n- Keep project context in view",
     },
     {
       id: "crdt" as const,
       serial: "// 003",
-      label: "Decentralized AST-CRDT",
-      subtitle: "STRUCTURAL SYNTAX CONVERGENCE",
-      desc: "Deterministic sub-10ms peer synchronization over encrypted P2P WebRTC channels with zero line collisions or syntax breakage.",
-      copyText: "AST-CRDT Replication Protocol:\n- Topology: P2P Encrypted WebRTC Mesh\n- Convergence: Sub-10ms Deterministic State\n- Conflict Resolution: Abstract Syntax Tree token transforms",
+      label: "Shared Text Editing",
+      subtitle: "LIVE UPDATES",
+      desc: "See shared changes as collaborators edit the same project.",
+      copyText: "Shared editing:\n- Work in the same file\n- Follow live changes\n- Coordinate through cursor presence",
     },
     {
       id: "agent" as const,
       serial: "// 004",
-      label: "Autonomous @CruxAI Agents",
-      subtitle: "ISOLATED POSIX OS NAMESPACE",
-      desc: "Background compiler passes, multi-file refactors, and atomic git diffs execute directly on host silicon with zero cloud latency.",
-      copyText: "@CruxAI Execution Specs:\n- Sandbox: Local POSIX OS Namespace\n- Cloud Latency: 0ms (Local Inference / Direct Hardware)\n- Verification: Real-time Cargo & Clang compiler checks",
+      label: "Integrated Development Tools",
+      subtitle: "EDITOR AND TERMINAL",
+      desc: "Keep the terminal beside your code to run commands and inspect output.",
+      copyText: "Crux tools:\n- Edit code\n- Run terminal commands\n- Review output in the workspace",
     },
   ];
 
@@ -125,7 +124,7 @@ export default function AeyeInstallationSection() {
               </div>
               <div className="flex items-center gap-3 pt-2 sm:pt-0">
                 <span className="text-[10px] text-[#71717a] uppercase tracking-wider hidden sm:inline font-mono">
-                  THE BARE-METAL ADVANTAGE
+                  ONE CONNECTED WORKSPACE
                 </span>
                 <div className="flex items-center gap-1.5">
                   {tabs.map((tab, idx) => (
@@ -176,9 +175,7 @@ export default function AeyeInstallationSection() {
                         transition={{ duration: 0.15 }}
                         className="h-full w-full select-none relative overflow-visible"
                       >
-                        <RealCollaborativeMeshInterface
-                          mode={activeTab === "agent" ? "agents" : activeTab}
-                        />
+                        <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux IDE workspace with a spatial canvas and code editor" width="3840" height="2400" className="w-full h-full object-contain" />
                       </motion.div>
                     </AnimatePresence>
                   </div>
@@ -190,7 +187,7 @@ export default function AeyeInstallationSection() {
                 <div>
                   <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-normal tracking-[-0.04em] text-white font-sans leading-[1.12]">
                     Why Crux?
-                    <span className="block text-[#888888]">Engineered for radical velocity.</span>
+                    <span className="block text-[#888888]">Designed for shared coding.</span>
                   </h2>
 
                   <div className="mt-6 flex items-center gap-4">

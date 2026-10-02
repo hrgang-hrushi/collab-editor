@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Crux vs Gemini (Google Gemini Code Assist) — Bare-Metal Speed & Multimodal AI",
   description:
     "Compare Crux IDE with Google Gemini Code Assist. Why native WebGPU compute shaders, 4.2ms latency, 38MB RAM, and decentralized AST-CRDT pair programming unlock the true speed of Gemini 1.5 & 2.0 models.",

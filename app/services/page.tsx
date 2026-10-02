@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Code Crux Services — Enterprise Air-Gapped, Dedicated Relays & Custom LSP",
   description:
     "Enterprise systems and deployment services from Code Crux Systems: 100% on-premise air-gapped IDE installations, dedicated private WebRTC mesh relays, custom LSP tree-sitter grammars, and mission-critical 24/7 kernel engineering support.",

@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 // Calculate the (x, y) coordinates of the square dot as it travels along the rectangle perimeter
 function getPerimeterPoint(p: number, w: number, h: number) {
@@ -114,42 +113,42 @@ export default function AeyeFeatureSection() {
   const tabs = [
     {
       serial: "// 001",
-      badges: ["DATA", "SIGNALS"],
-      title: "Context Awareness",
-      systemTitle: "Bare-Metal Silicon Runtime",
-      desc: "Ingests raw filesystem buffers, keystrokes, and AST tokens — streaming deterministic signals directly into the native host kernel.",
-      systemDesc: "Rust native kernel executing directly on host hardware with WebGPU acceleration and zero Chromium/V8 overhead.",
+      badges: ["FILES", "CANVAS"],
+      title: "Spatial Context",
+      systemTitle: "Spatial Project Context",
+      desc: "Explore related files together on a canvas built for understanding large codebases.",
+      systemDesc: "Open files in the editor and place them where their relationships are easy to see.",
     },
     {
       serial: "// 002",
-      badges: ["ACTIONABLE", "LOGIC"],
-      title: "Intelligent Processing",
-      systemTitle: "Decentralized AST-CRDT Sync",
-      desc: "Synthesizes real-time code transformations, concurrent edits, and agentic refactors into conflict-free structural AST operations.",
-      systemDesc: "Conflict-free real-time syntax tree replication over encrypted P2P WebRTC channels with sub-10ms peer convergence.",
+      badges: ["TEAM", "EDITING"],
+      title: "Live Collaboration",
+      systemTitle: "Real-Time Team Editing",
+      desc: "Work on code together and keep edits visible to everyone in the session.",
+      systemDesc: "Shared text and cursor presence help teammates coordinate as they code.",
     },
     {
       serial: "// 003",
-      badges: ["RESULTS", "STRUCTURE"],
-      title: "Actionable Output",
-      systemTitle: "Autonomous @CruxAI Kernel",
-      desc: "Compiles verified native machine binaries, generates atomic git diffs, and streams hardware-accelerated buffers ready for deployment.",
-      systemDesc: "Terminal agent executing multi-file refactors, background compiler passes, and atomic git diffs inside an isolated OS namespace.",
+      badges: ["TOOLS", "OUTPUT"],
+      title: "Integrated Tools",
+      systemTitle: "Editor and Terminal Together",
+      desc: "Run commands beside the files you are editing and review the output in context.",
+      systemDesc: "Use the integrated terminal without leaving the workspace.",
     },
   ];
 
   const bottomFeatures = [
     {
-      title: "Hardware Brutalist DOM Engine",
-      desc: "0px border radius, 1px dividers, sub-15ms input-to-photon latency, and zero V8 garbage collection pauses.",
+      title: "Focused Editor Layout",
+      desc: "A clean interface keeps files, tools, and collaborators in view.",
     },
     {
-      title: "Lock-Free Shared Memory Ring Buffer",
-      desc: "64-bit atomic vector clock with 0.08ms local IPC sync latency across editor and agent threads.",
+      title: "Shared Cursor Presence",
+      desc: "See where teammates are working while you edit together.",
     },
     {
-      title: "100% Air-Gapped Zero Telemetry",
-      desc: "Zero cloud telemetry dependencies with complete local filesystem residency and private alpha self-hosting.",
+      title: "Project Context in One Place",
+      desc: "Keep the canvas, editor, and terminal connected to the same workflow.",
     },
   ];
 
@@ -318,9 +317,7 @@ export default function AeyeFeatureSection() {
                       transition={{ duration: 0.15 }}
                       className="h-full w-full select-none relative overflow-visible"
                     >
-                      <RealCollaborativeMeshInterface
-                        mode={activeTab === 0 ? "context" : activeTab === 1 ? "processing" : "output"}
-                      />
+                      <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux IDE showing related files arranged on a spatial code canvas" width="3840" height="2400" className="w-full h-full object-contain" />
                     </motion.div>
                   </AnimatePresence>
                 </div>
@@ -342,9 +339,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group overflow-hidden min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Works with your workflow
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Connect seamlessly with your existing tools, systems, and data sources.
           </p>
@@ -364,7 +361,7 @@ export default function AeyeFeatureSection() {
             transition={{ repeat: Infinity, ease: "linear", duration: 16 }}
             className="flex gap-2 w-max"
           >
-            {["RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC", "RUST", "GIT", "WEBGPU", "LLVM", "CLANG", "WEBRTC"].map((item, idx) => (
+            {["CODE", "GIT", "CANVAS", "TEAM", "TERMINAL", "FILES", "CODE", "GIT", "CANVAS", "TEAM", "TERMINAL", "FILES"].map((item, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-2 px-3 py-1.5 border border-[#222222] bg-[#0a0a0c] text-white shrink-0 group-hover:border-[#333333]"
@@ -411,9 +408,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Minimal by default
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Focus only on what matters, no unnecessary complexity.
           </p>
@@ -434,9 +431,9 @@ export default function AeyeFeatureSection() {
         className="p-8 sm:p-10 flex flex-col justify-between hover:bg-[#111111] transition-none rounded-none cursor-default group min-h-[280px]"
       >
         <div>
-          <h4 className="text-xl font-medium text-white font-sans">
+          <h3 className="text-xl font-medium text-white font-sans">
             Built to scale
-          </h4>
+          </h3>
           <p className="mt-3 text-xs sm:text-sm text-[#888888] font-sans leading-relaxed">
             Handle growing workflows, data, and outputs over time.
           </p>

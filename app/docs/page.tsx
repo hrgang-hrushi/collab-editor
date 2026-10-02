@@ -1,213 +1,122 @@
-import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
-  title: "Code Crux Documentation — Quickstart, P2P Rooms & Local Agent Terminal",
+  title: { absolute: "Crux IDE Docs: Canvas, Collaboration & Shortcuts" },
   description:
-    "Official developer documentation for Code Crux (Crux IDE, https://codecrux.us). Learn how to launch the web workstation, configure native POSIX PTY agents, create decentralized AST-CRDT pair programming rooms, and customize WebGPU compute pipelines.",
-  keywords: [
-    "Code Crux Docs",
-    "CodeCrux Documentation",
-    "Crux IDE manual",
-    "Crux quickstart guide",
-    "P2P collaborative room setup",
-    "HyperTerminal AI configuration",
-    "codecrux.us docs",
-  ],
-  alternates: {
-    canonical: "https://codecrux.us/docs",
-  },
+    "Get started with the Crux browser IDE. Learn how to use the spatial code canvas, open files, share a workspace, and navigate with keyboard shortcuts.",
+  alternates: { canonical: "https://codecrux.us/docs" },
+  robots: { index: true, follow: true },
   openGraph: {
-    type: "website",
+    title: "Crux IDE Docs: Canvas, Collaboration & Shortcuts",
+    description: "A practical guide to the Crux browser workspace and its visible controls.",
     url: "https://codecrux.us/docs",
-    title: "Code Crux Developer Documentation",
-    description:
-      "Quickstart guide, command palette reference, P2P room sync, and AI terminal setup for Code Crux.",
-    siteName: "Code Crux (Crux IDE)",
+    images: ["/og-image.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Crux IDE Docs: Canvas, Collaboration & Shortcuts",
+    description: "A practical guide to the Crux browser workspace and its visible controls.",
+    images: ["/og-image.png"],
   },
 };
 
+const shortcuts = [
+  { action: "Search files and commands", keys: "⌘ / Ctrl + P" },
+  { action: "Toggle the file explorer", keys: "⌘ / Ctrl + B" },
+  { action: "Toggle the terminal panel", keys: "⌘ / Ctrl + J" },
+  { action: "Open the AI assistant", keys: "⌘ / Ctrl + I" },
+  { action: "Open settings", keys: "⌘ / Ctrl + ," },
+];
+
 export default function DocsPage() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "TechArticle",
-    "@id": "https://codecrux.us/docs#docs",
-    "headline": "Code Crux IDE Developer Guide and Documentation",
-    "name": "Code Crux Documentation",
-    "url": "https://codecrux.us/docs",
-    "author": {
-      "@type": "Organization",
-      "name": "Code Crux Systems",
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Code Crux Systems",
-      "logo": "https://codecrux.us/crux-icon.png",
-    },
-    "breadcrumb": {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://codecrux.us",
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Documentation",
-          "item": "https://codecrux.us/docs",
-        },
-      ],
-    },
-  };
-
   return (
-    <div className="min-h-screen bg-[#000000] text-white font-sans antialiased selection:bg-[#0055FF]/30 selection:text-white">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    <main className="min-h-screen bg-[#000000] text-white font-sans">
+      <div className="max-w-6xl mx-auto px-6 py-12 sm:py-20">
+        <nav aria-label="Breadcrumb" className="text-xs font-mono text-[#888888] mb-12">
+          <Link href="/" className="hover:text-white">Crux</Link>
+          <span className="mx-3 text-[#444444]">/</span>
+          <span className="text-[#0055FF]">Documentation</span>
+        </nav>
 
-      {/* Header */}
-      <header className="border-b border-[#222222] bg-[#000000] sticky top-0 z-50">
-        <div className="max-w-[1280px] mx-auto px-6 h-14 flex items-center justify-between font-mono text-xs">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2 no-underline">
-              <CruxBrandLogo size={20} />
-            </Link>
-            <span className="text-[#444444]">/</span>
-            <span className="text-[#0055FF] font-bold">MANUAL // SYSTEM DOCUMENTATION</span>
-          </div>
-          <nav className="flex items-center gap-4">
-            <Link href="/about" className="text-[#888888] hover:text-white no-underline uppercase">
-              About
-            </Link>
-            <Link href="/pricing" className="text-[#888888] hover:text-white no-underline uppercase">
-              Pricing
-            </Link>
-            <Link href="/blog" className="text-[#888888] hover:text-white no-underline uppercase">
-              Blog
-            </Link>
-            <Link href="/benchmarks" className="text-[#888888] hover:text-white no-underline uppercase">
-              Benchmarks
-            </Link>
-            <Link
-              href="/ide"
-              className="px-3 py-1.5 bg-[#0055FF] hover:bg-[#0044CC] text-white font-mono font-bold uppercase no-underline rounded-none"
-            >
-              LAUNCH IDE ↵
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Body */}
-      <main className="max-w-[1280px] mx-auto px-6 py-16">
-        <div className="border-b border-[#222222] pb-10">
-          <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-            [KERNEL ARCHITECTURE &amp; OPERATOR MANUAL]
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-normal font-sans tracking-tight text-white leading-tight">
-            Code Crux Documentation.
-          </h1>
-          <p className="mt-4 text-base text-[#888888] max-w-3xl leading-relaxed">
-            Essential operational guides for running the Code Crux bare-metal collaborative editor,
-            binding host CLI coding agents, establishing encrypted P2P peer meshes, and optimizing WebGPU rasterization.
-          </p>
+        <p className="font-mono text-xs tracking-widest text-[#0055FF] uppercase mb-5">Browser IDE · Getting started</p>
+        <h1 className="max-w-5xl text-4xl sm:text-6xl font-normal tracking-tight leading-tight">Crux IDE documentation</h1>
+        <p className="max-w-4xl mt-7 text-base sm:text-lg leading-relaxed text-[#aaaaaa]">
+          This guide covers the controls in the current Crux browser IDE: opening the workspace, switching between editor and canvas, bringing files into view, and sharing a session. The desktop experience is available through the waitlist.
+        </p>
+        <div className="mt-9 flex flex-wrap gap-3">
+          <Link href="/ide" className="inline-block px-5 py-3 bg-[#0055FF] border border-[#0055FF] text-white text-sm font-semibold">Open Crux IDE →</Link>
+          <Link href="/code-editor" className="inline-block px-5 py-3 border border-[#444444] text-white text-sm font-semibold">Explore the editor</Link>
         </div>
 
-        {/* Quickstart Section */}
-        <section className="py-12 border-b border-[#222222]">
-          <h2 className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-4 font-bold">
-            01 // ZERO-INSTALL WEB WORKSTATION
-          </h2>
-          <div className="border border-[#222222] bg-[#0c0c0e] p-6 space-y-4">
-            <p className="text-sm text-[#aaaaaa] leading-relaxed">
-              Code Crux compiles to standard WebAssembly (Wasm) and WebGPU pipelines, allowing full editor execution directly in modern Chromium, Safari, and Firefox browsers without any client installation.
+        <section className="mt-16 border-t border-[#222222] pt-12">
+          <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Start in the browser</h2>
+          <ol className="mt-7 grid md:grid-cols-3 border border-[#222222] md:divide-x divide-[#222222]">
+            <li className="p-6 sm:p-7 border-b md:border-b-0 border-[#222222]">
+              <p className="font-mono text-xs text-[#0055FF] mb-6">01 / OPEN</p>
+              <h3 className="text-xl font-medium mb-4">Launch the IDE</h3>
+              <p className="text-sm leading-relaxed text-[#aaaaaa]">Visit <Link href="/ide" className="text-[#74a8ff] underline underline-offset-4">codecrux.us/ide</Link>. The start screen offers Quick Boot Workspace for a sample project and Import Project Folder for your own files.</p>
+            </li>
+            <li className="p-6 sm:p-7 border-b md:border-b-0 border-[#222222]">
+              <p className="font-mono text-xs text-[#0055FF] mb-6">02 / NAVIGATE</p>
+              <h3 className="text-xl font-medium mb-4">Choose a view</h3>
+              <p className="text-sm leading-relaxed text-[#aaaaaa]">Use the Editor and Canvas buttons at the top of the workspace. The file explorer lists project files, while Canvas lets you see several open files together.</p>
+            </li>
+            <li className="p-6 sm:p-7">
+              <p className="font-mono text-xs text-[#0055FF] mb-6">03 / WORK</p>
+              <h3 className="text-xl font-medium mb-4">Keep tools nearby</h3>
+              <p className="text-sm leading-relaxed text-[#aaaaaa]">Use the Files and Terminal buttons to show or hide those panels. The command palette also lets you search files and workspace actions.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section className="mt-16 grid md:grid-cols-2 gap-10 items-center border-t border-[#222222] pt-12">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Understand the spatial canvas</h2>
+            <p className="mt-5 text-[#aaaaaa] leading-relaxed">
+              Canvas mode gives you a wider view of the files in a task. Zoom out to see multiple open files, and use the connection controls to draw arrows that explain relationships in the codebase. Return to Editor mode when you want to focus on text.
             </p>
-            <div className="p-4 bg-[#000000] border border-[#222222] font-mono text-xs text-white">
-              <span className="text-[#555555]">$ </span>
-              <span>open </span>
-              <a href="https://codecrux.us/ide" className="text-[#0055FF] underline">
-                https://codecrux.us/ide
-              </a>
+            <p className="mt-4 text-sm text-[#888888] leading-relaxed">
+              If you are comparing this approach with another editor, read the <Link href="/compare" className="text-[#74a8ff] underline underline-offset-4">collaborative IDE comparison</Link>.
+            </p>
+          </div>
+          <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux spatial code canvas with several connected code files" width="3840" height="2400" className="w-full h-auto border border-[#222222]" />
+        </section>
+
+        <section className="mt-16 border-t border-[#222222] pt-12">
+          <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Share a workspace</h2>
+          <div className="mt-7 grid md:grid-cols-2 gap-6">
+            <div className="border border-[#222222] bg-[#111111] p-6 sm:p-8">
+              <h3 className="text-xl font-medium">Copy a collaboration link</h3>
+              <p className="mt-4 text-sm leading-relaxed text-[#aaaaaa]">Select Share in the workspace header. The dialog offers a full-edit link and a view-only link. Choose the access level you intend, copy the link, and send it to a collaborator you trust.</p>
+            </div>
+            <div className="border border-[#222222] bg-[#111111] p-6 sm:p-8">
+              <h3 className="text-xl font-medium">Follow live edits</h3>
+              <p className="mt-4 text-sm leading-relaxed text-[#aaaaaa]">Shared text and teammate cursor presence help participants see which part of the project is being edited. Keep the canvas visible when you need to discuss related files.</p>
             </div>
           </div>
         </section>
 
-        {/* Keybindings Reference */}
-        <section className="py-12 border-b border-[#222222]">
-          <h2 className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-4 font-bold">
-            02 // MECHANICAL KEYBOARD SHORTCUTS
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
-            <div className="border border-[#222222] bg-[#0c0c0e] p-4 flex items-center justify-between">
-              <span className="text-[#888888]">Open Zero-State Omnibar / Commands</span>
-              <span className="bg-[#111111] border border-[#333333] px-2 py-1 text-white font-bold">Cmd + K</span>
-            </div>
-            <div className="border border-[#222222] bg-[#0c0c0e] p-4 flex items-center justify-between">
-              <span className="text-[#888888]">Toggle Native HyperTerminal / PTY</span>
-              <span className="bg-[#111111] border border-[#333333] px-2 py-1 text-white font-bold">Ctrl + `</span>
-            </div>
-            <div className="border border-[#222222] bg-[#0c0c0e] p-4 flex items-center justify-between">
-              <span className="text-[#888888]">Dispatch AI Coding Agent Task</span>
-              <span className="bg-[#111111] border border-[#333333] px-2 py-1 text-white font-bold">Cmd + I</span>
-            </div>
-            <div className="border border-[#222222] bg-[#0c0c0e] p-4 flex items-center justify-between">
-              <span className="text-[#888888]">Create Decentralized P2P Room</span>
-              <span className="bg-[#111111] border border-[#333333] px-2 py-1 text-white font-bold">Cmd + Shift + P</span>
-            </div>
+        <section className="mt-16 border-t border-[#222222] pt-12">
+          <h2 className="text-3xl sm:text-4xl font-normal tracking-tight">Keyboard shortcuts</h2>
+          <p className="mt-4 text-[#aaaaaa] leading-relaxed">Use Command on macOS or Control where supported. Custom keybindings in settings can override the defaults.</p>
+          <div className="mt-7 border border-[#222222] divide-y divide-[#222222]">
+            {shortcuts.map(({ action, keys }) => (
+              <div key={action} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-4 sm:px-6 text-sm">
+                <span className="text-[#cccccc]">{action}</span>
+                <kbd className="font-mono text-[#74a8ff]">{keys}</kbd>
+              </div>
+            ))}
           </div>
         </section>
 
-        {/* AST-CRDT & AI Agent Configuration */}
-        <section className="py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="border border-[#222222] p-8 bg-[#0c0c0e]">
-            <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-              [DECENTRALIZED P2P ROOMS]
-            </div>
-            <h3 className="text-xl font-medium text-white mb-3">AST-CRDT Peer Mesh</h3>
-            <p className="text-xs text-[#888888] leading-relaxed mb-4">
-              To start a collaborative session without third-party servers, open the Omnibar, generate a deterministic room hash, and share the cryptographic room link. All edits sync via WebRTC data channels directly between peers.
-            </p>
-            <Link href="/ast-crdt" className="text-xs font-mono text-[#0055FF] hover:underline">
-              Read AST-CRDT Protocol Spec →
-            </Link>
-          </div>
-
-          <div className="border border-[#222222] p-8 bg-[#0c0c0e]">
-            <div className="text-xs font-mono text-[#0055FF] uppercase tracking-wider mb-2 font-bold">
-              [LOCAL AGENT DAEMON]
-            </div>
-            <h3 className="text-xl font-medium text-white mb-3">HyperTerminal Bridge</h3>
-            <p className="text-xs text-[#888888] leading-relaxed mb-4">
-              Crux scans your host environment for CLI agents including AntiGravity (`agy`), Anthropic Claude Code (`claude`), and OpenAI Codex (`codex`). Direct socket bridges stream completions directly to your active buffer.
-            </p>
-            <Link href="/amoeba-coding" className="text-xs font-mono text-[#0055FF] hover:underline">
-              Read Amoeba Coding Spec →
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-[#222222] bg-[#000000] py-8 text-xs font-mono text-[#555555]">
-        <div className="max-w-[1280px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>© Code Crux Systems 2026. Built for high-velocity software engineering.</div>
-          <div className="flex items-center gap-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <Link href="/about" className="hover:text-white">About</Link>
-            <Link href="/pricing" className="hover:text-white">Pricing</Link>
-            <Link href="/blog" className="hover:text-white">Blog</Link>
-            <Link href="/services" className="hover:text-white">Services</Link>
-            <Link href="/docs" className="hover:text-white text-white">Docs</Link>
-          </div>
+        <div className="mt-16 border-t border-[#222222] pt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm">
+          <Link href="/" className="text-[#74a8ff] underline underline-offset-4">Crux homepage</Link>
+          <Link href="/code-editor" className="text-[#74a8ff] underline underline-offset-4">Collaborative code editor</Link>
+          <Link href="/pair-programming" className="text-[#74a8ff] underline underline-offset-4">Online pair programming</Link>
+          <Link href="/compare" className="text-[#74a8ff] underline underline-offset-4">Compare coding tools</Link>
         </div>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import CruxBrandLogo from "@/components/crux/CruxBrandLogo";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Code Crux Engineering Blog — Systems Research, AST-CRDT & Local AI",
   description:
     "Technical research and engineering blog from Code Crux Systems: Deep-dives into AST-CRDT distributed consensus, WebGPU compute shader rasterization, Amoeba coding multi-agent mutations, and local-first AI architectures.",
