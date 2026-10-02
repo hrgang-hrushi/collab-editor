@@ -171,12 +171,7 @@ export default function AeyeHero() {
             </div>
 
             {/* Right Column: Social Proof, Subtitle Copy, and Actions matching Screenshot */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-              className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4"
-            >
+            <div className="lg:col-span-5 flex flex-col justify-between pt-2 sm:pt-4">
               {/* Product capabilities */}
               <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 text-xs font-mono">
                 <div className="px-2 py-0.5 border border-[#0055FF]/40 bg-[#0055FF]/10 text-[#0055FF] text-[11px] font-bold uppercase tracking-wider">
@@ -284,7 +279,7 @@ export default function AeyeHero() {
                 </form>
               )}
               {waitlistError && <p role="alert" className="mt-2 text-xs text-[#FF9C9C]">{waitlistError}</p>}
-            </motion.div>
+            </div>
           </div>
 
           {/* 3. Product capabilities */}
