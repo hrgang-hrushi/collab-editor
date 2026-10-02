@@ -27,7 +27,8 @@ export default function PixelGridTransition({
   useEffect(() => {
     const updateSize = () => {
       setSquareSize(window.innerWidth / columns);
-      setMounted(true);
+      // Keep the entrance effect on larger screens without covering mobile content during LCP.
+      setMounted(window.innerWidth >= 768);
     };
 
     updateSize();
