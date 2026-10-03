@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 // Calculate the (x, y) coordinates of the square dot as it travels along the rectangle perimeter
 function getPerimeterPoint(p: number, w: number, h: number) {
@@ -317,7 +318,9 @@ export default function AeyeFeatureSection() {
                       transition={{ duration: 0.15 }}
                       className="h-full w-full select-none relative overflow-visible"
                     >
-                      <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux IDE showing related files arranged on a spatial code canvas" width="3840" height="2400" className="w-full h-full object-contain" />
+                      <RealCollaborativeMeshInterface
+                        mode={activeTab === 0 ? "context" : activeTab === 1 ? "processing" : "output"}
+                      />
                     </motion.div>
                   </AnimatePresence>
                 </div>
