@@ -3,6 +3,7 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useMotionValueEvent } from "framer-motion";
 import Link from "next/link";
+import RealCollaborativeMeshInterface from "./RealCollaborativeMeshInterface";
 
 export default function AeyeInstallationSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -175,7 +176,9 @@ export default function AeyeInstallationSection() {
                         transition={{ duration: 0.15 }}
                         className="h-full w-full select-none relative overflow-visible"
                       >
-                        <img loading="lazy" decoding="async" src="/email/canvas-preview.png" alt="Crux IDE workspace with a spatial canvas and code editor" width="3840" height="2400" className="w-full h-full object-contain" />
+                        <RealCollaborativeMeshInterface
+                          mode={activeTab === "agent" ? "agents" : activeTab}
+                        />
                       </motion.div>
                     </AnimatePresence>
                   </div>
